@@ -1,28 +1,24 @@
-\name{phat}
-\alias{phat}
+\name{prob.g}
+\alias{prob.g}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Posterior edge inclusion probabilities
+Posterior probability for one special graph
 }
 \description{
-According to the output of BDMCMC algorithm this function gives us the posterior edge inclusion 
-probabioities for all possible edges.
+According to the output of BDMCMC algorithm, this function gives us the 
+posterior probability for one special graphical model.
 }
 \usage{
-phat(output, round = 3)
+prob.g(A, output)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
+  \item{A}{
+Upper truculer matrix in which a_ij=1 if there is a link between notes i and j, otherwise a_ij=0.
+} 
   \item{output}{
 A list which is the result of BDMCMC algorithm from the 'bdmcmc', 'bdmcmc.low', or 'bdmcmc.high' functions. 
 }
-  \item{round}{
-A number for rounding all probabilities to the specified number of decimal places (default 3).
-}
-}
-\value{
-\item{phat}{Upper truculer matrix which shows the posterior inclusion probabilities for all possible links.}
-
 }
 \references{
 Mohammadi, A. and E. Wit (2012). Efficient birth-death MCMC inference for 
@@ -32,7 +28,6 @@ submitted.
 \author{
 Abdolreza Mohammadi and Ernst Wit
 }
-
 \seealso{
 \code{\link{bdmcmc}}
 }
@@ -44,8 +39,14 @@ Abdolreza Mohammadi and Ernst Wit
   for (i in 1:(p-1)) truK[i,i+1]=truK[i+1,i]=0.5
   truK[1,p]=truK[p,1]=0.4
   data=mvrnorm(n,c(rep(0,p)),solve(truK))
-  output = bdmcmc(data,meanzero=T,print=T)
-  phat(output,2)
+  output = bdmcmc(data,meanzero=T) 
+  A=0*truK
+  for (i in 1:(p-1)){
+    for (j in (i+1):p){
+       if (truK[i,j]!=0) {A[i,j]=1}
+    }
+  }
+  A[1,p]=1
+  prob.g(A, output)
   }
 }
-

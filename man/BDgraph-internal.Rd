@@ -5,9 +5,12 @@
 \alias{Psi}
 \alias{get.S}
 \alias{sampleK}
+\alias{CellSignal}
+\alias{FIV}
+\docType{data}
 
 \title{
-Inernal functions
+Inernal functions and datasets
 }
 \description{
 Nothing to see here move along
