@@ -1,34 +1,33 @@
-\name{I_G}
-\alias{I_G}
+\name{I.g}
+\alias{I.g}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Computing normalizing constant of G-Wishart distribution
 }
 \description{
 Monte Carlo method for approximating the normalizing constant of G-Wishart
-distribution.
+distribution. The function uses the Monte Carlo method of Atay-Kayis and Massam (2005).
 }
 \usage{
-I_G(A, b, D, MC.iter = 300)
+I.g(A, b, D, MCiter = 500)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{A}{
-Upper truculer matrix which shows the starting graphs in which a_ij=1 if there 
-is a link between notes i and j, otherwise a_ij=0  
+Upper truculer matrix in which a_ij=1 if there is a link between notes i and j, otherwise a_ij=0.
 }
   \item{b}{
-Value for prior distribution of precision matrix
+The degree of freedom for G-Wishart distribution, W_G(b,D).
 }
   \item{D}{
-Positive definite matrix for prior distribution of precision matrix
+Positive definite matrix for G-Wishart distribution, W_G(b,D).
 }
-  \item{MC.iter}{
-Number of iterations for Monte Carlo approximation
+  \item{MCiter}{
+The number of iterations for the Monte Carlo approximation.
 }
 }
 \value{
-Normalizing constant of G-Wishart distribution
+The normalizing constant of G-Wishart distribution.
 }
 \references{
 Mohammadi, A. and E. Wit (2012). Efficient birth-death MCMC inference for 
@@ -44,7 +43,7 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 p=3
-A=matrix(c(0,1,1,0,0,1,0,0,0),p,p,byrow=TRUE) # full graph
-I_G(A, b=3, D=diag(p), MC.iter=50)
+A=matrix(c(0,1,1,0,0,1,0,0,0),p,p,byrow=TRUE) # full graph with three nodes and three links
+I.g(A, b=3, D=diag(p), MCiter=50)
 }
 

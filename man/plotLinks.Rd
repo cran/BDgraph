@@ -1,5 +1,5 @@
-\name{plot_links}
-\alias{plot_links}
+\name{plotLinks}
+\alias{plotLinks}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 Plot of posterior distribution for graph according to number of their links
@@ -9,18 +9,15 @@ This function is for ploting the posterior distribution of all possible graphs a
 of their links.
 }
 \usage{
-plot_links(output, min = 0, max = (nrow(output$As[[1]])) * (nrow(output$As[[1]]) - 1)/2)
+plotLinks(output, xlim = c(0, (nrow(output$As[[1]])) * (nrow(output$As[[1]]) - 1)/2))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{output}{
-A list which is the result of BDMCMC algorithm
+A list which is the result of BDMCMC algorithm from the 'bdmcmc', 'bdmcmc.low', or 'bdmcmc.high' functions. 
 }
-  \item{min}{
-Minimum value for number of links 
-}
-  \item{max}{
-Maximum value for number of links
+  \item{xlim}{
+The x limits (min, max) of the plot.
 }
 }
 \references{
@@ -33,17 +30,17 @@ Abdolreza Mohammadi and Ernst Wit
 }
 
 \seealso{
-\code{\link{BDMCMC}}
+\code{\link{bdmcmc}}
 }
 \examples{
-n=200; p=8
-truK=diag(p)
-for (i in 1:(p-1)) truK[i,i+1]=truK[i+1,i]=0.5
-truK[1,p]=truK[p,1]=0.4
-data=mvrnorm(n,c(rep(0,p)),solve(truK))
-\dontshow{
-  data(output.high)
-  output <- output.high}
-\dontrun{output = BDMCMC(data) }
-plot_links(output)
+\dontrun{
+  require(MASS)
+  n=200; p=8
+  truK=diag(p)
+  for (i in 1:(p-1)) truK[i,i+1]=truK[i+1,i]=0.5
+  truK[1,p]=truK[p,1]=0.4
+  data=mvrnorm(n,c(rep(0,p)),solve(truK))
+  output = bdmcmc(data,meanzero=T,print=T) 
+  plotLinks(output)
+  }
 }
