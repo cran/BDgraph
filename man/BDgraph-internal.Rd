@@ -3,7 +3,9 @@
 \alias{Exp.MC}
 \alias{Hmatrix}
 \alias{Psi}
+\alias{plotSum}
 \alias{get.S}
+\alias{melt}
 \alias{sampleK}
 \alias{CellSignal}
 \alias{FIV}
