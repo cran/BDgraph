@@ -26,14 +26,14 @@ Exp.MC = function(A, b, H, MCiter, p)
 {
    f_T <- vector()
    for (i in 1 : MCiter){
-       psi <- Psi(A = A, b = p, H = H, p = p)
+       psi <- Psi(A = A, b = b, H = H, p = p)
 	   dd <- A
 	   dd[lower.tri(dd == 0, diag = T)] <- 1
        f_T[i] <- exp(- sum((1 - dd) * psi * psi) / 2)
    }
    return(mean(f_T))
 }
-# for computing Normalizing constans of G-Wishart distribution according to ATAY-KAYIS AND mASSAM (2005)
+# for computing Normalizing constans of G-Wishart distribution according to ATAY-KAYIS AND MASSAM (2005)
 I.g = function(G, b = 3, D = diag(ncol(G)), MCiter = 100)
 {
    if (b <= 2){
@@ -171,22 +171,23 @@ get.cs_c = function(K, p, i, j){
    return(K[i,j] * (K[i,j] * B[i,i] - 2 * (kjv %*% B[,i])))  
 }
 # Algorithm 2.1: BD-MCMC algorithm for low-dimentional problem (roughly graphs with more less 8 nodes)
-rates.low = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, save.all, A, K, p, Ds, pr, Ti, bstar, H)
+rates.low = function(iter, burnin, skip, Kh, birthrate, b, MCiter, summary, trace, save.all, A, K, p, Ds, pr, Ti, bstar, H)
 {
-  As <- allA  <- vector() # vector of numbers like "10100"
+  start.time <- Sys.time()
+  sample.G <- all.G  <- vector() # vector of numbers like "10100"
   lambda <- all.lambda <- vector() # waiting time for every state
   alla <- ceiling(iter / 2000)# for saving save.all which we need it for plotcoda function
   sumK <- 0 * K
-  for (g in 1:iter){
-    if(verbose == TRUE){
-	   mes <- paste(c("    MCMC iterations : ", g, " from ", iter, ". Graph size = ", sum(A)), collapse="")
+  for (g in 1 : iter){
+    if(trace == TRUE){
+	   mes <- paste(c(" MCMC iterations : ", g, " from ", iter, ". Graph size = ", sum(A)), collapse="")
    	   cat(mes, "\r")
        flush.console()	
 	}      
     rates <- 0 * K
     for (i in 1 : (p - 1)){
      for (j in (i + 1) : p){
-       if (A[i,j] == 0) rates[i,j] <- gamma.b
+       if (A[i,j] == 0) rates[i,j] <- birthrate
        if (A[i,j] == 1){
         mu <- - (Ds[i,j] * K[i,i]) / Ds[j,j]
 	    sig <- sqrt(K[i,i] / Ds[j,j])
@@ -201,7 +202,7 @@ rates.low = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, s
 		Kmi[i,j] <- Kmi[j,i] <- 0
 		Kmi[j,j] <- K[j,j] + get.cs_c(K = K, p = p, i = i, j = j)
         if (sum(A) == 0 & pr == 0) pr <- 1
-        rates[i, j] <- (((sum(A)) ^ pr) * ((gamma.b) ^ (1 - pr))) * 
+        rates[i, j] <- (((sum(A)) ^ pr) * ((birthrate) ^ (1 - pr))) * 
 		(b_xi) * 2 * sqrt(pi) * Ti[i,i] * Ti[j,j] *
         exp(lgamma((bstar + nustar) / 2) - lgamma((bstar + nustar - 1) / 2) +
         log(Epsi) - log(Epsimi) + ((bstar - 2) / 2) * (log(det(Kmi)) - log(det(K))) -
@@ -212,17 +213,17 @@ rates.low = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, s
     }
 	if ( save.all == TRUE & g %% alla == 0){
         indA <- paste(A[upper.tri(A)], collapse = '')
-		allA <- c(allA, indA)
+		all.G <- c(all.G, indA)
 		all.lambda <- c(all.lambda, 1 / sum(rates))
     }
     if (g > burnin && g %% skip == 0){
 	  sumK <- sumK + K
 	  indA <- paste(A[upper.tri(A)], collapse = '')
-      wh <- which(As == indA)
+      wh <- which(sample.G == indA)
       if (length(lambda) != 0 & length(wh) != 0){
          lambda[wh] <- lambda[wh] + 1 / sum(rates)
       } else {
-         As <- c(As, indA)
+         sample.G <- c(sample.G, indA)
          lambda <- c(lambda, 1 / sum(rates))
         }
     }
@@ -234,18 +235,19 @@ rates.low = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, s
     K <- block.gibbs(K = K, A = A, bstar = bstar, Ds = Ds, p, gibbs.iter = 1)
   }
   
-  if(verbose == TRUE){
-	mes = paste(c("    ", iter," iterations done.                              "), collapse = "")
+  if(trace == TRUE){
+	mes = paste(c(" ", iter," iterations done.                              "), collapse = "")
     cat(mes, "\r")
     cat("\n")
     flush.console()
+	print(Sys.time() - start.time)  
   }  
   
   if (save.all == TRUE){
-	 outbdgraph <- list(As = As, lambda = lambda, Khat = sumK / (iter - burnin), p = p, allA = allA, 
-		               all.lambda = all.lambda, alla = alla, last.A = A, last.K = K)
+	 outbdgraph <- list(sample.G = sample.G, lambda = lambda, Khat = sumK / (iter - burnin), p = p, all.G = all.G, 
+		               all.lambda = all.lambda, alla = alla, last.G = A, last.K = K)
 	} else {
-	 outbdgraph <- list(As = As, lambda = lambda, Khat = sumK / (iter - burnin), p = p, last.A = A, last.K = K)
+	 outbdgraph <- list(sample.G = sample.G, lambda = lambda, Khat = sumK / (iter - burnin), p = p, last.G = A, last.K = K)
 	}
   class(outbdgraph) <- "bdgraph"
   if (summary == TRUE){ 
@@ -255,22 +257,23 @@ rates.low = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, s
     }	    
 }
 ## Algorithm 2.1: BD-MCMC algorithm for high-dimentional problem (roughly graphs with more than 8 nodes)
-rates.high = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, save.all, A, K, p, Ds, pr, Ti, bstar)
+rates.high = function(iter, burnin, skip, Kh, birthrate, b, MCiter, summary, trace, save.all, A, K, p, Ds, pr, Ti, bstar)
 {
-  As <- allA  <- vector() # vector of numbers like "10100"
+  start.time <- Sys.time()
+  sample.G <- all.G  <- vector() # vector of numbers like "10100"
   lambda <- all.lambda <- vector() # waiting time for every state
   alla <- ceiling(iter / 2000)# for saving save.all which we need it for plotcoda function
   sumK <- 0 * K
-  for (g in 1:iter){
-    if(verbose == TRUE){
-	   mes <- paste(c("    MCMC iterations : ", g, " from ", iter, ". Graph size = ", sum(A)), collapse="")
+  for (g in 1 : iter){
+    if(trace == TRUE){
+	   mes <- paste(c(" MCMC iterations : ", g, " from ", iter, ". Graph size = ", sum(A)), collapse="")
    	   cat(mes, "\r")
        flush.console()	
 	}     
     rates <- 0 * K
     for (i in 1 : (p - 1)){
       for (j in (i + 1) : p){
-        if (A[i,j] == 0) rates[i,j] <- gamma.b
+        if (A[i,j] == 0) rates[i,j] <- 1
         if (A[i,j] == 1){
 		  sig <- sqrt(K[i,i] / Ds[j,j])
           mu <- - (Ds[i,j] * K[i,i]) / Ds[j,j]
@@ -281,7 +284,7 @@ rates.high = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, 
 		  Kmi[j,j] <- K[j,j] + get.cs_c(K = K, p = p, i = i, j = j) 
           nustar <- sum(A[i, ])
 		  if (sum(A) == 0 & pr == 0) pr <- 1	 
-		  rates[i,j] <- (((sum(A)) ^ pr) * ((gamma.b) ^ (1 - pr))) * 
+		  rates[i,j] <- ((sum(A) / birthrate) ^ pr) * 
 		  (b_xi) * 2 * sqrt(pi) * Ti[i,i] * Ti[j,j] *
           exp(lgamma((bstar + nustar) / 2) - lgamma((bstar + nustar - 1) / 2) +
 		  ((bstar - 2) / 2) * (log(det(Kmi)) - log(det(K))) -
@@ -290,19 +293,20 @@ rates.high = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, 
         }
       }
     }
+	rates <- rates * Kh
 	if ( save.all == TRUE & g %% alla == 0){
         indA <- paste(A[upper.tri(A)], collapse = '')
-		allA <- c(allA, indA)
+		all.G <- c(all.G, indA)
 		all.lambda <- c(all.lambda, 1 / sum(rates))
     }
     if (g > burnin && g %% skip == 0){
 	  sumK <- sumK + K
 	  indA <- paste(A[upper.tri(A)], collapse = '')
-      wh <- which(As == indA)
+      wh <- which(sample.G == indA)
       if (length(lambda) != 0 & length(wh) != 0){
          lambda[wh] <- lambda[wh] + 1 / sum(rates)
       } else {
-         As <- c(As, indA)
+         sample.G <- c(sample.G, indA)
          lambda <- c(lambda, 1 / sum(rates))
         }
     }
@@ -314,18 +318,19 @@ rates.high = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, 
 	K <- block.gibbs(K, A, bstar, Ds, p, gibbs.iter = 1)
   }
   
-  if(verbose == TRUE){
-	mes = paste(c("    ", iter," iterations done.                              "), collapse = "")
+  if(trace == TRUE){
+	mes = paste(c(" ", iter," iterations done.                              "), collapse = "")
     cat(mes, "\r")
     cat("\n")
     flush.console()
+    print(Sys.time() - start.time)  
   }
   
   if (save.all == TRUE){
-	 outbdgraph <- list(As = As, lambda = lambda, Khat = sumK / (iter - burnin), p = p, allA = allA, 
-		               all.lambda = all.lambda, alla = alla, last.A = A, last.K = K)
+	 outbdgraph <- list(sample.G = sample.G, lambda = lambda, Khat = sumK / (iter - burnin), p = p, all.G = all.G, 
+		               all.lambda = all.lambda, alla = alla, last.G = A, last.K = K)
 	} else {
-	 outbdgraph <- list(As = As, lambda = lambda, Khat = sumK / (iter - burnin), p = p, last.A = A, last.K = K)
+	 outbdgraph <- list(sample.G = sample.G, lambda = lambda, Khat = sumK / (iter - burnin), p = p, last.G = A, last.K = K)
 	}
   class(outbdgraph) <- "bdgraph"
   if (summary == TRUE){ 
@@ -335,11 +340,11 @@ rates.high = function(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, 
     }	    
 }
 ## Main function: BDMCMC algorithm for selecting the best graphs
-bdgraph = function(data, n = NULL, meanzero = FALSE, model = NULL, iter = 5000, burnin = floor(iter / 2), skip = 1, gamma.b = 1, 
-prior.g = "Uniform", b = 3, D = NULL, start.g = "full", MCiter = 10, summary = FALSE, verbose = TRUE, save.all = FALSE, last.objects = NULL, time = TRUE)
+bdgraph = function(data, n = NULL, meanzero = FALSE, model = NULL, iter = 5000, burnin = floor(iter / 2), 
+skip = 1, birthrate = NULL, prior.g = "Uniform", b = 3, D = NULL, start.g = "full", MCiter = 10, summary = FALSE, 
+trace = TRUE, save.all = FALSE, last.objects = NULL)
 {
-  start.time <- Sys.time()
-  if (class(data) == "sim"){
+  if (class(data) == "simulate"){
      data <- data $ data
   }
   if (is.matrix(data) == FALSE & is.data.frame(data) == FALSE){
@@ -350,9 +355,6 @@ prior.g = "Uniform", b = 3, D = NULL, start.g = "full", MCiter = 10, summary = F
   if (iter <= burnin){
     stop("Number of iterations have to be more than the number of burn-in iterations")
   }
-  if (gamma.b <= 0){
-    stop("birth rate 'gamma.b' has to be positive value")
-  }
   Sn <- get.S(data = data, n = n, meanzero = meanzero)
   if (is.null(Sn $ n) & is.null(n)){
     stop("You have to specify the number of observations 'n'")
@@ -360,11 +362,23 @@ prior.g = "Uniform", b = 3, D = NULL, start.g = "full", MCiter = 10, summary = F
   S <- Sn $ S
   n <- Sn $ n
   p <- ncol(S)
+  
   id <- pmatch(prior.g, c("Uniform", "Poisson"))[1]
   if(!is.na(id)){
      if(id == 1) pr <- 0
      if(id == 2) pr <- 1
     }
+
+  if (is.null(birthrate) & id == 1) {
+     Kh <- n * abs(solve(S))
+	 birthrate <- 1
+  } else {
+     if (birthrate <= 0){
+        stop("birth rate 'birthrate' has to be positive value")
+       }  
+     Kh <- matrix(birthrate, p, p)
+    }
+  
   if (is.null(last.objects)){
     start.A <- pmatch(start.g, c("full", "empty", "glasso"))[1]	
     if (!is.na(start.A)){
@@ -381,7 +395,7 @@ prior.g = "Uniform", b = 3, D = NULL, start.g = "full", MCiter = 10, summary = F
 		}
     }
   } else {
-       A <- last.objects $ last.A
+       A <- last.objects $ last.G
   }
   if (is.null(D)) D <- diag(p)
   bstar <- b + n
@@ -409,103 +423,101 @@ prior.g = "Uniform", b = 3, D = NULL, start.g = "full", MCiter = 10, summary = F
 		}
   }
   if (model == "low"){
-    return(rates.low(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, save.all, A, K, p, Ds, pr, Ti, bstar, H))
+    return(rates.low(iter, burnin, skip, Kh, birthrate, b, MCiter, summary, trace, save.all, A, K, p, Ds, pr, Ti, bstar, H))
   } else {
-    return(rates.high(iter, burnin, skip, gamma.b, b, MCiter, summary, verbose, save.all, A, K, p, Ds, pr, Ti, bstar))
+    return(rates.high(iter, burnin, skip, Kh, birthrate, b, MCiter, summary, trace, save.all, A, K, p, Ds, pr, Ti, bstar))
   }
- 
-  if(time == TRUE) print(Sys.time() - start.time)  
 }
 # function for comuting probability of all links in graph
 phat = function(output, round = 3)
 {
-   As <- output $ As
+   sample.G <- output $ sample.G
    lambda <- output $ lambda
    p <- output $ p
    pvec <- c(rep(0, p * (p - 1) / 2))
-   for (i in 1:length(As)){
-      inp <- which(unlist(strsplit(as.character(As[i]), "")) == 1)
+   for (i in 1:length(sample.G)){
+      inp <- which(unlist(strsplit(as.character(sample.G[i]), "")) == 1)
 	  pvec[inp] <- pvec[inp] + lambda[i]
    }
    phat <- matrix(0, p, p)
    phat[upper.tri(phat)] <- pvec / sum(lambda)
-   dimnames(phat) <- dimnames(output $ last.A)
+   dimnames(phat) <- dimnames(output $ last.G)
    return(round(phat, round))
 }
 # plot for probability of graphs according to number of their links
 densplot = function(output, xlim = NULL, ylim = NULL, main = NULL)
 {
    p <- output $ p
-   As <- output $ As
+   sample.G <- output $ sample.G
    lambda <- output $ lambda
-   suma <- sapply(As, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+   suma <- sapply(sample.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
    x <- unique(suma)
    lambdag <- vector()
    for (i in 1:length(x)){
       lambdag[i] <- sum(lambda[which(suma == x[i])])
    }
-   plot(x = x, y = lambdag, type = "h", main = main, xlim = xlim, ylim = ylim,
+   plot(x = x, y = lambdag / sum(lambdag), type = "h", main = main, xlim = xlim, ylim = ylim,
    ylab = "Pr(graph size|data)", xlab = "graph size")
 }
 # function for checking the convergency of the BDMCMC algorithm
-plotcoda = function(output, skip = NULL, verbose = TRUE, xlim = NULL, ylim = NULL, main = NULL)
+plotcoda = function(output, skip = NULL, trace = TRUE, xlim = NULL, ylim = NULL, main = NULL)
 {
-  if (is.null(skip)) skip = ceiling(length(output $ allA) / 2000)
+  if (is.null(skip)) skip = ceiling(length(output $ all.G) / 2000)
   if (skip == 1) skip = 2
   op <- par(mfrow = c(2, 2), pty = "s")
   p <- output $ p
   all.lambda <- output $ all.lambda
-  allA <- output $ allA
-  y <- sapply(allA, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
-  	   plot(x = (output $ alla) * (1 : length(allA)), y, type = "l", main = "Trace of graph size",
+  all.G <- output $ all.G
+  y <- sapply(all.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+  	   plot(x = (output $ alla) * (1 : length(all.G)), y, type = "l", main = "Trace of graph size",
 		       ylab = "graph size", xlab = "iteration", xlim = xlim, ylim = ylim)
 	   acf(y, main = "ACF for graph size")
 	   pacf(y, main = "PACF for graph size")
  
-  allA.new <- allA[c(skip * (1 : floor(length(allA) / skip)))]
+  allG.new <- all.G[c(skip * (1 : floor(length(all.G) / skip)))]
   all.lambda.new <- all.lambda[c(skip * (1 : floor(length(all.lambda) / skip)))]
-  length.allA.new <- length(allA.new)
-  ff <- matrix(0, p * (p - 1) / 2, length.allA.new)
-  inp <- which(unlist(strsplit(as.character(allA.new[1]), "")) == 1)
+  length.allG.new <- length(allG.new)
+  ff <- matrix(0, p * (p - 1) / 2, length.allG.new)
+  inp <- which(unlist(strsplit(as.character(allG.new[1]), "")) == 1)
   ff[inp,1] <- 1
   ffv <- 0 * ff[ , 1]
   ffv[inp] <- all.lambda.new[1]
-  for (g in 2 : length.allA.new){
-     if (verbose == TRUE){
-	   mes <- paste(c("Calculating posterior link probabilities....in progress : ", floor(100 * g / length.allA.new), "%"), collapse = "")
+  for (g in 2 : length.allG.new){
+     if (trace == TRUE){
+	   mes <- paste(c("Calculating posterior link probabilities....in progress : ", floor(100 * g / length.allG.new), "%"), collapse = "")
 	   cat(mes, "\r")
 	   flush.console()	
      }
-	 inp <- which(unlist(strsplit(as.character(allA.new[g]), "")) == 1)
+	 inp <- which(unlist(strsplit(as.character(allG.new[g]), "")) == 1)
 	 ffv[inp] <- ffv[inp] + all.lambda.new[g]
-	 ff[,g] <- ffv / sum(all.lambda.new[c(1 : g)])    	 
+	 ff[ ,g] <- ffv / sum(all.lambda.new[c(1 : g)])    	 
     }  
-  if(verbose == TRUE){
+  if(trace == TRUE){
 	mes = paste(c("Calculating posterior link probabilities....done.                   "), collapse = "")
     cat(mes, "\r")
     cat("\n")
     flush.console()
   } 
-  matplot(x = skip * ((output $ alla) * (1:length.allA.new)), y = t(ff), type = "l", lty = 1, col = 1,
+  matplot(x = skip * ((output $ alla) * (1 : length.allG.new)), y = t(ff), type = "l", lty = 1, col = 1,
   xlab = "iteration", ylab = "posterior link probability")
   if (is.null(main)) main = "Trace plot"
   title(main = main)
-  abline(v = skip * (output $ alla) * length.allA.new / 2, col = "blue")
+  abline(v = skip * (output $ alla) * length.allG.new / 2, col = "blue")
   par(op)
 }
 # plot size of the graphs for checking the convergency of BDMCMC algorithm
 traceplot = function(output, acf = FALSE, pacf = FALSE, xlim = NULL, ylim = NULL, main = NULL)
 {
-    allA <- output $ allA
-    y <- sapply(allA, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+    all.G <- output $ all.G
+    y <- sapply(all.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
 	if (is.null(main)) main = "Trace of graph size"
 	if (acf == FALSE & pacf == FALSE){
-       plot(x = (output $ alla) * (1:length(allA)), y, type = "l", main = main,
+       plot(x = (output $ alla) * (1 : length(all.G)), y, type = "l", main = main,
             ylab = "graph size", xlab = "iteration", xlim = xlim, ylim = ylim)	
 	}
 	if (acf == TRUE & pacf == TRUE){
 	   op <- par(mfrow = c(2, 2), pty = "s") 
-	   plot(x = (output $ alla) * (1 : length(allA)), y, type = "l", main = main,
+	   plot(x = (output $ alla) * (1 : length(all.G)), y, type = "l", main = main,
 		       ylab = "graph size", xlab = "iteration", xlim = xlim, ylim = ylim)
 	   acf(y, main = "ACF for graph size")
 	   pacf(y, main = "PACF for graph size")
@@ -513,14 +525,14 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, xlim = NULL, ylim = NULL
 	}		
 	if (acf == TRUE & pacf == FALSE){
 	   op <- par(mfrow = c(1, 2), pty = "s") 
-	   plot(x = (output $ alla) * (1 : length(allA)), y, type = "l", main = main,
+	   plot(x = (output $ alla) * (1 : length(all.G)), y, type = "l", main = main,
 		       ylab = "graph size", xlab = "iteration", xlim = xlim, ylim = ylim)
 	   acf(y, main = "ACF for graph size")
 	   par(op)
 	}
 	if (acf == FALSE & pacf == TRUE){
 	   op <- par(mfrow = c(1, 2), pty = "s") 
-	   plot(x = (output $ alla) * (1 : length(allA)), y, type = "l", main = main,
+	   plot(x = (output $ alla) * (1 : length(all.G)), y, type = "l", main = main,
 		       ylab = "graph size", xlab = "iteration", xlim = xlim, ylim = ylim)
 	   pacf(y, main = "PAIC for graph size")
 	   par(op)
@@ -529,65 +541,62 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, xlim = NULL, ylim = NULL
 # for selecting the most highest posterior probability of the graphs according to bdmcmc result
 select = function (output, plot = FALSE)
 {
-  As <- output $ As
+  sample.G <- output $ sample.G
   lambda <- output $ lambda
   p <- output $ p
-  prob.A <- lambda / sum(lambda)
+  prob.G <- lambda / sum(lambda)
   gv <- c(rep(0, p * (p - 1) / 2))  
-  gi <- As[[which(prob.A == max(prob.A))]]
+  gi <- sample.G[[which(prob.G == max(prob.G))]]
   gv[which(unlist(strsplit(as.character(gi), "")) == 1)] = 1
   graphi <- matrix(0, p, p)
   graphi[upper.tri(graphi)] <- gv
-  dimnames(graphi) <- dimnames(output $ last.A)
+  dimnames(graphi) <- dimnames(output $ last.G)
   if (plot == TRUE){
      G <- graph.adjacency(graphi, mode = "undirected")
      plot.igraph(G, layout = layout.circle, main = "Graph with highest probability", 
-      sub = paste(c("Posterior probability = ", round(max(prob.A), 4)), collapse = ""))
+      sub = paste(c("Posterior probability = ", round(max(prob.G), 4)), collapse = ""))
   }
   return(Matrix(graphi + t(graphi), sparse = TRUE))
 }
 # computing the probability of all the possible graphs or one specific graph 
-prob = function(output, g = 2, A = NULL)
+prob = function(output, g = 2, G = NULL)
 {
-   As <- output $ As
+   sample.G <- output $ sample.G
    lambda <- output $ lambda
-   if (is.null(A)){
+   if (is.null(G)){
       p <- output $ p
-      prob.A <- lambda / sum(lambda)
       graphi <- list()
       gv <- c(rep(0, p * (p - 1) / 2))        
       for (i in 1 : g){
-	    gi <- As[[which(prob.A == sort(prob.A, decreasing = T)[i])]]
+	    gi <- sample.G[which(lambda == sort(lambda, decreasing = T)[i])]
         gv <- 0 * gv
         gv[which(unlist(strsplit(as.character(gi), "")) == 1)] = 1
         graphi[[i]] <- matrix(0, p, p)
         graphi[[i]][upper.tri(graphi[[i]])] <- gv
+		graphi[[i]] <- Matrix(graphi[[i]] + t(graphi[[i]]), sparse = TRUE)
 	  }
-      return(list(list.A = graphi, prob.A = prob.A[1 : g]))
+      return(list(best.G = graphi, prob.G = sort(lambda, decreasing = T)[1 : g] / sum(lambda)))
    } else {
-      indA <- paste(A[upper.tri(A)], collapse = '')
-      lambda.g <- 0
-      for (i in 1:length(As)){
-          if (identical(indA,As[i]) == TRUE) lambda.g <- lambda[i]
-	    }
+      indA <- paste(G[upper.tri(G)], collapse = '')
+      wh <- which(sample.G == indA)
       cat(paste(""), fill = TRUE)
-      mes = paste(c("  Posterior probability = ", lambda.g / sum(lambda)), collapse = "")
+      mes = paste(c("  Posterior probability = ", lambda[wh] / sum(lambda)), collapse = "")
       cat(mes, "\r")
       cat("\n")
     }
 }
 # for comparing the result with different packages or approaches
-roc = function (true.g, est.g) 
+roc = function (true, estimate) 
 {
-	true.g <- as.matrix(true.g) # true.g is the adjacency matrix of true graph 
-	est.g <- as.matrix(est.g)   # est.g is the adjacency matrix of estimated graph 
-	true.g[lower.tri(true.g, diag = T)] <- 0
-	est.g[lower.tri(est.g, diag = T)] <- 0
-	p <- nrow(true.g)
-	tp.all <- (true.g != 0) * (est.g != 0) 
-	fp.all <- (true.g == 0) * (est.g != 0) 
-	fn.all <- (true.g != 0) * (est.g == 0) 
-	tn.all <- (true.g == 0) * (est.g == 0)
+	true <- as.matrix(true) # true is the adjacency matrix of true graph 
+	estimate <- as.matrix(estimate)   # estimate is the adjacency matrix of estimated graph 
+	true[lower.tri(true, diag = T)] <- 0
+	estimate[lower.tri(estimate, diag = T)] <- 0
+	p <- nrow(true)
+	tp.all <- (true != 0) * (estimate != 0) 
+	fp.all <- (true == 0) * (estimate != 0) 
+	fn.all <- (true != 0) * (estimate == 0) 
+	tn.all <- (true == 0) * (estimate == 0)
 	tp <- sum(tp.all)
 	fp <- sum(fp.all)
 	fn <- sum(fn.all)
@@ -614,42 +623,39 @@ roc = function (true.g, est.g)
 	return(round(roc.matrix, 3))
 }
 # for comparing the result with different packages or approaches according to the true graph
-compare = function (true.g, est.g, est.g2 = NULL, colnames = NULL, plot = TRUE) 
+compare = function (true, estimate, estimate2 = NULL, colnames = NULL, plot = TRUE) 
 {
-if (class(true.g) == "sim"){
-   true.g <- true.g $ A
-}
-if (class(est.g) == "bdgraph"){
-   est.g <- select(est.g)
-}
+if (class(true) == "simulate"){ true <- true $ G }
+if (class(estimate) == "bdgraph"){ estimate <- select(estimate) }
+if (class(estimate2) == "bdgraph"){ estimate2 <- select(estimate2) }
 
-compare.true <- roc(true.g = true.g, est.g = true.g)
-compare.g <- roc(true.g = true.g, est.g = est.g)
-if (!is.null(est.g2)){
-   compare.g2 <- roc(true.g = true.g, est.g = est.g2)
+compare.true <- roc(true = true, estimate = true)
+compare.g <- roc(true = true, estimate = estimate)
+if (!is.null(estimate2)){
+   compare.g2 <- roc(true = true, estimate = estimate2)
    compare.all <- cbind(compare.true, compare.g, compare.g2)
    if (is.null(colnames)){
-     colnames <- c("True graph", "est.g", "est.g2")
+     colnames <- c("True graph", "estimate", "estimate2")
      }
    } else {
     compare.all <- cbind(compare.true, compare.g)
 	if (is.null(colnames)){
-     colnames <- c("True graph", "est.g")
+     colnames <- c("True graph", "estimate")
      }
    }
    if (plot == TRUE){
-	 true.g <- graph.adjacency(true.g, mode = "undirected")
-	 est.g  <- graph.adjacency(est.g, mode = "undirected")
-     if (is.null(est.g2)){
+	 true <- graph.adjacency(true, mode = "undirected")
+	 estimate  <- graph.adjacency(estimate, mode = "undirected")
+     if (is.null(estimate2)){
 	    op <- par(mfrow = c(1, 2), pty = "s")
-        plot.igraph(true.g, layout = layout.circle, main = colnames[1])
-		plot.igraph(est.g, layout = layout.circle, main = colnames[2])
+        plot.igraph(true, layout = layout.circle, main = colnames[1])
+		plot.igraph(estimate, layout = layout.circle, main = colnames[2])
 	 } else {
 	    op <- par(mfrow = c(2, 2), pty = "s")
-		est.g2 <- graph.adjacency(est.g2, mode = "undirected")
-        plot.igraph(true.g, layout = layout.circle, main = colnames[1])
-		plot.igraph(est.g, layout = layout.circle, main = colnames[2])
-        plot.igraph(est.g2, layout = layout.circle, main = colnames[3])			
+		estimate2 <- graph.adjacency(estimate2, mode = "undirected")
+        plot.igraph(true, layout = layout.circle, main = colnames[1])
+		plot.igraph(estimate, layout = layout.circle, main = colnames[2])
+        plot.igraph(estimate2, layout = layout.circle, main = colnames[3])			
 	 }
 	 par(op)
    }
@@ -659,20 +665,20 @@ if (!is.null(est.g2)){
    return(compare.all)
 }
 # Data generator according to the graph structure
-bdgraph.sim = function(n = 1, p = 10, graph = "random", size = NULL, prob = NULL, v = NULL, u = NULL, A = NULL, 
+bdgraph.sim = function(n = 1, p = 10, graph = "random", size = NULL, prob = NULL, v = NULL, u = NULL, G = NULL, 
                              K = NULL, sigma = NULL, vis = FALSE)
 {
-	if (graph == "random" & is.null(A)){
+	if (graph == "random" & is.null(G)){
 	    if (is.null(size)){
 		   if(is.null(prob)) prob <- 0.2
-		   A <- matrix(0, p, p)
-		   A[upper.tri(A)] <- rbinom(p * (p - 1) / 2, 1, prob)
-		   A <- A + t(A)
+		   G <- matrix(0, p, p)
+		   G[upper.tri(G)] <- rbinom(p * (p - 1) / 2, 1, prob)
+		   G <- G + t(G)
 		} else {
-		   A <- matrix(0,p,p)
+		   G <- matrix(0,p,p)
            smp <- sample(1 : (p * (p - 1) / 2), size, replace = FALSE)
-           A[upper.tri(A)][smp] <- 1
-		   A <- A + t(A)
+           G[upper.tri(G)][smp] <- 1
+		   G <- G + t(G)
 		}
 	}
 	
@@ -682,17 +688,17 @@ bdgraph.sim = function(n = 1, p = 10, graph = "random", size = NULL, prob = NULL
           for (i in 1 : (p - 1)) K[i, i + 1] <- K[i + 1, i] <- 0.5
           K[1, p] <- K[p, 1] <- 0.4
           # precision matrix of the true graph
-          A <- ceiling (K)
-          A[lower.tri(A, diag = T)] <- 0
+          G <- ceiling (K)
+          G[lower.tri(G, diag = T)] <- 0
 	   }
 	}
 	
-	if (!is.null(A)) diag(A) <- 0
+	if (!is.null(G)) diag(G) <- 0
 	
     if (is.null(sigma) & is.null(K)){
         if(is.null(u)) u <- 0.1
 	    if(is.null(v)) v <- 0.3	  	
-		K <- A * v
+		K <- G * v
 		# make K positive definite and standardized
 		diag(K) <- abs(min(eigen(K) $ values)) + 0.1 + u
 		sigma <- cov2cor(solve(K))
@@ -705,50 +711,50 @@ bdgraph.sim = function(n = 1, p = 10, graph = "random", size = NULL, prob = NULL
 	d <- mvrnorm(n, rep(0, p), sigma)
 	# graph and covariance visulization
 	if (vis == TRUE){
-		g <- graph.adjacency(A, mode = "undirected")
-        plot.igraph(g, layout = layout.circle, main = "Graph structure")
+		g <- graph.adjacency(G, mode = "undirected")
+        plot.igraph(g, layout = layout.circle, main = "True graph structure")
 	}
-	simulation <- list(data = d, sigma = sigma, K = K, A = Matrix(A, sparse = TRUE), graph = graph)
-	class(simulation) <- "sim"
+	simulation <- list(data = d, sigma = sigma, K = K, G = Matrix(G, sparse = TRUE), graph = graph)
+	class(simulation) <- "simulate"
 	return(simulation)
 }
 # print function of simulation data
-print.sim = function (x, ...)
+print.simulate = function (x, ...)
 {
   p <- ncol(x $ sigma)
-  cat(paste("   Data generated by bdgraph.sim"), fill = TRUE)
-  cat(paste("   Sample size =", nrow(x $ data)), fill = TRUE)
-  cat(paste("   Number of nodes =", p), fill = TRUE)
-  cat(paste("   Graph type =", x $ graph), fill = TRUE)
-  cat(paste("   Graph size =", sum(x $ A) / 2), fill = TRUE)
-  cat(paste("   Sparcity =", sum(x $ A) / (p * (p - 1))), fill = TRUE)
+  cat(paste("  Data generated by bdgraph.sim"), fill = TRUE)
+  cat(paste("  Sample size =", nrow(x $ data)), fill = TRUE)
+  cat(paste("  Graph type =", x $ graph), fill = TRUE)
+  cat(paste("  Number of nodes =", p), fill = TRUE)
+  cat(paste("  Graph size =", sum(x $ G) / 2), fill = TRUE)
+  cat(paste("  Sparcity =", round(sum(x $ G) / (p * (p - 1)), 4)), fill = TRUE)
 }
-# plot for class "sim" from bdgraph.sim function
-plot.sim = function(x, main = NULL, layout = layout.circle, ...)
+# plot for class "simulate" from bdgraph.sim function
+plot.simulate = function(x, main = NULL, layout = layout.circle, ...)
 {
-    if (is.null(main)) main <- "Graph structure"
-  	g <- graph.adjacency(x $ A, mode = "undirected")
+    if (is.null(main)) main <- "True graph structure"
+  	g <- graph.adjacency(x $ G, mode = "undirected")
     plot.igraph(g, main = main, layout = layout, ...)
 }		
 # plot for class bdgraph
 plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 {
-  list.A <- x $ As
+  list.G <- x $ sample.G
   lambda <- x $ lambda
   p <- x $ p
-  prob.A <- lambda / sum(lambda)
+  prob.G <- lambda / sum(lambda)
   graphi <- list()
   gv <- c(rep(0, p * (p - 1) / 2))
   if (g == 2) op <- par(mfrow = c(1, 2), pty = "s")
   if (g > 2 & g < 7)  op <- par(mfrow = c(2, g %% 2 + trunc(g / 2)), pty = "s")
   for (i in 1 : g){
     if (g > 6) dev.new()  
-    gi <- list.A[[which(prob.A == sort(prob.A, decreasing = T)[i])]]
+    gi <- list.G[[which(prob.G == sort(prob.G, decreasing = T)[i])]]
     gv <- 0 * gv
     gv[which(unlist(strsplit(as.character(gi), "")) == 1)] = 1
     graphi[[i]] <- matrix(0, p, p)
     graphi[[i]][upper.tri(graphi[[i]])] <- gv
-	dimnames(graphi[[i]]) <- dimnames(x $ last.A)
+	dimnames(graphi[[i]]) <- dimnames(x $ last.G)
 	G <- graph.adjacency(graphi[[i]], mode = "undirected")
     if (i == 1){
          main = "Graph with highest probability" 
@@ -756,48 +762,48 @@ plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 	   main = paste(c(i, "th graph"), collapse = "")
 	   }
     plot.igraph(G, layout = layout, main = main, 
-     sub = paste(c("Posterior probability = ", round(sort(prob.A, decreasing = TRUE)[i], 4)), collapse = ""), ...)	   
+     sub = paste(c("Posterior probability = ", round(sort(prob.G, decreasing = TRUE)[i], 4)), collapse = ""), ...)	   
   }
   if (g > 1 & g < 7)  par(op)
 }
 # summary of the result according to bdgraph
 summary.bdgraph = function(object, plot = TRUE, layout = layout.circle, ...)
 {
-  As <- object $ As
+  sample.G <- object $ sample.G
   lambda <- object $ lambda
   p <- object $ p
   gv <- c(rep(0, p * (p - 1) / 2))
   graphi <- matrix(0, p, p)
-  prob.A <- lambda / sum(lambda)
-  gi <- As[[which(prob.A == max(prob.A))]]
+  prob.G <- lambda / sum(lambda)
+  gi <- sample.G[[which(prob.G == max(prob.G))]]
   gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
   graphi[upper.tri(graphi)] <- gv
-  dimnames(graphi) <- dimnames(object $ last.A)  
+  dimnames(graphi) <- dimnames(object $ last.G)  
   if (plot == TRUE){
 	# plot best graph
 	G <- graph.adjacency(graphi, mode = "undirected")
-	if (!is.null(object $ allA)){
+	if (!is.null(object $ all.G)){
 	   op <- par(mfrow = c(2, 2), pty = "s")
     } else {
         op <- par(mfrow = c(1, 2), pty = "s")
        }	
      plot.igraph(G, layout = layout, main = "Best graph",
-      sub = paste(c("Posterior probability = ", round(max(prob.A), 4)), collapse = ""), ...)
+      sub = paste(c("Posterior probability = ", round(max(prob.G), 4)), collapse = ""), ...)
 	# plot posterior distribution of graph size
-	suma <- sapply(As, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+	suma <- sapply(sample.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
 	xx <- unique(suma)
 	lambdag <- vector()
-	for (i in 1:length(xx)){
+	for (i in 1 : length(xx)){
 	  lambdag[i] <- sum(lambda[which(suma == xx[i])])
 	}
-	plot(x = xx, y = lambdag, type = "h", main = "Posterior probability",
+	plot(x = xx, y = lambdag / sum(lambda), type = "h", main = "Posterior probability",
 	ylab = "Pr(graph size|data)", xlab = "graph size")  
-	if (!is.null(object $ allA)){
+	if (!is.null(object $ all.G)){
 		# plot trace of graph size
-		if (!is.null(object $ allA)){
-		 allA <- object $ allA
-		 yy <- sapply(allA, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
-		 plot(x = (object $ alla) * (1 : length(allA)), yy, type = "l", main = "Trace for graph size",
+		if (!is.null(object $ all.G)){
+		 all.G <- object $ all.G
+		 yy <- sapply(all.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+		 plot(x = (object $ alla) * (1 : length(all.G)), yy, type = "l", main = "Trace for graph size",
 			  ylab = "graph size", xlab = "iteration")	
 		}
 		# plot ACF
@@ -807,8 +813,8 @@ summary.bdgraph = function(object, plot = TRUE, layout = layout.circle, ...)
   }
   # phat
   pvec <- 0 * gv
-  for (i in 1:length(As)){
-	inp <- which(unlist(strsplit(as.character(As[i]), "")) == 1)
+  for (i in 1 : length(sample.G)){
+	inp <- which(unlist(strsplit(as.character(sample.G[i]), "")) == 1)
 	pvec[inp] <- pvec[inp] + lambda[i]
 	}
   phat <- 0 * graphi
@@ -822,17 +828,17 @@ summary.bdgraph = function(object, plot = TRUE, layout = layout.circle, ...)
 # print of the result according to bdgraph
 print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 {
-  As <- x $ As
+  sample.G <- x $ sample.G
   lambda <- x $ lambda
   p <- x $ p
   # best graph
-  prob.A <- lambda / sum(lambda)
+  prob.G <- lambda / sum(lambda)
   gv <- c(rep(0, p * (p - 1) / 2))
-  gi <- As[[which(prob.A == max(prob.A))]]
+  gi <- sample.G[[which(prob.G == max(prob.G))]]
   gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
   graphi <- matrix(0, p, p)
   graphi[upper.tri(graphi)] <- gv
-  dimnames(graphi) <- dimnames(x $ last.A)
+  dimnames(graphi) <- dimnames(x $ last.G)
   cat(paste(""), fill = TRUE)
   cat(paste("Adjacency matrix of best graph"), fill = TRUE)
   cat(paste(""), fill = TRUE)
@@ -852,8 +858,8 @@ print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
   # print for phat
   if (phat == TRUE){
 	  pvec <- 0 * gv
-	  for (i in 1:length(As)){
-		 inp <- which(unlist(strsplit(as.character(As[i]), "")) == 1)
+	  for (i in 1 : length(sample.G)){
+		 inp <- which(unlist(strsplit(as.character(sample.G[i]), "")) == 1)
 		 pvec[inp] <- pvec[inp] + lambda[i]
 		}
 	  phat <- 0 * graphi

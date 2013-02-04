@@ -5,7 +5,7 @@
  Summary function for "bdgraph" output
 }
 \description{
-According to output of the BD-MCMC algorithm, this function gives us the summary.  
+This function gives us a summary of the result from BD-MCMC algorithm according to output from "bdgraph" function.  
 }
 \usage{
 \method{summary}{bdgraph}(object, plot = TRUE, layout = layout.circle, ...)
@@ -37,10 +37,10 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  # generate the data from multivariate normal distribution
+  data.sim <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data, meanzero = T, iter = 2000)
+  output <- bdgraph(data.sim, meanzero = T, iter = 2000)
   
   summary(output)
   

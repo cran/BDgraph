@@ -12,11 +12,12 @@ export(bdgraph,
 	   plotcoda,
 	   traceplot,
 	   
-	   print.bdgraph,
-	   plot.bdgraph,
-	   summary.bdgraph
+	   print.bdgraph, plot.bdgraph, summary.bdgraph,
+	   print.simulate, plot.simulate
 )
 
 S3method("summary","bdgraph")
 S3method("plot","bdgraph")
 S3method("print","bdgraph")
+S3method("plot","simulate")
+S3method("print","simulate")

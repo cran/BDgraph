@@ -45,10 +45,10 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  # generate the data from multivariate normal distribution
+  data.sim <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data, meanzero = T, iter = 2000, save.all = TRUE)
+  output <- bdgraph(data.sim, meanzero = T, iter = 2000, save.all = TRUE)
   
   traceplot(output)
   
