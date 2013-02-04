@@ -9,7 +9,7 @@ Monte Carlo method for approximating the normalizing constant of G-Wishart
 distribution. The function uses the Monte Carlo method of Atay-Kayis and Massam (2005).
 }
 \usage{
-I.g(G, b = 3, D = diag(ncol(G)), MCiter = 100)
+I.g(G, b = 3, D = diag(ncol(G)), mc = 100)
 }
 
 \arguments{
@@ -18,16 +18,13 @@ adjacency matrix which shows the graph structure. It is an upper triangular matr
 \eqn{g_{ij}=1}{gij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
 otherwise \eqn{g_{ij}=0}{gij = 0}.
 }
-  \item{b}{
-the degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}{WG(b, D)}. The default is 3.
-}
+  \item{b}{the degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default is 3.}
+  
   \item{D}{
-the positive definite \eqn{(p \times p)}{(p x p)} "scale" matrix for G-Wishart distribution, 
-\eqn{W_G(b,D)}{WG(b,D)}. The default is identity matrix.
+the positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, 
+\eqn{W_G(b,D)}. The default is identity matrix.
 }
-  \item{MCiter}{
-the number of iterations for the Monte Carlo approximation. The default is 100.
-}
+  \item{mc}{the number of iteration for the Monte Carlo approximation. The default is 100.}
 }
 \details{
 normalizing constant approximation using Monte Carlo method for a G-Wishart(b,D):
@@ -42,7 +39,7 @@ Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based
 MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the 
-marginal likelihood in nondecomposable gaussian graphical models. Biometrika 
+marginal likelihood in nondecomposable Gaussian graphical models. Biometrika 
 92(2), 317-335.
 }
 \author{
