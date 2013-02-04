@@ -1,15 +1,15 @@
 \name{BDgraph-internal}
 \alias{BDgraph-internal}
+\alias{bdgraph.high}
+\alias{bdgraph.low}
 \alias{Exp.MC}
 \alias{Psi}
-\alias{plotSum}
 \alias{get.S}
-\alias{get.c}
 \alias{get.cs_c}
 \alias{sampleK}
 \alias{block.gibbs}
+\alias{roc}
 \alias{CellSignal}
-\alias{FIV}
 \docType{data}
 
 \title{

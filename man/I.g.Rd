@@ -1,6 +1,6 @@
 \name{I.g}
 \alias{I.g}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
 Computing normalizing constant of G-Wishart distribution
 }
@@ -11,11 +11,12 @@ distribution. The function uses the Monte Carlo method of Atay-Kayis and Massam 
 \usage{
 I.g(A, b, D, MCiter = 500)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{A}{
 upper triangular matrix in which \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.}
+\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.
+}
   \item{b}{
 the degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}{WG(b,D)}.
 }

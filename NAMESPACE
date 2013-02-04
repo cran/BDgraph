@@ -1,1 +1,22 @@
-exportPattern("^[[:alpha:]]+")
+import("Matrix")
+export(bdgraph,
+	   
+	   phat,
+	   select,
+	   prob,
+	   bdgraph.sim,
+	   I.g,
+	   compare,
+	   
+	   densplot,
+	   plotcoda,
+	   traceplot,
+	   
+	   print.bdgraph,
+	   plot.bdgraph,
+	   summary.bdgraph
+)
+
+S3method("summary","bdgraph")
+S3method("plot","bdgraph")
+S3method("print","bdgraph")

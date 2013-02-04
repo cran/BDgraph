@@ -11,22 +11,24 @@ undirected Gaussian graphical models based on birth-death MCMC methodology.
 }
 \details{
   This package provides an implementation of the procedures described in Mohammadi and Wit (2012). 
-The main function is 'bdmcmc' which is birth-death MCMC algorithm for Bayesian model selection 
+The main function is 'bdgraph' which is birth-death MCMC algorithm for Bayesian model selection 
 in Gaussian graphical models.
 
   Functions:
   \preformatted{
-bdmcmc           BDMCMC algorithm for undirected graph estimation
-bdmcmc.high      BDMCMC algorithm for high-dimensional graphs
-bdmcmc.low       BDMCMC algorithm for low-dimensional graphs
+bdgraph          Graph estimation besed on BDMCMC algorithm 
+bdgraph.sim      Data generator according to graph structure  
 compare          Comparing the result according to the true graph
 I.g              Computing normalizing constant of G-Wishart distribution
-phat             Posterior edge inclusion probabilities 
-plotConvergency  Cumulative occupancy fractions for checking the convergency
-plotLinks        Plot of posterior distribution for graphs according to number of their links 
-prob.allg        Posterior probability of all possible graphs
-prob.g           Posterior probability for one special graph
-select.g         Selecting the best graphical models based on BDMCMC algorithm
+phat             Posterior edge inclusion probabilities
+plot.bdgraph     Plot function for "bdgraph" output
+plotcoda         Cumulative occupancy fractions for checking the convergency
+densplot         Plot of posterior distribution for graphs according to their size
+prob             Posterior probabilities for most highest graphs or specific graph
+print.bdgraph    Print function for "bdgraph" output
+summary.bdgraph  Summary function for "bdgraph" output
+select           Selecting the best graphs
+traceplot        Trace plot of graph size from "bdgraph" output
   }
 }
 \author{
