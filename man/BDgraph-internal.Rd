@@ -1,7 +1,7 @@
 \name{BDgraph-internal}
 \alias{BDgraph-internal}
-\alias{bdgraph.high}
-\alias{bdgraph.low}
+\alias{rates.high}
+\alias{rates.low}
 \alias{Exp.MC}
 \alias{Psi}
 \alias{get.S}
@@ -9,7 +9,6 @@
 \alias{sampleK}
 \alias{block.gibbs}
 \alias{roc}
-\alias{CellSignal}
 \docType{data}
 
 \title{

@@ -2,7 +2,7 @@
 \alias{densplot}
 
 \title{
-Plot of posterior distribution for graphs according to their size
+Plot of posterior distribution for graph size
 }
 \description{
 This function is for ploting the posterior distribution of all possible graphs according to number
@@ -14,7 +14,7 @@ densplot(output, xlim = NULL, ylim = NULL, main = NULL)
 
 \arguments{
   \item{output}{
-a list which is the result of BDMCMC algorithm from the 'bdgraph' function. 
+a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{xlim}{
 graphical parameter (see plot).
@@ -42,7 +42,7 @@ Abdolreza Mohammadi and Ernst Wit
   # generate the data (100 observations) from multivariate normal distribution
   data <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data$data, meanzero = T, iter = 2000)
+  output <- bdgraph(data, meanzero = T, iter = 2000)
   
   densplot(output)
   }

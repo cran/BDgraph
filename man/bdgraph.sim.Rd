@@ -6,11 +6,11 @@ Data generator according to graph structure
 }
 \description{
 Implements the data generation from multivariate normal distributions with different graph structures, including 
-"random", "fixed". The default is "random".
+"random", "fixed", and "circle". The default is "random".
 }
 \usage{
-bdgraph.sim(n = 1, p = 10, graph = "random", prob = NULL, v = NULL, u = NULL, 
-             A = NULL, K = NULL, sigma = NULL, vis = FALSE)
+bdgraph.sim(n = 1, p = 10, graph = "random", size = NULL, prob = NULL, v = NULL, 
+             u = NULL, A = NULL, K = NULL, sigma = NULL, vis = FALSE)
 }
 
 \arguments{
@@ -21,7 +21,10 @@ the number of samples required.
 the number of variables (nodes). 
 }
   \item{graph}{
-the graph structure with option "random" and "fixed". The default is "random".
+the graph structure with option "random", "fixed", and "circle". The default is "random".
+}
+  \item{size}{
+the number of links in true graph (graph size).
 }
   \item{prob}{
 for "random" graph, it is the probability that a pair of nodes has a link. The default value is 0.2.
@@ -49,6 +52,7 @@ visualize the graph pattern. The default value is FALSE.
 }
 }
 \value{
+an object with S3 class "sim" as follow:
 \item{data}{the \eqn{n \times p}{n x p} matrix for the generated data}
 \item{sigma}{the covariance matrix of the generated data}
 \item{K}{the precision matrix of the generated data}
@@ -67,7 +71,10 @@ Abdolreza Mohammadi and Ernst Wit
 \examples{
 \dontrun{
   # generate the data (100 observations) from multivariate normal distribution
-  data.sim <- bdgraph.sim(n = 100, p = 8, vis = T)
+  data.sim <- bdgraph.sim(n = 100, p = 8, size = 10, vis = T)
+  print(data.sim)
+  
+  data.sim <- bdgraph.sim(n = 1, p = 6, graph = "circle", vis = T)
   data.sim $ data
   }
 }

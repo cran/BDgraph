@@ -5,37 +5,21 @@
  Selecting the best graphs
 }
 \description{
-According to output of the BDMCMC algorithm, this function gives us the
+According to output of the BD-MCMC algorithm, this function gives us the
  graphical models with the highest posterior probabilities.  
 }
 \usage{
-select(output, g = 1, mode = "circle", edge.col = "black", label.col = "black", 
-       vertex.col = "red")
+select(output, plot = FALSE)
 }
 
 \arguments{
   \item{output}{
-a list which is the result of the BDMCMC algorithm from the 'bdgraph' function. 
+a list which is the result of the BD-MCMC algorithm from the 'bdgraph' function. 
 }
-  \item{g}{
-you can select the number of graphical models with highest probabilities (default is 1).
+  \item{plot}{
+logical: if TRUE you will see the plot of best graph. The default is FALSE. 
 }
-  \item{mode}{
-the vertex placement algorithm which according to network package has three options "circle", "fruchtermanreingold", and "kamadakawai". 
-The default is "circle".
-}
-  \item{edge.col}{
-color for edges; may be given as a vector, adjacency matrix, or edge attribute
-name, if edges are to be of different colors.
-}
-  \item{label.col}{
-color for vertex labels; may be given as a vector or a vertex attribute name, if
-labels are to be of different colors.
-}
-  \item{vertex.col}{
-color for vertices; may be given as a vector or a vertex attribute name, if vertices
-are to be of different colors.
-}
+
 }
 \value{
 \item{A}{Adjacency matrix for the best graph (graph with the highest posterior probability) according to  bdgraph result.}
@@ -53,9 +37,9 @@ Abdolreza Mohammadi and Ernst Wit
 \examples{
 \dontrun{
   # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  data <- bdgraph.sim(n = 100, p = 8, size = 10, vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000)
+  output <- bdgraph(data, meanzero = T, iter = 2000)
   
   select(output)
   }

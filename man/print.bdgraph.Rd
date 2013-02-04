@@ -5,7 +5,7 @@
  Print function for "bdgraph" output
 }
 \description{
-According to output of the BDMCMC algorithm, this function gives us the print of the result.  
+According to output of the BD-MCMC algorithm, this function gives us the print of the result.  
 }
 \usage{
 \method{print}{bdgraph}(x, round = 3, Khat = FALSE, phat = FALSE, ...)
@@ -13,7 +13,7 @@ According to output of the BDMCMC algorithm, this function gives us the print of
 
 \arguments{
   \item{x}{
-an object with S3 class "bdgraph". A list which is the result of the BDMCMC algorithm from the 'bdgraph' function. 
+an object with S3 class "bdgraph". A list which is the result of the BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{round}{
 a number for rounding all probabilities to the specified number of decimal places (default 3).
@@ -43,7 +43,7 @@ Abdolreza Mohammadi and Ernst Wit
   # generate the data (100 observations) from multivariate normal distribution
   data <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000)
+  output <- bdgraph(data, meanzero = T, iter = 2000)
   
   print(output)
   

@@ -2,30 +2,37 @@
 \alias{I.g}
 
 \title{
-Computing normalizing constant of G-Wishart distribution
+Normalizing constant of G-Wishart distribution
 }
 \description{
 Monte Carlo method for approximating the normalizing constant of G-Wishart
 distribution. The function uses the Monte Carlo method of Atay-Kayis and Massam (2005).
 }
 \usage{
-I.g(A, b, D, MCiter = 500)
+I.g(G, b = 3, D = diag(ncol(G)), MCiter = 100)
 }
 
 \arguments{
-  \item{A}{
-upper triangular matrix in which \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.
+  \item{G}{
+adjacency matrix which shows the garph structure. It is an upper triangular matrix in which 
+\eqn{a_{ij}=1}{Gij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
+otherwise \eqn{G_{ij}=0}{Gij = 0}.
 }
   \item{b}{
-the degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}{WG(b,D)}.
+the degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}{WG(b, D)}. The default is 3.
 }
   \item{D}{
-the positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}{WG(b,D)}.
+the positive definite \eqn{(p * p)}{(p * p)} "scale" matrix for G-Wishart distribution, 
+\eqn{W_G(b,D)}{WG(b,D)}. The default is identity matrix.
 }
   \item{MCiter}{
-the number of iterations for the Monte Carlo approximation.
+the number of iterations for the Monte Carlo approximation. The default is 100.
 }
+}
+\details{
+normalizing constant approximation using Monte Carlo method for a G-Wishart(b,D):
+
+  \deqn{p(K) = \frac{1}{I(b, D)} |K| ^ {(b - 2) / 2} exp(- \frac{1}{2} trace(K \times D))}
 }
 \value{
 the normalizing constant of G-Wishart distribution.
@@ -42,10 +49,10 @@ marginal likelihood in nondecomposable gaussian graphical models. Biometrika
 Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
-A <- matrix(c(0,1,1,
+G <- matrix(c(0,0,1,
               0,0,1,
 		              0,0,0), 3, 3, byrow = TRUE) 
-# matrix A shows full graph with 3 nodes and 3 edges
-I.g(A, b = 3, D = diag(3), MCiter = 50)
+# matrix G shows full graph with 3 nodes and 3 edges
+I.g(G, b = 3, D = diag(3))
 }
 
