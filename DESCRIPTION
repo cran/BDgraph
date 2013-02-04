@@ -2,8 +2,8 @@ Package: BDgraph
 Type: Package
 Title: Gaussian Graphical Model determination based on birth-death MCMC
         methodology
-Version: 1.2
-Date: 2012-10-08
+Version: 2.0
+Date: 2013-02-04
 Author: Abdolreza Mohammadi and Ernst Wit
 Depends: R (>= 2.14.0), network
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
@@ -15,6 +15,6 @@ Description: The R package BDgraph is a statistical tool for Bayesian
         Gaussian graphical models.
 License: GPL (>= 3)
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2012-10-24 12:56:15 UTC; P262842
+Packaged: 2013-02-05 08:33:47 UTC; Administrator
 Repository: CRAN
-Date/Publication: 2012-10-24 14:34:14
+Date/Publication: 2013-02-05 11:29:08

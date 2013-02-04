@@ -25,7 +25,6 @@ plotConvergency  Cumulative occupancy fractions for checking the convergency
 plotLinks        Plot of posterior distribution for graphs according to number of their links 
 prob.allg        Posterior probability of all possible graphs
 prob.g           Posterior probability for one special graph
-sample.gwishart  Sampling from G-Wishart distribution
 select.g         Selecting the best graphical models based on BDMCMC algorithm
   }
 }
@@ -33,11 +32,14 @@ select.g         Selecting the best graphical models based on BDMCMC algorithm
 Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit
 }
 \references{
-Mohammadi, A. and E. Wit (2012). Efficient birth-death MCMC inference for 
+Mohammadi, A. and E. C. Wit (2012). Efficient birth-death MCMC inference for 
 Gaussian graphical models, arXiv:1210.5371. \url{http://arxiv.org/abs/1210.5371}
 
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the 
-marginal likelihood in nondecomposable gaussian graphical models. Biometrika 
-92(2), 317-335.
+marginal likelihood in nondecomposable gaussian graphical models. Biometrika 92(2), 317-335.
+
+Wang, H. and S. Li (2012). Efficient Gaussian graphical model determination under 
+G-Wishart prior distributions. Electronic Journal of Statistics
+6, 168-198.
 }
 \keyword{ package }
