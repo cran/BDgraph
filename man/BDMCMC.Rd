@@ -12,12 +12,12 @@ and high dimensional graphs.
 \usage{
 bdmcmc(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter/2), 
        skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, 
-	       A = NULL, MCiter = 10, print = FALSE, summary = FALSE)
+	       A = "full", MCiter = 10, summary = FALSE, verbose = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{data}{
-it could be a matrix of the data ( \eqn{p \times n}{p x n} matrix) or it could be a
+it could be a matrix or a data.frame of the data ( \eqn{p \times n}{p x n} matrix) or it could be a
 covariance matrix as \eqn{S=x'x}{S = x' x} which \eqn{x}{x} is a matrix of the data.
 }
   \item{n}{
@@ -55,20 +55,23 @@ the positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}{WG(b,D)}
 distribution of precision matrix.
 }
   \item{A}{
-upper triangular matrix in which \eqn{a_{ij}=1}{aij = 1} if there is a link between nodes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}. This matrix shows the starting graphal model for BDMCMC algorithm.
-} 
+matrix A shows the starting graph for BDMCMC algorithm. It is an upper triangular matrix in which 
+\eqn{a_{ij}=1}{aij = 1} if there is a link between nodes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.
+It can be either "full" (default) or "emply" or "glasso". "full" means we start with full graph. "emply" means we start
+with empty graph. "glasso" means we start with a graph which is suggested by glasso method according to huge package. 
+We can use this option for high-dimentional cases which we need less iterations to converge, because we start with the 
+graph which is almost near to the true graph.  
+}  
   \item{MCiter}{
 the number of iterations for Monte Carlo approximation of normalizing constant in G-Wishart distribution. 
 We need it only when number of nodes in the graph is less than 8.
 }
-  \item{print}{
-logical: if TRUE you will see the print of iteration, time, and number of edges in each iteration of BDMCMC 
-algorithm; if FALSE (default), there is no any print order.
-}
   \item{summary}{
 logical: if TRUE you will see the summary result of BDMCMC algorithm; if FALSE (default), the output will be a 
 list as below.
+}
+  \item{verbose}{
+logical: if verbose = TRUE, tracing number of iterations in BDMCMC algorithm printing is abled. The default value is TRUE.
 }
 }
 \value{
@@ -80,8 +83,8 @@ Returns an output of the BDMCMC algorithm which is list-like and contains the fo
 We need 'allA' list for checking the convergency of the BDMCMC algorithm.}
 }
 \references{
-Mohammadi, A. and E. Wit (2012). Efficient birth-death MCMC inference for 
-Gaussian graphical models, arXiv:1210.5371. \url{http://arxiv.org/abs/1210.5371}
+Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
+MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 }
 \author{
 Abdolreza Mohammadi and Ernst Wit
@@ -96,15 +99,15 @@ Abdolreza Mohammadi and Ernst Wit
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)
-  for (i in 1:(p-1)) truK[i,i+1] = truK[i+1,i] = 0.5
-  truK[1,p] <- 0.4
-  truK[p,1] <- 0.4
+  for (i in 1:(p-1)) truK[i,i+1] <- truK[i+1,i] <- 0.5
+  truK[1,p] <- truK[p,1] <- 0.4
+  truK # precision matrix of the true graph
   
   # generate the data (200 observations) from multivariate normal 
   # distribution with mean zero and percision matrix "truK"
   data <- mvrnorm(200, c(rep(0,p)), solve(truK))
   
-  bdmcmc(data, meanzero=T, iter=500, summary=T)
+  bdmcmc(data, meanzero = T, iter = 2000, summary = T)
   }
 }
 

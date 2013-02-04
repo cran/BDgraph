@@ -3,10 +3,10 @@
 \alias{BDgraph}
 \docType{package}
 \title{
-Bayesian model selection in Gaussian graphical models based on BDMCMC algorithm
+Gaussian graphical model determination based on BDMCMC methodology
 }
 \description{
-The R package BDgraph is a statistical tool for Bayesian model determination in 
+The R package BDgraph is a statistical tool for Bayesian model selection in 
 undirected Gaussian graphical models based on birth-death MCMC methodology.      
 }
 \details{
@@ -32,8 +32,8 @@ select.g         Selecting the best graphical models based on BDMCMC algorithm
 Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit
 }
 \references{
-Mohammadi, A. and E. C. Wit (2012). Efficient birth-death MCMC inference for 
-Gaussian graphical models, arXiv:1210.5371. \url{http://arxiv.org/abs/1210.5371}
+Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
+MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the 
 marginal likelihood in nondecomposable gaussian graphical models. Biometrika 92(2), 317-335.

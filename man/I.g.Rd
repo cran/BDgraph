@@ -30,8 +30,8 @@ the number of iterations for the Monte Carlo approximation.
 the normalizing constant of G-Wishart distribution.
 }
 \references{
-Mohammadi, A. and E. Wit (2012). Efficient birth-death MCMC inference for 
-Gaussian graphical models, arXiv:1210.5371. \url{http://arxiv.org/abs/1210.5371}
+Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
+MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the 
 marginal likelihood in nondecomposable gaussian graphical models. Biometrika 
@@ -45,6 +45,6 @@ A <- matrix(c(0,1,1,
               0,0,1,
 		              0,0,0), 3, 3, byrow = TRUE) 
 # matrix A shows full graph with 3 nodes and 3 edges
-I.g(A, b=3, D=diag(3), MCiter=50)
+I.g(A, b = 3, D = diag(3), MCiter = 50)
 }
 
