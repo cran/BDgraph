@@ -55,7 +55,7 @@ the positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}{WG(b,D)}
 distribution of precision matrix.
 }
   \item{A}{
-matrix A shows the initial graph for BDMCMC algorithm. It is an upper triangular matrix in which 
+matrix A shows the starting graph for BDMCMC algorithm. It is an upper triangular matrix in which 
 \eqn{a_{ij}=1}{aij = 1} if there is a link between nodes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.
 It can be either "full" (default) or "empty" or "glasso". "full" means we start with full graph. "empty" means we start
 with empty graph. "glasso" means we start with a graph which is suggested by glasso method according to huge package. 
@@ -67,19 +67,19 @@ logical: if TRUE you will see the summary result of BDMCMC algorithm; if FALSE (
 list as below.
 }
   \item{verbose}{
-logical: if verbose = TRUE, tracing number of iterations in BDMCMC algorithm printing is enabled. Default is TRUE.
+logical: if verbose = TRUE, tracing number of iterations in BDMCMC algorithm printing is abled. The default value is TRUE.
 }
   \item{all.A}{
-logical: if all.A = FALSE, we save the matrix A after burn-in iteration. Default is FALSE. If all.A = FALSE,
+logical: if all.A = FALSE, we save the matrix A after burn-in iteration. The default value is FALSE. If all.A = FALSE,
 we save all matrix A from starting point of iteration.
 }
 }
 \value{
 Returns an output of the BDMCMC algorithm which is list-like and contains the following:
-\item{As}{a list which includes all adjacency matrixs after burn-in iterations.}
-\item{Ks}{a list which includes all precision matrixs after burn-in iterations.}
-\item{lambda}{a vector which includes all waiting times after burn-in iterations.}
-\item{allA}{a list which includes all adjacency matrix for all iterations. We need 'allA' list for checking the convergency of the BDMCMC algorithm.}
+\item{As}{a vector which includes the adjacency matrix for all iterations after burn-in iterations.}
+\item{lambda}{a vector which includes the waiting times for all iterations after burn-in iterations.}
+\item{allA}{a vector which includes all adjacency matrix for all iterations (includes burn-in iterations). 
+We need the 'allA' for checking the convergency of the BDMCMC algorithm.}
 }
 \references{
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
@@ -93,8 +93,6 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  require(MASS)
-  
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)

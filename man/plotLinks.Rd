@@ -9,7 +9,7 @@ This function is for ploting the posterior distribution of all possible graphs a
 of their links.
 }
 \usage{
-plotLinks(output, xlim = c(0, (nrow(output$As[[1]])) * (nrow(output$As[[1]]) - 1)/2))
+plotLinks(output, xlim = c(0, output$p * (output$p - 1) / 2))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,8 +33,6 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  require(MASS)
-  
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)
