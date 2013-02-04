@@ -10,15 +10,12 @@ posterior probability of all possible graphical models. Aslo, it give us
 all graphs that the BDMCMC algorithm visits them.
 }
 \usage{
-prob.allg(output, verbose = TRUE)
+prob.allg(output)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{output}{
 a list which is the result of BDMCMC algorithm from the 'bdmcmc', 'bdmcmc.low', or 'bdmcmc.high' functions. 
-}
-  \item{verbose}{
-logical: if verbose = TRUE, tracing information printing is abled. The default value is TRUE.
 }
 }
 \value{

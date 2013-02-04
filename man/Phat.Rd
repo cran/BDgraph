@@ -22,7 +22,6 @@ a number for rounding all probabilities to the specified number of decimal place
 }
 \value{
 \item{phat}{upper triangular matrix which shows the posterior inclusion probabilities for all possible edges.}
-
 }
 \references{
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 

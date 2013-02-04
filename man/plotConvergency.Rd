@@ -20,7 +20,7 @@ a list which is the result of BDMCMC algorithm from the 'bdmcmc', 'bdmcmc.low', 
 it is a option for getting fast result for a cumulative plot according to part of the iterations.
 }
   \item{verbose}{
-logical: if verbose = TRUE, tracing information printing is abled. The default value is TRUE.
+logical: if verbose = TRUE, tracing information printing is enabled. Default is TRUE.
 }
 }
 \details{
@@ -53,7 +53,7 @@ Abdolreza Mohammadi and Ernst Wit
   # generate the data (200 observations) from multivariate normal 
   # distribution with mean zero and percision matrix "truK"
   data <- mvrnorm(200, c(rep(0,p)), solve(truK))  
-  output <- bdmcmc(data, meanzero = T, iter = 2000)
+  output <- bdmcmc(data, meanzero = T, iter = 2000, all.A = TRUE)
   
   # we run it for skip = 5. For skip = 1, it takes more time.
   plotConvergency(output, skip = 5)
