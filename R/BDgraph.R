@@ -1,503 +1,536 @@
 ## All functions for the "BDgraph" package
 ###########################################################
-## function for creating matrix H from Ti matrix (h_ij=t_ij/t_ii)
-Hmatrix=function(Ti,p)
-{
-   H=diag(p)
-   for (j in 2:p) H[1:(j-1),j]=Ti[1:(j-1),j]/Ti[j,j]
-   return(H)
-}
 ## function for only obtaining elements of Psi matrix
-Psi=function(A,b,H,p)
+Psi = function(A, b, H, p)
 {
-  psi=0*H
-  for (i in 1:p){
-    for (j in i:p){
-        if (i==j) psi[i,j]=sqrt(rchisq(1,b+sum(A[i,])))
-        if (A[i,j]==1) psi[i,j]=rnorm(1)
-        if (A[i,j]==0 & i!=j){
-            psi[i,j]=-sum(psi[i,c(i:(j-1))]*H[c(i:(j-1)),j])
-            if (i>1){
+  nu <- apply(A, 1, sum)
+  psi <- diag(sqrt(rchisq(p, b + nu)))
+  psi[A == 1] <- rnorm(1)
+  for (i in 1:(p-1)){
+    for (j in (i+1):p){
+        if (A[i,j] == 0){
+            psi[i,j] <- - sum(psi[i, i:(j-1)] * H[i:(j-1), j])
+            if (i > 1){
                for (r in 1:(i-1)){
-                 psi[i,j]=psi[i,j]-((sum(psi[r,c(r:i)]*H[c(r:i),i]))*
-                 (sum(psi[r,c(r:j)]*H[c(r:j),j])))/(psi[i,i])
+                 psi[i,j] <- psi[i,j] - ((sum(psi[r, r:i] * H[r:i, i])) *
+                             (sum(psi[r, r:j] * H[r:j, j]))) / (psi[i,i])
                }
             }
         }
     }
   }
-  psi
+  return(psi)
 }
-# Sampling from G-Wishart distribution; algorithm 2 of our paper.
-sample.gwishart=function(A,b,D,round=3)
+# Algorithm 3.1: function for Monte Carlo approxiation for expection in normalizing constant
+Exp.MC = function(A, b, H, MCiter, p)
 {
-   if (b<=2){
-      stop("parameter 'b' in G-Wishart distribution has to be more than 2")
+   f_T <- vector()
+   for (i in 1 : MCiter){
+       psi <- Psi(A = A, b = p, H = H, p = p)
+	   dd <- A
+	   dd[lower.tri(dd == 0, diag = T)] = 1
+       f_T[i] <- exp(- sum((1 - dd) * psi * psi) / 2)
    }
-   p=nrow(A)
-   Ti=chol(solve(D)) 
-   H=Hmatrix(Ti,p)
-   psi=Psi(A,b,H,p)
-   round(t(psi%*%Ti)%*%(psi%*%Ti),round)
-}
-#Algorithm 3.2: function for Monte Carlo approxiation for expection in normalizing constant
-Exp.MC=function(A,b,H,MCiter,p)
-{
-   f_T=vector()
-   for (i in 1:MCiter){
-       psi=Psi(A,b,H,p)
-       f_T[i]=exp(-sum((1-(diag(p)+A))*psi*psi)/2)
-   }
-   mean(f_T)
+   return(mean(f_T))
 }
 # function for computing Normalizing constans of G-Wishart distribution according to ATAY-KAYIS AND mASSAM (2005)
-I.g=function(A,b,D,MCiter=500)
+I.g = function(A, b, D, MCiter = 500)
 {
-   if (b<=2){
+   if (b <= 2){
       stop("parameter 'b' in G-Wishart distribution has to be more than 2")
    }
-   p=nrow(A)
-   Ti=chol(solve(D))
-   H=Hmatrix(Ti,p)
-   Exp.f_T=Exp.MC(A,b,H,MCiter,p)
-   c_dT=0
+   p <- nrow(A)
+   Ti <- chol(solve(D))
+   H <- Ti / t(matrix(rep(diag(Ti) ,p), p, p))
+   Exp.f_T <- Exp.MC(A, b, H, MCiter, p)
+   c_dT <- 0
    for (i in 1:p){
-      c_dT=c_dT+((sum(A[i,])/2)*log(pi)+((b+2*sum(A[i,]))/2)*log(2)+
-      lgamma((b+sum(A[i,]))/2)+(b+sum(A[i,])+sum(A[,i]))*log(Ti[i,i]))
+      c_dT <- c_dT + ((sum(A[i,]) / 2) * log(pi) + ((b + 2 * sum(A[i,])) / 2) * log(2) +
+      lgamma((b + sum(A[i,])) / 2) + (b + sum(A[i,]) + sum(A[,i])) * log(Ti[i,i]))
    }
-   c_dT=exp(c_dT)
+   c_dT <- exp(c_dT)
    cat(paste(""), fill = TRUE)
-   cat(paste(c("Normalizing constant = ", c_dT*Exp.f_T),collapse=""), fill = TRUE)
+   cat(paste(c("Normalizing constant = ", c_dT * Exp.f_T),collapse = ""), fill = TRUE)
 }
 # sampling from precistion matrix K for our BDMCMC algorithm
-sampleK=function(A,b,H,Ts,p)
+# according to accept-reject algorithm
+sampleK = function(A, b, H, Ts, p, iter = 1)
 {
-   psi=0*H
-   for (i in 1:p){
-      for (j in i:p){
-        if (i==j) psi[i,j]=sqrt(rchisq(1,b+sum(A[i,])))
-        if (A[i,j]==1) psi[i,j]=rnorm(1)
-        if (A[i,j]==0 & i!=j){
-            psi[i,j]=-sum(psi[i,c(i:(j-1))]*H[c(i:(j-1)),j])
-            if (i>1){
-               for (r in 1:(i-1)){
-               psi[i,j]=psi[i,j]-((sum(psi[r,c(r:i)]*H[c(r:i),i]))*
-               (sum(psi[r,c(r:j)]*H[c(r:j),j])))/(psi[i,i])
-               }
-            }
-        }
+   psi <- Psi(A, b, H, p)
+   cont <- 1
+   for (i in 1:(iter * 1000)){  
+      psi.new <- Psi(A, b, H, p)
+	  alpha <- exp((sum((1 - (diag(p) + A)) * psi * psi) - 
+	  sum((1 - (diag(p) + A)) * psi.new * psi.new)) / 2)
+	  if (runif(1) < alpha){ 
+	    cont <- cont + 1
+		psi.new <- psi
+	    }  
+      if (cont == iter) break
+	}
+    return(t(psi %*% Ts) %*% (psi %*% Ts))
+}
+# Sampling for G-Wishart distribution according to Blocked Gibbs sampling, Wang (2012)
+block.gibbs = function (K, A, bstar, Ds, gibbs.iter = 1)
+{
+p <- ncol(A)
+for (k in 1 : gibbs.iter){
+  for (i in 1 : (p - 1)){
+	if (sum(A[i,]) != 0){
+      for (j in (i + 1) : p){
+	    if (A[i,j] == 1){
+		  B <- Ds[c(i,j),c(i,j)]
+		  a <- rWishart(1, df = bstar + (p - 2), Sigma = solve(B))
+		  a <- matrix(a, 2, 2)
+		  Kvv <- K[c((1 : p)[- c(i,j)]), c((1 : p)[- c(i,j)])]
+          kjv <- K[c(i,j),c((1:p)[-c(i,j)])]
+          Kc <- a + (kjv) %*% (solve(Kvv)) %*% t(kjv)
+          K[c(i,j),c(i,j)] <- (Kc + t(Kc)) / 2 # Numerical stable
+		}
       }
-   }
-   return(t(psi%*%Ts)%*%(psi%*%Ts))
+	}
+    if (sum(A[i,]) + sum(A[,i]) == 0){
+	  a <- rgamma(1, (bstar + (p - 1)) / 2, Ds[i,i] / 2)
+	  Kvv <- K[c((1 : p)[- i]), c((1 : p)[- i])]
+      kjv <- matrix(K[i, c((1 : p)[- i])], 1, (p - 1))
+      K[i,i] <- a + (kjv) %*% (solve(Kvv)) %*% t(kjv)
+	}
+  }
+  if (sum(A[,p]) == 0){
+	a <- rgamma(1, (bstar + (p - 1)) / 2, Ds[p,p] / 2)
+	Kvv <- K[c((1 : p)[- p]), c((1 : p)[- p])]
+    kjv <- matrix(K[p,c((1:p)[-p])], 1, (p - 1))
+    K[p,p] <- a + (kjv) %*% (solve(Kvv)) %*% t(kjv)
+  }
+}
+return(K)
 }
 #auxiliary function to get covariance matrix
-get.S=function(data,n,tol=1e-5,meanzero)
+get.S = function(data, n, tol = 1e-5, meanzero)
 {
-  if (ncol(data)!=nrow(data)){
-     n = nrow(data)
-	 if (meanzero==TRUE) S = t(data)%*%data
-     if (meanzero==FALSE) S = n*cov(data)
+  if (ncol(data) != nrow(data)){
+     n <- nrow(data)
+	 if (meanzero == TRUE) S <- t(data) %*% data
+     if (meanzero == FALSE) S <- n * cov(data)
   } else {
-     if (sum(abs(data-t(data)))>tol){
-        n = nrow(data)
-	    if (meanzero==TRUE) S = t(data)%*%data
-        if (meanzero==FALSE) S = n*cov(data)
+     if (sum(abs(data - t(data))) > tol){
+        n <- nrow(data)
+	    if (meanzero == TRUE) S <- t(data) %*% data
+        if (meanzero == FALSE) S <- n * cov(data)
     }
   }
-  return(list(S=S,n=n))
-}
-# By using this function we do not need "reshape" package
-melt=function(rates,p)
-{
-   trates=t(rates)
-   v3=trates[lower.tri(trates)]
-   v1=v2=c()
-   for (i in 1:(p-1)){
-       v1=c(v1,rep(i,p-i))
-       v2=c(v2,(i+1):p)
-   }
-   cbind(v1,v2,v3)
+  return(list(S = S, n = n))
 }
 # Algorithm 2.1: BD-MCMC algorithm for low-dimentional problem (roughly graphs with more less 8 nodes)
-bdmcmc.low=function(data,n=NULL,meanzero=FALSE,iter=5000,burn=floor(iter/2),skip=1,
-gamma.b=1,prior.g="Uniform",b=3,D=NULL,A=NULL,MCiter=10,print=FALSE,sumery=FALSE)
+bdmcmc.low = function(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter / 2), skip = 1,
+gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = NULL, MCiter = 10, print = FALSE, summary = FALSE)
 {
-  if (iter<=burn){
+  if (iter <= burn){
     stop("Number of iterations have to be more than the number of burn-in iterations")
   }
-  if (gamma.b<=0){
+  if (gamma.b <= 0){
     stop("birth rate 'gamma.b' has to be positive value")
   }
-  id <- pmatch(prior.g,c("Uniform","Poisson"))[1]
+  id <- pmatch(prior.g, c("Uniform", "Poisson"))[1]
   if(!is.na(id)){
-     if(id==1) pr=0
-     if(id==2) pr=1
+     if(id == 1) pr <- 0
+     if(id == 2) pr <- 1
     }
-  Sn = get.S(data,n,meanzero=meanzero)
-  if (is.null(Sn$n)&is.null(n)){
+  Sn <- get.S(data = data, n = n, meanzero = meanzero)
+  if (is.null(Sn$n) & is.null(n)){
     stop("You have to specify the number of observations 'n'")
   }
-  S = Sn$S
-  n = Sn$n
-  p = ncol(S) 
+  S <- Sn $ S
+  n <- Sn $ n
+  p <- ncol(S) 
   if (is.null(A)) {
-     A = 0 * S
-     A[upper.tri(A)] = 1
+     A <- 0 * S
+     A[upper.tri(A)] <- 1
      } 
-  if (is.null(D)) D = diag(p)
-  bstar=b+n
-  Ds=D+S
-  Dsinv=solve(Ds)
-  Ts=chol(Dsinv)
-  H=diag(p)
-  Hs=Hmatrix(Ts,p)
-  K=sampleK(A,bstar,Hs,Ts,p)
-  Ks=As=rates_sample=allA=list()
-  lambda=vector() ## waiting time in every state
-  cont=allAcont=0
-  alla=ceiling(iter/2000)# for saving allA which we need it for plotConvergency function
+  if (is.null(D)) D <- diag(p)
+  bstar <- b + n
+  Ds <- D + S
+  Dsinv <- solve(Ds)
+  Ts <- chol(Dsinv)
+  Ti <- chol(D)
+  H <- Ti / t(matrix(rep(diag(Ti) ,p), p, p))
+  Hs <- Ts / t(matrix(rep(diag(Ts) ,p), p, p))
+  K <- sampleK(A, bstar, Hs, Ts, p)
+  Ks <- As <- rates_sample <- allA <- list()
+  lambda <- vector() ## waiting time in every state
+  cont <- allAcont <- 0
+  alla <- ceiling(iter / 2000)# for saving allA which we need it for plotConvergency function
   for (g in 1:iter){
-    if (print==T){
+    if (print == T){
 	  cat(paste("time =", format(Sys.time(), "%X")),
-      paste(c("Sum.links = ",sum(A)),collapse=""), fill = TRUE,
-      labels = paste("{",paste(c("iter=",g),collapse=""),"}:",sep=""))
+      paste(c("Sum.links = ",sum(A)), collapse = ""), fill = TRUE,
+      labels = paste("{", paste(c("iter = ",g), collapse = ""),"}:",sep = ""))
 	}
-    rates=0*K
+    rates <- 0 * K
     for (i in 1:(p-1)){
-       for (j in (i+1):p){
-          if (A[i,j]==0) rates[i,j]=gamma.b
-          if (A[i,j]==1){
-             sigma=1
-             mu=bstar*Dsinv[i,j]
-             k_xi=rnorm(1,mu,sigma)
-             b_xi=dnorm(k_xi,mu,sigma)
-             nustar=sum(A[i,])
-             Epsi=Exp.MC(A,b,H,MCiter,p)
-             Aminus=A
-             Aminus[i,j]=0
-             Epsiminus=Exp.MC(Aminus,b,H,MCiter,p)
-             Kminus=sampleK(Aminus,bstar,Hs,Ts,p)
-             if (sum(A)==0 & pr==0) pr=1
-             rates[i,j]=(((sum(A))^pr)*((gamma.b)^(1-pr)))*2*sqrt(pi)*gamma.b*(b_xi)*
-             exp(lgamma((bstar+nustar)/2)-lgamma((bstar+nustar-1)/2)+
-             log(Epsi)-log(Epsiminus)+((bstar-2)/2)*(log(abs(det(Kminus)))-log(abs(det(K))))-
-             (sum(diag(Ds%*%(Kminus-K))))/2 )
-             if (is.infinite(rates[i,j])==TRUE) rates[i,j]=gamma(170)
-          }
-       }
+     for (j in (i+1):p){
+       if (A[i,j] == 0) rates[i,j] <- gamma.b
+       if (A[i,j] == 1){
+        mu <- - (Ds[i,j] * K[i,i]) / Ds[j,j]
+	    sig <- sqrt(K[i,i] / Ds[j,j])
+        k_xi <- rnorm(1, mu, sig)
+        b_xi <- dnorm(k_xi, mu, sig)
+        nustar <- sum(A[i,])
+        Epsi <- Exp.MC(A = A, b = b, H = H, MCiter = MCiter, p = p)
+        Ami <- A
+        Ami[i,j] <- 0
+        Epsimi <- Exp.MC(A = Ami, b = b, H = H, MCiter = MCiter, p = p)
+		Kmi <- K
+		Kmi[i,j] <- Kmi[j,i] <- 0
+		Kmi[j,j] <- K[j,j] + get.cs_c(K = K, p = p, i = i, j = j)
+        if (sum(A) == 0 & pr == 0) pr <- 1
+        rates[i, j] <- (((sum(A)) ^ pr) * ((gamma.b) ^ (1 - pr))) * 
+		(b_xi) * 2 * sqrt(pi) * Ti[i,i] * Ti[j,j] *
+        exp(lgamma((bstar + nustar) / 2) - lgamma((bstar + nustar - 1) / 2) +
+        log(Epsi) - log(Epsimi) + ((bstar - 2) / 2) * (log(det(Kmi)) - log(det(K))) -
+        (sum(diag(Ds %*% (Kmi - K)))) / 2)
+        if (is.finite(rates[i,j]) == FALSE) rates[i,j] <- gamma(170)
+        }
+     }
     }
-    if (g%%alla==0){
-        allAcont=allAcont+1
-        allA[[allAcont]]=A
+    if (g %% alla == 0){
+        allAcont <- allAcont + 1
+        allA[[allAcont]] <- A
     }
-    if (g > burn && g%%skip==0){
-        cont=cont+1
-        Ks[[cont]]=K
-        As[[cont]]=A
-        lambda[cont]=sum(rates)
+    if (g > burn && g %% skip == 0){
+        cont <- cont + 1
+        Ks[[cont]] <- K
+        As[[cont]] <- A
+        lambda[cont] <- sum(rates)
 	}
-	melt=melt(rates,p)
-    rows=which(rmultinom(1,1,melt[,3])==1)
-    ii=melt[rows,1]
-    jj=melt[rows,2]
-    A[ii,jj]=A[ii,jj]+(-1)^(A[ii,jj])  
-    K=sampleK(A,bstar,Hs,Ts,p)
+	melt <- cbind(as.matrix(which(upper.tri(rates), arr.ind = TRUE)), rates[upper.tri(rates)])
+    rows <- which(rmultinom(1, 1, melt[ , 3]) == 1)
+    ii <- melt[rows, 1]
+    jj <- melt[rows, 2]
+    A[ii,jj] <- A[ii,jj] + (- 1) ^ (A[ii,jj])  
+    K <- block.gibbs(K = K, A = A, bstar = bstar, Ds = Ds, gibbs.iter = 1)
   }
-    if (sumery==FALSE){
-     return(list(Ks=Ks,As=As,lambda=lambda,allA=allA,alla=alla))
+    if (summary == FALSE){
+     return(list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla))
   } else {
-        output=list(Ks=Ks,As=As,lambda=lambda,allA=allA,alla=alla)
+        output <- list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla)
 		# best graph and estimaition of its parameters
-		bestg=select.g (output, K=TRUE, g=1)
-		print(round(bestg,2))
+		bestg <- select.g (output, K = TRUE, g = 1)
+		print(round(bestg, 2))
         # for phat
-		phat=0*As[[1]]
+		phat <- 0 * As[[1]]
         for (i in 1:(p-1)){
             for (j in (i+1):p){
                 for (k in 1:length(As)){
-                    phat[i,j]=phat[i,j]+As[[k]][i,j]/lambda[k]
+                    phat[i,j] <- phat[i,j] + As[[k]][i,j] / lambda[k]
                 }
-                phat[i,j]=phat[i,j]/(sum(1/lambda))
+                phat[i,j] <- phat[i,j] / (sum(1 / lambda))
             }
         }
 		cat(paste(""), fill = TRUE)
 		cat(paste(""), fill = TRUE)
 		cat(paste("Posterior edge inclusion probabilities for all possible edges equal with"), fill = TRUE)
 		cat(paste(""), fill = TRUE)
-        return(round(phat,2))	
+        return(round(phat, 2))	
     }
 }
+# function for obtaining "c" (Wang2012page182) from matrix K
+get.c = function(K, p, j){
+   kjj <- K[c((1:p)[-j]),c((1:p)[-j])]
+   kjv <- matrix(K[j,][- j], 1, (p - 1))
+   return((kjv) %*% (solve(kjj)) %*% (t(kjv)))  
+}
+# function for computing "c.star - c" from the matrix K for k_jj
+get.cs_c = function(K, p, i, j){
+   kjj <- K[c((1:p)[-j]),c((1:p)[-j])]
+   kjv <- K[j,][- j]
+   B <- solve(kjj)
+   return(K[i,j] * (K[i,j] * B[i,i] - 2 * (kjv %*% B[,i])))  
+}
 ## Algorithm 2.1: BD-MCMC algorithm for high-dimentional problem (roughly graphs with more than 8 nodes)
-bdmcmc.high=function(data,n=NULL,meanzero=FALSE,iter=5000,burn=floor(iter/2),
-skip=1,gamma.b=1,prior.g="Uniform",b=3,D=NULL,A=NULL,print=FALSE,sumery=FALSE)
+bdmcmc.high = function(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter / 2),
+skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = NULL, print = FALSE, summary = FALSE)
 {
-  if (iter<=burn){
+  if (iter <= burn){
     stop("Number of iterations have to be more than the number of burn-in iterations")
   }
-  if (gamma.b<=0){
+  if (gamma.b <= 0){
     stop("birth rate 'gamma.b' has to be positive value")
   }
-  id <- pmatch(prior.g,c("Uniform","Poisson"))[1]
+  id <- pmatch(prior.g, c("Uniform", "Poisson"))[1]
   if(!is.na(id)){
-     if(id == 1) pr=0
-     if(id == 2) pr=1
+     if(id == 1) pr <- 0
+     if(id == 2) pr <- 1
     }
-  Sn = get.S(data,n,meanzero=meanzero)
-  if (is.null(Sn$n) & is.null(n)){
+  Sn <- get.S(data = data, n = n, meanzero = meanzero)
+  if (is.null(Sn $ n) & is.null(n)){
     stop("If you provide the covariance matrix, you have to specify the number of observations")
   }
-  S = Sn$S
-  n = Sn$n
-  p = ncol(S) 
+  S <- Sn $ S
+  n <- Sn $ n
+  p <- ncol(S) 
   if (is.null(A)) {
-     A = 0 * S
-     A[upper.tri(A)] = 1
+     A <- 0 * S
+     A[upper.tri(A)] <- 1
      } 
-  if (is.null(D)) D = diag(p)
-  bstar=b+n
-  Ds=D+S
-  Ts=chol(solve(Ds))
-  H=diag(p)
-  Hs=Hmatrix(Ts,p)
-  K=sampleK(A,bstar,Hs,Ts,p)
-  Ks=As=allA=list()
-  lambda=vector() # waiting time for every state
-  cont=allAcont=0
-  alla=ceiling(iter/2000)# for saving allA which we need it for plotConvergency function
+  if (is.null(D)) D <- diag(p)
+  Ti <- chol(solve(D))
+  bstar <- b + n
+  Ds <- D + S
+  Ts <- chol(solve(Ds))
+  H <- Ti / t(matrix(rep(diag(Ti) ,p), p, p))
+  Hs <- Ts / t(matrix(rep(diag(Ts) ,p), p, p))
+  K <- sampleK(A, bstar, Hs, Ts, p, iter = 10)
+  Ks <- As <- allA <- list()
+  lambda <- vector() # waiting time for every state
+  cont <- allAcont <- 0
+  alla <- ceiling(iter / 2000)# for saving allA which we need it for plotConvergency function
   for (g in 1:iter){
-    if (print==T){
+    if (print == T){
 	  cat(paste("time =", format(Sys.time(), "%X")),
-      paste(c("Sum.links = ",sum(A)),collapse=""), fill = TRUE,
-      labels = paste("{",paste(c("iter=",g),collapse=""),"}:",sep=""))
+      paste(c("Sum.links = ", sum(A)), collapse = ""), fill = TRUE,
+      labels = paste("{", paste(c("iter = ",g), collapse = ""), "}:", sep = ""))
 	}
-    rates=0*K
+    rates <- 0 * K
     for (i in 1:(p-1)){
-       for (j in (i+1):p){
-          if (A[i,j]==0) rates[i,j]=gamma.b
-          if (A[i,j]==1){
-             Aminus=A
-             Aminus[i,j]=0
-             Kminus=sampleK(Aminus,bstar,Hs,Ts,p)
-             if (sum(A)==0 & pr==0) pr=1
-             rates[i,j]=(((sum(A))^pr)*((gamma.b)^(1-pr)))*exp((n/2)*(log(abs(det(Kminus)))-
-             log(abs(det(K))))+(sum(diag(S%*%(K-Kminus))))/2 )
-             if (is.infinite(rates[i,j])==TRUE) rates[i,j]=gamma(170)
-          }
-       }
+      for (j in (i+1):p){
+        if (A[i,j] == 0) rates[i,j] <- gamma.b
+        if (A[i,j] == 1){
+		  sig <- sqrt(K[i,i] / Ds[j,j])
+          mu <- - (Ds[i,j] * K[i,i]) / Ds[j,j]
+          k_xi <- rnorm(1, mu, sig)
+          b_xi <- dnorm(k_xi, mu, sig)
+	      Kmi <- K
+          Kmi[i,j] <- Kmi[j,i] <- 0
+		  Kmi[j,j] <- K[j,j] + get.cs_c(K = K, p = p, i = i, j = j) 
+          nustar <- sum(A[i,])
+		  if (sum(A) == 0 & pr == 0) pr <- 1	 
+		  rates[i,j] <- (((sum(A)) ^ pr) * ((gamma.b) ^ (1 - pr))) * 
+		  (b_xi) * 2 * sqrt(pi) * Ti[i,i] * Ti[j,j] *
+          exp(lgamma((bstar + nustar) / 2) - lgamma((bstar + nustar - 1) / 2) +
+		  ((bstar - 2) / 2) * (log(det(Kmi)) - log(det(K))) -
+                     (sum(diag(Ds %*% (Kmi - K)))) / 2 )
+          if (is.finite(rates[i,j]) == FALSE) rates[i,j] <- gamma(170)
+        }
+      }
     }
-	if (g%%alla==0){
-        allAcont=allAcont+1
-        allA[[allAcont]]=A
+	if (g %% alla == 0){
+        allAcont <- allAcont + 1
+        allA[[allAcont]] = A
     }
-    if (g > burn && g%%skip==0){
-        cont=cont+1
-        Ks[[cont]]=K
-        As[[cont]]=A
-        lambda[cont]=sum(rates)
+    if (g > burn && g %% skip == 0){
+        cont <- cont + 1
+        Ks[[cont]] <- K
+        As[[cont]] <- A
+        lambda[cont] <- sum(rates)
     }
-    melt=melt(rates,p)
-    rows=which(rmultinom(1,1,melt[,3])==1)
-    ii=melt[rows,1]
-    jj=melt[rows,2]
-    A[ii,jj]=A[ii,jj]+(-1)^(A[ii,jj]) 
-    K=sampleK(A,bstar,Hs,Ts,p)
+    melt <- cbind(as.matrix(which(upper.tri(rates), arr.ind = TRUE)), rates[upper.tri(rates)])
+    rows <- which(rmultinom(1, 1, melt[,3]) == 1)
+    ii <- melt[rows,1]
+    jj <- melt[rows,2]
+    A[ii,jj] <- A[ii,jj] + (- 1) ^ (A[ii,jj]) 
+	K <- block.gibbs(K, A, bstar, Ds, gibbs.iter = 1)
   }
-  if (sumery==FALSE){
-     return(list(Ks=Ks,As=As,lambda=lambda,allA=allA,alla=alla))
+  if (summary == FALSE){
+     return(list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla))
   } else {
-        output=list(Ks=Ks,As=As,lambda=lambda,allA=allA,alla=alla)
+        output <- list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla)
 		# best graph and estimaition of its parameters
-		bestg=select.g (output, K=TRUE, g=1)
-		print(round(bestg,2))
+		bestg <- select.g (output, K = TRUE, g = 1)
+		print(round(bestg, 2))
         # for phat
-		phat=0*As[[1]]
+		phat <- 0 * As[[1]]
         for (i in 1:(p-1)){
             for (j in (i+1):p){
                 for (k in 1:length(As)){
-                    phat[i,j]=phat[i,j]+As[[k]][i,j]/lambda[k]
+                    phat[i,j] <- phat[i,j] + As[[k]][i,j] / lambda[k]
                 }
-                phat[i,j]=phat[i,j]/(sum(1/lambda))
+                phat[i,j] <- phat[i,j] / (sum(1 / lambda))
             }
         }
 		cat(paste(""), fill = TRUE)
 		cat(paste(""), fill = TRUE)
 		cat(paste("Posterior edge inclusion probabilities for all possible edges equal with"), fill = TRUE)
 		cat(paste(""), fill = TRUE)
-        return(round(phat,2))	
+        return(round(phat, 2))	
     }
 }
 ## Main function: BDMCMC algorithm for selecting the best graphical model
-bdmcmc=function(data,n=NULL,meanzero=FALSE,iter=5000,burn=floor(iter/2),skip=1,
-gamma.b=1,prior.g="Uniform",b=3,D=NULL,A=NULL,MCiter=10,print=FALSE,sumery=FALSE)
+bdmcmc = function(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter / 2), skip = 1,
+gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = NULL, MCiter = 10, print = FALSE, summary = FALSE)
 {
-  p = ncol(data)
-  if (p<8){
-    return(bdmcmc.low(data,n,meanzero,iter,burn,skip,gamma.b,prior.g,b,D,A,MCiter,print,sumery))
+  p <- ncol(data)
+  if (p < 8){
+    return(bdmcmc.low(data, n, meanzero, iter, burn, skip, gamma.b, prior.g, b, D, A, MCiter, print, summary))
   } else {
-    return(bdmcmc.high(data,n,meanzero,iter,burn,skip,gamma.b,prior.g,b,D,A,print,sumery))
+    return(bdmcmc.high(data, n, meanzero, iter, burn, skip, gamma.b, prior.g, b, D, A, print, summary))
   }
 }
 # function for comuting probability of all links in graph
-phat=function(output,round=3)
+phat = function(output, round = 3)
 {
-   As=output$As
-   lambda=output$lambda
-   p=nrow(As[[1]])
-   phat=0*As[[1]]
+   As <- output$As
+   lambda <- output$lambda
+   p <- nrow(As[[1]])
+   phat <- 0 * As[[1]]
    for (i in 1:(p-1)){
       for (j in (i+1):p){
          for (k in 1:length(As)){
-             phat[i,j]=phat[i,j]+As[[k]][i,j]/lambda[k]
+             phat[i,j] <- phat[i,j] + As[[k]][i,j] / lambda[k]
          }
-         phat[i,j]=phat[i,j]/(sum(1/lambda))
+         phat[i,j] <- phat[i,j] / (sum(1 / lambda))
       }
    }
    cat(paste(""), fill = TRUE)
    cat(paste("Posterior edge inclusion probabilities for all possible edges equal with"), fill = TRUE)
    cat(paste(""), fill = TRUE)
-   return(round(phat,round))
+   return(round(phat, round))
 }
 # function for computing the probability of one especial graph
-prob.g=function(A,output)
+prob.g = function(A, output)
 {
-   As=output$As
-   Ks=output$Ks
-   lambda=output$lambda
-   lambda.g=vector()
+   As <- output$As
+   lambda <- output$lambda
+   lambda.g <- vector()
    for (i in 1:length(As)){
-       if (identical(A,As[[i]])==TRUE) lambda.g=c(lambda.g,lambda[i])
+       if (identical(A,As[[i]]) == TRUE) lambda.g <- c(lambda.g, lambda[i])
    }
-   round(sum(1/lambda.g)/sum(1/lambda),4)
+   round(sum(1 / lambda.g) / sum(1 / lambda), 4)
 }
 # plot for probability of graphs according to number of their links
-plotLinks=function(output,xlim=c(0,(nrow(output$As[[1]]))*(nrow(output$As[[1]])-1)/2))
+plotLinks = function(output, xlim = c(0, (nrow(output$As[[1]])) * (nrow(output$As[[1]]) - 1) / 2))
 {
-   p=nrow(output$As[[1]])
-   As=output$As
-   lambda=output$lambda
-   nominator=c(rep(0,xlim[2]-xlim[1]+1))
+   p <- nrow(output$As[[1]])
+   As <- output$As
+   lambda <- output$lambda
+   nominator <- c(rep(0, xlim[2] - xlim[1] + 1))
    for (i in 1:length(As)){
       for (j in xlim[1]:xlim[2]){
-          if (sum(As[[i]])==j) {nominator[j-xlim[1]+1]=nominator[j-xlim[1]+1]+1/lambda[i]}
+          if (sum(As[[i]]) == j) {nominator[j - xlim[1] + 1] <- nominator[j - xlim[1] + 1] + 1 / lambda[i]}
       }
    }
-   plot(x=xlim[1]:xlim[2],y=nominator/sum(1/lambda),type="h",main="",
-   ylab="Pr(number of links in the graph|data)",xlab="number of links in the graph")
+   plot(x = xlim[1]:xlim[2], y = nominator / sum(1 / lambda), type = "h", main = "",
+   ylab = "Pr(number of links in the graph|data)", xlab = "number of links in the graph")
 }
 # function for checking the convergency of the BDMCMC algorithm
-plotConvergency=function(output, skip=1)
+plotConvergency = function(output, skip = 1)
 {
-  allA=output$allA
-  p=nrow(allA[[1]])
-  allA.new=list()
+  allA <- output$allA
+  p <- nrow(allA[[1]])
+  allA.new <- list()
   for (i in 1:length(allA)){
-     g=i*skip
-     if (g>length(allA)) break
-     allA.new[[i]]=allA[[g]]
+     g <- i * skip
+     if (g > length(allA)) break
+     allA.new[[i]] <- allA[[g]]
   }   
-  length.allA=length(allA.new)
-  ff=matrix(0,p*(p-1)/2,length.allA)
+  length.allA <- length(allA.new)
+  ff <- matrix(0, p * (p - 1) / 2, length.allA)
   for (g in 1:length.allA){
      for (k in 1:g){
-        con=0
+        con <- 0
         for (i in 1:(p-1)){
            for (j in (i+1):p){
-              con=con+1
-              ff[con,g]=ff[con,g]+allA.new[[k]][i,j]/g
+              con <- con + 1
+              ff[con,g] <- ff[con,g] + allA.new[[k]][i,j] / g
            }
         }
      }
   }
-  matplot(x=skip*((output$alla)*(1:length.allA)),y=t(ff),type="l",lty=1,col=1,
-  xlab="number of iterations",ylab="cumulative occupancy fractions for each links")
+  matplot(x = skip * ((output$alla) * (1:length.allA)), y = t(ff), type = "l", lty = 1, col = 1,
+  xlab = "number of iterations", ylab = "cumulative occupancy fractions for each links")
 }
 # plot sum of the links in the graphs for checking the convergency of BDMCMC algorithm
-plotSum=function(output,xlim=c(0,length(output$allA)))
+plotSum = function(output, xlim = c(0, length(output$allA)))
 {
-    allA=output$allA
-    iter=length(allA)
-    y=0*(xlim[1]:xlim[2])
-    for (i in (xlim[1]+1):xlim[2]){
-         y[i-xlim[1]+1]=sum(allA[[i]])
+    allA <- output$allA
+    iter <- length(allA)
+    y <- 0 * (xlim[1]:xlim[2])
+    for (i in (xlim[1] + 1):xlim[2]){
+         y[i - xlim[1] + 1] <- sum(allA[[i]])
     }
-    plot(x=(output$alla)*(xlim[1]:xlim[2]),y,type="l",main="",
-    ylab="sum of links in the graphs",xlab="iterations")
+    plot(x = (output$alla) * (xlim[1]:xlim[2]), y, type = "l", main = "",
+    ylab = "sum of links in the graphs", xlab = "iterations")
 }
 # Program for computing the probability of all possible graphical models by using the result of BDMCMC algorithm
-prob.allg=function(output)
+prob.allg = function(output)
 {
-   As.lim=output$As
-   lambda=output$lambda
-   lambda.lim=lambda
-   list.A=list.lambda=list()
-   fre=vector()
-   i=0
-   while (length(As.lim)>1){
-      i=i+1
-      list.A[[i]]=As.lim[[1]]
-      list.lambda[[i]]=vector()
-      free=0
-      As.lim2=As.lim
-      lambda.lim2=lambda.lim
+   As.lim <- output$As
+   lambda <- output$lambda
+   lambda.lim <- lambda
+   list.A <- list.lambda <- list()
+   fre <- vector()
+   i <- 0
+   while (length(As.lim) > 1){
+      i <- i + 1
+      list.A[[i]] <- As.lim[[1]]
+      list.lambda[[i]] <- vector()
+      free <- 0
+      As.lim2 <- As.lim
+      lambda.lim2 <- lambda.lim
       for (g in 1:length(As.lim)){
-         if (identical(list.A[[i]],As.lim[[g]])==TRUE){
-            list.lambda[[i]]=c(list.lambda[[i]],lambda.lim[g])
-            As.lim2=As.lim2[-(g-free)]
-		        lambda.lim2=lambda.lim2[-(g-free)]
-		        free=free+1
+         if (identical(list.A[[i]], As.lim[[g]]) == TRUE){
+            list.lambda[[i]] = c(list.lambda[[i]], lambda.lim[g])
+            As.lim2 <- As.lim2[- (g - free)]
+		        lambda.lim2 <- lambda.lim2[- (g - free)]
+		        free <- free + 1
          }
       }
-      As.lim=As.lim2
-      lambda.lim=lambda.lim2
-      fre[i]=free
+      As.lim <- As.lim2
+      lambda.lim <- lambda.lim2
+      fre[i] <- free
    }
-   prob.A=vector()
+   prob.A <- vector()
    for (i in 1:length(list.A)){
-       prob.A[i]=sum(1/list.lambda[[i]])/sum(1/lambda)
+       prob.A[i] <- sum(1 / list.lambda[[i]]) / sum(1 / lambda)
    }
-   return(list(list.A=list.A,prob.A=prob.A))
+   return(list(list.A = list.A, prob.A = prob.A))
 }                                              
 # function summary of the result
-select.g=function (output, g=2, K=FALSE)
+select.g = function (output, g = 2, K = FALSE)
 {
-  output.allg=prob.allg(output)
-  list.A=output.allg$list.A
-  prob.A=output.allg$prob.A
+  output.allg <- prob.allg(output)
+  list.A <- output.allg$list.A
+  prob.A <- output.allg$prob.A
+  best.graph <- list.A[[which(prob.A == max(prob.A))]]
   for (i in 1:g){
     dev.new()
-    G=network(list.A[[which(prob.A==sort(prob.A,decreasing=T)[i])]],directed=F)
-    if (i==1){
+    G <- network(list.A[[which(prob.A == sort(prob.A, decreasing = T)[i])]], directed = F)
+    if (i == 1){
          main = "BEST GRAPH: graph with highest probability"
     } else {
-      if (i==2){
+      if (i == 2){
         main = "Graph with 2nd highest probability"
       } else {
-        if (i==3){
+        if (i == 3){
           main = "Graph with 3rd highest probability"
         } else {
-          main = paste(c("Graph with ", i, "th highest probability"),collapse="")
+          main = paste(c("Graph with ", i, "th highest probability"), collapse = "")
         }
       }
     }
-    plot.network(G, label=network.vertex.names(G), main=main,
-    sub=paste(c("Posterior probability of graph=",round(sort(prob.A,decreasing=TRUE)[i],3)),collapse=""))
+    plot.network(G, label = network.vertex.names(G), main = main,
+    sub = paste(c("Posterior probability of graph=", round(sort(prob.A, decreasing = TRUE)[i], 3)), collapse = ""))
   }
-  if (K==TRUE){
-	 Ks=output$Ks
-	 As=output$As
-	 bestG=list.A[[which(prob.A==max(prob.A))]]
-	 bestK=0*Ks[[1]]
+  cat(paste(""), fill = TRUE)
+  cat(paste("Adjacency matrix of best graph"), fill = TRUE)
+  cat(paste(""), fill = TRUE)
+  return(best.graph)
+  if (K == TRUE){
+	 Ks <- output$Ks
+	 As <- output$As
+	 bestG <- list.A[[which(prob.A == max(prob.A))]]
+	 bestK <- 0 * Ks[[1]]
 	 for (g in 1:length(Ks)){
-	    if (identical(bestG,As[[g]])==TRUE){
-		     bestK=bestK+Ks[[g]]
+	    if (identical(bestG, As[[g]]) == TRUE){
+		     bestK <- bestK + Ks[[g]]
 	        }
 	    }
 	 cat(paste(""), fill = TRUE)
-	 cat(paste(c("The best graph has ", sum(bestG), " edges."),collapse=""), fill = TRUE)	
+	 cat(paste(c("The best graph has ", sum(bestG), " edges."),collapse = ""), fill = TRUE)	
 	 cat(paste(""), fill = TRUE)
 	 cat(paste("estimation of precision matrix for the best graph:"), fill = TRUE)
 	 cat(paste(""), fill = TRUE)
-	 return(round(bestK/length(bestK),3))
+	 return(round(bestK / length(bestK), 3))
 	}
 }
 

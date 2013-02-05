@@ -13,7 +13,7 @@ than 8 nodes).
 \usage{
 bdmcmc.low(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter/2),
            skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, 
-		           A = NULL, MCiter = 10, print = FALSE, sumery = FALSE)
+		           A = NULL, MCiter = 10, print = FALSE, summary = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -67,8 +67,8 @@ We need it only when number of nodes in the graph is less than 8.
 logical: if TRUE you will see the print of iteration, time, and number of edges in each iteration of BDMCMC 
 algorithm; if FALSE (default), there is no any print order.
 }
-  \item{sumery}{
-logical: if TRUE you will see the sumery result of BDMCMC algorithm; if FALSE (default), the output will be a 
+  \item{summary}{
+logical: if TRUE you will see the summary result of BDMCMC algorithm; if FALSE (default), the output will be a 
 list as below.
 }
 }
@@ -105,7 +105,7 @@ Abdolreza Mohammadi and Ernst Wit
   # distribution with mean zero and percision matrix "truK"
   data <- mvrnorm(150, c(rep(0,p)), solve(truK))
   
-  bdmcmc.low(data, meanzero=T, iter=500, sumery=T)
+  bdmcmc.low(data, meanzero=T, iter=500, summary=T)
   }
 }
 

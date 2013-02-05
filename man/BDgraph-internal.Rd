@@ -1,12 +1,13 @@
 \name{BDgraph-internal}
 \alias{BDgraph-internal}
 \alias{Exp.MC}
-\alias{Hmatrix}
 \alias{Psi}
 \alias{plotSum}
 \alias{get.S}
-\alias{melt}
+\alias{get.c}
+\alias{get.cs_c}
 \alias{sampleK}
+\alias{block.gibbs}
 \alias{CellSignal}
 \alias{FIV}
 \docType{data}
