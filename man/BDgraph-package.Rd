@@ -3,7 +3,7 @@
 \alias{BDgraph}
 \docType{package}
 \title{
-Gaussian graphical model determination based on BDMCMC methodology
+Bayesian undirected graph estimation with BD-MCMC
 }
 \description{
 The R package BDgraph is a statistical tool for Bayesian model selection in 
@@ -16,9 +16,10 @@ in Gaussian graphical models.
 
   Functions:
   \preformatted{
-bdmcmc           BDMCMC algorithm for undirected Gaussain graphical model determination
+bdmcmc           BDMCMC algorithm for undirected graph estimation
 bdmcmc.high      BDMCMC algorithm for high-dimensional graphs
 bdmcmc.low       BDMCMC algorithm for low-dimensional graphs
+compare          Comparing the result according to the true graph
 I.g              Computing normalizing constant of G-Wishart distribution
 phat             Posterior edge inclusion probabilities 
 plotConvergency  Cumulative occupancy fractions for checking the convergency

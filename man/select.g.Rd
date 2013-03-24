@@ -9,7 +9,7 @@ According to output of the BDMCMC algorithm, this function gives us the
  graphical models with the highest posterior probabilities.  
 }
 \usage{
-select.g(output, g = 1, K = FALSE, verbose = TRUE)
+select.g(output, g = 1, K = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,9 +21,6 @@ you can select the number of graphical models with highest probabilities (defaul
 }
   \item{K}{
 logical: if TRUE you will see the estimation of precision matrix for the best graph; default is FALSE.
-}
-  \item{verbose}{
-logical: if verbose = TRUE, tracing information printing is abled. The default value is TRUE.
 }
 }
 \references{

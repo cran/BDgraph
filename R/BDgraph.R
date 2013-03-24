@@ -83,7 +83,7 @@ for (k in 1 : gibbs.iter){
 		  a <- rWishart(1, df = bstar + (p - 2), Sigma = solve(B))
 		  a <- matrix(a, 2, 2)
 		  Kvv <- K[c((1 : p)[- c(i,j)]), c((1 : p)[- c(i,j)])]
-          kjv <- K[c(i,j),c((1:p)[-c(i,j)])]
+          kjv <- K[c(i,j),c((1:p)[- c(i,j)])]
           Kc <- a + (kjv) %*% (solve(Kvv)) %*% t(kjv)
           K[c(i,j),c(i,j)] <- (Kc + t(Kc)) / 2 # Numerical stable
 		}
@@ -123,7 +123,7 @@ get.S = function(data, n, tol = 1e-5, meanzero)
 }
 # Algorithm 2.1: BD-MCMC algorithm for low-dimentional problem (roughly graphs with more less 8 nodes)
 bdmcmc.low = function(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter / 2), skip = 1, 
-gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summary = FALSE, verbose = TRUE)
+gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summary = FALSE, verbose = TRUE, all.A = FALSE)
 {
   if (is.matrix(data) == F & is.data.frame(data) == F){
      stop("Data should be a matrix or dataframe")
@@ -177,8 +177,11 @@ gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summ
   K <- sampleK(A, bstar, Hs, Ts, p)
   Ks <- As <- rates_sample <- allA <- list()
   lambda <- vector() ## waiting time in every state
-  cont <- allAcont <- 0
-  alla <- ceiling(iter / 2000)# for saving allA which we need it for plotConvergency function
+  identity.A <- vector() # number of recognizing matrix A for each iteration
+  B <- 0 * A
+  B[upper.tri(B)] <- (1:(p * (p - 1) / 2)) / 100
+  allAcont <- 0
+  alla <- ceiling(iter / 2000)# for saving all.A which we need it for plotConvergency function
   for (g in 1:iter){
     if(verbose == T){
 	   mes <- paste(c("    MCMC iterations : ", g, " from ", iter), collapse="")
@@ -207,21 +210,27 @@ gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summ
 		(b_xi) * 2 * sqrt(pi) * Ti[i,i] * Ti[j,j] *
         exp(lgamma((bstar + nustar) / 2) - lgamma((bstar + nustar - 1) / 2) +
         log(Epsi) - log(Epsimi) + ((bstar - 2) / 2) * (log(det(Kmi)) - log(det(K))) -
-        (sum(diag(Ds %*% (Kmi - K)))) / 2)
+        (sum(Ds * t(Kmi - K))) / 2) 
         if (is.finite(rates[i,j]) == FALSE) rates[i,j] <- gamma(170)
         }
      }
     }
-    if (g %% alla == 0){
+    if (all.A == TRUE & g %% alla == 0){
         allAcont <- allAcont + 1
         allA[[allAcont]] <- A
     }
     if (g > burn && g %% skip == 0){
-        cont <- cont + 1
-        Ks[[cont]] <- K
-        As[[cont]] <- A
-        lambda[cont] <- sum(rates)
-	}
+      indA <- sum(2 ^ (A * B) - abs(1 - A))
+      wh <- which(identity.A == indA)
+      if (length(lambda) != 0 & length(wh) != 0){
+         lambda[wh] <- lambda[wh] + 1 / sum(rates)
+      } else {
+         identity.A <- c(identity.A, indA)
+         lambda <- c(lambda, 1 / sum(rates))
+         As[[length(identity.A)]] <- A
+         Ks[[length(identity.A)]] <- K
+        }
+    }
 	melt <- cbind(as.matrix(which(upper.tri(rates), arr.ind = TRUE)), rates[upper.tri(rates)])
     rows <- which(rmultinom(1, 1, melt[ , 3]) == 1)
     ii <- melt[rows, 1]
@@ -236,9 +245,13 @@ gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summ
     flush.console()
   }  
   if (summary == FALSE){
-     return(list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla))
+     if (all.A == TRUE){
+        return(list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla))
+	 } else {
+	    return(list(Ks = Ks, As = As, lambda = lambda))
+	 }
   } else {
-        output <- list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla)
+        output <- list(Ks = Ks, As = As, lambda = lambda)
 		# best graph and estimaition of its parameters
 		bestg <- select.g (output, K = TRUE, g = 1)
 		print(round(bestg, 2))
@@ -247,9 +260,9 @@ gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summ
         for (i in 1:(p-1)){
             for (j in (i+1):p){
                 for (k in 1:length(As)){
-                    phat[i,j] <- phat[i,j] + As[[k]][i,j] / lambda[k]
+                    phat[i,j] <- phat[i,j] + As[[k]][i,j] * lambda[k]
                 }
-                phat[i,j] <- phat[i,j] / (sum(1 / lambda))
+                phat[i,j] <- phat[i,j] / (sum(lambda))
             }
         }
 		cat(paste(""), fill = TRUE)
@@ -274,7 +287,7 @@ get.cs_c = function(K, p, i, j){
 }
 ## Algorithm 2.1: BD-MCMC algorithm for high-dimentional problem (roughly graphs with more than 8 nodes)
 bdmcmc.high = function(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter / 2),
-skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary = FALSE, verbose = TRUE)
+skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary = FALSE, verbose = TRUE, all.A = FALSE)
 {
   if (is.matrix(data) == F & is.data.frame(data) == F){
      stop("Data should be a matrix or dataframe")
@@ -323,8 +336,11 @@ skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary
   K <- sampleK(A, bstar, Hs, Ts, p, iter = 10)
   Ks <- As <- allA <- list()
   lambda <- vector() # waiting time for every state
-  cont <- allAcont <- 0
-  alla <- ceiling(iter / 2000)# for saving allA which we need it for plotConvergency function
+  identity.A <- vector() # number of recognizing matrix A for each iteration
+  B <- 0 * A
+  B[upper.tri(B)] <- (1:(p * (p - 1) / 2)) / 100
+  allAcont <- 0 
+  alla <- ceiling(iter / 2000) # for saving allA which we need it for plotConvergency function
   for (g in 1:iter){
     if(verbose == T){
 	   mes <- paste(c("    MCMC iterations : ", g, " from ", iter), collapse="")
@@ -349,20 +365,26 @@ skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary
 		  (b_xi) * 2 * sqrt(pi) * Ti[i,i] * Ti[j,j] *
           exp(lgamma((bstar + nustar) / 2) - lgamma((bstar + nustar - 1) / 2) +
 		  ((bstar - 2) / 2) * (log(det(Kmi)) - log(det(K))) -
-                     (sum(diag(Ds %*% (Kmi - K)))) / 2 )
+                     (sum(Ds * t(Kmi - K))) / 2 )
           if (is.finite(rates[i,j]) == FALSE) rates[i,j] <- gamma(170)
         }
       }
     }
-	if (g %% alla == 0){
+	if ( all.A == TRUE & g %% alla == 0){
         allAcont <- allAcont + 1
         allA[[allAcont]] = A
     }
     if (g > burn && g %% skip == 0){
-        cont <- cont + 1
-        Ks[[cont]] <- K
-        As[[cont]] <- A
-        lambda[cont] <- sum(rates)
+      indA <- sum(2 ^ (A * B) - abs(1 - A))
+      wh <- which(identity.A == indA)
+      if (length(lambda) != 0 & length(wh) != 0){
+         lambda[wh] <- lambda[wh] + 1 / sum(rates)
+      } else {
+         identity.A <- c(identity.A, indA)
+         lambda <- c(lambda, 1 / sum(rates))
+         As[[length(identity.A)]] <- A
+         Ks[[length(identity.A)]] <- K
+        }
     }
     melt <- cbind(as.matrix(which(upper.tri(rates), arr.ind = TRUE)), rates[upper.tri(rates)])
     rows <- which(rmultinom(1, 1, melt[,3]) == 1)
@@ -378,9 +400,13 @@ skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary
     flush.console()
   }  
   if (summary == FALSE){
-     return(list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla))
+     if (all.A == TRUE){
+        return(list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla))
+	 } else {
+	    return(list(Ks = Ks, As = As, lambda = lambda))
+	 }
   } else {
-        output <- list(Ks = Ks, As = As, lambda = lambda, allA = allA, alla = alla)
+        output <- list(Ks = Ks, As = As, lambda = lambda)
 		# best graph and estimaition of its parameters
 		bestg <- select.g (output, K = TRUE, g = 1)
 		print(round(bestg, 2))
@@ -389,9 +415,9 @@ skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary
         for (i in 1:(p-1)){
             for (j in (i+1):p){
                 for (k in 1:length(As)){
-                    phat[i,j] <- phat[i,j] + As[[k]][i,j] / lambda[k]
+                    phat[i,j] <- phat[i,j] + As[[k]][i,j] * lambda[k]
                 }
-                phat[i,j] <- phat[i,j] / (sum(1 / lambda))
+                phat[i,j] <- phat[i,j] / (sum(lambda))
             }
         }
 		cat(paste(""), fill = TRUE)
@@ -403,13 +429,13 @@ skip = 1, gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", summary
 }
 ## Main function: BDMCMC algorithm for selecting the best graphical model
 bdmcmc = function(data, n = NULL, meanzero = FALSE, iter = 5000, burn = floor(iter / 2), skip = 1,
-gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summary = FALSE, verbose = TRUE)
+gamma.b = 1, prior.g = "Uniform", b = 3, D = NULL, A = "full", MCiter = 10, summary = FALSE, verbose = TRUE, all.A = FALSE)
 {
   p <- ncol(data)
   if (p < 8){
-    return(bdmcmc.low(data, n, meanzero, iter, burn, skip, gamma.b, prior.g, b, D, A, MCiter, summary, verbose))
+    return(bdmcmc.low(data, n, meanzero, iter, burn, skip, gamma.b, prior.g, b, D, A, MCiter, summary, verbose, all.A))
   } else {
-    return(bdmcmc.high(data, n, meanzero, iter, burn, skip, gamma.b, prior.g, b, D, A, summary, verbose))
+    return(bdmcmc.high(data, n, meanzero, iter, burn, skip, gamma.b, prior.g, b, D, A, summary, verbose, all.A))
   }
 }
 # function for comuting probability of all links in graph
@@ -422,9 +448,9 @@ phat = function(output, round = 3)
    for (i in 1:(p-1)){
       for (j in (i+1):p){
          for (k in 1:length(As)){
-             phat[i,j] <- phat[i,j] + As[[k]][i,j] / lambda[k]
+             phat[i,j] <- phat[i,j] + As[[k]][i,j] * lambda[k]
          }
-         phat[i,j] <- phat[i,j] / (sum(1 / lambda))
+         phat[i,j] <- phat[i,j] / (sum(lambda))
       }
    }
    cat(paste(""), fill = TRUE)
@@ -439,9 +465,12 @@ prob.g = function(A, output)
    lambda <- output$lambda
    lambda.g <- vector()
    for (i in 1:length(As)){
-       if (identical(A,As[[i]]) == TRUE) lambda.g <- c(lambda.g, lambda[i])
-   }
-   round(sum(1 / lambda.g) / sum(1 / lambda), 4)
+       if (identical(A,As[[i]]) == TRUE) lambda.g <- lambda[i]
+	   }
+   cat(paste(""), fill = TRUE)
+   mes = paste(c("  Posterior probability of the graph = ", round(lambda.g / sum(lambda), 4)), collapse = "")
+   cat(mes, "\r")
+   cat("\n")
 }
 # plot for probability of graphs according to number of their links
 plotLinks = function(output, xlim = c(0, (nrow(output$As[[1]])) * (nrow(output$As[[1]]) - 1) / 2))
@@ -452,10 +481,10 @@ plotLinks = function(output, xlim = c(0, (nrow(output$As[[1]])) * (nrow(output$A
    nominator <- c(rep(0, xlim[2] - xlim[1] + 1))
    for (i in 1:length(As)){
       for (j in xlim[1]:xlim[2]){
-          if (sum(As[[i]]) == j) {nominator[j - xlim[1] + 1] <- nominator[j - xlim[1] + 1] + 1 / lambda[i]}
+          if (sum(As[[i]]) == j) {nominator[j - xlim[1] + 1] <- nominator[j - xlim[1] + 1] + lambda[i]}
       }
    }
-   plot(x = xlim[1]:xlim[2], y = nominator / sum(1 / lambda), type = "h", main = "",
+   plot(x = xlim[1]:xlim[2], y = nominator / sum(lambda), type = "h", main = "",
    ylab = "Pr(number of links in the graph|data)", xlab = "number of links in the graph")
 }
 # function for checking the convergency of the BDMCMC algorithm
@@ -509,56 +538,18 @@ plotSum = function(output, xlim = c(0, length(output$allA)))
     ylab = "sum of links in the graphs", xlab = "iterations")
 }
 # Program for computing the probability of all possible graphical models by using the result of BDMCMC algorithm
-prob.allg = function(output, verbose = TRUE)
+prob.allg = function(output)
 {
-   As.lim <- output$As
-   lambda <- output$lambda
-   lambda.lim <- lambda
-   list.A <- list.lambda <- list()
-   fre <- vector()
-   i <- 0
-   while (length(As.lim) > 1){
-      i <- i + 1
-      if (verbose == TRUE){
-	     mes <- paste(c("    Model selection .... in progress : ", floor(100 * (1 - length(As.lim) / length(output$As))), "%"), collapse = "")
-	     cat(mes, "\r")
-	     flush.console()	
-        }  
-      list.A[[i]] <- As.lim[[1]]
-      list.lambda[[i]] <- vector()
-      free <- 0
-      As.lim2 <- As.lim
-      lambda.lim2 <- lambda.lim
-      for (g in 1:length(As.lim)){
-         if (identical(list.A[[i]], As.lim[[g]]) == TRUE){
-            list.lambda[[i]] = c(list.lambda[[i]], lambda.lim[g])
-            As.lim2 <- As.lim2[- (g - free)]
-		        lambda.lim2 <- lambda.lim2[- (g - free)]
-		        free <- free + 1
-         }
-      }
-      As.lim <- As.lim2
-      lambda.lim <- lambda.lim2
-      fre[i] <- free
-   }
-   prob.A <- vector()
-   for (i in 1:length(list.A)){
-       prob.A[i] <- sum(1 / list.lambda[[i]]) / sum(1 / lambda)
-   }
-   if(verbose == TRUE){
-	 mes = paste(c("    Model selection .... done.                                  "), collapse = "")
-     cat(mes, "\r")
-     cat("\n")
-     flush.console()
-   }  
-   return(list(list.A = list.A, prob.A = prob.A))
+  list.A <- output$As
+  lambda <- output$lambda
+  return(list(list.A = list.A, prob.A = lambda / sum(lambda)))
 }                                              
 # function summary of the result
-select.g = function (output, g = 1, K = FALSE, verbose = TRUE)
+select.g = function (output, g = 1, K = FALSE)
 {
-  output.allg <- prob.allg(output, verbose = verbose)
-  list.A <- output.allg$list.A
-  prob.A <- output.allg$prob.A
+  list.A <- output$As
+  lambda <- output$lambda
+  prob.A <- lambda / sum(lambda)
   best.graph <- list.A[[which(prob.A == max(prob.A))]]
   for (i in 1:g){
     dev.new()
@@ -601,6 +592,48 @@ select.g = function (output, g = 1, K = FALSE, verbose = TRUE)
 	 return(round(bestK / length(bestK), 3))
 	}
 }
+# for comparing the result with different packages or approaches
+compare = function (est.g, true.g) 
+{
+true.g <- as.matrix(true.g) # true.g is the adjacency matrix of true graph 
+est.g <- as.matrix(est.g)   # est.g is the adjacency matrix of estimated graph 
+true.g[lower.tri(true.g, diag = T)] <- 0
+est.g[lower.tri(est.g, diag = T)] <- 0
+p <- nrow(true.g)
+tp.all <- (true.g != 0) * (est.g != 0) 
+fp.all <- (true.g == 0) * (est.g != 0) 
+fn.all <- (true.g != 0) * (est.g == 0) 
+tn.all <- (true.g == 0) * (est.g == 0)
+tp <- sum(tp.all)
+fp <- sum(fp.all)
+fn <- sum(fn.all)
+tn <- sum(tn.all) - (p * (p + 1)) / 2
+# positive predictive value  
+Precision <- tp / (tp + fp) 
+if (is.na(Precision)) Precision <- 0
+# Precision is the probabilty that a randomly selected link is relevant
+Recall <-  tp / (tp + fn) # also called TPR
+if (is.na(Recall)) Recall <- 0
+# Recall is the probability that a randomely selected relevant link 
+# is retrieved in a search 
+FPR <- fp / (fp + tn) # False positive rate
+if (is.na(FPR)) FPR <- 0
+Accuracy <- (tp + tn) / (tp + tn + fp + fn)
+if (is.na(Accuracy)) Accuracy <- 0
+# Specificity <- tn / (tn + fp) # or 1 - false positive rate 
+# Sensitivity <- tp / (tp + fn) # or true positive rate
+# F1score <- 2 * (Precision * Recall) / (Precision + Recall)
+F1score <- (2 * tp) / (2 * tp + fp + fn)
+if (is.na(F1score)) F1score <- 0
+# harmonic mean of precision and recall, called F-measure or balanced F-score:
+compare.list <- list(true.positive = tp, true.negative = tn, false.positive = fp, false.negative = fn, 
+            Accuracy = Accuracy, F1score = F1score, Precision = Precision, Recall = Recall, FPR = FPR)
+compare.matrix <- as.matrix(compare.list)
+rownames(compare.matrix) <- c("true positive", "true negative", "false positive", "false negative", 
+             "accuracy", "balanced F-score", "positive predictive value", "true positive rate", "false positive rate")
+return(compare.matrix)
+}
+
 
 
 

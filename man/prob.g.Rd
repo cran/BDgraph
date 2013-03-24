@@ -47,7 +47,7 @@ Abdolreza Mohammadi and Ernst Wit
   output <- bdmcmc(data, meanzero = T, iter = 2000)
   
   A <- ceiling (truK)
-  A[lower.tri[A, biag = T]] <- 0
+  A[lower.tri(A, diag = T)] <- 0
   A # matrix A shows circle graph with 8 links and 8 nodes which is the true graphical model
   
   prob.g(A, output)
