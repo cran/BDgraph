@@ -9,7 +9,7 @@ According to output of the BDMCMC algorithm, this function gives us the
  graphical models with the highest posterior probabilities.  
 }
 \usage{
-select.g(output, g = 1, K = FALSE)
+select.g(output, g = 1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,9 +18,6 @@ a list which is the result of the BDMCMC algorithm from the 'bdmcmc', 'bdmcmc.lo
 }
   \item{g}{
 you can select the number of graphical models with highest probabilities (default is 1).
-}
-  \item{K}{
-logical: if TRUE you will see the estimation of precision matrix for the best graph; default is FALSE.
 }
 }
 \references{
@@ -35,8 +32,6 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  require(MASS)
-  
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)
@@ -49,6 +44,6 @@ Abdolreza Mohammadi and Ernst Wit
   data <- mvrnorm(200, c(rep(0,p)), solve(truK))
   
   output <- bdmcmc(data, meanzero = T, iter = 2000)
-  select.g(output, K = TRUE)
+  select.g(output)
   }
 }

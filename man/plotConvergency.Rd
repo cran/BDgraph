@@ -9,7 +9,7 @@ Plot the cumulative occupancy fractions for all possible edges.
 It is a tool for checking the convergency of the BDMCMC algorithm.
 }
 \usage{
-plotConvergency(output, skip = 1, verbose = TRUE)
+plotConvergency(output, skip = ceiling(length(output$allA) / 2000), verbose = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -20,7 +20,7 @@ a list which is the result of BDMCMC algorithm from the 'bdmcmc', 'bdmcmc.low', 
 it is a option for getting fast result for a cumulative plot according to part of the iterations.
 }
   \item{verbose}{
-logical: if verbose = TRUE, tracing information printing is enabled. Default is TRUE.
+logical: if verbose = TRUE, tracing information printing is abled. The default value is TRUE.
 }
 }
 \details{
@@ -41,8 +41,6 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  require(MASS)
-  
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)

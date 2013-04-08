@@ -21,6 +21,7 @@ adjacency for the true graph in which \eqn{a_{ij}=1}{aij = 1} if there is a link
 }
 }
 \value{
+Returns an output of the BDMCMC algorithm which is list-like and contains the following:
 \item{true positive}{the number of correctly estimated links.}
 \item{true negative}{the number of true non-existing links which is correctly estimated.}
 \item{false positive}{the number of links which they are not in the true graph, but are incorrectly estimated.}
@@ -47,8 +48,6 @@ Antonio Abbruzzo, Ivan Vujacic, Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  require(MASS)
-  
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)

@@ -32,8 +32,6 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  require(MASS)
-  
   p <- 8 # number of nodes 
   # "truK" is the precision matrix of true graph
   truK <- diag(p)

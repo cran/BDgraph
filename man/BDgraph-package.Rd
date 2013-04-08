@@ -3,7 +3,7 @@
 \alias{BDgraph}
 \docType{package}
 \title{
-Bayesian undirected graph estimation with BD-MCMC
+Bayesian undirected graph estimation with BDMCMC algorithm
 }
 \description{
 The R package BDgraph is a statistical tool for Bayesian model selection in 
