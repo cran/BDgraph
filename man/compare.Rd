@@ -1,24 +1,29 @@
 \name{compare}
 \alias{compare}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
-Comparing the result according to the true graph
+Comparing the results according to the true graph
 }
 \description{
-According to the true graph structure, with "compare" function we can compare the result for bdmcmc algorithm. 
+With this function we can compare the result from BDMCMC algorithm or other approches, according to the true graph structure. 
 }
 \usage{
-compare(est.g, true.g) 
+compare(true.g, est.g, est.g2 = NULL, colnames = NULL) 
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
-  \item{est.g}{
-adjacency matrix for estimated graph in which \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.}
   \item{true.g}{
-adjacency for the true graph in which \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}. 
+adjacency for the true graph in which \eqn{true.g_{ij}=1}{true.gij = 1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{true.g_{ij}=0}{true.gij = 0}. 
 }
+  \item{est.g}{
+adjacency matrix for estimated graph in which \eqn{est.g_{ij}=1}{est.gij = 1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{est.g_{ij}=0}{est.gij = 0}.}
+  \item{est.g2}{
+adjacency matrix for second estimated graph in which \eqn{est.g2_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{est.g2_{ij}=0}{est.g2ij = 0}.}
+  \item{colnames}{
+a character vector giving the column names for the result table.}
 }
 \value{
 Returns an output of the BDMCMC algorithm which is list-like and contains the following:
@@ -41,41 +46,27 @@ Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based
 MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 }
 \author{
-Antonio Abbruzzo, Ivan Vujacic, Abdolreza Mohammadi and Ernst Wit
+Antonio Abbruzzo, Ivan Vujacic, Abdolreza Mohammadi, and Ernst Wit \cr
+Maintainer: Abdolreza Mohammadi<a.mohammadi@rug.nl>
 }
 \seealso{
-\code{\link{bdmcmc}} and \code{\link{select.g}}
+\code{\link{bdgraph}} and \code{\link{select}}
 }
 \examples{
 \dontrun{
-  p <- 8 # number of nodes 
-  # "truK" is the precision matrix of true graph
-  truK <- diag(p)
-  for (i in 1:(p-1)) truK[i,i+1] <- truK[i+1,i] <- 0.5
-  truK[1,p] <- truK[p,1] <- 0.4
-  truK # precision matrix of the true graph
+  # generate the data (100 observations) from multivariate normal distribution
+  data <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  # generate the data (200 observations) from multivariate normal 
-  # distribution with mean zero and percision matrix "truK"
-  data <- mvrnorm(200, c(rep(0,p)), solve(truK))  
-  
-  # selecting the best graph according to bdmcmc algorithm
-  output <- bdmcmc(data, meanzero = T, iter = 5000)
-  bdmcmc.g <- select.g(output)
+  # selecting the best graph according to BDMCMC algorithm
+  output <- bdgraph(data $ data, meanzero = T, iter = 5000)
+  bdgraph.g <- select(output)
 
   # selecting the best graph according to glasso by using huge package
-  huge.g <- huge(data, method = "glasso")
-  huge.g <- huge.select(huge.g, criterion = "stars")    
-  
-  true.g <- ceiling (truK)
-  true.g # matrix A shows circle graph with 8 links and 8 nodes which is the true graphical model
+  glasso <- huge(data $ data, method = "glasso")
+  glasso <- huge.select(glasso, criterion = "stars")    
   
   # comparing the result by using "compare" function
-  compare.true <- compare(est.g = true.g, true.g = true.g)
-  compare.bdmcmc <- compare(est.g = bdmcmc.g, true.g = true.g)
-  compare.huge <- compare(est.g = huge.g$refit, true.g = true.g)  
-  compare.all <- cbind(compare.true, compare.bdmcmc, compare.huge)
-  colnames(compare.all) <- c("True graph", "BDgraph", "huge")
-  compare.all   
+  compare(true.g = data $ A, est.g = bdgraph.g, est.g2 = glasso $ refit, 
+          colnames = c("true graph", "BDgraph", "glasso"))
   }
 }

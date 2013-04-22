@@ -1,27 +1,30 @@
-\name{phat}
-\alias{phat}
+\name{densplot}
+\alias{densplot}
 
 \title{
-Posterior edge inclusion probabilities
+Plot of posterior distribution for graphs according to their size
 }
 \description{
-According to the output of BDMCMC algorithm, this function gives us the posterior edge inclusion 
-probabilities for all possible edges.
+This function is for ploting the posterior distribution of all possible graphs according to number
+of their links.
 }
 \usage{
-phat(output, round = 3)
+densplot(output, xlim = NULL, ylim = NULL, main = NULL)
 }
 
 \arguments{
   \item{output}{
 a list which is the result of BDMCMC algorithm from the 'bdgraph' function. 
 }
-  \item{round}{
-a number for rounding all probabilities to the specified number of decimal places (default 3).
+  \item{xlim}{
+graphical parameter (see plot).
 }
+  \item{ylim}{
+graphical parameter (see plot).
 }
-\value{
-\item{phat}{upper triangular matrix which shows the posterior inclusion probabilities for all possible edges.}
+  \item{main}{
+graphical parameter (see plot).
+}
 }
 \references{
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
@@ -39,9 +42,8 @@ Abdolreza Mohammadi and Ernst Wit
   # generate the data (100 observations) from multivariate normal distribution
   data <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000)
+  output <- bdgraph(data$data, meanzero = T, iter = 2000)
   
-  phat(output, round = 2)
+  densplot(output)
   }
 }
-
