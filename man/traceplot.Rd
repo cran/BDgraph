@@ -2,11 +2,11 @@
 \alias{traceplot}
 
 \title{
-Trace plot of graph size from bdgraph output
+Trace plot of graph size
 }
 \description{
 Trace plot of graph size from all bdgraph output. 
-It is a tool for checking the convergency of the BDMCMC algorithm.
+It is a tool for checking the convergency of the BD-MCMC algorithm.
 }
 \usage{
 traceplot (output, acf = FALSE, pacf = FALSE, xlim = NULL, ylim = NULL, main = NULL)
@@ -14,7 +14,7 @@ traceplot (output, acf = FALSE, pacf = FALSE, xlim = NULL, ylim = NULL, main = N
 
 \arguments{
   \item{output}{
-a list which is the result of BDMCMC algorithm from the 'bdgraph' function. 
+a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{acf}{
 logical: if TRUE you will see the plot of autocorrelation functions for graph sizes. The default is FALSE. 
@@ -48,7 +48,7 @@ Abdolreza Mohammadi and Ernst Wit
   # generate the data (100 observations) from multivariate normal distribution
   data <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000, save.all = TRUE)
+  output <- bdgraph(data, meanzero = T, iter = 2000, save.all = TRUE)
   
   traceplot(output)
   

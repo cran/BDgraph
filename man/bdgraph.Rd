@@ -2,10 +2,10 @@
 \alias{bdgraph}
 
 \title{
-Graph estimation besed on BDMCMC algorithm 
+Graph determination based on BD-MCMC algorithm 
 }
 \description{
-This function is the BDMCMC algorithm for model selection in undirected Gaussian 
+This function is the BD-MCMC algorithm for model selection in undirected Gaussian 
 graphical models based on birth-death MCMC methodology. It works for both low 
 and high dimensional graphs.
 }
@@ -28,15 +28,15 @@ the number of observations.
 logical: if TRUE that means the data have zero mean; if FALSE (default) the mean of the data should not be zero.
 }
   \item{model}{
-a character with two options "high" and "low" to determine a type of BDMCMC algorithm. Option "high" is for a 
+a character with two options "high" and "low" to determine a type of BD-MCMC algorithm. Option "high" is for a 
 high-dimensional graphs (roughly graph with more than 8 nodes) and option "low" is for a low-dimensional graphs.
 For more ditails see reference paper.
 }
   \item{iter}{
-the number of iterations for the BDMCMC algorithm.
+the number of iterations for the BD-MCMC algorithm.
 }
   \item{burnin}{
-the number of burn-in iterations for the BDMCMC algorithm.
+the number of burn-in iterations for the BD-MCMC algorithm.
 }
   \item{skip}{
 it is the option for regularly saving part of the iterations. Default is 1 (for saving all iterations).
@@ -61,7 +61,7 @@ the positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}{WG(b,D)}
 distribution of precision matrix.
 }
   \item{start.g}{
-it shows the starting graph for BDMCMC algorithm. It is an upper triangular matrix in which 
+it shows the starting graph for BD-MCMC algorithm. It is an upper triangular matrix in which 
 \eqn{a_{ij}=1}{aij = 1} if there is a link between nodes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.
 It can be either "full" (default) or "empty" or "glasso". "full" means we start with full graph. "empty" means we start
 with empty graph. "glasso" means we start with a graph which is suggested by glasso method according to huge package. 
@@ -73,22 +73,22 @@ the number of iterations for Monte Carlo approximation of normalizing constant i
 We need it only when number of nodes in the graph is less than 8.
 }
   \item{summary}{
-logical: if TRUE you will see the summary result of BDMCMC algorithm; if FALSE (default), the output will be a 
+logical: if TRUE you will see the summary result of BD-MCMC algorithm; if FALSE (default), the output will be a 
 list as below.
 }
   \item{verbose}{
-logical: if verbose = TRUE, tracing number of iterations in BDMCMC algorithm printing is abled. The default value is TRUE.
+logical: if verbose = TRUE, tracing number of iterations in BD-MCMC algorithm printing is abled. The default value is TRUE.
 }
   \item{save.all}{
 logical: if save.all = FALSE, we save the matrix A after burn-in iteration. The default value is FALSE. If save.all = FALSE,
 we save all matrix A from starting point of iteration.
 }
   \item{ last.objects}{
-If you would like to run the BDMCMC algorithm for several times, with this obtion you can run the bdgraph from last 
+If you would like to run the BD-MCMC algorithm for several times, with this obtion you can run the bdgraph from last 
 object of previous run. 
 }
   \item{time}{
-running time of BDMCMC algorithm from system.time().
+running time of BD-MCMC algorithm from system.time().
 }
 }
 \value{
@@ -96,7 +96,7 @@ an object with S3 class "bdgraph" as follow:
 \item{As}{a vector which includes the adjacency matrix for all iterations after burn-in iterations.}
 \item{lambda}{a vector which includes the waiting times for all iterations after burn-in iterations.}
 \item{allA}{a vector which includes all adjacency matrix for all iterations (includes burn-in iterations). 
-We need the 'allA' for checking the convergency of the BDMCMC algorithm.}
+We need the 'allA' for checking the convergency of the BD-MCMC algorithm.}
 \item{Khat}{a mean of all precision matrices.}
 \item{p}{the number of nodes in the graph.}
 }
@@ -113,18 +113,17 @@ Abdolreza Mohammadi and Ernst Wit
 \examples{
 \dontrun{
   # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  data <- bdgraph.sim(n = 100, p = 8, size = 10, vis = T)
   
-  bdgraph(data $ data, meanzero = T, iter = 2000, summary = T)
-  
-  # we also can run 
-  bdgraph(data $ data, meanzero = T, model = "low", iter = 2000, summary = T)
+  bdgraph(data, meanzero = T, iter = 2000, summary = T)
   
   # for compare our result with true graph, we can run
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000)
-  bdgraph.g <- select(output)
+  output <- bdgraph(data, meanzero = T, iter = 2000)
   
-  compare(true.g = data $ A, est.g = bdgraph.g, colnames = c("True graph", "BDgraph"))
+  compare(data, output, colnames = c("True graph", "BDgraph"))
+  
+  # we also can run which talk more time
+  bdgraph(data, meanzero = T, model = "low", iter = 2000, summary = T)
   }
 }
 

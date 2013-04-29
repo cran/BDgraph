@@ -5,7 +5,7 @@
 Posterior edge inclusion probabilities
 }
 \description{
-According to the output of BDMCMC algorithm, this function gives us the posterior edge inclusion 
+According to the output of BD-MCMC algorithm, this function gives us the posterior edge inclusion 
 probabilities for all possible edges.
 }
 \usage{
@@ -14,7 +14,7 @@ phat(output, round = 3)
 
 \arguments{
   \item{output}{
-a list which is the result of BDMCMC algorithm from the 'bdgraph' function. 
+a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{round}{
 a number for rounding all probabilities to the specified number of decimal places (default 3).
@@ -37,9 +37,9 @@ Abdolreza Mohammadi and Ernst Wit
 \examples{
 \dontrun{
   # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  data <- bdgraph.sim(n = 100, p = 8, graph = "circle", vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000)
+  output <- bdgraph(data, meanzero = T, iter = 2000)
   
   phat(output, round = 2)
   }

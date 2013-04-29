@@ -2,25 +2,31 @@
 \alias{plotcoda}
 
 \title{
-Cumulative occupancy fractions for checking the convergency
+Convergency plots
 }
 \description{
-Plot the cumulative occupancy fractions for all possible edges. 
-It is a tool for checking the convergency of the BDMCMC algorithm.
+This funciton according to "bdgraph" output gives us several plots. These plots are  
+useful tools for checking the convergency of the BD-MCMC algorithm.
 }
 \usage{
-plotcoda(output, skip = ceiling(length(output $ allA) / 2000), verbose = TRUE, main = NULL)
+plotcoda(output, skip = NULL, verbose = TRUE, xlim = NULL, ylim = NULL, main = NULL)
 }
 
 \arguments{
   \item{output}{
-a list which is the result of BDMCMC algorithm from the 'bdgraph' function. 
+a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{skip}{
 it is a option for getting fast result for a cumulative plot according to part of the iterations.
 }
   \item{verbose}{
 logical: if verbose = TRUE, tracing information printing is abled. The default value is TRUE.
+}
+  \item{xlim}{
+graphical parameter (see plot).
+}
+  \item{ylim}{
+graphical parameter (see plot).
 }
   \item{main}{
 graphical parameter (see plot).
@@ -44,9 +50,9 @@ Abdolreza Mohammadi and Ernst Wit
 \examples{
 \dontrun{
   # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  data <- bdgraph.sim(n = 100, p = 8, graph = "circle", vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000, save.all = TRUE)
+  output <- bdgraph(data, meanzero = T, iter = 2000, save.all = TRUE)
  
   plotcoda(output)
   }

@@ -5,10 +5,10 @@
 Comparing the results according to the true graph
 }
 \description{
-With this function we can compare the result from BDMCMC algorithm or other approches, according to the true graph structure. 
+With this function we can compare the result from BD-MCMC algorithm or other approches, according to the true graph structure. 
 }
 \usage{
-compare(true.g, est.g, est.g2 = NULL, colnames = NULL) 
+compare(true.g, est.g, est.g2 = NULL, colnames = NULL, plot = TRUE) 
 }
 
 \arguments{
@@ -24,9 +24,11 @@ adjacency matrix for second estimated graph in which \eqn{est.g2_{ij}=1}{aij = 1
 \eqn{j}{j}, otherwise \eqn{est.g2_{ij}=0}{est.g2ij = 0}.}
   \item{colnames}{
 a character vector giving the column names for the result table.}
+  \item{plot}{
+logical: if TRUE (default) you will see the plot result.}
 }
 \value{
-Returns an output of the BDMCMC algorithm which is list-like and contains the following:
+Returns an output of the BD-MCMC algorithm which is list-like and contains the following:
 \item{true positive}{the number of correctly estimated links.}
 \item{true negative}{the number of true non-existing links which is correctly estimated.}
 \item{false positive}{the number of links which they are not in the true graph, but are incorrectly estimated.}
@@ -35,7 +37,7 @@ Returns an output of the BDMCMC algorithm which is list-like and contains the fo
 true and false results.}
 \item{balanced F-score}{a weighted average of the "positive predictive value" and "true positive rate". F-score value 
 reaches its best value at 1 and worst score at 0.}
-\item{positive predictive value}{the number of correctly estimated links divided by the total number of links in the 
+\item{positive predictive}{the number of correctly estimated links divided by the total number of links in the 
 estimated graph.}
 \item{true positive rate}{the number of correctly estimated links divided by the total number of links in the true 
 graph.}
@@ -55,18 +57,18 @@ Maintainer: Abdolreza Mohammadi<a.mohammadi@rug.nl>
 \examples{
 \dontrun{
   # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  data <- bdgraph.sim(n = 100, p = 8, size = 9, vis = T)
   
-  # selecting the best graph according to BDMCMC algorithm
-  output <- bdgraph(data $ data, meanzero = T, iter = 5000)
-  bdgraph.g <- select(output)
+  # selecting the best graph according to BD-MCMC algorithm
+  output <- bdgraph(data, meanzero = T, iter = 5000)
+  compare(data, output, colnames = c("true graph", "BDgraph"))
 
   # selecting the best graph according to glasso by using huge package
   glasso <- huge(data $ data, method = "glasso")
   glasso <- huge.select(glasso, criterion = "stars")    
   
   # comparing the result by using "compare" function
-  compare(true.g = data $ A, est.g = bdgraph.g, est.g2 = glasso $ refit, 
+  compare(data, output, est.g2 = glasso $ refit, 
           colnames = c("true graph", "BDgraph", "glasso"))
   }
 }

@@ -3,7 +3,7 @@
 \alias{BDgraph}
 \docType{package}
 \title{
-Bayesian undirected graph estimation with BDMCMC algorithm
+Graph determination based on BD-MCMC algorithm
 }
 \description{
 The R package BDgraph is a statistical tool for Bayesian model selection in 
@@ -16,18 +16,20 @@ in Gaussian graphical models.
 
   Functions:
   \preformatted{
-bdgraph          Graph estimation besed on BDMCMC algorithm 
+bdgraph          Graph determination based on BD-MCMC algorithm 
 bdgraph.sim      Data generator according to graph structure  
 compare          Comparing the result according to the true graph
-I.g              Computing normalizing constant of G-Wishart distribution
+densplot         Plot of posterior distribution for graph size
+I.g              Normalizing constant of G-Wishart distribution
 phat             Posterior edge inclusion probabilities
 plot.bdgraph     Plot function for "bdgraph" output
-plotcoda         Cumulative occupancy fractions for checking the convergency
-densplot         Plot of posterior distribution for graphs according to their size
-prob             Posterior probabilities for most highest graphs or specific graph
+plotcoda         Convergency plots
 print.bdgraph    Print function for "bdgraph" output
-summary.bdgraph  Summary function for "bdgraph" output
+prob             Posterior probabilities of most highest or specific graphs
+rGWishart        Sampling from G-Wishart distribution
 select           Selecting the best graphs
+CellSignal       A flow cytometry dataset 
+summary.bdgraph  Summary function for "bdgraph" output
 traceplot        Trace plot of graph size from "bdgraph" output
   }
 }

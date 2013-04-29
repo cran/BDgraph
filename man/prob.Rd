@@ -5,7 +5,7 @@
 Posterior probabilities for most highest graphs or specific graph
 }
 \description{
-According to the output of the BDMCMC algorithm, this function gives us the 
+According to the output of the BD-MCMC algorithm, this function gives us the 
 posterior probability for the most highest graphs or a specific graph.
 }
 \usage{
@@ -14,7 +14,7 @@ prob(output, g = 2, A = NULL)
 
 \arguments{
   \item{output}{
-a list which is the result of BDMCMC algorithm from the 'bdgraph' function. 
+a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{g}{
 you can select the number of graphical models with highest probabilities (default is 1). 
@@ -43,7 +43,7 @@ Abdolreza Mohammadi and Ernst Wit
   # generate the data (100 observations) from multivariate normal distribution
   data <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data $ data, meanzero = T, iter = 2000)
+  output <- bdgraph(data, meanzero = T, iter = 2000)
   
   prob(output, A = as.matrix(data $ A))
   
