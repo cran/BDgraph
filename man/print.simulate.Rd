@@ -1,5 +1,5 @@
-\name{print.sim}
-\alias{print.sim}
+\name{print.simulate}
+\alias{print.simulate}
 
 \title{
  Print function for "bdgraph.sim" output
@@ -8,12 +8,12 @@
 print the sample size, the number of nodes, number of linkes, type and sparcity of the true graph.  
 }
 \usage{
-\method{print}{sim}(x, ...)
+\method{print}{simulate}(x, ...)
 }
 
 \arguments{
   \item{x}{
-an object with S3 class "sim". A list which is the result from the 'bdgraph.sim' function. 
+an object with S3 class "simulate". A list which is the result from the "bdgraph.sim" function. 
 }
   \item{\dots}{
 system reserved (no specific usege).
@@ -31,8 +31,8 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  data <- bdgraph.sim(n = 10, p = 8, vis = T)
+  data.sim <- bdgraph.sim(n = 10, p = 8, vis = T)
   
-  print(data)
+  print(data.sim)
   }
 }

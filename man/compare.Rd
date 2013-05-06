@@ -8,34 +8,30 @@ Comparing the results according to the true graph
 With this function we can compare the result from BD-MCMC algorithm or other approches, according to the true graph structure. 
 }
 \usage{
-compare(true.g, est.g, est.g2 = NULL, colnames = NULL, plot = TRUE) 
+compare(true, estimate, estimate2 = NULL, colnames = NULL, plot = TRUE) 
 }
 
 \arguments{
-  \item{true.g}{
-adjacency for the true graph in which \eqn{true.g_{ij}=1}{true.gij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{true.g_{ij}=0}{true.gij = 0}. 
+  \item{true}{
+adjacency matrix for the true graph in which \eqn{true_{ij}=1}{trueij = 1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{true_{ij}=0}{trueij = 0}. 
 }
-  \item{est.g}{
-adjacency matrix for estimated graph in which \eqn{est.g_{ij}=1}{est.gij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{est.g_{ij}=0}{est.gij = 0}.}
-  \item{est.g2}{
-adjacency matrix for second estimated graph in which \eqn{est.g2_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{est.g2_{ij}=0}{est.g2ij = 0}.}
-  \item{colnames}{
-a character vector giving the column names for the result table.}
-  \item{plot}{
-logical: if TRUE (default) you will see the plot result.}
-}
+  \item{estimate}{ adjacency matrix for estimated graph. }
+  
+  \item{estimate2}{ adjacency matrix for second estimated graph. }
+  
+  \item{colnames}{ a character vector giving the column names for the result table. }
+  
+  \item{plot}{ logical: if TRUE (default) you will see the plot result.} 
+  }
 \value{
-Returns an output of the BD-MCMC algorithm which is list-like and contains the following:
 \item{true positive}{the number of correctly estimated links.}
 \item{true negative}{the number of true non-existing links which is correctly estimated.}
 \item{false positive}{the number of links which they are not in the true graph, but are incorrectly estimated.}
 \item{false negative}{the number of links which they are in the true graph, but are not estimated.}
 \item{accuracy}{the number of true results (both true positives and true negatives) divided by the total number of
 true and false results.}
-\item{balanced F-score}{a weighted average of the "positive predictive value" and "true positive rate". F-score value 
+\item{balanced F-score}{a weighted average of the "positive predictive" and "true positive rate". F-score value 
 reaches its best value at 1 and worst score at 0.}
 \item{positive predictive}{the number of correctly estimated links divided by the total number of links in the 
 estimated graph.}
@@ -49,26 +45,24 @@ MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 }
 \author{
 Antonio Abbruzzo, Ivan Vujacic, Abdolreza Mohammadi, and Ernst Wit \cr
-Maintainer: Abdolreza Mohammadi<a.mohammadi@rug.nl>
 }
 \seealso{
 \code{\link{bdgraph}} and \code{\link{select}}
 }
 \examples{
 \dontrun{
-  # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, size = 9, vis = T)
+  # generate the data from multivariate normal distribution
+  data.sim <- bdgraph.sim(n = 100, p = 8, size = 9, vis = T)
   
   # selecting the best graph according to BD-MCMC algorithm
-  output <- bdgraph(data, meanzero = T, iter = 5000)
-  compare(data, output, colnames = c("true graph", "BDgraph"))
+  output <- bdgraph(data.sim, meanzero = T, iter = 5000)
+  compare(data.sim, output, colnames = c("true graph", "BDgraph"))
 
-  # selecting the best graph according to glasso by using huge package
-  glasso <- huge(data $ data, method = "glasso")
-  glasso <- huge.select(glasso, criterion = "stars")    
+  # selecting the best graph by huge package
+  huge.g <- huge(data.sim $ data, method = "mb")
+  huge.g <- huge.select(huge.g)    
   
   # comparing the result by using "compare" function
-  compare(data, output, est.g2 = glasso $ refit, 
-          colnames = c("true graph", "BDgraph", "glasso"))
+  compare(data.sim, output, estimate2 = huge.g $ refit, colnames = c("true graph", "BDgraph", "huge"))
   }
 }

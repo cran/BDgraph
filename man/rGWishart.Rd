@@ -20,11 +20,11 @@ integer sample size.
 the degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}{WG(b, D)}.
 }
   \item{D}{
-the positive definite \eqn{(p * p)}{(p * p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}{WG(b, D)}.
+the positive definite \eqn{(p \times p)}{(p x p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}{WG(b, D)}.
 }
   \item{G}{
-adjacency matrix which shows the garph structure. It is an upper triangular matrix in which \eqn{G_{ij}=1}{Gij = 1} 
-if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{G_{ij}=0}{Gij = 0}.
+adjacency matrix which shows the graph structure. It is an upper triangular matrix in which \eqn{g_{ij}=1}{gij = 1} 
+if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{g_{ij}=0}{gij = 0}.
 }
   \item{method}{
 a character with two options "block gibbs" and "accept-reject" to determine a type of sampling method. Option 
@@ -39,9 +39,11 @@ starting point for "block gibbs" method.
 Sampling from G-Wishart(b,D) distribution with density:
 
   \deqn{p(K) \propto |K| ^ {(b - 2) / 2} exp(- \frac{1}{2} trace(K \times D))}
+
+which \eqn{b > 2} is the degree of freedom and D is a symmetric positive definite matrix.
 }
 \value{
-a numeric array, say R, of dimension \eqn{(p * p * n)}{(p * p * n)}, where each \eqn{R[,,i]}{R[,,i]} is a positive 
+a numeric array, say R, of dimension \eqn{(p \times p \times n)}{(p x p x n)}, where each \eqn{R[,,i]}{R[,,i]} is a positive 
 definite matrix, a realization of the G-Wishart distribution \eqn{W_G(b, D)}{WG(b, D)}.
 }
 \references{
@@ -61,9 +63,8 @@ Abdolreza Mohammadi and Ernst Wit
 \dontrun{
    G <- matrix(rbinom(5 ^ 2, 1, 0.5), 5, 5) 
 
-   rGWishart(n = 2, b = 3, D = diag(5), G = G, method = "block gibbs")
-
-   rGWishart(n = 2, b = 3, D = diag(5), G = G, method = "accept-reject")
+   sample <- rGWishart(n = 100, b = 3, D = diag(5), G = G, method = "block gibbs")
+   round(sample, 2)
    }
 }
 

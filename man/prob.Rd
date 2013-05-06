@@ -9,7 +9,7 @@ According to the output of the BD-MCMC algorithm, this function gives us the
 posterior probability for the most highest graphs or a specific graph.
 }
 \usage{
-prob(output, g = 2, A = NULL)
+prob(output, g = 2, G = NULL)
 }
 
 \arguments{
@@ -17,16 +17,16 @@ prob(output, g = 2, A = NULL)
 a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
 }
   \item{g}{
-you can select the number of graphical models with highest probabilities (default is 1). 
+you can select the number of graphs with highest probabilities (default is 1). 
 }
-  \item{A}{
-upper triangular matrix in which \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}. 
+  \item{G}{
+adjacency matrix which shows the graph structure. It is an upper triangular matrix in which \eqn{g_{ij}=1}{gij = 1} 
+if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{g_{ij}=0}{gij = 0}. 
 }
 }
 \value{
-\item{list.A }{ a list which includes the grpahs with the highest posterior probabilities.}
-\item{prob.A }{ a vector which includes posterior probabilities of all the graphs in 'list.A'.}
+\item{ best.G }{ the graphs with the highest posterior probabilities.}
+\item{ prob.G }{ a vector which includes posterior probabilities of the graphs in 'best.G'.}
 }
 \references{
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
@@ -40,13 +40,13 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, vis = T)
+  # generate the data from multivariate normal distribution
+  data.sim <- bdgraph.sim(n = 100, p = 8, vis = T)
   
-  output <- bdgraph(data, meanzero = T, iter = 2000)
+  output <- bdgraph(data.sim, meanzero = T, iter = 2000)
   
-  prob(output, A = as.matrix(data $ A))
+  prob(output, G = as.matrix(data.sim $ G))
   
-  prob(output, g = 3)
+  prob(output, g = 2)
   }
 }

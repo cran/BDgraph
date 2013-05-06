@@ -1,20 +1,18 @@
 Package: BDgraph
 Type: Package
-Title: Graph determination based on BD-MCMC algorithm
-Version: 2.5
+Title: Graph determination based on birth-death MCMC
+Version: 2.6
 Date: 2013-02-04
 Author: Abdolreza Mohammadi and Ernst Wit
-Depends: R (>= 3.0.0), igraph, Matrix, huge
+Depends: R (>= 3.0.0), huge, Matrix, igraph, MASS
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
-Description: The R package BDgraph is a statistical tool for Bayesian
-        model selection in undirected Gaussian graphical models. Our
-        Bayesian methodology is based on birth-death MCMC algorithm.
-        The main function is 'bdgraph' which is a birth-death MCMC
-        algorithm for Bayesian model selection in undirected Gaussian
-        graphical models.
+Description: The package 'BDgraph' is a statistical tool for model
+        selection in undirected Gaussian graphical models. Our Bayesian
+        methodology is based on birth-death MCMC algorithm. The main
+        function is 'bdgraph' which is a birth-death MCMC algorithm.
 License: GPL (>= 3)
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2013-04-29 16:50:41 UTC; P262842
+Packaged: 2013-05-06 16:33:20 UTC; P262842
 Repository: CRAN
-Date/Publication: 2013-04-29 20:31:32
+Date/Publication: 2013-05-06 21:32:42
 NeedsCompilation: no

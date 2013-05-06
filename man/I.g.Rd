@@ -14,15 +14,15 @@ I.g(G, b = 3, D = diag(ncol(G)), MCiter = 100)
 
 \arguments{
   \item{G}{
-adjacency matrix which shows the garph structure. It is an upper triangular matrix in which 
-\eqn{a_{ij}=1}{Gij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
-otherwise \eqn{G_{ij}=0}{Gij = 0}.
+adjacency matrix which shows the graph structure. It is an upper triangular matrix in which 
+\eqn{g_{ij}=1}{gij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
+otherwise \eqn{g_{ij}=0}{gij = 0}.
 }
   \item{b}{
 the degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}{WG(b, D)}. The default is 3.
 }
   \item{D}{
-the positive definite \eqn{(p * p)}{(p * p)} "scale" matrix for G-Wishart distribution, 
+the positive definite \eqn{(p \times p)}{(p x p)} "scale" matrix for G-Wishart distribution, 
 \eqn{W_G(b,D)}{WG(b,D)}. The default is identity matrix.
 }
   \item{MCiter}{
@@ -52,7 +52,7 @@ Abdolreza Mohammadi and Ernst Wit
 G <- matrix(c(0,0,1,
               0,0,1,
 		              0,0,0), 3, 3, byrow = TRUE) 
-# matrix G shows full graph with 3 nodes and 3 edges
+# matrix G shows a graph with 3 nodes and 2 links
 I.g(G, b = 3, D = diag(3))
 }
 

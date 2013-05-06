@@ -11,13 +11,10 @@
 \alias{roc}
 \docType{data}
 
-\title{
-Inernal functions and datasets
-}
-\description{
-Nothing to see here move along
-}
-\author{
-Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit
-}
+\title{ Inernal bdgraph functions and datasets }
+
+\description{ Nothing to see here move along }
+
+\author{ Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit }
+
 \keyword{ internal }

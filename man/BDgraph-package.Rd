@@ -3,7 +3,7 @@
 \alias{BDgraph}
 \docType{package}
 \title{
-Graph determination based on BD-MCMC algorithm
+Graph determination based on birth-death MCMC
 }
 \description{
 The R package BDgraph is a statistical tool for Bayesian model selection in 

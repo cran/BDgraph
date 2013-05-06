@@ -1,5 +1,5 @@
-\name{plot.sim}
-\alias{plot.sim}
+\name{plot.simulate}
+\alias{plot.simulate}
 
 \title{
  Plot function for "bdgraph.sim" output
@@ -8,12 +8,12 @@
 Visualize the structure of true graph.  
 }
 \usage{
-\method{plot}{sim}(x, main = NULL, layout = layout.circle, ...)
+\method{plot}{simulate}(x, main = NULL, layout = layout.circle, ...)
 }
 
 \arguments{
   \item{x}{
-an object with S3 class "sim". A list which is the result from the 'bdgraph.sim' function. 
+an object with S3 class "simulate". A list which is the result from the 'bdgraph.sim' function. 
 }
   \item{main}{
 graphical parameter(see plot).
@@ -38,8 +38,8 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  data <- bdgraph.sim(n = 10, p = 15, vis = T)
+  data.sim <- bdgraph.sim(n = 10, p = 15)
   
-  plot(data)
+  plot(data.sim)
   }
 }

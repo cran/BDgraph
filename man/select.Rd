@@ -5,8 +5,8 @@
  Selecting the best graphs
 }
 \description{
-According to output of the BD-MCMC algorithm, this function gives us the
- graphical models with the highest posterior probabilities.  
+According to output of the BD-MCMC algorithm, this function gives us the graphs with the highest 
+posterior probabilities.  
 }
 \usage{
 select(output, plot = FALSE)
@@ -22,7 +22,7 @@ logical: if TRUE you will see the plot of best graph. The default is FALSE.
 
 }
 \value{
-\item{A}{Adjacency matrix for the best graph (graph with the highest posterior probability) according to  bdgraph result.}
+\item{G}{ Adjacency matrix for the best graph (graph with the highest posterior probability).}
 }
 \references{
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
@@ -36,10 +36,10 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  # generate the data (100 observations) from multivariate normal distribution
-  data <- bdgraph.sim(n = 100, p = 8, size = 10, vis = T)
+  # generate the data from multivariate normal distribution
+  data.sim <- bdgraph.sim(n = 100, p = 8, size = 10, vis = T)
   
-  output <- bdgraph(data, meanzero = T, iter = 2000)
+  output <- bdgraph(data.sim, meanzero = T, iter = 2000)
   
   select(output)
   }

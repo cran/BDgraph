@@ -10,7 +10,7 @@ Implements the data generation from multivariate normal distributions with diffe
 }
 \usage{
 bdgraph.sim(n = 1, p = 10, graph = "random", size = NULL, prob = NULL, v = NULL, 
-             u = NULL, A = NULL, K = NULL, sigma = NULL, vis = FALSE)
+             u = NULL, G = NULL, K = NULL, sigma = NULL, vis = FALSE)
 }
 
 \arguments{
@@ -34,29 +34,29 @@ the off-diagonal elements of the precision matrix, controlling the magnitude of 
 The default value is 0.3.
 }
   \item{u}{
-A positive number being added to the diagonal elements of the precision matrix, to control the magnitude of partial 
+a positive number being added to the diagonal elements of the precision matrix, to control the magnitude of partial 
 correlations. The default value is 0.1.
 }
-  \item{A}{
-upper triangular matrix in which \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{a_{ij}=0}{aij = 0}.
+  \item{G}{
+adjacency matrix which shows the graph structure. It is an upper triangular matrix in which \eqn{g_{ij}=1}{gij = 1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{g_{ij}=0}{gij = 0}.
 }
   \item{K}{
-a positive-de?nite symmetric matrix specifying the precision matrix of the variables. It is for "fixed" option of graph.
+a positive-definite symmetric matrix specifying the precision matrix of the variables. It is for "fixed" option of graph.
 }
   \item{sigma}{
-a positive-de?nite symmetric matrix specifying the covariance matrix of the variables. It is for "fixed" option of graph.
+a positive-definite symmetric matrix specifying the covariance matrix of the variables. It is for "fixed" option of graph.
 }
   \item{vis}{
-visualize the graph pattern. The default value is FALSE.
+visualize the true graph pattern. The default value is FALSE.
 }
 }
 \value{
-an object with S3 class "sim" as follow:
+an object with S3 class "simulate" as follow:
 \item{data}{the \eqn{n \times p}{n x p} matrix for the generated data}
 \item{sigma}{the covariance matrix of the generated data}
 \item{K}{the precision matrix of the generated data}
-\item{A}{the adjacency matrix of true graph structure}
+\item{G}{the adjacency matrix of true graph structure}
 }
 \references{
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
@@ -70,7 +70,7 @@ Abdolreza Mohammadi and Ernst Wit
 }
 \examples{
 \dontrun{
-  # generate the data (100 observations) from multivariate normal distribution
+  # generate the data from multivariate normal distribution
   data.sim <- bdgraph.sim(n = 100, p = 8, size = 10, vis = T)
   print(data.sim)
   
