@@ -1,17 +1,17 @@
 \name{BDgraph-internal}
 \alias{BDgraph-internal}
-\alias{rates.high}
-\alias{rates.low}
+
+\alias{ratesf}
 \alias{Exp.MC}
 \alias{Psi}
-\alias{get.S}
-\alias{get.cs_c}
 \alias{sampleK}
-\alias{block.gibbs}
+\alias{block.gibbs.high}
+\alias{block.gibbs.low}
 \alias{roc}
+
 \docType{data}
 
-\title{ Inernal bdgraph functions and datasets }
+\title{ Internal bdgraph functions and datasets }
 
 \description{ Nothing to see here move along }
 

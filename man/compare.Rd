@@ -2,19 +2,19 @@
 \alias{compare}
 
 \title{
-Comparing the results according to the true graph
+Comparing the result
 }
 \description{
-With this function we can compare the result from BD-MCMC algorithm or other approches, according to the true graph structure. 
+With this function we can compare the result from BD-MCMC algorithm or other approaches, usually based to the true graph structure. 
 }
 \usage{
-compare(true, estimate, estimate2 = NULL, colnames = NULL, plot = TRUE) 
+compare(true, estimate, estimate2 = NULL, colnames = NULL, vis = FALSE) 
 }
 
 \arguments{
   \item{true}{
-adjacency matrix for the true graph in which \eqn{true_{ij}=1}{trueij = 1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{true_{ij}=0}{trueij = 0}. 
+adjacency matrix for the true graph in which \eqn{true_{ij}=1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{true_{ij}=0}. 
 }
   \item{estimate}{ adjacency matrix for estimated graph. }
   
@@ -22,7 +22,7 @@ adjacency matrix for the true graph in which \eqn{true_{ij}=1}{trueij = 1} if th
   
   \item{colnames}{ a character vector giving the column names for the result table. }
   
-  \item{plot}{ logical: if TRUE (default) you will see the plot result.} 
+  \item{vis}{ logical: if TRUE you will see the plot result. The default is FALSE.} 
   }
 \value{
 \item{true positive}{the number of correctly estimated links.}
@@ -43,26 +43,25 @@ graph.}
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
 MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 }
-\author{
-Antonio Abbruzzo, Ivan Vujacic, Abdolreza Mohammadi, and Ernst Wit \cr
-}
-\seealso{
-\code{\link{bdgraph}} and \code{\link{select}}
-}
+\author{Antonio Abbruzzo, Ivan Vujacic, Abdolreza Mohammadi, and Ernst Wit \cr}
+
+\seealso{ \code{\link{bdgraph}} and \code{\link{select}} }
+
 \examples{
 \dontrun{
-  # generate the data from multivariate normal distribution
-  data.sim <- bdgraph.sim(n = 100, p = 8, size = 9, vis = T)
+  # generating the data from a random graph
+  data.sim <- bdgraph.sim(n = 100, p = 8, size = 9, vis = TRUE)
   
   # selecting the best graph according to BD-MCMC algorithm
-  output <- bdgraph(data.sim, meanzero = T, iter = 5000)
-  compare(data.sim, output, colnames = c("true graph", "BDgraph"))
+  output <- bdgraph(data.sim, mean = 0, iter = 5000)
+  # comparing the result
+  compare(data.sim, output, colnames = c("true", "BDgraph"), vis = TRUE)
 
   # selecting the best graph by huge package
   huge.g <- huge(data.sim $ data, method = "mb")
   huge.g <- huge.select(huge.g)    
   
-  # comparing the result by using "compare" function
-  compare(data.sim, output, estimate2 = huge.g $ refit, colnames = c("true graph", "BDgraph", "huge"))
+  # comparing the result
+  compare(data.sim, output, huge.g, colnames = c("true", "BDgraph", "huge"))
   }
 }

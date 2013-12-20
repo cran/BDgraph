@@ -30,9 +30,7 @@ Abdolreza Mohammadi and Ernst Wit
 \code{\link{bdgraph.sim}}
 }
 \examples{
-\dontrun{
-  data.sim <- bdgraph.sim(n = 10, p = 8, vis = T)
+  data.sim <- bdgraph.sim(n = 10, p = 8, vis = TRUE)
   
   print(data.sim)
-  }
 }

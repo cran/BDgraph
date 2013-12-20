@@ -13,12 +13,9 @@ phat(output, round = 3)
 }
 
 \arguments{
-  \item{output}{
-a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. 
-}
-  \item{round}{
-a number for rounding all probabilities to the specified number of decimal places (default 3).
-}
+  \item{output}{a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. }
+
+  \item{round}{a number for rounding all probabilities to the specified number of decimal places (default 3).}
 }
 \value{
 \item{phat}{upper triangular matrix which shows the posterior inclusion probabilities for all possible edges.}
@@ -27,19 +24,16 @@ a number for rounding all probabilities to the specified number of decimal place
 Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
 MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 }
-\author{
-Abdolreza Mohammadi and Ernst Wit
-}
+\author{Abdolreza Mohammadi and Ernst Wit}
 
-\seealso{
-\code{\link{bdgraph}}
-}
+\seealso{\code{\link{bdgraph}} and \code{\link{bdgraph.sim}}}
+
 \examples{
 \dontrun{
-  # generate the data from multivariate normal distribution
-  data.sim <- bdgraph.sim(n = 100, p = 8, graph = "circle", vis = T)
+  # generating the data from a random graph
+  data.sim <- bdgraph.sim(n = 100, p = 8, graph = "circle", vis = TRUE)
   
-  output <- bdgraph(data.sim, meanzero = T, iter = 2000)
+  output   <- bdgraph(data.sim, mean = 0, iter = 2000)
   
   phat(output, round = 2)
   }
