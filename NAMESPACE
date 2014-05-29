@@ -1,3 +1,4 @@
+import("huge", "igraph", "Matrix")
 export(bdgraph,
 	   
 	   phat,

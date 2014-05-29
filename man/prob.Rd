@@ -4,26 +4,28 @@
 \title{Posterior probabilities of the graphs}
 
 \description{
-According to the output of the BD-MCMC algorithm, this function gives us the 
-posterior probability for the most highest graphs or a specific graph.
+According to the output of the BD-MCMC algorithm, this function gives the 
+posterior probabilities for the 'g' most likely graphs or a specific graph, 'G'.
 }
 
-\usage{prob(output, g = 2, G = NULL)}
+\usage{prob( output, g = 4, G = NULL )}
 
 \arguments{
-  \item{output}{a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. }
-  \item{g}{you can select the number of graphs with highest probabilities (default is 1). }
-  \item{G}{ adjacency matrix which shows the graph structure. It is an upper triangular matrix in which 
-  \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}. }
+  \item{output}{ An object with S3 class "bdgraph". }
+  \item{g}{ The number of graphs with the highest probabilities to be shown (default is 4).
+            This option is ignored if 'G' is specified. }
+  \item{G}{ Adjacency matrix corresponding to a graph structure. It is an upper triangular matrix in which 
+            \eqn{G_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{G_{ij}=0}.
+            It also can be an object with S3 class "simulate". }
 }
 \value{
-\item{ best.G }{ the graphs with the highest posterior probabilities.}
+\item{ best.G }{ The graphs with the highest posterior probabilities.}
 
-\item{ prob.G }{ a vector which includes posterior probabilities of the graphs in 'best.G'.}
+\item{ prob.G }{ A vector which includes posterior probabilities of the graphs in 'best.G'.}
 }
 \references{
-Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
-MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
+Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
+graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
 }
 
 \author{Abdolreza Mohammadi and Ernst Wit}
@@ -32,13 +34,15 @@ MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 
 \examples{
 \dontrun{
-  # generating the data from a random graph
-  data.sim <- bdgraph.sim(n = 100, p = 8, vis = TRUE)
+  # generating synthetic multivariate normal data from a 'random' graph
+  data.sim <- bdgraph.sim( n = 50, p = 6, size = 6, vis = TRUE )
   
-  output   <- bdgraph(data.sim, mean = 0, iter = 2000)
+  output   <- bdgraph( data = data.sim, iter = 2000 )
+ 
+  # Estimated posterior probability of the true graph
+  prob( output, G = data.sim )
   
-  prob(output, G = data.sim)
-  
-  prob(output, g = 2)
+  # Estimated posterior probability of the first and second graphs with highest probabilities
+  prob( output, g = 2 )
   }
 }

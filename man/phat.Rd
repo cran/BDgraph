@@ -9,20 +9,20 @@ According to the output of BD-MCMC algorithm, this function gives us the posteri
 probabilities for all possible edges.
 }
 \usage{
-phat(output, round = 3)
+phat( output, round = 3 )
 }
 
 \arguments{
-  \item{output}{a list which is the result of BD-MCMC algorithm from the 'bdgraph' function. }
+  \item{output}{An object with S3 class "bdgraph". }
 
-  \item{round}{a number for rounding all probabilities to the specified number of decimal places (default 3).}
+  \item{round}{A number for rounding all probabilities to the specified number of decimal places (default 3).}
 }
 \value{
-\item{phat}{upper triangular matrix which shows the posterior inclusion probabilities for all possible edges.}
+\item{phat}{Upper triangular matrix which shows the posterior inclusion probabilities for all possible edges.}
 }
 \references{
-Mohammadi, A. and E. C. Wit (2012). Gaussian graphical model determination based on birth-death 
-MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
+Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
+graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
 }
 \author{Abdolreza Mohammadi and Ernst Wit}
 
@@ -30,12 +30,12 @@ MCMC inference, arXiv:1210.5371v4. \url{http://arxiv.org/abs/1210.5371v4}
 
 \examples{
 \dontrun{
-  # generating the data from a random graph
-  data.sim <- bdgraph.sim(n = 100, p = 8, graph = "circle", vis = TRUE)
+  # generating synthetic multivariate normal data from a 'random' graph
+  data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
   
-  output   <- bdgraph(data.sim, mean = 0, iter = 2000)
+  output   <- bdgraph( data = data.sim, iter = 2000 )
   
-  phat(output, round = 2)
+  phat( output, round = 2 )
   }
 }
 
