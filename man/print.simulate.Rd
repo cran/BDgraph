@@ -26,8 +26,10 @@ Abdolreza Mohammadi and Ernst Wit
 \code{\link{bdgraph.sim}}
 }
 \examples{
-  # generating synthetic multivariate normal data from a 'random' graph 
-  data.sim <- bdgraph.sim( n = 10, p = 8, vis = TRUE )
-  
-  print(data.sim)
+	\dontrun{
+		# generating synthetic multivariate normal data from a 'random' graph 
+		data.sim <- bdgraph.sim( n = 10, p = 8, vis = TRUE )
+
+		print(data.sim)
+	}
 }

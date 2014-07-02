@@ -1,15 +1,15 @@
 Package: BDgraph
 Type: Package
 Title: Graph estimation based on birth-death MCMC approach
-Version: 2.8
+Version: 2.9
 Date: 2013-02-04
 Author: Abdolreza Mohammadi and Ernst Wit
-Depends: R (>= 3.0.0), huge, Matrix, igraph
+Depends: R (>= 3.0.0), Matrix, igraph
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
 Description: This package provides a Bayesian methodology for structure learning in undirected graphical models. Our Bayesian methodology is based on birth-death Markov chain Monte Carlo (BDMCMC) algorithm which is the main function with the name 'bdgraph'. The main target of this package is high-dimensional data analysis wherein usually p >> n. The computation is memory-optimized using the sparse matrix output.
 License: GPL (>= 3)
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2014-05-29 12:22:52 UTC; reza
+Packaged: 2014-07-02 11:08:15 UTC; p262842
 Repository: CRAN
-Date/Publication: 2014-05-29 15:11:38
-NeedsCompilation: no
+Date/Publication: 2014-07-02 13:47:25
+NeedsCompilation: yes

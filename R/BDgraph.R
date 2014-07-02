@@ -1,331 +1,69 @@
-# computing birth and death rates
-log_H_ij = function(K, G, i, j, bstar, Ds, p)
+# sampling from Wishart based on C++ codes
+rwishCpp <- function( Ti, p, b = 3 )
 {
-	e <- c(i, j)
+	K <- matrix( 0, p, p)
 	
-	if ( G[i,j] == 0 )
-	{
-		K12    <- K[e, -e]  
-		F      <- K12 %*% solve(K[-e, -e]) %*% t(K12) 
+	# rwish ( double T[], double K[], int *p, int *b )
+	result = .C( "rwish", as.double(Ti), K = as.double(K), as.integer(p), as.integer(b), PACKAGE = "BDgraph" )
 
-		a      <- K[e, e] - F
-
-		sig    <- sqrt(a[1, 1] / Ds[j, j])
-		mu     <- - (Ds[i, j] * a[1, 1]) / Ds[j,j]
-		u      <- rnorm(1, mu, sig)
-		v      <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[j,j])
-		  
-		K[i,j] <- u + F[1,2]
-		K[j,i] <- u + F[1,2]
-		K[j,j] <- v + u ^ 2 / a[1,1] + F[2,2]
-	}
-
-	# (i,j) = 0
-	K0       <- K
-	K0[i, j] <- 0
-	K0[j, i] <- 0     
-	K_12     <- K0[j, -j, drop = FALSE]
-	K0_ij    <- diag(c(K[i, i], K_12 %*% solve(K0[-j, -j]) %*% t(K_12))) 
-
-	# (i,j) = 1
-	K_12  <- K[e, -e]  
-	K1_ij <- K_12 %*% solve(K[-e, -e]) %*% t(K_12) 
-
-	a11    <- K[i, i] - K1_ij[1, 1]
-
-	log_Hij <- ( (1 / 2) * ( log( Ds[j, j] ) - log( a11 ) )
-		        + ((Ds[i, i] - Ds[i, j] ^ 2 / Ds[j, j]) * a11) / 2
-		        - sum( Ds[e, e] * (K0_ij - K1_ij) ) / 2  
-		       ) # / sqrt(2 * pi)
-
-	return( log_Hij )
-}
-########################################################################
-# sampling from G-Wishart based on Alex Lenkoski (2013) page 122
-rgwish.exact <- function( G, b, T, p, threshold = 1e-8 )
+	 return ( matrix ( result $ K, p, p ) )
+}  
+# sampling from G-Wishart based on C++ codes
+rgwishCpp <- function( G, Ti, p, b, threshold = 1e-8 )
 {
-    nu  <- 1:p
-    Psi <- diag( sqrt( rchisq( p, b + p - nu ) ) )
+#	T <- chol( solve(D) )
+	K <- matrix( 0, p, p)
+	
+	# rgwish ( double G[], double T[], double K[], int *p, int *b, double *threshold )
+	result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(p), 
+				  as.integer(b), as.double(threshold), PACKAGE = "BDgraph" )
 
-    Psi[upper.tri(Psi)] <- rnorm( p * (p - 1) / 2 )
-      
-    Psi <- Psi %*% T   
-    K   <- t(Psi) %*% Psi 
-    
-    Sigma      <- solve(K)
-    W          <- Sigma
-    difference <- 100
-    
-    while( difference > threshold )
-    {
-        W.last <- W
-        
-        for ( j in 1:p )
-        {
-			# adjacency matrix has to have zero in its diagonal
-            N.j  <- (1:p)[G[j, ] == 1]
-            
-            if ( length(N.j) > 0 )
-            {
-                W.N.j           <- W[N.j, N.j]
-                beta.star.hat.j <- solve(W.N.j, Sigma[N.j, j])
-                beta.star       <- rep(0, p)
-                beta.star[N.j]  <- beta.star.hat.j             
-                ww              <- W[-j, -j] %*% beta.star[-j]
-                W[j, -j]        <- ww
-                W[-j, j]        <- ww
-            } else {
-                W[-j, j] <- 0
-                W[j, -j] <- 0
-            }
-        }
-          
-        difference <- max( abs( W.last - W ) )
-    }
-      
-    K <- solve(W)
-    
-    return( K )
-} 
+	 return ( matrix ( result $ K, p, p ) )
+}  
 ## Main function: BDMCMC algorithm for selecting the best graphs 
-#  based on exchange algorithm to avoid computing the ratio of normalizing constants
-#  and exact sampling from precision matrix
-bdgraph_ex = function( data, n = NULL, npn = "normal", iter = 5000, 
-                       burnin = floor(iter / 2), b = 3, D = NULL, g.start = "full", 
-                       K.start = NULL, save.all = FALSE, trace = TRUE )
+bdgraph = function( data, n = NULL, method = "exact", npn = "normal", 
+                    iter = 5000, burnin = floor(iter / 2), b = 3, D = NULL, 
+                    Gstart = "empty", Kstart = NULL, trace = TRUE )
 {
-	start.time <- Sys.time()
+	startTime <- Sys.time()
+	
+	threshold = 1e-8 
 	
 	if ( class(data) == "simulate" ) data <- data $ data
 
 	if ( is.matrix(data) == FALSE & is.data.frame(data) == FALSE ) stop( "Data should be a matrix or dataframe" )
 	if ( is.data.frame(data) ) data <- data.matrix(data)
-	if ( any( is.na(data) ) ) stop( "Data should contain no missing data" ) 
+	if ( ( method != "copula" ) & ( any( is.na(data) ) ) ) stop( "Data should contain no missing data" ) 
 	if ( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
 
-	if ( npn != "normal" ) data <- bdgraph.npn(data = data, npn = npn, npn.thresh = NULL)
-
-	dimd <- dim(data)
-
-	if ( isSymmetric(data) )
-	{
-		if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
-		if ( trace ) cat( "The input is identified as the covriance matrix. \n" )
-		S <- data
-	} else {
-		n <- dimd[1]
-		S <- n * cov( data )
-		#data <- scale( data )
-		#S    <- cor( data )
-	}
-
-	p <- dimd[2]
-
-	#if ( g.prior == "Poisson" & is.null(lambda) ) stop( "You should determine value of lambda as the rate of Poisson" )
-
-	if ( is.null(D) )
-	{ 
-		D  <- diag(p)
-		Ti <- D
-		H  <- D
-	} else {
-		Ti <- chol( solve(D) )
-		H  <- Ti / t( matrix( rep( diag(Ti) ,p ), p, p ) )
-	}
-
-	bstar <- b + n
-	Ds    <- D + S
-	invDs <- solve(Ds)
-	Ts    <- chol(invDs)
-	Hs    <- Ts / t( matrix( rep( diag(Ts) ,p ), p, p ) )	
-
-	if ( class(g.start) == "bdgraph" ) 
-	{
-		G <- g.start $ last.G
-		K <- g.start $ last.K
-	} else {
-		if ( !is.matrix(g.start) )
-		{
-			if ( g.start == "full" )
-			{
-				G               <- 0 * S
-				G[upper.tri(G)] <- 1
-				K               <- matrix( rWishart(1, df = bstar + (p - 2), Sigma = invDs), p, p )
-			}
-
-			if ( g.start == "empty" )
-			{
-				G <- 0 * S
-				K <- rgwish.exact(G = G, b = bstar, T = Ts, p = p)
-			}
-
-			if ( g.start == "glasso" | g.start == "mb" | g.start == "ct" )
-			{
-				G               <- huge( data, method = g.start )
-				G               <- huge.select(G)
-				G               <- as.matrix(G $ refit)
-				G[lower.tri(G)] <- 0
-
-				K               <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-			}
-		} else {
-			G                         <- as.matrix(g.start)
-			G[lower.tri(G, diag = T)] <- 0
-			if ( !is.null(K.start) ) K <- K.start else K  <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)  
-		}
-	}
-
-	sample.G   <- all.G       <- vector() # vector of numbers like "10100"
-	weights    <- all.weights <- vector() # waiting time for every state
-	sumK       <- 0 * K
-
-	rates <- 0 * K
-
-	for ( g in 1 : iter )
-	{
-		if ( trace == TRUE && g %% 100 == 0 )
-		{
-			mes <- paste( c( " iteration: ", g, " from ", iter, ". Graph size= ", sum(G) ), collapse = "" )
-			cat(mes, "\r")
-			flush.console()	
-		}
-		
-		# using exchange algorithm
-		K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
-	
-		for ( i in 1 : (p - 1) )
-		{
-			for ( j in (i + 1) : p )
-			{
-				logHij <- log_H_ij( K = K, G = G, i = i, j = j, bstar = bstar, Ds = Ds, p = p )
-				logI_p <- log_H_ij( K = K_prop, G = G, i = i, j = j, bstar = b, Ds = D, p = p )
-				
-				rates[i,j] <- if( G[i,j] == 1 ) exp( logHij - logI_p ) else exp( logI_p - logHij )
-			
-				#if ( g.prior == "Poisson" ) 
-				#{
-				#	rates[i,j] <- ifelse( G[i,j] == 1, (lambda / (sum(G) + 1)) * rates[i,j], (lambda / (sum(G) + 1)) * rates[i,j] )
-				#}
-			}
-		}
-
-		if ( save.all == TRUE )
-		{
-			indG        <- paste( G[upper.tri(G)], collapse = '' )
-			all.G       <- c( all.G, indG )
-			all.weights <- c( all.weights, 1 / sum(rates) )
-		}
-
-		if ( g > burnin )
-		{
-			sumK <- sumK + K
-			indG <- paste( G[upper.tri(G)], collapse = '' )
-			wh   <- which( sample.G == indG )
-			if ( length(weights) != 0 & length(wh) != 0 )
-			{
-				weights[wh] <- weights[wh] + 1 / sum(rates)
-			} else {
-				sample.G <- c( sample.G, indG )
-				weights  <- c( weights, 1 / sum(rates) )
-			}
-		}
-
-		# check for numerical issues
-		rates.na  <- which( is.na(rates) )
-		if ( length(rates.na) > 0)   { rates[rates.na]  <- 0 }
-		rates.nan <- which( is.nan(rates) )
-		if ( length(rates.nan) > 0)  { rates[rates.nan] <- 0 }  
-		# To select new graph
-		edge    <- which( rates == max(rates) )[1]
-		G[edge] <- 1 - G[edge]
-
-		K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-	}
-
-	if ( trace == TRUE )
-	{
-		mes <- paste( c(" ", iter," iteration done.                    " ), collapse = "" )
-		cat( mes, "\r" )
-		cat( "\n" )
-		flush.console()
-		print( Sys.time() - start.time )  
-	}
-
-	if ( save.all == TRUE )
-	{
-		outbdgraph <- list( sample.G = sample.G, weights = weights, Khat = sumK / (iter - burnin), 
-					  all.G = all.G, all.weights = all.weights, last.G = G, last.K = K )
-	} else {
-		outbdgraph <- list( sample.G = sample.G, weights = weights, Khat = sumK / (iter - burnin), last.G = G, last.K = K )
-	}
-
-	class( outbdgraph ) <- "bdgraph"
-	return( outbdgraph )   
-}
-# copula function: Step 1 in the BDMCMC algorithm
-copula = function( Z, K, R, n, p )
-{
-	for ( j in sample(1:p) ) 
-	{   # looping randomly through the variables (= columns of Y)
-		sdj <- sqrt( 1 / K[j, j] )     # 2a: # variance of component j (given the rest!)
-		# Kjc <- -K[j, -j] / K[j, j]     # Hoff page 273 part of 2b
-		# muj <- Z[ , -j] %*% t(t(Kjc))  # 2b
-		# matrixproduct for (n x p-1) * (p-1 x 1) = (n x 1)
-		muj <- Z[ ,-j, drop = FALSE] %*% - K[-j,j, drop = FALSE] / K[j,j]	 # Hoff page 273 part of 2b
-
-		# interval and sampling
-		for( r in sort( unique(R[ , j]) ) )
-		{
-			ir      <- (1:n)[R[ , j] == r & !is.na(R[ , j])]
-			lb      <- suppressWarnings( max( Z[ R[ , j] < r, j], na.rm = T) )
-			ub      <- suppressWarnings( min( Z[ R[ , j] > r, j], na.rm = T) )
-			# truncated normal distr.
-			Z[ir,j] <- qnorm( runif( length(ir), pnorm(lb, muj[ir], sdj), pnorm(ub, muj[ir], sdj) ), muj[ir], sdj )
-		}
-
-		ir       <- (1:n)[is.na(R[ , j])]
-		Z[ir, j] <- rnorm( length(ir), muj[ir], sdj )
-	}
-
-	return( Z )
-}
-# BDMCMC algorithm with copula approach of mixed data
-bdgraph_copula = function( data, n = NULL, iter = 5000, burnin = floor(iter / 2), 
-                           b = 3, D = NULL, g.start = "full", K.start = NULL, 
-				           save.all = FALSE, trace = TRUE )
-{
-	start.time <- Sys.time()
-	if (class(data) == "simulate") data <- data $ data
-
-	if ( is.matrix(data) == FALSE & is.data.frame(data) == FALSE ) stop( "Data should be a matrix or dataframe" )
-	if ( is.data.frame(data) ) data <- data.matrix(data)
-	#if ( any( is.na(data) ) ) stop( "Data should contain no missing data" ) 
-	if ( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
-
-	#if ( npn != "normal" ) data <- bdgraph.npn(data = data, npn = npn, npn.thresh = NULL)
+	if ( ( method != "copula" ) & ( npn != "normal" ) ) data <- bdgraph.npn( data = data, npn = npn, npn.thresh = NULL )
 
 	dimd <- dim(data)
 	p    <- dimd[2]
-	n    <- dimd[1]
 
-	# only for copula
-	Z              <- qnorm( apply(data, 2, rank, ties.method = "random") / (n + 1) )
-	Zfill          <- matrix(rnorm(n * p), n, p)   # for missing values
-	Z[is.na(data)] <- Zfill[is.na(data)]        # for missing values
-	Z              <- t( (t(Z) - apply(Z, 2, mean)) / apply(Z, 2, sd) )
-	S              <- t(Z) %*% Z
-
-#	if ( isSymmetric(data) )
-#	{
-#		if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
-#		if ( trace ) cat( "The input is identified as the covriance matrix. \n" )
-#		S <- data
-#	} else {
-#		data <- scale( data )
-#		S    <- cor( data )
-#	}
-
-#	if ( g.prior == "Poisson" & is.null(lambda) ) stop( "You should determine value of lambda as the rate of Poisson" )
+	if ( method == "copula" )
+	{
+		n              <- dimd[1]
+		Z              <- qnorm( apply( data, 2, rank, ties.method = "random" ) / (n + 1) )
+		Zfill          <- matrix( rnorm( n * p ), n, p )   # for missing values
+		Z[is.na(data)] <- Zfill[is.na(data)]               # for missing values
+		Z              <- t( ( t(Z) - apply( Z, 2, mean ) ) / apply( Z, 2, sd ) )
+		S              <- t(Z) %*% Z
+		# ?? I should check it 
+		R <- 0 * data
+		for ( j in 1:p ) 
+			R[,j] <- match( data[ , j], sort( unique( data[ , j] ) ) ) 
+	} else {
+		if ( isSymmetric(data) )
+		{
+			if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
+			if ( trace ) cat( "The input is identified as the covriance matrix. \n" )
+			S <- data
+		} else {
+			n <- dimd[1]
+			S <- n * cov( data )
+		}
+	}
 
 	if ( is.null(D) )
 	{ 
@@ -343,417 +81,144 @@ bdgraph_copula = function( data, n = NULL, iter = 5000, burnin = floor(iter / 2)
 	Ts    <- chol(invDs)
 	Hs    <- Ts / t( matrix( rep( diag(Ts) ,p ), p, p ) )	
 
-	if ( class(g.start) == "bdgraph" ) 
+	if ( class(Gstart) == "bdgraph" ) 
 	{
-		G <- g.start $ last.G
-		K <- g.start $ last.K
-	} else {
-		if ( !is.matrix(g.start) )
-		{
-			if ( g.start == "full" )
-			{
-				G               <- 0 * S
-				G[upper.tri(G)] <- 1
-				K               <- matrix( rWishart(1, df = bstar + (p - 2), Sigma = invDs), p, p )
-			}
-
-			if ( g.start == "empty" )
-			{
-				G <- 0 * S
-				K <- rgwish.exact(G = G, b = bstar, T = Ts, p = p)
-			}
-
-			if ( g.start == "glasso" | g.start == "mb" | g.start == "ct" )
-			{
-				G               <- huge( data, method = g.start )
-				G               <- huge.select(G)
-				G               <- as.matrix(G $ refit)
-				G[lower.tri(G)] <- 0
-
-				K               <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-			}
-		} else {
-			G                         <- as.matrix(g.start)
-			G[lower.tri(G, diag = T)] <- 0
-			if ( !is.null(K.start) ) K <- K.start else K  <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)  
-		}
-	}
-
-	sample.G <- all.G       <- vector() # vector of numbers like "10100"
-	weights  <- all.weights <- vector() # waiting time for every state
-	sumK     <- 0 * K
-
-	# only for copula
-	R <- NULL
-	for(j in 1:p) { R <- cbind(R, match(data[ , j], sort(unique(data[ , j])))) }
-
-	rates <- 0 * K
-
-	for ( g in 1 : iter )
-	{
-		if ( trace == TRUE && g %% 100 == 0 )
-		{
-			mes <- paste( c( " iteration: ", g, " from ", iter, ". Graph size= ", sum(G) ), collapse = "" )
-			cat(mes, "\r")
-			flush.console()	
-		}
-		
-		# First step: copula 
-		# here we will use a copula function
-		Z <- copula(Z = Z, K = K, R = R, n = n, p = p)
-		S <- t(Z) %*% Z
-
-		Ds    <- D + S
-
-		# Second step: BD-MCMC iteration  		
-		
-		# using exchange algorithm
-		K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
+		G <- Gstart $ lastGraph
+		K <- Gstart $ lastK
+	} 
 	
-		for ( i in 1 : (p - 1) )
-		{
-			for ( j in (i + 1) : p )
-			{
-				logHij <- log_H_ij( K = K, G = G, i = i, j = j, bstar = bstar, Ds = Ds, p = p )
-				logI_p <- log_H_ij( K = K_prop, G = G, i = i, j = j, bstar = b, Ds = D, p = p )
-				
-				rates[i,j] <- if( G[i,j] == 1 ) exp( logHij - logI_p ) else exp( logI_p - logHij )
-			
-				#if ( g.prior == "Poisson" ) 
-				#{
-				#	rates[i,j] <- ifelse( G[i,j] == 1, (lambda / (sum(G) + 1)) * rates[i,j], (lambda / (sum(G) + 1)) * rates[i,j] )
-				#}
-			}
-		}
-
-		if ( save.all == TRUE )
-		{
-			indG        <- paste( G[upper.tri(G)], collapse = '' )
-			all.G       <- c( all.G, indG )
-			all.weights <- c( all.weights, 1 / sum(rates) )
-		}
-
-		if ( g > burnin )
-		{
-			sumK <- sumK + K
-			indG <- paste( G[upper.tri(G)], collapse = '' )
-			wh   <- which( sample.G == indG )
-			if ( length(weights) != 0 & length(wh) != 0 )
-			{
-				weights[wh] <- weights[wh] + 1 / sum(rates)
-			} else {
-				sample.G <- c( sample.G, indG )
-				weights  <- c( weights, 1 / sum(rates) )
-			}
-		}
-
-		# check for numerical issues
-		rates.na  <- which( is.na(rates) )
-		if ( length(rates.na) > 0)   { rates[rates.na]  <- 0 }
-		rates.nan <- which( is.nan(rates) )
-		if ( length(rates.nan) > 0)  { rates[rates.nan] <- 0 }  
-		# To select new graph
-		edge    <- which( rates == max(rates) )[1]
-		G[edge] <- 1 - G[edge]
-
-		K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
+	if ( Gstart == "empty" )
+	{
+		G = 0 * S
+		K = rgwishCpp( G = G, Ti = Ts, p = p, b = bstar )
+		#K <- rgwish.exact(G = G, b = bstar, T = Ts, p = p)
 	}
+	
+	if ( Gstart == "full" )
+	{
+		G       = matrix(1, p, p)
+		diag(G) = 0
+		K       = rwishCpp( Ti = Ts, p = p, b = bstar )
+	}	
+	
+	allGraphs    <- c( rep ( "a", iter ) ) # vector of numbers like "10100"
+	allWeights   <- c( rep ( 0, iter ) )   # waiting time for every state		
+
+	sampleGraphs <- c( rep ( "a", iter ) ) # vector of numbers like "10100" 
+	graphWeights <- c( rep ( 0, iter ) ) # waiting time for every state
+	
+	sizeSampleG = 0
+
+	rates     = 0 * K
+	Ksum      = rates
+	lastGraph = rates
+	lastK     = rates
 
 	if ( trace == TRUE )
 	{
-		mes <- paste( c(" ", iter," iteration done.                    " ), collapse = "" )
+		mes <- paste( c(" ", iter," iteration is started.                    " ), collapse = "" )
 		cat( mes, "\r" )
-		cat( "\n" )
-		flush.console()
-		print( Sys.time() - start.time )  
+		#flush.console()
 	}
 
-	if ( save.all == TRUE )
-	{
-		outbdgraph <- list( sample.G = sample.G, weights = weights, Khat = sumK / (iter - burnin), 
-					  all.G = all.G, all.weights = all.weights, last.G = G, last.K = K )
-	} else {
-		outbdgraph <- list( sample.G = sample.G, weights = weights, Khat = sumK / (iter - burnin), last.G = G, last.K = K )
-	}
-
-	class( outbdgraph ) <- "bdgraph"
-	return( outbdgraph )   
-}
-# computing birth and death rates
-rate_ij = function(K, A, i, j, b, bstar, Ds, Ti, p)
-{
-	e          <- c(i, j)
-	current_ij <- A[i,j]
-	
-	if (A[i,j] == 0)
-	{
-		A[i,j] <- 1
-
-		K12    <- K[e, -e]  
-		F      <- K12 %*% solve(K[-e, -e]) %*% t(K12) 
-
-		a      <- K[e, e] - F
-
-		sig    <- sqrt(a[1, 1] / Ds[j, j])
-		mu     <- - (Ds[i, j] * a[1, 1]) / Ds[j,j]
-		u      <- rnorm(1, mu, sig)
-		v      <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[j,j])
-		  
-		K[i,j] <- u + F[1,2]
-		K[j,i] <- u + F[1,2]
-		K[j,j] <- v + u ^ 2 / a[1,1] + F[2,2]
-	}
-
-	# (i,j) = 0
-	K0       <- K
-	K0[i, j] <- 0
-	K0[j, i] <- 0     
-	K_12     <- K0[j, -j, drop = FALSE]
-	K0_ij    <- diag(c(K[i, i], K_12 %*% solve(K0[-j, -j]) %*% t(K_12))) 
-
-	# (i,j) = 1
-	K_12  <- K[e, -e]  
-	K1_ij <- K_12 %*% solve(K[-e, -e]) %*% t(K_12) 
-
-	a11    <- K[i, i] - K1_ij[1, 1]
-	nustar <- sum(A[i, ])
-
-	rate <- sqrt(2) * Ti[i, i] * Ti[j, j] *
-		    exp( lgamma((b + nustar) / 2) - lgamma((b + nustar - 1) / 2) 
-		    + (1 / 2) * ( log( Ds[j, j] ) - log( a11 ) )
-		    + ((Ds[i, i] - Ds[i, j] ^ 2 / Ds[j, j]) * a11) / 2
-		    - sum( Ds[e, e] * (K0_ij - K1_ij) ) / 2 )
-
-	if ( current_ij == 0 ) rate <- 1 / rate 
-
-	if ( !is.finite(rate) ) rate <- gamma(171)
-
-	return(rate)
-}
-# Main function: BDMCMC algorithm for graph determination
-# based on our approximation for computing the ratio of normalizing constants
-#  and exact sampling from precision matrix
-bdgraph_ap = function( data, n = NULL, npn = "normal", iter = 5000, 
-                       burnin = floor(iter / 2), b = 3, D = NULL, g.start = "full", 
-                       K.start = NULL, save.all = FALSE, trace = TRUE )
-{
-	start.time <- Sys.time()
-	if (class(data) == "simulate") data <- data $ data
-
-	if ( is.matrix(data) == FALSE & is.data.frame(data) == FALSE ) stop( "Data should be a matrix or dataframe" )
-	if ( is.data.frame(data) ) data <- data.matrix(data)
-	if ( any(is.na(data)) ) stop( "Data should contain no missing data" ) 
-	if ( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
-
-	if ( npn != "normal" ) data <- bdgraph.npn( data = data, npn = npn, npn.thresh = NULL )
-
-	dimd <- dim(data)
-
-	if ( isSymmetric(data) )
-	{
-		if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
-		if ( trace ) cat( "The input is identified as the covriance matrix. \n" )
-		S <- data
-	} else {
-		n <- dimd[1]
-		S <- n * cov( data )
-	}
-
-	p <- dimd[2]
-
-	#if ( g.prior == "Poisson" & is.null(lambda) ) stop( "You should determine value of lambda as the rate of Poisson" )
-
-	if ( is.null(D) )
-	{ 
-		D  <- diag(p)
-		Ti <- D
-		H  <- D
-	} else {
-		Ti <- chol( solve(D) )
-		H  <- Ti / t( matrix( rep(diag(Ti) ,p), p, p ) )
-	}
-
-	bstar <- b + n
-	Ds    <- D + S
-	invDs <- solve(Ds)
-	Ts    <- chol(invDs)
-	Hs    <- Ts / t( matrix( rep(diag(Ts) ,p), p, p ) )	
-
-	if ( class(g.start) == "bdgraph" ) 
-	{
-		G <- g.start $ last.G
-		K <- g.start $ last.K
-	} else {
-		if ( !is.matrix(g.start) )
-		{
-			if ( g.start == "full" )
-			{
-				G               <- 0 * S
-				G[upper.tri(G)] <- 1
-				K               <- matrix(rWishart(1, df = bstar + (p - 2), Sigma = invDs), p, p)
-			}
-
-			if ( g.start == "empty" )
-			{
-				G <- 0 * S
-				K <- rgwish.exact(G = G, b = bstar, T = Ts, p = p)
-			}
-
-			if ( g.start == "glasso" | g.start == "mb" | g.start == "ct" )
-			{
-				G               <- huge(data, method = g.start)
-				G               <- huge.select(G)
-				G               <- as.matrix(G $ refit)
-				G[lower.tri(G)] <- 0
-
-				K               <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-			}
-		} else {
-			G                          <- as.matrix(g.start)
-			G[lower.tri(G, diag = T)]  <- 0
-			if ( !is.null(K.start) ) K <- K.start else K  <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)  
-		}
-	}
-
-	sample.G   <- all.G       <- vector() # vector of numbers like "10100"
-	weights    <- all.weights <- vector() # waiting times for each state
-	sumK       <- 0 * K
-
-	rates <- 0 * K
-
-	for ( g in 1 : iter )
-	{
-		if ( trace == TRUE && g %% 100 == 0 )
-		{
-			mes <- paste( c( " iteration: ", g, " from ", iter, ". Graph size= ", sum(G) ), collapse = "" )
-			cat(mes, "\r")
-			flush.console()	
-		}
-	
-		for ( i in 1 : (p - 1) )
-		{
-			for ( j in (i + 1) : p )
-			{
-				rates[i,j] <- rate_ij(K = K, A = G, i = i, j = j, b = b, bstar = bstar, Ds = Ds, Ti = Ti, p = p)
-			
-				#if ( g.prior == "Poisson" ) 
-				#{
-				#	rates[i,j] <- ifelse( G[i,j] == 1, (lambda / (sum(G) + 1)) * rates[i,j], (lambda / (sum(G) + 1)) * rates[i,j] )
-				#}
-			}
-		}
-
-		if ( save.all == TRUE )
-		{
-			indG        <- paste( G[upper.tri(G)], collapse = '' )
-			all.G       <- c( all.G, indG )
-			all.weights <- c( all.weights, 1 / sum(rates) )
-		}
-
-		if ( g > burnin )
-		{
-			sumK <- sumK + K
-			indG <- paste( G[upper.tri(G)], collapse = '' )
-			wh   <- which(sample.G == indG)
-			if ( length(weights) != 0 & length(wh) != 0 )
-			{
-				weights[wh] <- weights[wh] + 1 / sum(rates)
-			} else {
-				sample.G <- c( sample.G, indG )
-				weights  <- c( weights, 1 / sum(rates) )
-			}
-		}
-		
-		# check for numerical issues
-		rates.inf <- which( is.infinite(rates) )
-		if ( length(rates.inf) > 0 ) { rates[rates.inf] <- gamma(170); warning( "Nomerical issue: some of rates are infinite" ) }
-		rates.na  <- which( is.na(rates) )
-		if ( length(rates.na) > 0)   { rates[rates.na]  <- 0; warning( "Nomerical issue: some of rates are NA" ) }
-		rates.nan <- which( is.nan(rates) )
-		if ( length(rates.nan) > 0)  { rates[rates.nan] <- 0; warning( "Nomerical issue: some of rates are NaN" ) }  
-		# To select new graph
-		if ( sum(rates) > 0 )
-		{
-			edge    <- which( rmultinom( 1, 1, rates ) == 1 )
-			G[edge] <- 1 - G[edge]
-		} else {
-			warning( "Nomerical issue: Sum of rates is zero" )
-		}
-		 
-		if ( p < 11 )
-		{
-			K <- block.gibbs.low(K = K, A = G, bstar = bstar, Ds = Ds, p = p)
-		} else { 
-			K <- block.gibbs.high(K = K, A = G, bstar = bstar, Ds = Ds, p = p)
-		}
-	}
-
-	if ( trace == TRUE )
-	{
-		mes <- paste(c(" ", iter," iteration done.                    "), collapse = "")
-		cat( mes, "\r" )
-		cat("\n")
-		flush.console()
-		print( Sys.time() - start.time )  
-	}
-
-	if ( save.all == TRUE )
-	{
-		outbdgraph <- list( sample.G = sample.G, weights = weights, Khat = sumK / (iter - burnin), 
-					  all.G = all.G, all.weights = all.weights, last.G = G, last.K = K )
-	} else {
-		outbdgraph <- list( sample.G = sample.G, weights = weights, Khat = sumK / (iter - burnin), last.G = G, last.K = K )
-	}
-
-	class( outbdgraph ) <- "bdgraph"
-	return( outbdgraph )   
-}
-## Main function: BDMCMC algorithm for selecting the best graphs 
-bdgraph = function( data, n = NULL, method = "exact", npn = "normal", 
-                    iter = 5000, burnin = floor(iter / 2), b = 3, D = NULL, 
-                    g.start = "full", K.start = NULL, save.all = FALSE, trace = TRUE )
-{
 	if ( method == "exact" )
-	{
-		output <- bdgraph_ex( data = data, n = n, npn = npn, 
-							  iter = iter, burnin = burnin, b = b, D = D, 
-                              g.start = g.start, K.start = K.start, 
-			                  save.all = save.all, trace = trace )
+	{	
+		#### C++ code for main for loop
+# bdmcmcExact( int *iter, int *burnin, double G[], double T[], double Ts[], double K[], int *p, 
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 double lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[], double *threshold )
+		result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(T), as.double(Ts), as.double(K), as.integer(p), 
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		################################################################################
 	}
-	
+		
 	if ( method == "approx" )
 	{
-		output <- bdgraph_ap( data = data, n = n, npn = npn, 
-                              iter = iter, burnin = burnin, b = b, D = D, 
-                              g.start = g.start, K.start = K.start, 
-			                  save.all = save.all, trace = trace )
+#		output <- bdmcmcApprox( iter, burnin, G, K, Ksum, allGraphs, allWeights, sampleGraphs, 
+#					            graphWeights , rates, D, Ds, Ti, Ts, b, bstar, p, trace )
+	
+		#### C++ code for main for loop
+# bdmcmcApprox( int *iter, int *burnin, double G[], double T[], double Ts[], double K[], int *p, 
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 double lastGraph[], double lastK[],
+#			 int *b, int *bstar, double Ti[], double Ds[], double *threshold )
+		result = .C( "bdmcmcApprox", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(T), as.double(Ts), as.double(K), as.integer(p), 
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(Ti), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		################################################################################	
 	}
 
 	if ( method == "copula" )
 	{
-		output <- bdgraph_copula( data = data, n = n, iter = iter, burnin = burnin, 
-                                  b = b, D = D, g.start = g.start, K.start = K.start, 
-				                  save.all = save.all, trace = trace )
+#		output <- bdmcmcCopula( iter, burnin, G, K, Z, R, Ksum, allGraphs, allWeights, sampleGraphs, 
+#					            graphWeights , rates, D, Ds, Ti, Ts, b, bstar, p, trace )
+		#### C++ code for main for loop
+# bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
+#			 double Z[], int R[], int *n,
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 double lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[], double *threshold )
+		result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		################################################################################
 	}
-	
-	return( output )
+
+	Ksum         = matrix( result $ Ksum, p, p )
+	allGraphs    = result $ allGraphs
+	allWeights   = result $ allWeights
+	sizeSampleG  = result $ sizeSampleG
+	sampleGraphs = result $ sampleGraphs[1:sizeSampleG]
+	graphWeights = result $ graphWeights[1:sizeSampleG]
+	lastGraph    = matrix( result $ lastGraph, p, p )
+	lastK        = matrix( result $ lastK, p, p )
+
+	if ( trace == TRUE )
+	{
+		mes <- paste( c(" ", iter," iteration done.                    " ), collapse = "" )
+		cat( mes, "\r" )
+		cat( "\n" )
+		flush.console()
+		print( Sys.time() - startTime )  
+	}
+
+	output <- list( sampleGraphs = sampleGraphs, graphWeights = graphWeights, Khat = Ksum / (iter - burnin), 
+					  allGraphs = allGraphs, allWeights = allWeights, lastGraph = lastGraph, lastK = lastK )
+
+	class( output ) <- "bdgraph"
+	return( output )   
 }
 # computing probability of all links of the graph
 phat = function(output, round = 3)
 {
-	sample.G <- output $ sample.G
-	weights  <- output $ weights
-	p        <- nrow(output $ last.G)
+	sampleGraphs <- output $ sampleGraphs
+	graphWeights  <- output $ graphWeights
+	p        <- nrow( output $ Khat )
 	pvec     <- c(rep(0, p * (p - 1) / 2))
 
-	for (i in 1 : length(sample.G))
+	for (i in 1 : length(sampleGraphs))
 	{
-		inp       <- which(unlist(strsplit(as.character(sample.G[i]), "")) == 1)
-		pvec[inp] <- pvec[inp] + weights[i]
+		inp       <- which(unlist(strsplit(as.character(sampleGraphs[i]), "")) == 1)
+		pvec[inp] <- pvec[inp] + graphWeights[i]
 	}
 
-	dimlab <- dimnames(output $ last.G)
-	if (is.null(dimlab))
+	dimlab <- dimnames( output $ Khat ) # lastG
+	if ( is.null( dimlab ) )
 	{
 		dimlab <- as.character(1 : p)
 		phat   <- matrix(0, p, p, dimnames = list(dimlab, dimlab))
@@ -761,34 +226,33 @@ phat = function(output, round = 3)
 		phat   <- matrix(0, p, p, dimnames = dimlab)
 	}
 
-	phat[upper.tri(phat)] <- pvec / sum(weights)
+	phat[upper.tri(phat)] <- pvec / sum(graphWeights)
 
 	return(Matrix(round(phat, round)))
 }
 # To check the convergency of the BDMCMC algorithm
 plotcoda = function(output, thin = NULL, trace = TRUE, main = NULL, ...)
 {
-	if (is.null(output $ all.G)) stop("Function needs output of 'bdgraph' with option save.all = T")  
-	if (is.null(thin)) thin = ceiling(length(output $ all.G) / 1000)
+	if (is.null(thin)) thin = ceiling(length(output $ allGraphs) / 1000)
 
 	op          <- par(mfrow = c(2, 2), pty = "s")
-	p           <- nrow(output $ last.G)
-	all.weights <- output $ all.weights
-	all.G       <- output $ all.G
+	p           <- nrow( output $ Khat ) 
+	allWeights <- output $ allWeights
+	allGraphs       <- output $ allGraphs
 
-	weights <- output $ weights
-	bestg   <- output $ sample.G[which(max(weights) == weights)]	
+	graphWeights <- output $ graphWeights
+	bestg   <- output $ sampleGraphs[which(max(graphWeights) == graphWeights)]	
 	lin     <- length(which(unlist(strsplit(as.character(bestg), "")) == 1))
-	y       <- sapply(all.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+	y       <- sapply(allGraphs, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
 
-	plot(x = (1 : length(all.G)), y, type = "l", main = "Trace of graph size",
+	plot(x = (1 : length(allGraphs)), y, type = "l", main = "Trace of graph size",
 	   ylab = "graph size", xlab = "iteration", ...)
 	abline(h = lin, col = "red")
 	acf(y, main = "ACF for graph size")
 	pacf(y, main = "PACF for graph size")
 
-	allG.new        <- all.G[c(thin * (1 : floor(length(all.G) / thin)))]
-	all.weights.new <- all.weights[c(thin * (1 : floor(length(all.weights) / thin)))]
+	allG.new        <- allGraphs[c(thin * (1 : floor(length(allGraphs) / thin)))]
+	allWeights.new <- allWeights[c(thin * (1 : floor(length(allWeights) / thin)))]
 	length.allG.new <- length(allG.new)
 	ff              <- matrix(0, p * (p - 1) / 2, length.allG.new)
 	ffv             <- 0 * ff[ , 1]
@@ -803,8 +267,8 @@ plotcoda = function(output, thin = NULL, trace = TRUE, main = NULL, ...)
 		}
 
 		inp      <- which(unlist(strsplit(as.character(allG.new[g]), "")) == 1)
-		ffv[inp] <- ffv[inp] + all.weights.new[g]
-		ff[ ,g]  <- ffv / sum(all.weights.new[c(1 : g)])    	 
+		ffv[inp] <- ffv[inp] + allWeights.new[g]
+		ff[ ,g]  <- ffv / sum(allWeights.new[c(1 : g)])    	 
 	}
 
 	if(trace == TRUE)
@@ -827,19 +291,17 @@ plotcoda = function(output, thin = NULL, trace = TRUE, main = NULL, ...)
 # plot of graph size to check the convergency of BDMCMC algorithm
 traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
 {
-    if (is.null(output $ all.G)) stop("This function needs output of 'bdgraph' with option save.all = T")
-	
-    all.G   <- output $ all.G
-	weights <- output $ weights
-	bestg   <- output $ sample.G[which(max(weights) == weights)]	
+    allGraphs   <- output $ allGraphs
+	graphWeights <- output $ graphWeights
+	bestg   <- output $ sampleGraphs[which(max(graphWeights) == graphWeights)]	
 	lin     <- length(which(unlist(strsplit(as.character(bestg), "")) == 1))
-    y       <- sapply(all.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+    y       <- sapply(allGraphs, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
 	
 	if (is.null(main)) main = "Trace of graph size"
 	
 	if (acf == FALSE & pacf == FALSE)
 	{
-		plot(x = 1 : length(all.G), y, type = "l", main = main,
+		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
 			ylab = "graph size", xlab = "iteration", ...)
 		abline(h = lin, col = "red")	   
 	}
@@ -847,7 +309,7 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
 	if (acf == TRUE & pacf == TRUE)
 	{
 		op <- par(mfrow = c(2, 2), pty = "s") 
-		plot(x = 1 : length(all.G), y, type = "l", main = main,
+		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
 			   ylab = "graph size", xlab = "iteration", ...)
 		abline(h = lin, col = "red")	  
 		acf(y,  main = "ACF for graph size")
@@ -858,7 +320,7 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
 	if (acf == TRUE & pacf == FALSE)
 	{
 		op <- par(mfrow = c(1, 2), pty = "s") 
-		plot(x = 1 : length(all.G), y, type = "l", main = main,
+		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
 			   ylab = "graph size", xlab = "iteration", ...)
 		abline(h = lin, col = "red")	  
 		acf(y, main = "ACF for graph size")
@@ -868,7 +330,7 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
 	if (acf == FALSE & pacf == TRUE)
 	{
 		op <- par(mfrow = c(1, 2), pty = "s") 
-		plot(x = 1 : length(all.G), y, type = "l", main = main,
+		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
 			   ylab = "graph size", xlab = "iteration", ...)
 		abline(h = lin, col = "red")	  
 		pacf(y, main = "PAIC for graph size")
@@ -876,21 +338,21 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
 	}		
 }  
 # To select the best graph (graph with the highest posterior probability) 
-select = function (output, vis = FALSE)
+select = function ( output, vis = FALSE )
 {
-	sample.G   <- output $ sample.G
-	weights    <- output $ weights
-	p          <- nrow(output $ last.G)
-	prob.G     <- weights / sum(weights)
+	sampleGraphs   <- output $ sampleGraphs
+	graphWeights    <- output $ graphWeights
+	p          <- nrow( output $ Khat )
+	prob.G     <- graphWeights / sum(graphWeights)
 	max.prob.G <- which(prob.G == max(prob.G))
 	
 	if(length(max.prob.G) > 1) max.prob.G <- max.prob.G[1] 
 	
-	gi        <- sample.G[max.prob.G]
+	gi        <- sampleGraphs[max.prob.G]
 	gv        <- c(rep(0, p * (p - 1) / 2))
 	gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 
-	dimlab   <- dimnames(output $ last.G)
+	dimlab   <- dimnames( output $ Khat )
 	if (is.null(dimlab))
 	{ 
 		dimlab <- as.character(1 : p)
@@ -913,18 +375,18 @@ select = function (output, vis = FALSE)
 # computing the probability of all the possible graphs or one specific graph 
 prob = function( output, g = 4, G = NULL )
 {
-	sample.G <- output $ sample.G
-	weights  <- output $ weights
+	sampleGraphs <- output $ sampleGraphs
+	graphWeights  <- output $ graphWeights
 
 	if (is.null(G))
 	{
-		p      <- nrow(output $ last.G)
+		p      <- nrow( output $ Khat )
 		graphi <- list()
 		gv     <- c(rep(0, p * (p - 1) / 2))  
 
 		for (i in 1 : g)
 		{
-			gi <- sample.G[which(weights == sort(weights, decreasing = T)[i])]
+			gi <- sampleGraphs[which(graphWeights == sort(graphWeights, decreasing = T)[i])]
 			gv <- 0 * gv
 			gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 			graphi[[i]] <- matrix(0, p, p)
@@ -932,15 +394,15 @@ prob = function( output, g = 4, G = NULL )
 			graphi[[i]] <- Matrix(graphi[[i]] + t(graphi[[i]]), sparse = TRUE)
 		}
 
-		return(list(best.G = graphi, prob.G = sort(weights, decreasing = T)[1 : g] / sum(weights)))
+		return(list(best.G = graphi, prob.G = sort(graphWeights, decreasing = T)[1 : g] / sum(graphWeights)))
 		
 	} else {
 		if (class(G) == "simulate") G <- G $ G
 
 		G     <- as.matrix(G)
 		indA  <- paste(G[upper.tri(G)], collapse = '')
-		wh    <- which(sample.G == indA)
-		probG <- ifelse(length(wh) == 0, 0, weights[wh] / sum(weights))
+		wh    <- which(sampleGraphs == indA)
+		probG <- ifelse(length(wh) == 0, 0, graphWeights[wh] / sum(graphWeights))
 
 		return(probG)
 	}
@@ -1042,8 +504,7 @@ compare = function ( G, est, est2 = NULL, colnames = NULL, vis = FALSE )
 # Data generator according to the graph structure
 bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2, 
                         class = NULL, type = "Gaussian", cut = 4, b = 3, D = diag(p), 
-                        K = NULL, sigma = NULL, v = 0.3, u = 0.2, mean = 0, 
-                        vis = FALSE )
+                        K = NULL, sigma = NULL, mean = 0, vis = FALSE )
 {
     if ( is.matrix(K) | is.matrix(K) )  graph <- "fixed"
     
@@ -1151,15 +612,18 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 	
 	if ( graph == "circle" )
 	{
-	    G       <- toeplitz(c(0, 1, rep(0, p - 2)))
+	    G       <- toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
         G[1, p] <- 1
 		G[p, 1] <- 1
 	}
 
 	if ( graph == "scale-free" )
 	{
-		data_sim <- huge.generator( n = 2, d = 5, graph = "scale-free" )
-		G        <- as.matrix( data_sim $ theta ) 
+#		data_sim <- huge.generator( n = 2, d = 5, graph = "scale-free" )
+		G = matrix(0, p, p)
+		# scaleFree( int *G, int *p )
+		resultGraph = .C( "scaleFree", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
+		G           = matrix( resultGraph $ G, p, p ) 
 	}
 	
     if ( !is.null(sigma) ) K <- solve(sigma)   
@@ -1170,23 +634,12 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		if( is.null(sigma) ) sigma <- solve(K)
 		
     } else {
-		if ( !is.null(K) && K == "gwish" )
-		{
-			Ti      <- chol( solve(D) )
-			diag(G) <- 0
-			K       <- rgwish.exact( G = G, b = b, T = Ti, p = p )
-			sigma   <- solve(K)
-		}
+		Ti      <- chol( solve(D) )
+		diag(G) <- 0
+		#  function( G, Ti, p, b, threshold = 1e-8 )
+		K       <- rgwishCpp( G = G, Ti = Ti, p = p, b = b )
+		sigma   <- solve(K)
 	}
-
-    if ( is.null(sigma) & is.null(K) )
-	{    	
-		K       <- G * v
-		# make K positive definite and standardized
-		diag(K) <- abs(min(eigen(K) $ values)) + u
-		sigma   <- cov2cor(solve(K))
-		K       <- solve(sigma)
-	} 
 	
 	diag(G) <- 0
 	p       <- nrow(G)
@@ -1290,10 +743,10 @@ plot.simulate = function(x, main = NULL, layout = layout.circle, ...)
 # plot for class bdgraph
 plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 {
-	list.G  <- x $ sample.G
-	weights <- x $ weights
-	p       <- nrow(x $ last.G)
-	prob.G  <- weights / sum(weights)
+	list.G  <- x $ sampleGraphs
+	graphWeights <- x $ graphWeights
+	p       <- nrow( x $ Khat )
+	prob.G  <- graphWeights / sum(graphWeights)
 	graphi  <- list()
 	gv      <- c(rep(0, p * (p - 1) / 2))
 
@@ -1308,7 +761,7 @@ plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 		gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 		graphi[[i]] <- matrix(0, p, p)
 		graphi[[i]][upper.tri(graphi[[i]])] <- gv
-		dimnames(graphi[[i]]) <- dimnames(x $ last.G)
+		dimnames(graphi[[i]]) <- dimnames( x $ Khat )
 		G    <- graph.adjacency(graphi[[i]], mode = "undirected", diag = FALSE)
 		main <- ifelse (i == 1, "Graph with highest probability", paste(c(i, "th graph"), collapse = ""))
 		plot.igraph(G, layout = layout, main = main, sub = paste(c("Posterior probability = ", 
@@ -1318,15 +771,15 @@ plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 	if (g > 1 & g < 7) par(op)
 }
 # summary of bdgraph output
-summary.bdgraph = function(object, vis = TRUE, layout = layout.circle, ...)
+summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 {
-	sample.G <- object $ sample.G
-	weights  <- object $ weights
-	p        <- nrow(object $ last.G)
-	gv       <- c(rep(0, p * (p - 1) / 2))
+	sampleGraphs <- object $ sampleGraphs
+	graphWeights <- object $ graphWeights
+	p            <- nrow( object $ Khat )
+	gv           <- c( rep( 0, p * (p - 1 ) / 2) )
 
-	dimlab   <- dimnames(object $ last.G)
-	if (is.null(dimlab))
+	dimlab   <- dimnames( object $ Khat )
+	if ( is.null(dimlab) )
 	{ 
 		dimlab <- as.character(1 : p)
 		graphi <- matrix(0, p, p, dimnames = list(dimlab, dimlab))
@@ -1334,62 +787,62 @@ summary.bdgraph = function(object, vis = TRUE, layout = layout.circle, ...)
 		graphi <- matrix(0, p, p, dimnames = dimlab)
 	}	
 
-	prob.G <- weights / sum(weights)
-	gi     <- sample.G[which(prob.G == max(prob.G))]
+	prob.G <- graphWeights / sum(graphWeights)
+	gi     <- sampleGraphs[which(prob.G == max(prob.G))]
 	gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 	graphi[upper.tri(graphi)] <- gv 
 
-	if (vis == TRUE)
+	if ( vis )
 	{
 		# plot best graph
-		G  <- graph.adjacency(graphi, mode = "undirected", diag = FALSE)
+		G  <- graph.adjacency( graphi, mode = "undirected", diag = FALSE )
 		 
 		op <- par(mfrow = c(2, 2), pty = "s")
 
 		plot.igraph(G, layout = layout, main = "Best graph",
 		  sub = paste(c("Posterior probability = ", round(max(prob.G), 4)), collapse = ""), ...)
+		
 		# plot posterior distribution of graph
-		plot(x = 1 : length(weights), y = weights / sum(weights), type = "h", main = "Posterior probability",
+		plot(x = 1 : length(graphWeights), y = graphWeights / sum(graphWeights), type = "h", main = "Posterior probability",
 			 ylab = "Pr(graph|data)", xlab = "graph")
-		abline(h = max(weights) / sum(weights), col = "red")
-		text(which(max(weights) == weights), max(weights) / sum(weights), "P(best graph|data)", col = "gray60", adj = c(0, + 1))
+		abline(h = max(graphWeights) / sum(graphWeights), col = "red")
+		text(which(max(graphWeights) == graphWeights), max(graphWeights) / sum(graphWeights), "P(best graph|data)", col = "gray60", adj = c(0, + 1))
+		
 		# plot posterior distribution of graph size
-		suma     <- sapply(sample.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
+		suma     <- sapply( sampleGraphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )
 		xx       <- unique(suma)
 		weightsg <- vector()
 
 		for (i in 1 : length(xx))
 		{
-			weightsg[i] <- sum(weights[which(suma == xx[i])])
+			weightsg[i] <- sum( graphWeights[which( suma == xx[i] )] )
 		}
 
-		plot(x = xx, y = weightsg / sum(weights), type = "h", main = "Posterior probability",
-			 ylab = "Pr(graph size|data)", xlab = "graph size")
+		plot( x = xx, y = weightsg / sum(graphWeights), type = "h", main = "Posterior probability",
+			 ylab = "Pr(graph size|data)", xlab = "graph size" )
 
-		if (!is.null(object $ all.G))
-		{
-			# plot trace of graph size
-			if (!is.null(object $ all.G))
-			{
-				all.G <- object $ all.G
-				yy    <- sapply(all.G, function(x) length(which(unlist(strsplit(as.character(x), "")) == 1)))
-				plot(x = 1 : length(all.G), yy, type = "l", main = "Trace for graph size",
-				  ylab = "graph size", xlab = "iteration")
-				abline(h = sum(graphi), col = "red")	  
-			}
-		}
+		# plot trace of graph size
+		allGraphs <- object $ allGraphs
+		yy        <- sapply( allGraphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )
+		
+		plot( x = 1 : length(allGraphs), yy, type = "l", main = "Trace for graph size",
+			  ylab = "graph size", xlab = "iteration")
+		
+		abline(h = sum(graphi), col = "red")	  
+		
 		par(op)
 	}
+	
 	# phat
 	pvec <- 0 * gv
-	for (i in 1 : length(sample.G))
+	for (i in 1 : length(sampleGraphs))
 	{
-		inp       <- which(unlist(strsplit(as.character(sample.G[i]), "")) == 1)
-		pvec[inp] <- pvec[inp] + weights[i]
+		inp       <- which(unlist(strsplit(as.character(sampleGraphs[i]), "")) == 1)
+		pvec[inp] <- pvec[inp] + graphWeights[i]
 	}
 
 	phat                  <- 0 * graphi
-	phat[upper.tri(phat)] <- pvec / sum(weights)
+	phat[upper.tri(phat)] <- pvec / sum(graphWeights)
 	# estimation for precision matrix 
 	Khat        <- object $ Khat
 
@@ -1401,16 +854,16 @@ summary.bdgraph = function(object, vis = TRUE, layout = layout.circle, ...)
 # print of the bdgraph output
 print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 {
-	sample.G <- x $ sample.G
-	weights  <- x $ weights
-	p        <- nrow(x $ last.G)
+	sampleGraphs <- x $ sampleGraphs
+	graphWeights  <- x $ graphWeights
+	p        <- nrow( x $ Khat )
 	# best graph
-	prob.G   <- weights / sum(weights)
+	prob.G   <- graphWeights / sum(graphWeights)
 	gv       <- c(rep(0, p * (p - 1) / 2))
-	gi       <- sample.G[which(prob.G == max(prob.G))]
+	gi       <- sampleGraphs[which(prob.G == max(prob.G))]
 	gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 
-	dimlab   <- dimnames(x $ last.G)
+	dimlab   <- dimnames( x $ Khat )
 	if (is.null(dimlab))
 	{ 
 		dimlab <- as.character(1 : p)
@@ -1427,7 +880,7 @@ print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 
 	cat(paste(""), fill = TRUE)
 	cat(paste("Size of best graph =", sum(graphi)), fill = TRUE)
-	cat(paste("Posterior probability of best graph = ", round(max(weights) / sum(weights), round)), fill = TRUE)  
+	cat(paste("Posterior probability of best graph = ", round(max(graphWeights) / sum(graphWeights), round)), fill = TRUE)  
 	cat(paste(""), fill = TRUE)
 
 	# print for precision matrix
@@ -1443,14 +896,14 @@ print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 	if (phat == TRUE)
 	{
 		pvec <- 0 * gv
-		for (i in 1 : length(sample.G))
+		for (i in 1 : length(sampleGraphs))
 		{
-			inp       <- which(unlist(strsplit(as.character(sample.G[i]), "")) == 1)
-			pvec[inp] <- pvec[inp] + weights[i]
+			inp       <- which(unlist(strsplit(as.character(sampleGraphs[i]), "")) == 1)
+			pvec[inp] <- pvec[inp] + graphWeights[i]
 		}
 
 		phat                  <- 0 * graphi
-		phat[upper.tri(phat)] <- pvec / sum(weights)
+		phat[upper.tri(phat)] <- pvec / sum(graphWeights)
 		cat(paste(""), fill = TRUE)
 		cat(paste("Posterior probability of links"), fill = TRUE)
 		cat(paste(""), fill = TRUE)
@@ -1459,208 +912,27 @@ print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 	}
 } 
 # sampling from G-Wishart distribution
-rgwish = function( n = 1, G = NULL, b = 3, D = NULL, method = "exact", start.K = NULL )
+rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 {
-	if (is.null(G)) stop("You should determine the adjacency matrix G")
+	if ( is.null(G) ) stop( "Adjacency matrix G should be determined" )
 	G <- as.matrix(G)
-	if (sum((G == 1) * (G == 0)) != 0) stop("Elements of matrix G should be zero or one")
-
-	if (sum(upper.tri(G)) == sum(G[upper.tri(G == 1)])) method <- "rWishart"
+	if ( sum( (G == 1) * (G == 0) ) != 0 ) stop( "Elements of matrix G should be zero or one" )
 	
 	G[lower.tri(G, diag(TRUE))] <- 0
 	p <- nrow(G)  
 	
 	if ( is.null(D) ) D <- diag(p)	
 
-	samples <- array(0, c(p, p, n))
+	samples <- array( 0, c( p, p, n ) )
 
-	if (method == "exact")
+	for ( i in 1 : n )
 	{
-		for (i in 1 : n)
-		{
-			Ti           <- chol( solve(D) ) 
-			samples[,,i] <- rgwish.exact(G = G + t(G), b = b, T = Ti, p = p, threshold = 1e-8)
-		}	
-	}
+		Ti           <- chol( solve(D) ) 
+		#samples[,,i] <- rgwish.exact(G = G + t(G), b = b, T = Ti, p = p, threshold = 1e-8)
+		samples[,,i] <- rgwishCpp( G = G + t(G), Ti = Ti, p = p, b = b )
+	}	
 
-	if ( method == "block gibbs" ) 
-	{
-		if ( is.null(start.K) )
-		{
-			start.K <- diag(p)
-		}
-
-		for (i in 1 : n)
-		{
-			if (p < 11)
-			{
-				samples[,,i] <- block.gibbs.low (K = start.K, A = G, bstar = b, Ds = D, p = p)
-			} else { 
-				samples[,,i] <- block.gibbs.high (K = start.K, A = G, bstar = b, Ds = D, p = p)
-			}
-
-			start.K      <- samples[,,i]
-		}
-	}
-
-	if ( method == "accept-reject") 
-	{
-		Ts <- chol(solve(D))
-		H  <- Ts / t(matrix(rep(diag(Ts) ,p), p, p))
-
-		for (i in 1 : n)
-		{
-			samples[,,i] <- sampleK(A = G, b = b, H = H, Ts = Ts, p = p, iter = 1)
-		}
-	}
-
-	if ( method == "rWishart" ) samples <- rWishart(n = n, df = b + p - 1, Sigma = solve(D))
-
-	return(samples)   
-}
-# Accept-reject algorithm: sampling from precision matrix
-sampleK = function(A, b, H, Ts, p, iter = 1)
-{
-	psi  <- Psi( A, b, H, p )
-	cont <- 0
-
-	for ( i in 1 : (iter * 1000) )
-	{  
-		psi.new <- Psi(A, b, H, p)
-		alpha   <- exp((sum((1 - (diag(p) + A)) * psi * psi) - 
-		           sum((1 - (diag(p) + A)) * psi.new * psi.new)) / 2)
-
-		if (is.nan(alpha)) alpha <- 0
-
-		if (runif(1) < alpha)
-		{ 
-			cont    <- cont + 1
-			psi.new <- psi
-		} 
-
-		if (cont == iter) break
-	}
-
-	sai <- psi %*% Ts
-	return( t(sai) %*% sai )
-}
-# Blocked Gibbs algorithm for sampling from G-Wishart distribution 
-# pairwise blocked Gibbs algorithm for low-dimensional graphs 
-block.gibbs.low = function (K, A, bstar, Ds, p)
-{
-	sumcol <- colSums(A)
-	sumrow <- rowSums(A)
-
-	for (i in 1 : (p - 1))
-	{
-		if (sumrow[i] != 0)
-		{
-			for (j in (i + 1) : p)
-			{
-				if (A[i, j] == 1)
-				{
-					pair <- c(i, j)
-					B    <- Ds[pair, pair]
-					a    <- rWishart(1, df = bstar + 1, Sigma = solve(B))
-					k12  <- K[pair, - pair]
-					Kc   <- matrix(a, 2, 2) + k12 %*% solve(K[- pair, - pair]) %*% t(k12)
-					K[pair, pair] <- (Kc + t(Kc)) / 2
-				}
-			}
-		}
-
-		if (sumrow[i] + sumcol[i] == 0)
-		{
-			k12     <- K[i, - i, drop = FALSE]
-			K[i, i] <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[i, i]) + 
-					 k12 %*% solve(K[- i, - i, drop = FALSE]) %*% t(k12)
-		}
-	}
-
-	if (sumcol[p] == 0)
-	{
-		k12     <- K[p, - p, drop = FALSE]
-		K[p, p] <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[p, p]) + 
-			   k12 %*% solve(K[- p, - p, drop = FALSE]) %*% t(k12)
-	}
-
-	return(K)
-}
-# pairwise blocked Gibbs sampler algorithm for high-dimensional graphs
-block.gibbs.high = function (K, A, bstar, Ds, p)
-{
-	sumcol <- colSums(A)
-	sumrow <- rowSums(A)
-	Sig    <- solve(K)
-
-	for (i in 1 : (p - 1))
-	{
-		if (sumrow[i] != 0)
-		{
-			for (j in (i + 1) : p)
-			{
-				if (A[i, j] == 1)
-				{
-					pair     <- c(i, j)
-					B        <- Ds[pair, pair]
-					a        <- rWishart(1, df = bstar + 1, Sigma = solve(B))
-					k12      <- K[pair, - pair]
-					Sig12    <- Sig[pair, - pair]
-					Sig22    <- Sig[- pair, - pair] 
-					invSig11 <- solve(Sig[pair, pair])
-					invSig11 <- (invSig11 + t(invSig11)) / 2 # Numerical stable
-					invk22   <- Sig22 - t(Sig12) %*% invSig11 %*% Sig12
-					Kc       <- matrix(a, 2, 2) + k12 %*% invk22 %*% t(k12)
-					Kc       <- (Kc + t(Kc)) / 2
-					Delta    <- solve(K[pair, pair] - Kc)
-					K[pair, pair] <- Kc
-					# step 2: update Sigma 
-					Sigbb    <- Sig[pair, pair]
-					aa       <- solve(Delta - Sigbb)
-					aa       <- (aa + t(aa)) / 2
-					Sig      <- Sig + Sig[ , pair] %*% aa %*% t(Sig[ , pair])
-				}
-			}
-		}
-
-		if (sumrow[i] + sumcol[i] == 0)
-		{
-			a        <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[i, i])
-			k12      <- K[i, - i, drop = FALSE]
-			Sig12    <- Sig[i, - i, drop = FALSE]
-			Sig22    <- Sig[- i, - i, drop = FALSE] 
-			invSig11 <- solve(Sig[i, i])
-			invSig11 <- (invSig11 + t(invSig11)) / 2 # Numerical stable
-			invk22   <- Sig22 - t(Sig12) %*% invSig11 %*% Sig12
-			Kc       <- a + k12 %*% invk22 %*% t(k12)
-			Delta    <- solve(K[i, i] - Kc)
-			K[i, i]  <- Kc
-			# step 2: update Sigma 
-			Sigbb    <- Sig[i, i]
-			aa       <- solve(Delta - Sigbb)
-			Sig      <- Sig + Sig[ , i, drop = FALSE] %*% aa %*% t(Sig[ , i, drop = FALSE])	  
-		}
-	}
-
-	if (sumcol[p] == 0)
-	{
-		a        <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[p, p])
-		k12      <- K[p, - p, drop = FALSE]
-		Sig12    <- Sig[p, - p, drop = FALSE]
-		Sig22    <- Sig[- p, - p, drop = FALSE] 
-		invSig11 <- solve(Sig[p, p])
-		invSig11 <- (invSig11 + t(invSig11)) / 2 # Numerical stable
-		invk22   <- Sig22 - t(Sig12) %*% invSig11 %*% Sig12
-		Kc       <- a + k12 %*% invk22 %*% t(k12)
-		Delta    <- solve(K[p, p] - Kc)
-		K[p, p]  <- Kc
-		# step 2: update Sigma 
-		Sigbb    <- Sig[p, p]
-		aa       <- solve(Delta - Sigbb)
-		Sig      <- Sig + Sig[ , p, drop = FALSE] %*% aa %*% t(Sig[ , p, drop = FALSE])		
-	}
-
-	return(K)
+	return( samples )   
 }
 # non-parametric transfer function for non-normal data
 bdgraph.npn = function(data, npn = "shrinkage", npn.thresh = NULL)
@@ -1690,35 +962,6 @@ bdgraph.npn = function(data, npn = "shrinkage", npn.thresh = NULL)
 	if(npn == "skeptic") data <- 2 * sin( pi / 6 * cor(data, method = "spearman") )
 	
 	return(data)
-}
-# To simulate the Psi matrix 
-Psi = function(A, b, H, p)
-{
-	nu          <- rowSums(A)
-	psi         <- diag(sqrt(rchisq(p, b + nu)))
-	psi[A == 1] <- rnorm(1)
-
-	for (i in 1 : (p - 1))
-	{
-		for (j in (i + 1) : p)
-		{
-			if (A[i, j] == 0)
-			{
-				psi[i, j] <- - sum(psi[i, i : (j - 1)] * H[i : (j - 1), j])
-				
-				if (i > 1)
-				{
-					for (r in 1 : (i - 1))
-					{
-						psi[i, j] <- psi[i, j] - ((sum(psi[r, r : i] * H[r : i, i])) *
-								 (sum(psi[r, r : j] * H[r : j, j]))) / (psi[i, i])
-					}
-				}
-			}
-		}
-	}
-
-	return(psi)
 }
 # Monte Carlo approximation of expectation in normalizing constant
 log.Exp.MC = function(A, b, H, mc, p)

@@ -29,8 +29,10 @@ graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
 \seealso{\code{\link{bdgraph}}}
 
 \examples{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 10, p = 15 )
-  
-  plot(data.sim)
+	\dontrun{
+		# generating synthetic multivariate normal data from a 'random' graph
+		data.sim <- bdgraph.sim( n = 10, p = 15 )
+
+		plot( data.sim )
+	}
 }

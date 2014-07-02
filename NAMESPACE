@@ -1,22 +1,23 @@
-import("huge", "igraph", "Matrix")
-export(bdgraph,
-	   
-	   phat,
-	   select,
-	   prob,
-	   bdgraph.sim,
-	   I.g,
-	   compare,
-	   
-	   plotcoda,
-	   traceplot,
-	   
-	   print.bdgraph, plot.bdgraph, summary.bdgraph,
-	   print.simulate, plot.simulate
-)
+import( "igraph", "Matrix" )
 
-S3method("summary","bdgraph")
-S3method("plot","bdgraph")
-S3method("print","bdgraph")
-S3method("plot","simulate")
-S3method("print","simulate")
+export( bdgraph,
+
+		phat,
+		select,
+		prob,
+		bdgraph.sim,
+		I.g,
+		compare,
+
+		plotcoda,
+		traceplot,
+
+		print.bdgraph, plot.bdgraph, summary.bdgraph,
+		print.simulate, plot.simulate
+		)
+
+S3method( "summary", "bdgraph" )
+S3method( "plot", "bdgraph" )
+S3method( "print", "bdgraph" )
+S3method( "plot", "simulate" )
+S3method( "print", "simulate" )

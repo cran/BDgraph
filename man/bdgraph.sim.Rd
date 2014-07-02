@@ -13,7 +13,7 @@ multivariate Gaussian, non-Gaussian, discrete, or mixed data.
 \usage{
 bdgraph.sim( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2, 
              class = NULL, type = "Gaussian", cut = 4, b = 3, D = diag(p), 
-             K = NULL, sigma = NULL, v = 0.3, u = 0.2, mean = 0, vis = FALSE )
+             K = NULL, sigma = NULL, mean = 0, vis = FALSE )
 }
 
 \arguments{
@@ -42,12 +42,6 @@ bdgraph.sim( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2,
   option of graph. }
   \item{sigma}{A positive-definite symmetric matrix specifying the covariance matrix of the variables. It is for 
   "fixed" option of graph.}
-
-  \item{v}{The off-diagonal elements of the precision matrix, controlling the magnitude of partial correlations with 
-  u. The default value is 0.3.}
-
-  \item{u}{A positive number being added to the diagonal elements of the precision matrix, to control the magnitude 
-  of partial correlations. The default value is 0.1.}
   
   \item{mean}{A vector specifying the mean of the variables. The default value is zero.}
   \item{vis}{visualize the true graph pattern. The default value is FALSE.}
@@ -67,16 +61,17 @@ graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
 \seealso{\code{\link{bdgraph}}}
 
 \examples{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 50, p = 10, prob = 0.3, vis = TRUE )
-  print(data.sim)
-  
-  # generating synthetic multivariate normal data from a 'hub' graph
-  data.sim <- bdgraph.sim( n = 3, p = 6, graph = "hub", vis = FALSE )
-  data.sim $ data
-  
-  # generating synthetic mixed data from a 'hub' graph 
-  data.sim <- bdgraph.sim( n = 10, p = 8, graph = "hub", type = "mixed" )
-  data.sim $ data
+	\dontrun{
+		# generating synthetic multivariate normal data from a 'random' graph
+		data.sim <- bdgraph.sim( n = 50, p = 10, prob = 0.3, vis = TRUE )
+		print(data.sim)
 
+		# generating synthetic multivariate normal data from a 'hub' graph
+		data.sim <- bdgraph.sim( n = 3, p = 6, graph = "hub", vis = FALSE )
+		data.sim $ data
+
+		# generating synthetic mixed data from a 'hub' graph 
+		data.sim <- bdgraph.sim( n = 10, p = 8, graph = "hub", type = "mixed" )
+		data.sim $ data
+	}
 }
