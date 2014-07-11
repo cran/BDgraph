@@ -1,5 +1,4 @@
 #include <R.h>
-#define MATHLIB_STANDALONE 
 #include <Rmath.h>
 #include <R_ext/Lapack.h>
 #include <R_ext/BLAS.h>
@@ -110,7 +109,7 @@ void maxDiff( double A[], double B[], double * max, int *p )
 
 // sampling from Wishart distribution
 // Ti = chol( solve( D ) )
-void rwish ( double Ti[], double K[], int *p, int *b )
+void rwish ( double Ti[], double K[], int *b, int *p )
 {
 	int i, j;
 	vector<double> psi( *p * *p ); //double psi[*p * *p];
@@ -119,7 +118,7 @@ void rwish ( double Ti[], double K[], int *p, int *b )
     GetRNGstate();
 	for ( i = 0; i < *p; i++ )
 		for ( j = 0; j < *p; j++ )
-			psi[j * *p + i] = (i < j) ? rnorm(0, 1) : ( (i > j) ? 0.0 : sqrt( rchisq( *p - i - 1 + *b ) ) );
+			psi[j * *p + i] = (i < j) ? rnorm(0, 1) : ( (i > j) ? 0.0 : sqrt( rchisq( *b + *p - i - 1 ) ) );
 	PutRNGstate();
 	// ------------------------------------
 
@@ -138,11 +137,13 @@ void rwish ( double Ti[], double K[], int *p, int *b )
 
 // A is adjacency matrix which has zero in its diagonal
 // threshold = 1e-8
-void rgwish ( int G[], double T[], double K[], int *p, int *b, double *threshold )
+void rgwish ( int G[], double T[], double K[], int *b, int *p )
 {
+	double threshold = 1e-8;
+	
 	int j, k, a, l;
 	
-	rwish( T, K, p, b );
+	rwish( T, K, b, p );
 	
 	vector<double> Sigma( *p * *p ); // double Sigma[*p * *p];
 	inverse( K, &Sigma[0], p );
@@ -152,7 +153,7 @@ void rgwish ( int G[], double T[], double K[], int *p, int *b, double *threshold
 	copyMatrix( &Sigma[0], &W[0], p ); 
 	
 	double difference = 1;	
-	while ( difference > *threshold )
+	while ( difference > threshold )
 	{
 		// copying  matrix W to matrix W_last	
 		vector<double> W_last( *p * *p );  // double W_last[*p * *p];
@@ -413,46 +414,52 @@ void log_H_ij( double K[], int G[], double *log_Hij, int *i, int *j, int *bstar,
 	double Dsii   = Ds[*i * *p + *i];
 	double Dsjj   = Ds[*j * *p + *j];
 	double Dsij   = Ds[*j * *p + *i];
-	double Dsee[] = { Dsii, Dsij, Dsij, Dsjj };
+	vector<double> Dsee( 4 );
+	Dsee[0] = Dsii; 
+	Dsee[1] = Dsij; 
+	Dsee[2] = Dsij; 
+	Dsee[3] = Dsjj; 
+	
 
 //	int one = 1;
 	int two = 2;
 //	int p1  = *p - 1;
 //	int p2  = *p - 2;
-	int e[] = { *i, *j };
+	vector<int> e( 2 );
+	e[0] = *i;
+	e[1] = *j;
 
-	double sig;
-	double mu;
-	double u;
-	double v;
-
-	double Kcopy[*p * *p];
-	copyMatrix( K, Kcopy, p );
+	vector<double> Kcopy( *p * *p ); // double Kcopy[*p * *p];
+	copyMatrix( K, &Kcopy[0], p );
  // printMatrix( K, p );	
 	if ( G[*j * *p + *i] == 0 )
 	{
 		// F <- K12 %*% solve(K[-e, -e]) %*% t(K12) 
-		double F[two * two];
-		K121output( K, F, e, p );
+		vector<double> F( two * two ); // double F[two * two];
+		K121output( K, &F[0], &e[0], p );
 		//printMatrix( K, p );
 		// K[e, e]	
-		double Kee[two * two];
-		subMatrix( K, Kee, e, &two, p );
+		vector<double> Kee( two * two ); // double Kee[two * two];
+		subMatrix( K, &Kee[0], &e[0], &two, p );
 
 		// a <- K[e, e] - F	
-		double a[two * two];	
-		minusMatrix( Kee, F, a, &two );
+		vector<double> a( two * two ); // double a[two * two];	
+		minusMatrix( &Kee[0], &F[0],  &a[0], &two );
 		
 		// sig <- sqrt( a[1, 1] / Dsjj )
+		double sig;
 		sig = sqrt( a[0] / Dsjj );
 
 		// mu = - ( Dsij * a[1, 1] ) / Dsjj
+		double mu;
 		mu = - ( Dsij * a[0] ) / Dsjj;
 		
 		// u <- rnorm(1, mu, sig)
+		double u;
 		u = rnorm( mu, sig );
 		
 		// v <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[j,j])
+		double v;
 		v = rgamma( *bstar / 2, 2 / Dsjj );
 		
 		// K[i,j] <- u + F[1,2]
@@ -465,8 +472,8 @@ void log_H_ij( double K[], int G[], double *log_Hij, int *i, int *j, int *bstar,
 	
 	// # (i,j) = 0
 	// K0 <- K
-	double K0[*p * *p];
-	copyMatrix( Kcopy, K0, p );
+	vector<double> K0( *p * *p ); // double K0[*p * *p];
+	copyMatrix( &Kcopy[0], &K0[0], p );
 
 	// K0[i, j] <- 0
 	K0[*j * *p + *i] = 0;
@@ -475,7 +482,7 @@ void log_H_ij( double K[], int G[], double *log_Hij, int *i, int *j, int *bstar,
 	
 	// K0_ij22  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
 	double K0_ij22;
-	K111output( K0, &K0_ij22, j, p );
+	K111output( &K0[0], &K0_ij22, j, p );
 
 	// K0_ij = diag( c( K[i, i], K0_ij22 ) ) 
 	double K0_ij[] = { Kcopy[*i * *p + *i], 0.0, 0.0, K0_ij22 };
@@ -483,15 +490,15 @@ void log_H_ij( double K[], int G[], double *log_Hij, int *i, int *j, int *bstar,
 	// # (i,j) = 1
 	// K_12  <- K[e, -e]
 	// K1_ij <- K_12 %*% solve( K[-e, -e] ) %*% t(K_12) 
-	double K1_ij[two * two];
-	K121output( Kcopy, K1_ij, e, p );
+	vector<double> K1_ij( two * two ); // double K1_ij[two * two];
+	K121output( &Kcopy[0], &K1_ij[0], &e[0], p );
 
 	// a11 <- K[i, i] - K1_ij[1, 1]
 	double a11 = Kcopy[*i * *p + *i] - K1_ij[0];
     
 // sumDiagAB( double A[], double B[], double C[], double *sumDiag, int *p )
 	double sumDiag;
-	sumDiagAB( Dsee, K0_ij, K1_ij, &sumDiag, &two );
+	sumDiagAB( &Dsee[0], K0_ij, &K1_ij[0], &sumDiag, &two );
 
 //   log_Hij = ( log(Dsjj) - log(a11) + ( Dsii - Dsij ^ 2 / Dsjj ) * a11 -
 //		        sum( Dsee * ( K0_ij - K1_ij ) ) ) / 2  
@@ -524,27 +531,28 @@ void ratesMatrix( double K[], double K_prop[], int G[], double rates[], int *b, 
 
 //////////////////////////////////////////////////////////////////////////////
 // transfer upper elements of matrix G to string object likes: "0111001"
-void adjToString( int G[], string *stringG, int *p )
+void adjToString( int G[], string * stringG, int *p )
 {
+	vector<char> charG( *p * ( *p - 1 ) / 2 ); // char stringG[pp];
+	
 	int i, j;
 	int l = 0;
 
-	*stringG = static_cast<ostringstream*>( &(ostringstream() << G[1 * *p + 0]) )->str();
-	for ( j = 2; j < *p; j++ )
+	for ( j = 1; j < *p; j++ )
 		for ( i = 0; i < j; i++ )
-		{
-			*stringG += static_cast<ostringstream*>( &(ostringstream() << G[j * *p + i]) )->str();
+		{	
+			charG[l] = G[j * *p + i] + '0';
 			l++;
 		}
-}
+	
+	*stringG = std::string( charG.begin(), charG.end() );	
+}   
    
 // sum of upper elements of matrix A
 void sumUpperMatrix( double A[], double *sumUpper, int *p )
 {
-	int i, j;
-
-	for ( i = 0; i < *p - 1; i++ )
-		for ( j = i + 1; j < *p; j++ )
+	for ( int i = 0; i < *p - 1; i++ )
+		for ( int j = i + 1; j < *p; j++ )
 			*sumUpper += A[j * *p + i];
 }
 
@@ -567,18 +575,13 @@ void selectEdge( double rates[], int selectedEdge[], int *p )
 // A := A + B
 void sumMatrix( double A[], double B[], int *p )
 {
-	int i;
-	
-	for ( i = 0; i < *p * *p ; i++ )
-		A[i] += B[i];	
+	for ( int i = 0; i < *p * *p ; i++ ) A[i] += B[i];	
 }
 
 // 
 void whichOne( string sampleG[], string *indG, int *thisOne, int *sizeSampleG )
 {
-	int i;
-	
-	for ( i = 0; i < *sizeSampleG; i++ )
+	for ( int i = 0; i < *sizeSampleG; i++ )
 		if ( sampleG[i] == *indG )
 			*thisOne = i; 
 }
@@ -606,18 +609,17 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], doub
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
-			 int *b, int *bstar, double D[], double Ds[], double *threshold )
+			 int *b, int *bstar, double D[], double Ds[] )
 {
 	int g;
 	//string indG;
 	int thisOne;
 
-	double K_prop[*p * *p];
+	vector<double> K_prop( *p * *p ); // double K_prop[*p * *p];
 	int selectedEdge[2];
 	
-	double rates[*p * *p];
-	for ( int i = 0; i < *p * *p; i++ )
-		rates[i] = 0.0;	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
 	
 	for ( g = 0; g < *iter; g++ )
 	{
@@ -626,12 +628,12 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], doub
 
 		// using exchange algorithm
 		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
-		// rgwish ( int G[], double T[], double K[], int *p, int *b, double *threshold )
-		rgwish( G, T, K_prop, p, b, threshold );
+		// rgwish ( int G[], double T[], double K[], int *b, int *p )
+		rgwish( G, T, &K_prop[0], b, p );
 		
 		// computing birth and death rates
 		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
-		ratesMatrix( K, K_prop, G, rates, b, bstar, D, Ds, p );
+		ratesMatrix( K, &K_prop[0], G, &rates[0], b, bstar, D, Ds, p );
 
 		// indG        <- paste( G[upper.tri(G)], collapse = '' )
 		// double G[], string *stringG, int *p
@@ -641,7 +643,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], doub
 		//allGraphs[g] = indG;
 		// allWeights <- c( allWeights, 1 / sum(rates) )
 		// double A[], double *sumUpper, int *p
-		sumUpperMatrix( rates, &allWeights[g], p );
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
 		allWeights[g] = 1 / allWeights[g];
 		
 		if ( g > *burnin )
@@ -669,14 +671,14 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], doub
 
 		// To select new graph
 		//edge    <- which( rates == max(rates) )[1]
-		selectEdge( rates, selectedEdge, p );
+		selectEdge( &rates[0], selectedEdge, p );
 
 		// G[edge] <- 1 - G[edge]
 		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
 		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
 
 		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-		rgwish( G, Ts, K, p, bstar, threshold );
+		rgwish( G, Ts, K, bstar, p );
 	}
 	// For last graph and its precision matrix
 	//copyMatrix( G, lastGraph, p );
@@ -721,7 +723,7 @@ void Pivot( double a[], int b[], int *p, int first, int last )
 // for getRank function
 void quickSort( double a[], int b[], int first, int last ) 
 {
-    int pivot=first;
+    int pivot = first;
 
     if ( first < last ) 
     {
@@ -733,12 +735,12 @@ void quickSort( double a[], int b[], int first, int last )
 // for getRank function
 void rankArray( double Array[], int Rank[], int *n )
 {
-    int i,j;
+    int i, j;
     
-    int position[*n];
+    vector<int> position( *n ); // int position[*n];
 	for ( i = 0; i < *n; i++ ) position[i] = i;
 
-    quickSort( Array, position, 0, *n - 1 ); 
+    quickSort( Array, &position[0], 0, *n - 1 ); 
     
     j = 1;
     Rank[position[0]] = 1;
@@ -752,15 +754,15 @@ void rankArray( double Array[], int Rank[], int *n )
 void getRank( double A[], int Rank[], int *n, int *p )
 {
 	int i, j;
-	double colj[*n];
-	int Rankj[*n];		
+	vector<double> colj( *n ); // double colj[*n];
+	vector<int> Rankj( *n );   // int Rankj[*nn];		
 		
 	for ( j = 0; j < *p; j++ )
 	{
 		for ( i = 0; i < *n; i++ )	colj[i] = A[j * *n + i]; 
 
 		// rankArray( double Array[], int Rank[], int *n )
-		rankArray( colj, Rankj, n );
+		rankArray( &colj[0], &Rankj[0], n );
 		
 		for ( i = 0; i < *n; i++ ) Rank[j * *n + i] =  Rankj[i] ; 		
 	}	
@@ -889,7 +891,7 @@ void getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, in
 	// copula( double Z[], double K[], int R[], int *n, int *p )
 	copula( Z, K, R, n, p );
 	
-	double S[*p * *p];
+	vector<double> S( *p * *p ); // double S[*p * *p];
 	// S <- t(Z) %*% Z
 	// Here, I'm using Ds instead of S, to saving memory
 	double alpha = 1.0;
@@ -898,7 +900,7 @@ void getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, in
 	char transB   = 'N';
 	// LAPACK function to compute  C := alpha * A * B + beta * C
 	//        DGEMM ( TRANSA,  TRANSB, M, N, K,  ALPHA, A,LDA,B, LDB,BETA, C, LDC )																				
-	F77_NAME(dgemm)( &transA, &transB, p, p, n, &alpha, Z, n, Z, n, &beta, S, p );		
+	F77_NAME(dgemm)( &transA, &transB, p, p, n, &alpha, Z, n, Z, n, &beta, &S[0], p );		
 	// Ds = D + S
 	// Or Ds = D + Ds
 	// A := A + B
@@ -933,15 +935,15 @@ void cholesky( double A[], double U[], int *p )
 // for bdmcmcCopula function
 void getTs( double Ds[], double Ts[], int *p )
 {
-	double invDs[*p * *p];
-	double copyDs[*p * *p];
+	vector<double> invDs( *p * *p ); // double invDs[*p * *p];
+	vector<double> copyDs( *p * *p ); // double copyDs[*p * *p];
 
 	// invDs = solve(Ds)	
-	copyMatrix( Ds, copyDs, p );
-	inverse( copyDs, invDs, p );	
+	copyMatrix( Ds, &copyDs[0], p );
+	inverse( &copyDs[0], &invDs[0], p );	
 
 	// Ts = chol(invDs)
-	cholesky( invDs, Ts, p );	
+	cholesky( &invDs[0], Ts, p );	
 }
 
 // for bdmcmcCopula function
@@ -959,45 +961,44 @@ void getZ( int Rank[], double Z[], int *n, int *p )
 void bdmcmcCopulaOld( double data[], int *n, int *p, int *iter, int *burnin,
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-			 int *b, double D[], double *threshold )
+			 int *b, double D[] )
 {
-	double Ds[*p * *p];	
-	double Ts[*p * *p];	
+	vector<double> Ds( *p * *p ); // double Ds[*p * *p];	
+	vector<double> Ts( *p * *p ); // double Ts[*p * *p];	
 	int bstar = *b + *n;
 	
-	int Rank[*n * *p];
+	vector<int> Rank( *n * *p ); // int Rank[*n * *p];
 	// getRank( double A[], int Rank[], int *n, int *p )
-	getRank( data, Rank, n, p );
+	getRank( data, &Rank[0], n, p );
 	
-	double Z[*n * *p];
+	vector<double> Z( *n * *p ); // double Z[*n * *p];
 	// getZ( int Rank[], double Z[], int *n, int *p )
-	getZ( Rank, Z, n, p );
+	getZ( &Rank[0], &Z[0], n, p );
 
-	double Ti[*p * *p];
+	vector<double> Ti( *p * *p ); // double Ti[*p * *p];
 	// getTs( double Ds[], double Ts[], int *p )
-	getTs( D, Ti, p );
+	getTs( D, &Ti[0], p );
 
 	// Starting points for Graph (full graph) and precision matrix 
-	int G[*p * *p];	
+	vector<int> G( *p * *p ); // int G[*p * *p];	
 	int i, j;
 	for ( i = 0; i < *p; i++ )
 		for ( j = 0; j < *p; j++ )
 			G[j * *p + i] = ( i != j ) ? 1 : 0;
 	// K = rwishCpp( T = Ti, p = p, b = b )
-	double K[*p * *p];	
+	vector<double> K( *p * *p ); // double K[*p * *p];	
 	// rwish ( double T[], double K[], int *p, int *b )
-	rwish( Ti, K, p, &bstar );
+	rwish( &Ti[0], &K[0], &bstar, p );
 
 ///////////////////////////////////////
 	int g;
 	int thisOne;
 
-	double K_prop[*p * *p];
+	vector<double> K_prop( *p * *p ); // double K_prop[*p * *p];
 	int selectedEdge[2];
 	
-	double rates[*p * *p];
-	for ( int i = 0; i < *p * *p; i++ )
-		rates[i] = 0.0;	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
 	
 	for ( g = 0; g < *iter; g++ )
 	{
@@ -1007,30 +1008,30 @@ void bdmcmcCopulaOld( double data[], int *n, int *p, int *iter, int *burnin,
 		// |------- First step: copula 
 		// here we will use a copula function
 		// getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
-		getDs( K, Z, Rank, D, Ds, n, p );
+		getDs( &K[0], &Z[0], &Rank[0], D, &Ds[0], n, p );
 
 	    // Ts = chol( solve(Ds) )
 		// getTs( double Ds[], double Ts[], int *p )
-		getTs( Ds, Ts, p );
+		getTs( &Ds[0], &Ts[0], p );
 
 		// using exchange algorithm
 		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
-		// rgwish ( double A[], double T[], double K[], int *p, int *b, double *threshold )
-		rgwish( G, Ti, K_prop, p, b, threshold );
+		// rgwish ( double A[], double T[], double K[], int *b, int *p )
+		rgwish( &G[0], &Ti[0], &K_prop[0], b, p );
 		
 		// computing birth and death rates
 		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
-		ratesMatrix( K, K_prop, G, rates, b, &bstar, D, Ds, p );
+		ratesMatrix( &K[0], &K_prop[0], &G[0], &rates[0], b, &bstar, D, &Ds[0], p );
 
 		// indG        <- paste( G[upper.tri(G)], collapse = '' )
 		// double G[], string *stringG, int *p
-		adjToString( G, &allGraphs[g], p );
+		adjToString( &G[0], &allGraphs[g], p );
 		
 		//all.G       <- c( all.G, indG )
 		//allGraphs[g] = indG;
 		// allWeights <- c( allWeights, 1 / sum(rates) )
 		// double A[], double *sumUpper, int *p
-		sumUpperMatrix( rates, &allWeights[g], p );
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
 		allWeights[g] = 1 / allWeights[g];
 		
 		if ( g > *burnin )
@@ -1038,7 +1039,7 @@ void bdmcmcCopulaOld( double data[], int *n, int *p, int *iter, int *burnin,
 			//Ksum <- Ksum + K
 			// A := A + B
 			// double A[], double B[], int *p 
-			sumMatrix( Ksum, K, p );
+			sumMatrix( Ksum, &K[0], p );
 			
 			// wh   <- which( sample.G == indG )
 			// whichOne( string sampleGraphs[], string *indG, int *thisOne, int *sizeSampleG )
@@ -1058,35 +1059,33 @@ void bdmcmcCopulaOld( double data[], int *n, int *p, int *iter, int *burnin,
 
 		// To select new graph
 		//edge    <- which( rates == max(rates) )[1]
-		selectEdge( rates, selectedEdge, p );
+		selectEdge( &rates[0], selectedEdge, p );
 
 		// G[edge] <- 1 - G[edge]
 		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
 		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
 
 		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-		rgwish( G, Ts, K, p, &bstar, threshold );
+		rgwish( &G[0], &Ts[0], &K[0], &bstar, p );
 	}
 }
    
-
 ///////////////////////////////////////////////////////////////////////////////
 void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n,
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
-			 int *b, int *bstar, double D[], double Ds[], double *threshold )
+			 int *b, int *bstar, double D[], double Ds[] )
 {
 	int g;
 	int thisOne;
 
-	double K_prop[*p * *p];
+	vector<double> K_prop( *p * *p ); // double K_prop[*p * *p];
 	int selectedEdge[2];
 	
-	double rates[*p * *p];
-	for ( int i = 0; i < *p * *p; i++ )
-		rates[i] = 0.0;	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
 	
 	for ( g = 0; g < *iter; g++ )
 	{
@@ -1104,12 +1103,12 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], do
 
 		// using exchange algorithm
 		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
-		// rgwish ( double A[], double Ti[], double K[], int *p, int *b, double *threshold )
-		rgwish( G, Ti, K_prop, p, b, threshold );
+		// rgwish ( double A[], double Ti[], double K[], int *b, int *p )
+		rgwish( G, Ti, &K_prop[0], b, p );
 		
 		// computing birth and death rates
 		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
-		ratesMatrix( K, K_prop, G, rates, b, bstar, D, Ds, p );
+		ratesMatrix( K, &K_prop[0], G, &rates[0], b, bstar, D, Ds, p );
 
 		// indG        <- paste( G[upper.tri(G)], collapse = '' )
 		// double G[], string *stringG, int *p
@@ -1119,7 +1118,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], do
 		//allGraphs[g] = indG;
 		// allWeights <- c( allWeights, 1 / sum(rates) )
 		// double A[], double *sumUpper, int *p
-		sumUpperMatrix( rates, &allWeights[g], p );
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
 		allWeights[g] = 1 / allWeights[g];
 		
 		if ( g > *burnin )
@@ -1147,14 +1146,14 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], do
 
 		// To select new graph
 		//edge    <- which( rates == max(rates) )[1]
-		selectEdge( rates, selectedEdge, p );
+		selectEdge( &rates[0], selectedEdge, p );
 
 		// G[edge] <- 1 - G[edge]
 		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
 		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
 
 		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-		rgwish( G, Ts, K, p, bstar, threshold );
+		rgwish( G, Ts, K, bstar, p );
 	}
 	// For last graph and its precision matrix
 	// copyMatrix( G, lastGraph, p );
@@ -1182,46 +1181,49 @@ void logHijApprox( double K[], int G[], double *HijApprox, int *i, int *j, int *
 	double Dsii   = Ds[*i * *p + *i];
 	double Dsjj   = Ds[*j * *p + *j];
 	double Dsij   = Ds[*j * *p + *i];
-	double Dsee[] = { Dsii, Dsij, Dsij, Dsjj };
-
-//	int one = 1;
+//	vector<double> Dsee = { Dsii, Dsij, Dsij, Dsjj };
+	vector<double> Dsee( 4 );
+	Dsee[0] = Dsii; 
+	Dsee[1] = Dsij; 
+	Dsee[2] = Dsij; 
+	Dsee[3] = Dsjj; 
+	
 	int two = 2;
-//	int p1  = *p - 1;
-//	int p2  = *p - 2;
-	int e[] = { *i, *j };
+	vector<int> e( 2 );
+	e[0] = *i;
+	e[1] = *j;
 
-	double sig;
-	double mu;
-	double u;
-	double v;
-
-	double Kcopy[*p * *p];
-	copyMatrix( K, Kcopy, p );
+	vector<double> Kcopy( *p * *p ); // double Kcopy[*p * *p];
+	copyMatrix( K, &Kcopy[0], p );
  // printMatrix( K, p );	
 	if ( G[*j * *p + *i] == 0 )
 	{
 		// F <- K12 %*% solve(K[-e, -e]) %*% t(K12) 
-		double F[two * two];
-		K121output( K, F, e, p );
+		vector<double> F( two * two ); // double F[two * two];
+		K121output( K, &F[0], &e[0], p );
 		//printMatrix( K, p );
 		// K[e, e]	
-		double Kee[two * two];
-		subMatrix( K, Kee, e, &two, p );
+		vector<double> Kee( two * two ); // double Kee[two * two];
+		subMatrix( K, &Kee[0], &e[0], &two, p );
 
 		// a <- K[e, e] - F	
-		double a[two * two];	
-		minusMatrix( Kee, F, a, &two );
+		vector<double> a( two * two ); // double a[two * two];	
+		minusMatrix( &Kee[0], &F[0], &a[0], &two );
 		
 		// sig <- sqrt( a[1, 1] / Dsjj )
+		double sig;
 		sig = sqrt( a[0] / Dsjj );
 
 		// mu = - ( Dsij * a[1, 1] ) / Dsjj
+		double mu;
 		mu = - ( Dsij * a[0] ) / Dsjj;
 		
 		// u <- rnorm(1, mu, sig)
+		double u;
 		u = rnorm( mu, sig );
 		
 		// v <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[j,j])
+		double v;
 		v = rgamma( *bstar / 2, 2 / Dsjj );
 		
 		// K[i,j] <- u + F[1,2]
@@ -1234,8 +1236,8 @@ void logHijApprox( double K[], int G[], double *HijApprox, int *i, int *j, int *
 	
 	// # (i,j) = 0
 	// K0 <- K
-	double K0[*p * *p];
-	copyMatrix( Kcopy, K0, p );
+	vector<double> K0( *p * *p ); // double K0[*p * *p];
+	copyMatrix( &Kcopy[0], &K0[0], p );
 
 	// K0[i, j] <- 0
 	K0[*j * *p + *i] = 0;
@@ -1244,23 +1246,27 @@ void logHijApprox( double K[], int G[], double *HijApprox, int *i, int *j, int *
 	
 	// K0_ij22  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
 	double K0_ij22;
-	K111output( K0, &K0_ij22, j, p );
+	K111output( &K0[0], &K0_ij22, j, p );
 
 	// K0_ij = diag( c( K[i, i], K0_ij22 ) ) 
-	double K0_ij[] = { Kcopy[*i * *p + *i], 0.0, 0.0, K0_ij22 };
+	vector<double> K0_ij( 4 );   // = { Kcopy[*i * *p + *i], 0.0, 0.0, K0_ij22 };
+	K0_ij[0] = Kcopy[*i * *p + *i];
+	K0_ij[1] = 0.0;
+	K0_ij[2] = 0.0;
+	K0_ij[3] = K0_ij22;
 
 	// # (i,j) = 1
 	// K_12  <- K[e, -e]
 	// K1_ij <- K_12 %*% solve( K[-e, -e] ) %*% t(K_12) 
-	double K1_ij[two * two];
-	K121output( Kcopy, K1_ij, e, p );
+	vector<double> K1_ij( two * two ); // double K1_ij[two * two];
+	K121output( &Kcopy[0], &K1_ij[0], &e[0], p );
 
 	// a11 <- K[i, i] - K1_ij[1, 1]
 	double a11 = Kcopy[*i * *p + *i] - K1_ij[0];
     
 // sumDiagAB( double A[], double B[], double C[], double *sumDiag, int *p )
 	double sumDiag;
-	sumDiagAB( Dsee, K0_ij, K1_ij, &sumDiag, &two );
+	sumDiagAB( &Dsee[0], &K0_ij[0], &K1_ij[0], &sumDiag, &two );
 
 //   log_Hij = ( log(Dsjj) - log(a11) + ( Dsii - Dsij ^ 2 / Dsjj ) * a11 -
 //		        sum( Dsee * ( K0_ij - K1_ij ) ) ) / 2  
@@ -1305,7 +1311,7 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
-			 int *b, int *bstar, double Ti[], double Ds[], double *threshold )
+			 int *b, int *bstar, double Ti[], double Ds[] )
 {
 	int g;
 	//string indG;
@@ -1313,9 +1319,8 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 
 	int selectedEdge[2];
 	
-	double rates[*p * *p];
-	for ( int i = 0; i < *p * *p; i++ )
-		rates[i] = 0.0;	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
 	
 	for ( g = 0; g < *iter; g++ )
 	{
@@ -1325,7 +1330,7 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 		// computing birth and death rates
 		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
 // ratesMatrixApprox( double K[], double G[], double rates[], int *b, int *bstar, double Ti[], double Ds[], int *p )
-		ratesMatrixApprox( K, G, rates, b, bstar, Ti, Ds, p );
+		ratesMatrixApprox( K, G, &rates[0], b, bstar, Ti, Ds, p );
 
 		// indG        <- paste( G[upper.tri(G)], collapse = '' )
 		// double G[], string *stringG, int *p
@@ -1335,7 +1340,7 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 		//allGraphs[g] = indG;
 		// allWeights <- c( allWeights, 1 / sum(rates) )
 		// double A[], double *sumUpper, int *p
-		sumUpperMatrix( rates, &allWeights[g], p );
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
 		allWeights[g] = 1 / allWeights[g];
 		
 		if ( g > *burnin )
@@ -1363,14 +1368,14 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 
 		// To select new graph
 		//edge    <- which( rates == max(rates) )[1]
-		selectEdge( rates, selectedEdge, p );
+		selectEdge( &rates[0], selectedEdge, p );
 
 		// G[edge] <- 1 - G[edge]
 		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
 		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
 
 		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-		rgwish( G, Ts, K, p, bstar, threshold );
+		rgwish( G, Ts, K, bstar, p );
 	}
 	// For last graph and its precision matrix
 	// copyMatrix( G, lastGraph, p );
@@ -1385,7 +1390,7 @@ void scaleFree( int *G, int *p )
     int i, j;
     int p0 = 2;
     double randomValue;
-    int size_a[*p];
+    vector<int> size_a( *p ); // int size_a[*p];
     int tmp;
     int total;
 

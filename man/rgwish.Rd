@@ -31,8 +31,8 @@ A numeric array, say A, of dimension \eqn{(p \times p \times n)}, where each \eq
 definite matrix, a realization of the G-Wishart distribution \eqn{W_G(b, D)}.
 }
 \references{
-Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, Stat 2, 119-128.
 }
@@ -44,7 +44,7 @@ Lenkoski, A. (2013). A direct sampler for G-Wishart variates, Stat 2, 119-128.
 		G # graph with 5 nodes and 4 links
 
 		sample <- rgwish( n = 3, G = G, b = 3, D = diag(5) )
-		round( sample, 2 )
+		sample
 	}
 }
 

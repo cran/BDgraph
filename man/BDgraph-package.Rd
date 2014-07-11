@@ -39,8 +39,9 @@ traceplot        Trace plot of graph size from "bdgraph" output
 \author{Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit}
 
 \references{
-Mohammadi, A. and E. C. Wit (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
+
 
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, Stat 2, 119-128.
 

@@ -32,8 +32,8 @@ Graphical Models. \emph{Annals of Statistics}
 Zhao, T. and H. Liu. (2012). The huge Package for High-dimensional Undirected Graph Estimation in R. 
 \emph{Journal of Machine Learning Research}
 
-Mohammadi, A. and E. C. Wit (2013). Bayesian model selection in sparse Gaussian 
-graphical models, arXiv:1210.5371v5. \url{http://arxiv.org/abs/1210.5371v5}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit \cr }

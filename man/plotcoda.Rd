@@ -25,8 +25,8 @@ Note that a spending time for this function depends on the graph. It should be s
 high-dimensional graphs. To make it faster you can choose bigger value for 'thin'.
 }
 \references{
-Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 \author{Abdolreza Mohammadi and Ernst Wit}
 
@@ -37,7 +37,7 @@ graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
   # generating synthetic multivariate normal data from a 'circle' graph
   data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
   
-  output <- bdgraph( data = data.sim, iter = 2000, save.all = TRUE )
+  output <- bdgraph( data = data.sim )
  
   plotcoda(output)
   }

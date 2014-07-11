@@ -11,7 +11,7 @@ graphical models based on birth-death MCMC methodology.
 \usage{
 bdgraph( data, n = NULL, method = "exact", npn = "normal", iter = 5000, 
 		 burnin = floor(iter / 2), b = 3, D = NULL, Gstart = "empty", 
-		 Kstart = NULL, trace = TRUE )
+		 Kstart = NULL )
 }
 
 \arguments{
@@ -59,8 +59,6 @@ previous bdgraph run (see examples).
 
 \item{Kstart}{It is corresponding to a starting point for precision matrix. It has to be a positive definite matrix.}
 
-\item{trace}{Logical: if TRUE (default), prints out algorithm progress. }
-
 }
 
 \value{
@@ -78,8 +76,8 @@ an object with S3 class "bdgraph" as follow:
 }
 
 \references{
-Mohammadi, A. and E. C. Wit (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

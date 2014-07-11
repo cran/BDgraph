@@ -17,8 +17,8 @@ Trace plot of graph size from all bdgraph output. It is a tool for checking the 
   \item{\dots}{ System reserved (no specific usage). }
 }
 \references{
-Mohammadi, A. and E. C. Wit (2013). Bayesian model selection in sparse Gaussian 
-graphical models, arXiv:1210.5371v5. \url{http://arxiv.org/abs/1210.5371v5}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 \author{Abdolreza Mohammadi and Ernst Wit}
 
@@ -29,7 +29,7 @@ graphical models, arXiv:1210.5371v5. \url{http://arxiv.org/abs/1210.5371v5}
   # generating synthetic multivariate normal data from a 'random' graph
   data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
   
-  output   <- bdgraph( data = data.sim, iter = 2000, save.all = TRUE )
+  output   <- bdgraph( data = data.sim, iter = 10000 )
   
   traceplot(output)
   

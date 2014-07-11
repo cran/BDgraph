@@ -54,8 +54,8 @@ an object with S3 class "simulate" as follow:
 \item{G}{The adjacency matrix corresponding to the true graph structure.}
 }
 \references{
-Mohammadi, A. and E. C. Wit (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 \author{Abdolreza Mohammadi and Ernst Wit}
 \seealso{\code{\link{bdgraph}}}

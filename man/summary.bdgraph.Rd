@@ -17,8 +17,8 @@ This function gives us a summary of the result from BD-MCMC algorithm according 
   \item{\dots}{ System reserved (no specific usage).}
 }
 \references{
-Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 
 \author{Abdolreza Mohammadi and Ernst Wit}
@@ -30,7 +30,7 @@ graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
   # generating synthetic multivariate normal data from a 'random' graph
   data.sim <- bdgraph.sim( n = 50, p = 6, vis = TRUE )
   
-  output   <- bdgraph( data = data.sim, iter = 2000 )
+  output   <- bdgraph( data = data.sim )
   
   summary(output)
   

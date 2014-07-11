@@ -21,8 +21,8 @@ phat( output, round = 3 )
 \item{phat}{Upper triangular matrix which shows the posterior inclusion probabilities for all possible edges.}
 }
 \references{
-Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 \author{Abdolreza Mohammadi and Ernst Wit}
 
@@ -33,7 +33,7 @@ graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
   # generating synthetic multivariate normal data from a 'random' graph
   data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
   
-  output   <- bdgraph( data = data.sim, iter = 2000 )
+  output   <- bdgraph( data = data.sim )
   
   phat( output, round = 2 )
   }

@@ -1,5 +1,7 @@
+useDynLib( "BDgraph" )
 import( "igraph", "Matrix" )
 
+useDynLib( BDgraph, .registration = TRUE )
 export( bdgraph,
 
 		phat,

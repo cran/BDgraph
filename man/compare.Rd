@@ -40,8 +40,8 @@ graph.}
 \item{False positive rate}{the false positive value divided by the total number of links in the true graph.}
 }
 \references{
-Mohammadi, A. and E. C. Wit (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 }
 \author{Abdolreza Mohammadi, Antonio Abbruzzo, Ivan Vujacic, and Ernst Wit \cr}
 
@@ -53,11 +53,12 @@ graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
   data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
   
   # selecting the best graph according to BD-MCMC algorithm
-  output <- bdgraph( data = data.sim, iter = 2000 )
+  output <- bdgraph( data = data.sim, iter = 10000 )
   # comparing the result
   compare( data.sim, output, colnames = c("true", "BDgraph"), vis = TRUE )
 
   # selecting the best graph by 'huge' package
+  require( huge )  
   huge.g <- huge( data.sim $ data, method = "mb" )
   huge.g <- huge.select( huge.g )    
   

@@ -1,33 +1,9 @@
-# sampling from Wishart based on C++ codes
-rwishCpp <- function( Ti, p, b = 3 )
-{
-	K <- matrix( 0, p, p)
-	
-	# rwish ( double T[], double K[], int *p, int *b )
-	result = .C( "rwish", as.double(Ti), K = as.double(K), as.integer(p), as.integer(b), PACKAGE = "BDgraph" )
-
-	 return ( matrix ( result $ K, p, p ) )
-}  
-# sampling from G-Wishart based on C++ codes
-rgwishCpp <- function( G, Ti, p, b, threshold = 1e-8 )
-{
-#	T <- chol( solve(D) )
-	K <- matrix( 0, p, p)
-	
-	# rgwish ( double G[], double T[], double K[], int *p, int *b, double *threshold )
-	result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(p), 
-				  as.integer(b), as.double(threshold), PACKAGE = "BDgraph" )
-
-	 return ( matrix ( result $ K, p, p ) )
-}  
 ## Main function: BDMCMC algorithm for selecting the best graphs 
 bdgraph = function( data, n = NULL, method = "exact", npn = "normal", 
                     iter = 5000, burnin = floor(iter / 2), b = 3, D = NULL, 
-                    Gstart = "empty", Kstart = NULL, trace = TRUE )
+                    Gstart = "empty", Kstart = NULL )
 {
 	startTime <- Sys.time()
-	
-	threshold = 1e-8 
 	
 	if ( class(data) == "simulate" ) data <- data $ data
 
@@ -57,7 +33,7 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 		if ( isSymmetric(data) )
 		{
 			if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
-			if ( trace ) cat( "The input is identified as the covriance matrix. \n" )
+			cat( "The input is identified as the covriance matrix. \n" )
 			S <- data
 		} else {
 			n <- dimd[1]
@@ -90,15 +66,23 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 	if ( Gstart == "empty" )
 	{
 		G = 0 * S
-		K = rgwishCpp( G = G, Ti = Ts, p = p, b = bstar )
-		#K <- rgwish.exact(G = G, b = bstar, T = Ts, p = p)
+		
+		K <- matrix( 0, p, p )
+		# rgwish ( double G[], double T[], double K[], int *b, int *p )
+		result = .C( "rgwish", as.integer(G), as.double(Ts), K = as.double(K), as.integer(bstar), 
+					  as.integer(p), PACKAGE = "BDgraph" )
+		K = matrix ( result $ K, p, p ) 
 	}
 	
 	if ( Gstart == "full" )
 	{
 		G       = matrix(1, p, p)
 		diag(G) = 0
-		K       = rwishCpp( Ti = Ts, p = p, b = bstar )
+		# K       = rwishCpp( Ti = Ts, p = p, b = bstar )
+		K = matrix( 0, p, p)
+		# rwish ( double T[], double K[], int *p, int *b )
+		result = .C( "rwish", as.double(Ts), K = as.double(K), as.integer(bstar), as.integer(p), PACKAGE = "BDgraph" )
+		K = matrix ( result $ K, p, p ) 
 	}	
 	
 	allGraphs    <- c( rep ( "a", iter ) ) # vector of numbers like "10100"
@@ -114,12 +98,9 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 	lastGraph = rates
 	lastK     = rates
 
-	if ( trace == TRUE )
-	{
-		mes <- paste( c(" ", iter," iteration is started.                    " ), collapse = "" )
-		cat( mes, "\r" )
-		#flush.console()
-	}
+	mes <- paste( c(" ", iter," iteration is started.                    " ), collapse = "" )
+	cat( mes, "\r" )
+	#flush.console()
 
 	if ( method == "exact" )
 	{	
@@ -128,13 +109,13 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 #			 double lastGraph[], double lastK[],
-#			 int *b, int *bstar, double D[], double Ds[], double *threshold )
+#			 int *b, int *bstar, double D[], double Ds[] )
 		result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), 
 		            as.double(T), as.double(Ts), as.double(K), as.integer(p), 
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), PACKAGE = "BDgraph" )
 		################################################################################
 	}
 		
@@ -148,13 +129,13 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 #			 double lastGraph[], double lastK[],
-#			 int *b, int *bstar, double Ti[], double Ds[], double *threshold )
+#			 int *b, int *bstar, double Ti[], double Ds[] )
 		result = .C( "bdmcmcApprox", as.integer(iter), as.integer(burnin), as.integer(G), 
 		            as.double(T), as.double(Ts), as.double(K), as.integer(p), 
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(Ti), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+				    as.integer(b), as.integer(bstar), as.double(Ti), as.double(Ds), PACKAGE = "BDgraph" )
 		################################################################################	
 	}
 
@@ -168,14 +149,14 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 #			 double lastGraph[], double lastK[],
-#			 int *b, int *bstar, double D[], double Ds[], double *threshold )
+#			 int *b, int *bstar, double D[], double Ds[] )
 		result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), 
 		            as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
 		            as.double(Z), as.integer(R), as.integer(n),
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), PACKAGE = "BDgraph" )
 		################################################################################
 	}
 
@@ -188,14 +169,11 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 	lastGraph    = matrix( result $ lastGraph, p, p )
 	lastK        = matrix( result $ lastK, p, p )
 
-	if ( trace == TRUE )
-	{
-		mes <- paste( c(" ", iter," iteration done.                    " ), collapse = "" )
-		cat( mes, "\r" )
-		cat( "\n" )
-		flush.console()
-		print( Sys.time() - startTime )  
-	}
+	mes <- paste( c(" ", iter," iteration done.                    " ), collapse = "" )
+	cat( mes, "\r" )
+	cat( "\n" )
+	flush.console()
+	print( Sys.time() - startTime )  
 
 	output <- list( sampleGraphs = sampleGraphs, graphWeights = graphWeights, Khat = Ksum / (iter - burnin), 
 					  allGraphs = allGraphs, allWeights = allWeights, lastGraph = lastGraph, lastK = lastK )
@@ -637,7 +615,13 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		Ti      <- chol( solve(D) )
 		diag(G) <- 0
 		#  function( G, Ti, p, b, threshold = 1e-8 )
-		K       <- rgwishCpp( G = G, Ti = Ti, p = p, b = b )
+		# K       <- rgwishCpp( G = G, Ti = Ti, p = p, b = b )
+		K <- matrix( 0, p, p )
+		# rgwish ( double G[], double T[], double K[], int *b, int *p )
+		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), 
+					  as.integer(p), PACKAGE = "BDgraph" )
+		K = matrix ( result $ K, p, p ) 		
+			
 		sigma   <- solve(K)
 	}
 	
@@ -928,8 +912,14 @@ rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 	for ( i in 1 : n )
 	{
 		Ti           <- chol( solve(D) ) 
-		#samples[,,i] <- rgwish.exact(G = G + t(G), b = b, T = Ti, p = p, threshold = 1e-8)
-		samples[,,i] <- rgwishCpp( G = G + t(G), Ti = Ti, p = p, b = b )
+		# samples[,,i] <- rgwish.exact(G = G + t(G), b = b, T = Ti, p = p, threshold = 1e-8)
+		# samples[,,i] <- rgwishCpp( G = G + t(G), Ti = Ti, p = p, b = b )
+		K = matrix( 0, p, p )
+		G = G + t(G)
+		# rgwish ( double G[], double T[], double K[], int *b, int *p )
+		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), 
+					  as.integer(p), PACKAGE = "BDgraph" )
+		samples[,,i] = matrix ( result $ K, p, p ) 		
 	}	
 
 	return( samples )   

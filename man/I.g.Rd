@@ -35,8 +35,8 @@ Normalizing constant approximation using Monte Carlo method for a G-Wishart(b,D)
 the normalizing constant of G-Wishart distribution.
 }
 \references{
-Mohammadi, A. and E. C. Wit (2013). Bayesian structure learning in sparse Gaussian 
-graphical models, arXiv:1210.5371v6. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
+graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
 
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the 
 marginal likelihood in nondecomposable Gaussian graphical models. Biometrika 
