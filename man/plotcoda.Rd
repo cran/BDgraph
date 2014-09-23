@@ -1,7 +1,7 @@
 \name{plotcoda}
 \alias{plotcoda}
 
-\title{Convergence plot}
+\title{ Convergence plot }
 
 \description{
 This function according to "bdgraph" output gives us several plots. These plots can be used to check the convergence of the BD-MCMC algorithm.

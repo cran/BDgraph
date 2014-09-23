@@ -3,6 +3,7 @@
 
 \alias{log.Exp.MC}
 \alias{roc}
+\alias{outRoc}
 
 \docType{data}
 

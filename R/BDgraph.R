@@ -1,25 +1,27 @@
 ## Main function: BDMCMC algorithm for selecting the best graphs 
-bdgraph = function( data, n = NULL, method = "exact", npn = "normal", 
-                    iter = 5000, burnin = floor(iter / 2), b = 3, D = NULL, 
-                    Gstart = "empty", Kstart = NULL )
+# bdgraph with missing data option in copula
+################################################################################
+# in option "copulaNA", I should check ", PACKAGE = BDgraph)"
+################################################################################
+bdgraph = function( data, n = NULL, method = "exact", iter = 5000, 
+					burnin = iter / 2, b = 3, D = NULL, Gstart = "empty" )
 {
 	startTime <- Sys.time()
+	burnin = floor( burnin )
 	
 	if ( class(data) == "simulate" ) data <- data $ data
 
 	if ( is.matrix(data) == FALSE & is.data.frame(data) == FALSE ) stop( "Data should be a matrix or dataframe" )
 	if ( is.data.frame(data) ) data <- data.matrix(data)
-	if ( ( method != "copula" ) & ( any( is.na(data) ) ) ) stop( "Data should contain no missing data" ) 
+	if ( any( is.na(data) ) )  method = "copulaNA"
 	if ( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
-
-	if ( ( method != "copula" ) & ( npn != "normal" ) ) data <- bdgraph.npn( data = data, npn = npn, npn.thresh = NULL )
 
 	dimd <- dim(data)
 	p    <- dimd[2]
+	n    <- dimd[1]
 
-	if ( method == "copula" )
+	if ( method == "copula" | method == "copulaNA" | method == "copula1" | method == "copulaNA1" )
 	{
-		n              <- dimd[1]
 		Z              <- qnorm( apply( data, 2, rank, ties.method = "random" ) / (n + 1) )
 		Zfill          <- matrix( rnorm( n * p ), n, p )   # for missing values
 		Z[is.na(data)] <- Zfill[is.na(data)]               # for missing values
@@ -29,6 +31,7 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 		R <- 0 * data
 		for ( j in 1:p ) 
 			R[,j] <- match( data[ , j], sort( unique( data[ , j] ) ) ) 
+		R[is.na(R)] = 0 # dealing with missing values
 	} else {
 		if ( isSymmetric(data) )
 		{
@@ -36,9 +39,15 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 			cat( "The input is identified as the covriance matrix. \n" )
 			S <- data
 		} else {
-			n <- dimd[1]
-			S <- n * cov( data )
+			S <- t(data) %*% data
 		}
+	}
+
+	if ( is.null(D) ) 
+	{
+		method = "exact1"
+		if ( method == "copula" )   method == "copula1"
+		if ( method == "copulaNA" ) method == "copulaNA1"
 	}
 
 	if ( is.null(D) )
@@ -62,8 +71,14 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 		G <- Gstart $ lastGraph
 		K <- Gstart $ lastK
 	} 
+
+	if ( class(Gstart) == "simulate" ) 
+	{
+		G <- as.matrix( Gstart $ G )
+		K <- as.matrix( Gstart $ K )
+	} 
 	
-	if ( Gstart == "empty" )
+	if ( class(Gstart) == "character" && Gstart == "empty"  )
 	{
 		G = 0 * S
 		
@@ -74,7 +89,7 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 		K = matrix ( result $ K, p, p ) 
 	}
 	
-	if ( Gstart == "full" )
+	if ( class(Gstart) == "character" && Gstart == "full" )
 	{
 		G       = matrix(1, p, p)
 		diag(G) = 0
@@ -84,7 +99,19 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 		result = .C( "rwish", as.double(Ts), K = as.double(K), as.integer(bstar), as.integer(p), PACKAGE = "BDgraph" )
 		K = matrix ( result $ K, p, p ) 
 	}	
-	
+
+	if ( is.matrix(Gstart) )
+	{
+		G = as.matrix( Gstart )
+		diag(G) = 0
+		
+		K <- matrix( 0, p, p )
+		# rgwish ( double G[], double T[], double K[], int *b, int *p )
+		result = .C( "rgwish", as.integer(G), as.double(Ts), K = as.double(K), as.integer(bstar), 
+					  as.integer(p), PACKAGE = "BDgraph" )
+		K = matrix ( result $ K, p, p ) 	
+	}
+		
 	allGraphs    <- c( rep ( "a", iter ) ) # vector of numbers like "10100"
 	allWeights   <- c( rep ( 0, iter ) )   # waiting time for every state		
 
@@ -104,7 +131,6 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 
 	if ( method == "exact" )
 	{	
-		#### C++ code for main for loop
 # bdmcmcExact( int *iter, int *burnin, double G[], double T[], double Ts[], double K[], int *p, 
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
@@ -115,16 +141,31 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), PACKAGE = "BDgraph" )
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
 		################################################################################
 	}
+
+	if ( method == "exact1" )
+	{
+# bdmcmcApprox( int *iter, int *burnin, double G[], double Ts[], double K[], int *p, 
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 double lastGraph[], double lastK[],
+#			 int *b, int *bstar, double Ds[] )
+		result = .C( "bdmcmcExact1", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(Ts), as.double(K), as.integer(p), 
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+		################################################################################	
+	}
+
 		
 	if ( method == "approx" )
 	{
-#		output <- bdmcmcApprox( iter, burnin, G, K, Ksum, allGraphs, allWeights, sampleGraphs, 
-#					            graphWeights , rates, D, Ds, Ti, Ts, b, bstar, p, trace )
-	
-		#### C++ code for main for loop
 # bdmcmcApprox( int *iter, int *burnin, double G[], double T[], double Ts[], double K[], int *p, 
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
@@ -135,15 +176,13 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(Ti), as.double(Ds), PACKAGE = "BDgraph" )
+				    as.integer(b), as.integer(bstar), as.double(Ti), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
 		################################################################################	
 	}
 
 	if ( method == "copula" )
 	{
-#		output <- bdmcmcCopula( iter, burnin, G, K, Z, R, Ksum, allGraphs, allWeights, sampleGraphs, 
-#					            graphWeights , rates, D, Ds, Ti, Ts, b, bstar, p, trace )
-		#### C++ code for main for loop
 # bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
 #			 string allGraphs[], double allWeights[], double Ksum[], 
@@ -156,7 +195,65 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds), PACKAGE = "BDgraph" )
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+				################################################################################
+	}
+
+	if ( method == "copulaNA1" )
+	{
+# bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
+#			 double Z[], int R[], int *n,
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 double lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[] )
+		result = .C( "bdmcmcCopulaNA1", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds) 
+				    , PACKAGE = "BDgraph" )
+		################################################################################
+	}
+	
+	if ( method == "copula1" )
+	{
+#void bdmcmcCopula1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+#			 double Z[], int R[], int *n,
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 int lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[] )
+		result = .C( "bdmcmcCopula1", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+				################################################################################
+	}
+
+	if ( method == "copulaNA1" )
+	{
+# bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
+#			 double Z[], int R[], int *n,
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 double lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[] )
+		result = .C( "bdmcmcCopulaNA", as.integer(iter), as.integer(burnin), as.integer(G), 
+		            as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds) 
+				    , PACKAGE = "BDgraph" )
 		################################################################################
 	}
 
@@ -169,33 +266,35 @@ bdgraph = function( data, n = NULL, method = "exact", npn = "normal",
 	lastGraph    = matrix( result $ lastGraph, p, p )
 	lastK        = matrix( result $ lastK, p, p )
 
-	mes <- paste( c(" ", iter," iteration done.                    " ), collapse = "" )
-	cat( mes, "\r" )
-	cat( "\n" )
-	flush.console()
+#	mes <- paste( c(" ", iter," iteration done.                 " ), collapse = "" )
+#	cat( mes, "\r" )
+#	cat( "\n" )
+#	flush.console()
 	print( Sys.time() - startTime )  
 
+	colnames( lastGraph ) = colnames( data )
 	output <- list( sampleGraphs = sampleGraphs, graphWeights = graphWeights, Khat = Ksum / (iter - burnin), 
 					  allGraphs = allGraphs, allWeights = allWeights, lastGraph = lastGraph, lastK = lastK )
 
 	class( output ) <- "bdgraph"
 	return( output )   
 }
+   
 # computing probability of all links of the graph
 phat = function(output, round = 3)
 {
 	sampleGraphs <- output $ sampleGraphs
-	graphWeights  <- output $ graphWeights
-	p        <- nrow( output $ Khat )
-	pvec     <- c(rep(0, p * (p - 1) / 2))
+	graphWeights <- output $ graphWeights
+	p            <- nrow( output $ lastGraph )
+	pvec         <- c(rep(0, p * (p - 1) / 2))
 
 	for (i in 1 : length(sampleGraphs))
 	{
-		inp       <- which(unlist(strsplit(as.character(sampleGraphs[i]), "")) == 1)
+		inp       <- which( unlist( strsplit( as.character(sampleGraphs[i]), "" ) ) == 1 )
 		pvec[inp] <- pvec[inp] + graphWeights[i]
 	}
 
-	dimlab <- dimnames( output $ Khat ) # lastG
+	dimlab <- dimnames( output $ lastGraph ) # lastG
 	if ( is.null( dimlab ) )
 	{
 		dimlab <- as.character(1 : p)
@@ -214,7 +313,7 @@ plotcoda = function(output, thin = NULL, trace = TRUE, main = NULL, ...)
 	if (is.null(thin)) thin = ceiling(length(output $ allGraphs) / 1000)
 
 	op          <- par(mfrow = c(2, 2), pty = "s")
-	p           <- nrow( output $ Khat ) 
+	p           <- nrow( output $ lastGraph ) 
 	allWeights <- output $ allWeights
 	allGraphs       <- output $ allGraphs
 
@@ -320,7 +419,7 @@ select = function ( output, vis = FALSE )
 {
 	sampleGraphs   <- output $ sampleGraphs
 	graphWeights    <- output $ graphWeights
-	p          <- nrow( output $ Khat )
+	p          <- nrow( output $ lastGraph )
 	prob.G     <- graphWeights / sum(graphWeights)
 	max.prob.G <- which(prob.G == max(prob.G))
 	
@@ -330,7 +429,7 @@ select = function ( output, vis = FALSE )
 	gv        <- c(rep(0, p * (p - 1) / 2))
 	gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 
-	dimlab   <- dimnames( output $ Khat )
+	dimlab   <- dimnames( output $ lastGraph )
 	if (is.null(dimlab))
 	{ 
 		dimlab <- as.character(1 : p)
@@ -358,7 +457,7 @@ prob = function( output, g = 4, G = NULL )
 
 	if (is.null(G))
 	{
-		p      <- nrow( output $ Khat )
+		p      <- nrow( output $ lastGraph )
 		graphi <- list()
 		gv     <- c(rep(0, p * (p - 1) / 2))  
 
@@ -430,6 +529,76 @@ roc = function ( G, est )
 	
 	return( round( roc.matrix, 3 ) )
 }
+# function for ROC plot
+outRoc = function( G, prob, cut )
+{
+	G[ lower.tri( G, diag = TRUE ) ]     <- 0
+	prob[ lower.tri( prob, diag = TRUE ) ] <- 0
+	p = nrow(prob)
+	pp = p * ( p - 1 ) / 2
+	sumEdges = sum(G)
+	sumNoEdges = pp - sumEdges
+	
+	tp = c( rep( 0, cut + 1 ) )
+	tp[1] = 1
+	fp = c( rep( 0, cut + 1 ) )
+	fp[1] = 1
+
+	cutPoint = (0:cut) / cut
+	
+	for ( i in 2:cut )
+	{
+		# checking for cut pints
+		estG = matrix( 0, p, p )
+		estG[prob > cutPoint[i]] = 1
+
+		tp.all <- ( G != 0 ) * ( estG != 0 ) 
+		fp.all <- ( G == 0 ) * ( estG != 0 ) 	
+		tp[i]  <- sum( tp.all ) / sumEdges
+		fp[i]  <- sum( fp.all ) / sumNoEdges
+	}
+	
+	return( list( tp = tp, fp = fp ) )
+}
+# To plot ROC curve
+plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
+{
+    if ( class(G)     == "simulate" ) G     <- as.matrix( G $ G )
+    if ( class(prob)  == "bdgraph" )  prob  <- as.matrix( phat( prob, round = 10 ) ) 
+    
+    output = outRoc( G = G, prob = prob, cut = cut )
+    x      = output $ fp
+    y      = output $ tp
+ 	
+	if ( smooth == TRUE )
+	{
+		fit = smooth.spline( x = x, y = y )
+		x   = c( 0, fit $ x )
+		y   = c( 0, fit $ y )
+	}
+	
+	par( mar = c( 3.8, 4.2, 1.8, 1 ) )
+    plot( x = x, y = y, type = "l", col = "black", lty = 1, cex.lab = 1.6, cex.main = 2.5, cex.axis = 1.7,
+         main = "ROC Curve", xlab = "False Postive Rate", ylab = "True Postive Rate", ylim = c(0,1) )
+  
+    if( !is.null(prob2) )
+    {
+        if ( class(prob2)  == "bdgraph" ) prob2 <- as.matrix( phat( prob2, round = 10 ) ) 
+        output2 = outRoc( G = G, prob = prob2, cut = cut )
+		x2      = output2 $ fp
+		y2      = output2 $ tp
+
+		if ( smooth == TRUE )
+		{
+			fit2 = smooth.spline( x = x2, y = y2 )
+			x2   = c( 0, fit2 $ x )
+			y2   = c( 0, fit2 $ y )
+		}
+		
+        points( x = x2, y = y2, type = "l", col = "blue", lty = 2, lw = 2,
+                main = "ROC Curve", xlab = "False Postive Rate", ylab = "True Postive Rate", ylim = c(0,1) )
+    }
+}
 # To compare the result according to the true graph
 compare = function ( G, est, est2 = NULL, colnames = NULL, vis = FALSE ) 
 {
@@ -484,7 +653,10 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
                         class = NULL, type = "Gaussian", cut = 4, b = 3, D = diag(p), 
                         K = NULL, sigma = NULL, mean = 0, vis = FALSE )
 {
-    if ( is.matrix(K) | is.matrix(K) )  graph <- "fixed"
+    if ( is.matrix(K) )  graph <- "fixed"
+    
+    if ( type == "normal" )     type = "Gaussian"
+    if ( type == "non-normal" ) type = "non-Gaussian"
     
     if ( is.matrix(graph) )
 	{
@@ -609,20 +781,18 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
     if ( is.matrix(K) )
     { 
 		G     <- 1 * ( abs(K) > 0.02 )
-		if( is.null(sigma) ) sigma <- solve(K)
-		
+		if( is.null(sigma) ) sigma <- solve(K)	
     } else {
 		Ti      <- chol( solve(D) )
 		diag(G) <- 0
-		#  function( G, Ti, p, b, threshold = 1e-8 )
-		# K       <- rgwishCpp( G = G, Ti = Ti, p = p, b = b )
+		
 		K <- matrix( 0, p, p )
 		# rgwish ( double G[], double T[], double K[], int *b, int *p )
 		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), 
 					  as.integer(p), PACKAGE = "BDgraph" )
 		K = matrix ( result $ K, p, p ) 		
 			
-		sigma   <- solve(K)
+		sigma <- solve(K)
 	}
 	
 	diag(G) <- 0
@@ -729,7 +899,7 @@ plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 {
 	list.G  <- x $ sampleGraphs
 	graphWeights <- x $ graphWeights
-	p       <- nrow( x $ Khat )
+	p       <- nrow( x $ lastGraph )
 	prob.G  <- graphWeights / sum(graphWeights)
 	graphi  <- list()
 	gv      <- c(rep(0, p * (p - 1) / 2))
@@ -745,7 +915,7 @@ plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 		gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 		graphi[[i]] <- matrix(0, p, p)
 		graphi[[i]][upper.tri(graphi[[i]])] <- gv
-		dimnames(graphi[[i]]) <- dimnames( x $ Khat )
+		dimnames(graphi[[i]]) <- dimnames( x $ lastGraph )
 		G    <- graph.adjacency(graphi[[i]], mode = "undirected", diag = FALSE)
 		main <- ifelse (i == 1, "Graph with highest probability", paste(c(i, "th graph"), collapse = ""))
 		plot.igraph(G, layout = layout, main = main, sub = paste(c("Posterior probability = ", 
@@ -759,10 +929,10 @@ summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 {
 	sampleGraphs <- object $ sampleGraphs
 	graphWeights <- object $ graphWeights
-	p            <- nrow( object $ Khat )
+	p            <- nrow( object $ lastGraph )
 	gv           <- c( rep( 0, p * (p - 1 ) / 2) )
 
-	dimlab   <- dimnames( object $ Khat )
+	dimlab   <- dimnames( object $ lastGraph )
 	if ( is.null(dimlab) )
 	{ 
 		dimlab <- as.character(1 : p)
@@ -840,14 +1010,14 @@ print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 {
 	sampleGraphs <- x $ sampleGraphs
 	graphWeights  <- x $ graphWeights
-	p        <- nrow( x $ Khat )
+	p        <- nrow( x $ lastGraph )
 	# best graph
 	prob.G   <- graphWeights / sum(graphWeights)
 	gv       <- c(rep(0, p * (p - 1) / 2))
 	gi       <- sampleGraphs[which(prob.G == max(prob.G))]
 	gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
 
-	dimlab   <- dimnames( x $ Khat )
+	dimlab   <- dimnames( x $ lastGraph )
 	if (is.null(dimlab))
 	{ 
 		dimlab <- as.character(1 : p)
@@ -919,6 +1089,24 @@ rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 		# rgwish ( double G[], double T[], double K[], int *b, int *p )
 		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), 
 					  as.integer(p), PACKAGE = "BDgraph" )
+		samples[,,i] = matrix ( result $ K, p, p ) 		
+	}	
+
+	return( samples )   
+}
+# sampling from Wishart distribution
+rwish = function( n = 1, p = 2, b = 3, D = diag(p) )
+{
+	samples <- array( 0, c( p, p, n ) )
+
+	for ( i in 1 : n )
+	{
+		Ti = chol( solve(D) ) 
+		
+		K  = matrix( 0, p, p )
+		# rwish ( double T[], double K[], int *p, int *b )
+		result = .C( "rwish", as.double(Ti), K = as.double(K), as.integer(b), as.integer(p) )
+		
 		samples[,,i] = matrix ( result $ K, p, p ) 		
 	}	
 

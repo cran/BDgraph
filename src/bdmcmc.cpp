@@ -689,116 +689,6 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], doub
 ////////////////////////////////////////////////////////////////////////////////
 // Copula Gaussian graphical models
 ////////////////////////////////////////////////////////////////////////////////
-// for getRank function
-void swap( double &v1, double &v2 )
-{
-    double tmpVal = v1;
-    v1 = v2;
-    v2 = tmpVal;
-}
-// for getRank function
-void swapInt( int &v1, int &v2 )
-{
-    int tmpVal = v1;
-    v1 = v2;
-    v2 = tmpVal;
-}
-// for getRank function
-void Pivot( double a[], int b[], int *p, int first, int last ) 
-{
-    *p = first;
-    double pivot = a[first];
-
-    for ( int i = first + 1; i <= last; i++ ) 
-        if ( a[i] < pivot ) 
-        {
-            (*p)++;
-            swap( a[i], a[*p] );
-            swapInt( b[i], b[*p] );
-        }
-
-    swap( a[*p], a[first] );
-    swapInt( b[*p], b[first] );
-}
-// for getRank function
-void quickSort( double a[], int b[], int first, int last ) 
-{
-    int pivot = first;
-
-    if ( first < last ) 
-    {
-        Pivot( a, b, &pivot, first, last );
-        quickSort( a, b, first, pivot - 1 );
-        quickSort( a, b, pivot + 1, last );
-    }
-}
-// for getRank function
-void rankArray( double Array[], int Rank[], int *n )
-{
-    int i, j;
-    
-    vector<int> position( *n ); // int position[*n];
-	for ( i = 0; i < *n; i++ ) position[i] = i;
-
-    quickSort( Array, &position[0], 0, *n - 1 ); 
-    
-    j = 1;
-    Rank[position[0]] = 1;
-    for ( i = 1; i < *n; i++ ) 
-    {
-		if ( Array[i] > Array[i - 1]) j++;
-		Rank[position[i]] = j;
-	}
-}
-// for ranking data matrix
-void getRank( double A[], int Rank[], int *n, int *p )
-{
-	int i, j;
-	vector<double> colj( *n ); // double colj[*n];
-	vector<int> Rankj( *n );   // int Rankj[*nn];		
-		
-	for ( j = 0; j < *p; j++ )
-	{
-		for ( i = 0; i < *n; i++ )	colj[i] = A[j * *n + i]; 
-
-		// rankArray( double Array[], int Rank[], int *n )
-		rankArray( &colj[0], &Rankj[0], n );
-		
-		for ( i = 0; i < *n; i++ ) Rank[j * *n + i] =  Rankj[i] ; 		
-	}	
-}
-////////////////////////////////////////////////////////////////////////////////
-// Takes square matrix K (p x p) and retrieves vector B which is 'sub' th column of matrix A, minus 'sub' element
-// Likes K[-j, j] in R
-void subColMinsj ( double K[], double Kjc[], int *j, int *p )
-{
-	int i;
-	int l = 0;
-	for ( i = 0; i < *p; i++ ) 
-		if ( i != *j )
-		{
-			Kjc[l] = K[*j * *p + i]; 
-			l++;
-		}		
-}
-
-// Takes matrix Z (n x p) and retrieves matrix B which is matrix Z minus column j
-// Likes  Zminj = Z[ , -j, drop = FALSE] in R
-void MatrixMinCol ( double Z[], double Zminj[], int *sub, int *n, int *p )
-{
-	int i, j;
-	int l = 0;
-	for ( j = 0; j < *p; j++ )
-	{
-		if ( j != *sub )
-		{
-			for ( i = 0; i < *n; i++ )
-				Zminj[l * *n + i] = Z[j * *n + i]; 
-			l++;
-		}
-	}		
-}
-
 // for copula function
 void getMean( double Z[], double K[], double *muij, double *sigma, int *i, int *j, int *n, int *p )
 {
@@ -866,22 +756,9 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 			Z[j * *n + i] = qnorm( runifValue, muij, sdj, TRUE, FALSE );
 			PutRNGstate();				
 		}
-		
 	}
 }
 
-// S := t(Z) %*% Z	
-void multiplyMatrixTN( double Z[], double S[], int *n, int *p )
-{
-	double alpha = 1.0;
-	double beta  = 0.0;
-	char transA   = 'T';
-	char transB   = 'N';
-	// LAPACK function to compute  C := alpha * A * B + beta * C
-	//               &trans,  &trans,p_i,p_j,p_k,&alpha,A,p_i,B,p_k,&beta, C, p_i );
-	//        DGEMM ( TRANSA,  TRANSB, M, N, K,  ALPHA, A,LDA,B, LDB,BETA, C, LDC )																				
-	F77_NAME(dgemm)( &transA, &transB, p, p, n, &alpha, Z, n, Z, n, &beta, S, p );			
-}
 // for bdmcmcCopula function
 void getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
 {
@@ -946,130 +823,6 @@ void getTs( double Ds[], double Ts[], int *p )
 	cholesky( &invDs[0], Ts, p );	
 }
 
-// for bdmcmcCopula function
-void getZ( int Rank[], double Z[], int *n, int *p )
-{
-	int i, j;
-
-	for ( i = 0; i < *n; i++ )
-		for ( j = 0; j < *p; j++ )	
-			Z[j * *n + i] = qnorm( Rank[j * *n + i] / ( *n + 1 ), 0, 1, 1, 0 );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// ++++ OLD ONE: BDMCMC algorithm for Copula GGMs
-void bdmcmcCopulaOld( double data[], int *n, int *p, int *iter, int *burnin,
-			 string allGraphs[], double allWeights[], double Ksum[], 
-			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-			 int *b, double D[] )
-{
-	vector<double> Ds( *p * *p ); // double Ds[*p * *p];	
-	vector<double> Ts( *p * *p ); // double Ts[*p * *p];	
-	int bstar = *b + *n;
-	
-	vector<int> Rank( *n * *p ); // int Rank[*n * *p];
-	// getRank( double A[], int Rank[], int *n, int *p )
-	getRank( data, &Rank[0], n, p );
-	
-	vector<double> Z( *n * *p ); // double Z[*n * *p];
-	// getZ( int Rank[], double Z[], int *n, int *p )
-	getZ( &Rank[0], &Z[0], n, p );
-
-	vector<double> Ti( *p * *p ); // double Ti[*p * *p];
-	// getTs( double Ds[], double Ts[], int *p )
-	getTs( D, &Ti[0], p );
-
-	// Starting points for Graph (full graph) and precision matrix 
-	vector<int> G( *p * *p ); // int G[*p * *p];	
-	int i, j;
-	for ( i = 0; i < *p; i++ )
-		for ( j = 0; j < *p; j++ )
-			G[j * *p + i] = ( i != j ) ? 1 : 0;
-	// K = rwishCpp( T = Ti, p = p, b = b )
-	vector<double> K( *p * *p ); // double K[*p * *p];	
-	// rwish ( double T[], double K[], int *p, int *b )
-	rwish( &Ti[0], &K[0], &bstar, p );
-
-///////////////////////////////////////
-	int g;
-	int thisOne;
-
-	vector<double> K_prop( *p * *p ); // double K_prop[*p * *p];
-	int selectedEdge[2];
-	
-	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
-//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
-	
-	for ( g = 0; g < *iter; g++ )
-	{
-		if ( ( g + 1 ) % 1000 == 0 ) Rprintf( "  Iteration  %d          \n", g + 1 );
-		//	cout << "   Iteration " << g + 1 << "\n";
-
-		// |------- First step: copula 
-		// here we will use a copula function
-		// getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
-		getDs( &K[0], &Z[0], &Rank[0], D, &Ds[0], n, p );
-
-	    // Ts = chol( solve(Ds) )
-		// getTs( double Ds[], double Ts[], int *p )
-		getTs( &Ds[0], &Ts[0], p );
-
-		// using exchange algorithm
-		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
-		// rgwish ( double A[], double T[], double K[], int *b, int *p )
-		rgwish( &G[0], &Ti[0], &K_prop[0], b, p );
-		
-		// computing birth and death rates
-		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
-		ratesMatrix( &K[0], &K_prop[0], &G[0], &rates[0], b, &bstar, D, &Ds[0], p );
-
-		// indG        <- paste( G[upper.tri(G)], collapse = '' )
-		// double G[], string *stringG, int *p
-		adjToString( &G[0], &allGraphs[g], p );
-		
-		//all.G       <- c( all.G, indG )
-		//allGraphs[g] = indG;
-		// allWeights <- c( allWeights, 1 / sum(rates) )
-		// double A[], double *sumUpper, int *p
-		sumUpperMatrix( &rates[0], &allWeights[g], p );
-		allWeights[g] = 1 / allWeights[g];
-		
-		if ( g > *burnin )
-		{
-			//Ksum <- Ksum + K
-			// A := A + B
-			// double A[], double B[], int *p 
-			sumMatrix( Ksum, &K[0], p );
-			
-			// wh   <- which( sample.G == indG )
-			// whichOne( string sampleGraphs[], string *indG, int *thisOne, int *sizeSampleG )
-			thisOne = *iter;
-			whichOne( sampleGraphs, &allGraphs[g], &thisOne, sizeSampleG );
-			
-			if ( ( thisOne == *iter ) or ( sizeSampleG == 0 ) )
-			{
-				sampleGraphs[*sizeSampleG] = allGraphs[g];
-				graphWeights[*sizeSampleG] = allWeights[g];
-				(*sizeSampleG)++;				
-			} else {
-				// graphWeights[wh] <- graphWeights[wh] + 1 / sum(rates)
-				graphWeights[thisOne] += allWeights[g];
-			}
-		}
-
-		// To select new graph
-		//edge    <- which( rates == max(rates) )[1]
-		selectEdge( &rates[0], selectedEdge, p );
-
-		// G[edge] <- 1 - G[edge]
-		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
-		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
-
-		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
-		rgwish( &G[0], &Ts[0], &K[0], &bstar, p );
-	}
-}
-   
 ///////////////////////////////////////////////////////////////////////////////
 void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n,
@@ -1096,6 +849,194 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], do
 		// here we will use a copula function
 		// getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
 		getDs( K, Z, R, D, Ds, n, p );
+
+	    // Ts = chol( solve(Ds) )
+		// getTs( double Ds[], double Ts[], int *p )
+		getTs( Ds, Ts, p );
+
+		// using exchange algorithm
+		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
+		// rgwish ( double A[], double Ti[], double K[], int *b, int *p )
+		rgwish( G, Ti, &K_prop[0], b, p );
+		
+		// computing birth and death rates
+		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
+		ratesMatrix( K, &K_prop[0], G, &rates[0], b, bstar, D, Ds, p );
+
+		// indG        <- paste( G[upper.tri(G)], collapse = '' )
+		// double G[], string *stringG, int *p
+		adjToString( G, &allGraphs[g], p );
+		
+		//all.G       <- c( all.G, indG )
+		//allGraphs[g] = indG;
+		// allWeights <- c( allWeights, 1 / sum(rates) )
+		// double A[], double *sumUpper, int *p
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
+		allWeights[g] = 1 / allWeights[g];
+		
+		if ( g > *burnin )
+		{
+			//Ksum <- Ksum + K
+			// A := A + B
+			// double A[], double B[], int *p 
+			sumMatrix( Ksum, K, p );
+			
+			// wh   <- which( sample.G == indG )
+			// whichOne( string sampleGraphs[], string *indG, int *thisOne, int *sizeSampleG )
+			thisOne = *iter;
+			whichOne( sampleGraphs, &allGraphs[g], &thisOne, sizeSampleG );
+			
+			if ( ( thisOne == *iter ) or ( sizeSampleG == 0 ) )
+			{
+				sampleGraphs[*sizeSampleG] = allGraphs[g];
+				graphWeights[*sizeSampleG] = allWeights[g];
+				(*sizeSampleG)++;				
+			} else {
+				// graphWeights[wh] <- graphWeights[wh] + 1 / sum(rates)
+				graphWeights[thisOne] += allWeights[g];
+			}
+		}
+
+		// To select new graph
+		//edge    <- which( rates == max(rates) )[1]
+		selectEdge( &rates[0], selectedEdge, p );
+
+		// G[edge] <- 1 - G[edge]
+		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
+		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
+
+		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
+		rgwish( G, Ts, K, bstar, p );
+	}
+	// For last graph and its precision matrix
+	// copyMatrix( G, lastGraph, p );
+	for ( int g = 0; g < *p * *p; g++ ) lastGraph[g] = G[g];
+	copyMatrix( K, lastK, p );	
+}
+   
+////////////////////////////////////////////////////////////////////////////////
+// for copula function with missing data 
+void getBoundsNA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
+{
+	*lb = -1e308;
+	*ub = +1e308;
+
+	for ( int k = 0; k < *n; k++ )
+	{
+		if ( R[*j * *n + k] != 0 )
+		{
+			// if ( R[k, j] < R[i, j] ) lb = max( Z[ k, j], lb )
+			if ( R[*j * *n + k] < R[*j * *n + *i] )
+				*lb = max( Z[*j * *n + k], *lb );
+				
+			//  if ( R[k, j] > R[i, j] ) ub = min( Z[ k, j], ub )																	
+			if ( R[*j * *n + k] > R[*j * *n + *i] ) 
+				*ub = min( Z[*j * *n + k], *ub );
+		}
+	}
+}
+ 
+// copula part
+void copulaNA( double Z[], double K[], int R[], int *n, int *p )
+{
+	int i, j;
+	
+	double sigma, sdj, muij;
+	
+	double lb;
+	double ub;
+	double runifValue;
+	double pnormlb;
+	double pnormub;
+	
+	for ( j = 0; j < *p; j++ )
+	{   
+		sigma = 1 / K[j * *p + j];
+		sdj   = sqrt( sigma );
+		
+		// interval and sampling
+		for( i = 0; i < *n; i++ )
+		{
+			// getMean( double Z[], double K[], double *muij, double *sigma, int *i, int *j, int *p )
+			getMean( Z, K, &muij, &sigma, &i, &j, n, p );
+			
+			GetRNGstate();
+			// if (  R[i, j] != 0 ) #( !is.na( R[i, j] ) )
+			if ( R[j * *n + i] != 0 )
+			{
+				// getBounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
+				getBoundsNA( Z, R, &lb, &ub, &i, &j, n );
+				
+				// runifValue = runif( 1, pnorm( lowerBound, muij, sdj ), pnorm( upperBound, muij, sdj ) )
+				// Z[i,j]     = qnorm( runifValue, muij, sdj )									
+				pnormlb       = pnorm( lb, muij, sdj, TRUE, FALSE );
+				pnormub       = pnorm( ub, muij, sdj, TRUE, FALSE );
+				runifValue    = runif( pnormlb, pnormub );
+				Z[j * *n + i] = qnorm( runifValue, muij, sdj, TRUE, FALSE );
+			} else {
+				// Z[i, j] = rnorm( 1, muj[i], sdj )
+				Z[j * *n + i] = rnorm( muij, sdj );
+			}
+			PutRNGstate();				
+		}
+	}
+}
+
+// for bdmcmcCopula function
+void getDsNA( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
+{
+	// |------- First step: copula 
+	// here we will use a copula function
+	// Z <- copula( Z = Z, K = K, R = R, n = n, p = p )
+	// copula( double Z[], double K[], int R[], int *n, int *p )
+	copulaNA( Z, K, R, n, p );
+	
+	vector<double> S( *p * *p ); // double S[*p * *p];
+	// S <- t(Z) %*% Z
+	// Here, I'm using Ds instead of S, to saving memory
+	double alpha = 1.0;
+	double beta  = 0.0;
+	char transA   = 'T';
+	char transB   = 'N';
+	// LAPACK function to compute  C := alpha * A * B + beta * C
+	//        DGEMM ( TRANSA,  TRANSB, M, N, K,  ALPHA, A,LDA,B, LDB,BETA, C, LDC )																				
+	F77_NAME(dgemm)( &transA, &transB, p, p, n, &alpha, Z, n, Z, n, &beta, &S[0], p );		
+	// Ds = D + S
+	// Or Ds = D + Ds
+	// A := A + B
+	//sumMatrix( Ds, D, p );	
+	for ( int i = 0; i < *p; i++ )
+		for ( int j = 0; j < *p; j++ )
+			Ds[ j * *p + i ] = D[ j * *p + i ] + S[ j * *p + i ];
+}
+
+// copula approach for data with missing values
+///////////////////////////////////////////////////////////////////////////////
+void bdmcmcCopulaNA( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+			 double Z[], int R[], int *n,
+			 string allGraphs[], double allWeights[], double Ksum[], 
+			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 int lastGraph[], double lastK[],
+			 int *b, int *bstar, double D[], double Ds[] )
+{
+	int g;
+	int thisOne;
+
+	vector<double> K_prop( *p * *p ); // double K_prop[*p * *p];
+	int selectedEdge[2];
+	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
+	
+	for ( g = 0; g < *iter; g++ )
+	{
+		if ( ( g + 1 ) % 1000 == 0 ) Rprintf( "  Iteration  %d          \n", g + 1 );
+		//	cout << "   Iteration " << g + 1 << "\n";
+
+		// |------- First step: copula 
+		// here we will use a copula function
+		// getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
+		getDsNA( K, Z, R, D, Ds, n, p );
 
 	    // Ts = chol( solve(Ds) )
 		// getTs( double Ds[], double Ts[], int *p )
@@ -1282,7 +1223,7 @@ void logHijApprox( double K[], int G[], double *HijApprox, int *i, int *j, int *
 	sumRow( G, &nustar, i, p );
 	nustar = nustar / 2;
 
-	*HijApprox = Ti[*i * *p + *i] * Ti[*j * *p + *j] *
+	*HijApprox = sqrt(2) * Ti[*i * *p + *i] * Ti[*j * *p + *j] *
 			   exp( lgamma( ( *b + nustar ) / 2 ) - lgamma( ( *b + nustar - 1 ) / 2 )
 	           + ( log(Dsjj) - log(a11) + ( Dsii - pow( Dsij, 2 ) / Dsjj ) * a11 - sumDiag ) / 2 ) ;
 
@@ -1382,6 +1323,398 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 	for ( int g = 0; g < *p * *p; g++ ) lastGraph[g] = G[g];
 	copyMatrix( K, lastK, p );			
 }
+    
+
+////////////////////////////////////////////////////////////////////////////////
+// bdmcmc algoirthm with exact value of normalizing constant for D = I_p
+// ********************* NEW WORK *****************************************
+////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// For bdmcmcApprox algorithm: computing birth or death rate of element (i,j)
+void logHijExact1( double K[], int G[], double *HijExact1, int *i, int *j, int *b, int *bstar, double Ds[], int *p )
+{
+	double Dsii = Ds[*i * *p + *i];
+	double Dsjj = Ds[*j * *p + *j];
+	double Dsij = Ds[*j * *p + *i];
+//	vector<double> Dsee = { Dsii, Dsij, Dsij, Dsjj };
+	vector<double> Dsee( 4 );
+	Dsee[0] = Dsii; 
+	Dsee[1] = Dsij; 
+	Dsee[2] = Dsij; 
+	Dsee[3] = Dsjj; 
+	
+	int two = 2;
+	vector<int> e( 2 );
+	e[0] = *i;
+	e[1] = *j;
+
+	vector<double> Kcopy( *p * *p ); // double Kcopy[*p * *p];
+	copyMatrix( K, &Kcopy[0], p );
+ // printMatrix( K, p );	
+	if ( G[*j * *p + *i] == 0 )
+	{
+		// F <- K12 %*% solve(K[-e, -e]) %*% t(K12) 
+		vector<double> F( two * two ); // double F[two * two];
+		K121output( K, &F[0], &e[0], p );
+		//printMatrix( K, p );
+		// K[e, e]	
+		vector<double> Kee( two * two ); // double Kee[two * two];
+		subMatrix( K, &Kee[0], &e[0], &two, p );
+
+		// a <- K[e, e] - F	
+		vector<double> a( two * two ); // double a[two * two];	
+		minusMatrix( &Kee[0], &F[0], &a[0], &two );
+		
+		// sig <- sqrt( a[1, 1] / Dsjj )
+		double sig;
+		sig = sqrt( a[0] / Dsjj );
+
+		// mu = - ( Dsij * a[1, 1] ) / Dsjj
+		double mu;
+		mu = - ( Dsij * a[0] ) / Dsjj;
+		
+		// u <- rnorm(1, mu, sig)
+		double u;
+		u = rnorm( mu, sig );
+		
+		// v <- rgamma(1, shape = bstar / 2, scale = 2 / Ds[j,j])
+		double v;
+		v = rgamma( *bstar / 2, 2 / Dsjj );
+		
+		// K[i,j] <- u + F[1,2]
+		Kcopy[*j * *p + *i] = u + F[2];
+		// K[j,i] <- u + F[1,2]
+		Kcopy[*i * *p + *j] = u + F[2];		
+		// K[j,j] <- v + u ^ 2 / a[1,1] + F[2,2]
+		Kcopy[*j * *p + *j] = v + pow( u, 2 ) / a[0] + F[3];	
+	}
+	
+	// # (i,j) = 0
+	// K0 <- K
+	vector<double> K0( *p * *p ); // double K0[*p * *p];
+	copyMatrix( &Kcopy[0], &K0[0], p );
+
+	// K0[i, j] <- 0
+	K0[*j * *p + *i] = 0;
+	// K0[j, i] <- 0
+	K0[*i * *p + *j] = 0;
+	
+	// K0_ij22  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
+	double K0_ij22;
+	K111output( &K0[0], &K0_ij22, j, p );
+
+	// K0_ij = diag( c( K[i, i], K0_ij22 ) ) 
+	vector<double> K0_ij( 4 );   // = { Kcopy[*i * *p + *i], 0.0, 0.0, K0_ij22 };
+	K0_ij[0] = Kcopy[*i * *p + *i];
+	K0_ij[1] = 0.0;
+	K0_ij[2] = 0.0;
+	K0_ij[3] = K0_ij22;
+
+	// # (i,j) = 1
+	// K_12  <- K[e, -e]
+	// K1_ij <- K_12 %*% solve( K[-e, -e] ) %*% t(K_12) 
+	vector<double> K1_ij( two * two ); // double K1_ij[two * two];
+	K121output( &Kcopy[0], &K1_ij[0], &e[0], p );
+
+	// a11 <- K[i, i] - K1_ij[1, 1]
+	double a11 = Kcopy[*i * *p + *i] - K1_ij[0];
+    
+// sumDiagAB( double A[], double B[], double C[], double *sumDiag, int *p )
+	double sumDiag;
+	sumDiagAB( &Dsee[0], &K0_ij[0], &K1_ij[0], &sumDiag, &two );
+
+// nustar = sum(A[i, ])
+// sumRow ( double A[], double *sumRowi, int *i, int *p )
+//	int nustar;
+//	sumRow( G, &nustar, i, p );
+//	nustar = nustar / 2;
+
+//	An = A
+//	An[e] <- 1 - An[e]
+//	Af     = An + t(An)
+//	nustar = sum( Af[,i] * Af[,j] )
+	int nustar = 0;
+	for ( int k = 0; k < *p; k++ )
+		nustar += G[*i * *p + k] * G[*j * *p + k];
+
+	*HijExact1 = sqrt(2) *
+			   exp( lgamma( ( *b + nustar + 1 ) / 2 ) - lgamma( ( *b + nustar ) / 2 )
+	           + ( log(Dsjj) - log(a11) + ( Dsii - pow( Dsij, 2 ) / Dsjj ) * a11 - sumDiag ) / 2 ) ;
+
+	// if ( A[i,j] == 0 ) rate <- 1 / rate 
+	if ( G[*j * *p + *i] == 0 ) *HijExact1 = 1 / *HijExact1;
+}
+   
+// Colculating all the birth and death rates
+void ratesMatrixExact1( double K[], int G[], double rates[], int *b, int *bstar, double Ds[], int *p )
+{
+	int i, j;
+	double logHij;
+	
+//	for ( i = 0; i < p * p; i++ ) rates[i] = 0.0;
+	for ( i = 0; i < *p; i++ )
+		for ( j = i + 1; j < *p; j++ )
+		{
+			// logHijExact1( double K[], int G[], double *HijExact1, int *i, int *j, int *b, int *bstar, double Ds[], int *p )
+			logHijExact1( K, G, &logHij, &i, &j, b, bstar, Ds, p );
+			rates[j * *p + i] = logHij;
+		}
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void bdmcmcExact1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+			 string allGraphs[], double allWeights[], double Ksum[], 
+			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 int lastGraph[], double lastK[],
+			 int *b, int *bstar, double Ds[] )
+{
+	int g;
+	//string indG;
+	int thisOne;
+
+	int selectedEdge[2];
+	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
+	
+	for ( g = 0; g < *iter; g++ )
+	{
+		if ( ( g + 1 ) % 1000 == 0 ) Rprintf( "  Iteration  %d          \n", g + 1 );
+		//	cout << "   Iteration " << g + 1 << "\n";
+		
+		// computing birth and death rates
+		// ratesMatrixExact1( double K[], int G[], double rates[], int *b, int *bstar, double Ds[], int *p )
+		ratesMatrixExact1( K, G, &rates[0], b, bstar, Ds, p );
+
+		// indG        <- paste( G[upper.tri(G)], collapse = '' )
+		// double G[], string *stringG, int *p
+		adjToString( G, &allGraphs[g], p );
+		
+		//all.G       <- c( all.G, indG )
+		//allGraphs[g] = indG;
+		// allWeights <- c( allWeights, 1 / sum(rates) )
+		// double A[], double *sumUpper, int *p
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
+		allWeights[g] = 1 / allWeights[g];
+		
+		if ( g > *burnin )
+		{
+			//Ksum <- Ksum + K
+			// A := A + B
+			// double A[], double B[], int *p 
+			sumMatrix( Ksum, K, p );
+			
+			// wh   <- which( sample.G == indG )
+			// whichOne( string sampleGraphs[], string *indG, int *thisOne, int *sizeSampleG )
+			thisOne = *iter;
+			whichOne( sampleGraphs, &allGraphs[g], &thisOne, sizeSampleG );
+			
+			if ( ( thisOne == *iter ) or ( sizeSampleG == 0 ) )
+			{
+				sampleGraphs[*sizeSampleG] = allGraphs[g];
+				graphWeights[*sizeSampleG] = allWeights[g];
+				(*sizeSampleG)++;				
+			} else {
+				// graphWeights[wh] <- graphWeights[wh] + 1 / sum(rates)
+				graphWeights[thisOne] += allWeights[g];
+			}
+		}
+
+		// To select new graph
+		//edge    <- which( rates == max(rates) )[1]
+		selectEdge( &rates[0], selectedEdge, p );
+
+		// G[edge] <- 1 - G[edge]
+		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
+		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
+
+		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
+		rgwish( G, Ts, K, bstar, p );
+	}
+	// For last graph and its precision matrix
+	// copyMatrix( G, lastGraph, p );
+	for ( int g = 0; g < *p * *p; g++ ) lastGraph[g] = G[g];
+	copyMatrix( K, lastK, p );			
+}
+    
+////////////////////////////////////////////////////////////////////////////////
+// Copula Gaussian graphical models 
+//********* with NEW idea of exact normalizing constant ***********************
+////////////////////////////////////////////////////////////////////////////////
+void bdmcmcCopula1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+			 double Z[], int R[], int *n,
+			 string allGraphs[], double allWeights[], double Ksum[], 
+			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 int lastGraph[], double lastK[],
+			 int *b, int *bstar, double D[], double Ds[] )
+{
+	int g;
+	int thisOne;
+
+	int selectedEdge[2];
+	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
+	
+	for ( g = 0; g < *iter; g++ )
+	{
+		if ( ( g + 1 ) % 1000 == 0 ) Rprintf( "  Iteration  %d          \n", g + 1 );
+		//	cout << "   Iteration " << g + 1 << "\n";
+
+		// |------- First step: copula 
+		// here we will use a copula function
+		// getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
+		getDs( K, Z, R, D, Ds, n, p );
+
+	    // Ts = chol( solve(Ds) )
+		// getTs( double Ds[], double Ts[], int *p )
+		getTs( Ds, Ts, p );
+		
+		// computing birth and death rates
+		// ratesMatrixExact1( double K[], int G[], double rates[], int *b, int *bstar, double Ds[], int *p )
+		ratesMatrixExact1( K, G, &rates[0], b, bstar, Ds, p );
+
+		// indG        <- paste( G[upper.tri(G)], collapse = '' )
+		// double G[], string *stringG, int *p
+		adjToString( G, &allGraphs[g], p );
+		
+		//all.G       <- c( all.G, indG )
+		//allGraphs[g] = indG;
+		// allWeights <- c( allWeights, 1 / sum(rates) )
+		// double A[], double *sumUpper, int *p
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
+		allWeights[g] = 1 / allWeights[g];
+		
+		if ( g > *burnin )
+		{
+			//Ksum <- Ksum + K
+			// A := A + B
+			// double A[], double B[], int *p 
+			sumMatrix( Ksum, K, p );
+			
+			// wh   <- which( sample.G == indG )
+			// whichOne( string sampleGraphs[], string *indG, int *thisOne, int *sizeSampleG )
+			thisOne = *iter;
+			whichOne( sampleGraphs, &allGraphs[g], &thisOne, sizeSampleG );
+			
+			if ( ( thisOne == *iter ) or ( sizeSampleG == 0 ) )
+			{
+				sampleGraphs[*sizeSampleG] = allGraphs[g];
+				graphWeights[*sizeSampleG] = allWeights[g];
+				(*sizeSampleG)++;				
+			} else {
+				// graphWeights[wh] <- graphWeights[wh] + 1 / sum(rates)
+				graphWeights[thisOne] += allWeights[g];
+			}
+		}
+
+		// To select new graph
+		//edge    <- which( rates == max(rates) )[1]
+		selectEdge( &rates[0], selectedEdge, p );
+
+		// G[edge] <- 1 - G[edge]
+		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
+		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
+
+		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
+		rgwish( G, Ts, K, bstar, p );
+	}
+	// For last graph and its precision matrix
+	// copyMatrix( G, lastGraph, p );
+	for ( int g = 0; g < *p * *p; g++ ) lastGraph[g] = G[g];
+	copyMatrix( K, lastK, p );	
+}
+
+////////////////////////////////////////////////////////////////////////////////   
+// copula approach for data with missing values
+//********* with NEW idea of exact normalizing constant ***********************
+///////////////////////////////////////////////////////////////////////////////
+void bdmcmcCopulaNA1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+			 double Z[], int R[], int *n,
+			 string allGraphs[], double allWeights[], double Ksum[], 
+			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 int lastGraph[], double lastK[],
+			 int *b, int *bstar, double D[], double Ds[] )
+{
+	int g;
+	int thisOne;
+
+	int selectedEdge[2];
+	
+	vector<double> rates( *p * *p, 0.0 ); // double rates[*p * *p];
+//	for ( int i = 0; i < *p * *p; i++ )		rates[i] = 0.0;	
+	
+	for ( g = 0; g < *iter; g++ )
+	{
+		if ( ( g + 1 ) % 1000 == 0 ) Rprintf( "  Iteration  %d          \n", g + 1 );
+		//	cout << "   Iteration " << g + 1 << "\n";
+
+		// |------- First step: copula 
+		// here we will use a copula function
+		// getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
+		getDsNA( K, Z, R, D, Ds, n, p );
+
+	    // Ts = chol( solve(Ds) )
+		// getTs( double Ds[], double Ts[], int *p )
+		getTs( Ds, Ts, p );
+		
+		// computing birth and death rates
+		// ratesMatrixExact1( double K[], int G[], double rates[], int *b, int *bstar, double Ds[], int *p )
+		ratesMatrixExact1( K, G, &rates[0], b, bstar, Ds, p );
+
+		// indG        <- paste( G[upper.tri(G)], collapse = '' )
+		// double G[], string *stringG, int *p
+		adjToString( G, &allGraphs[g], p );
+		
+		//all.G       <- c( all.G, indG )
+		//allGraphs[g] = indG;
+		// allWeights <- c( allWeights, 1 / sum(rates) )
+		// double A[], double *sumUpper, int *p
+		sumUpperMatrix( &rates[0], &allWeights[g], p );
+		allWeights[g] = 1 / allWeights[g];
+		
+		if ( g > *burnin )
+		{
+			//Ksum <- Ksum + K
+			// A := A + B
+			// double A[], double B[], int *p 
+			sumMatrix( Ksum, K, p );
+			
+			// wh   <- which( sample.G == indG )
+			// whichOne( string sampleGraphs[], string *indG, int *thisOne, int *sizeSampleG )
+			thisOne = *iter;
+			whichOne( sampleGraphs, &allGraphs[g], &thisOne, sizeSampleG );
+			
+			if ( ( thisOne == *iter ) or ( sizeSampleG == 0 ) )
+			{
+				sampleGraphs[*sizeSampleG] = allGraphs[g];
+				graphWeights[*sizeSampleG] = allWeights[g];
+				(*sizeSampleG)++;				
+			} else {
+				// graphWeights[wh] <- graphWeights[wh] + 1 / sum(rates)
+				graphWeights[thisOne] += allWeights[g];
+			}
+		}
+
+		// To select new graph
+		//edge    <- which( rates == max(rates) )[1]
+		selectEdge( &rates[0], selectedEdge, p );
+
+		// G[edge] <- 1 - G[edge]
+		G[selectedEdge[1] * *p + selectedEdge[0]] = 1 - G[selectedEdge[1] * *p + selectedEdge[0]];
+		G[selectedEdge[0] * *p + selectedEdge[1]] = 1 - G[selectedEdge[0] * *p + selectedEdge[1]];
+
+		// K <- rgwish.exact(G = G + t(G), b = bstar, T = Ts, p = p)
+		rgwish( G, Ts, K, bstar, p );
+	}
+	// For last graph and its precision matrix
+	// copyMatrix( G, lastGraph, p );
+	for ( int g = 0; g < *p * *p; g++ ) lastGraph[g] = G[g];
+	copyMatrix( K, lastK, p );	
+}
+   
+////////////////////////////////////////////////////////////////////////////////
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
@@ -1394,7 +1727,7 @@ void scaleFree( int *G, int *p )
     int tmp;
     int total;
 
-    srand( TRUE );
+    // srand( TRUE );
 
     for( i = 0; i < p0 - 1; i++ )
     {
@@ -1410,9 +1743,11 @@ void scaleFree( int *G, int *p )
     
     total = 2 * p0;
     
+    GetRNGstate();
     for( i = p0; i < *p; i++ )
     {
-        randomValue = (double) total * rand() / RAND_MAX;
+        // randomValue = (double) total * rand() / RAND_MAX;
+        randomValue = (double) total * runif( 0, 1 );
         tmp         = 0;
         j           = 0;
         
@@ -1429,6 +1764,7 @@ void scaleFree( int *G, int *p )
         size_a[j]++;
         size_a[i]++;
     }
+	PutRNGstate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

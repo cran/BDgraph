@@ -26,6 +26,7 @@ I.g              Normalizing constant of G-Wishart distribution
 phat             Posterior edge inclusion probabilities
 plot.bdgraph     Plot function for "bdgraph" output
 plotcoda         Convergence plot
+plotroc          ROC plot
 print.bdgraph    Print function for "bdgraph" output
 prob             Posterior probabilities of the graphs
 rgwish           Sampling from G-Wishart distribution
