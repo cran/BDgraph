@@ -605,7 +605,7 @@ void whichOne( string sampleG[], string *indG, int *thisOne, int *sizeSampleG )
 // graphWeights : weights for the graphs which are visited by algorithm.
 // sizeSampleG: number of different graphs that algorithm visited them.
 /////////////////////////////////////////////
-void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], double K[], int *p, 
+void bdmcmcDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
@@ -629,7 +629,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double T[], double Ts[], doub
 		// using exchange algorithm
 		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
 		// rgwish ( int G[], double T[], double K[], int *b, int *p )
-		rgwish( G, T, &K_prop[0], b, p );
+		rgwish( G, Ti, &K_prop[0], b, p );
 		
 		// computing birth and death rates
 		// ratesMatrix( double K[], double K_prop[], double G[], double rates[], int *b, int *bstar, double D[], double Ds[], int *p )
@@ -759,7 +759,7 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 	}
 }
 
-// for bdmcmcCopula function
+// for bdmcmcCopulaDmh function
 void getDs( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
 {
 	// |------- First step: copula 
@@ -809,7 +809,7 @@ void cholesky( double A[], double U[], int *p )
 			U[j * *p + i] = 0.0;
 }
 
-// for bdmcmcCopula function
+// for bdmcmcCopulaDmh function
 void getTs( double Ds[], double Ts[], int *p )
 {
 	vector<double> invDs( *p * *p ); // double invDs[*p * *p];
@@ -824,7 +824,7 @@ void getTs( double Ds[], double Ts[], int *p )
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void bdmcmcCopula( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+void bdmcmcCopulaDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n,
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
@@ -982,7 +982,7 @@ void copulaNA( double Z[], double K[], int R[], int *n, int *p )
 	}
 }
 
-// for bdmcmcCopula function
+// for bdmcmcCopulaDmh function
 void getDsNA( double K[], double Z[], int R[], double D[], double Ds[], int *n, int *p )
 {
 	// |------- First step: copula 
@@ -1012,7 +1012,7 @@ void getDsNA( double K[], double Z[], int R[], double D[], double Ds[], int *n, 
 
 // copula approach for data with missing values
 ///////////////////////////////////////////////////////////////////////////////
-void bdmcmcCopulaNA( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+void bdmcmcCopulaDmhNA( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n,
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
@@ -1223,7 +1223,7 @@ void logHijApprox( double K[], int G[], double *HijApprox, int *i, int *j, int *
 	sumRow( G, &nustar, i, p );
 	nustar = nustar / 2;
 
-	*HijApprox = sqrt(2) * Ti[*i * *p + *i] * Ti[*j * *p + *j] *
+	*HijApprox = sqrt(2.) * Ti[*i * *p + *i] * Ti[*j * *p + *j] *
 			   exp( lgamma( ( *b + nustar ) / 2 ) - lgamma( ( *b + nustar - 1 ) / 2 )
 	           + ( log(Dsjj) - log(a11) + ( Dsii - pow( Dsij, 2 ) / Dsjj ) * a11 - sumDiag ) / 2 ) ;
 
@@ -1248,11 +1248,11 @@ void ratesMatrixApprox( double K[], int G[], double rates[], int *b, int *bstar,
 }
 
 /////////////////////////////////////////////
-void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], double K[], int *p, 
+void bdmcmcApprox( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
-			 int *b, int *bstar, double Ti[], double Ds[] )
+			 int *b, int *bstar, double Ds[] )
 {
 	int g;
 	//string indG;
@@ -1324,7 +1324,6 @@ void bdmcmcApprox( int *iter, int *burnin, int G[], double T[], double Ts[], dou
 	copyMatrix( K, lastK, p );			
 }
     
-
 ////////////////////////////////////////////////////////////////////////////////
 // bdmcmc algoirthm with exact value of normalizing constant for D = I_p
 // ********************* NEW WORK *****************************************
@@ -1437,7 +1436,7 @@ void logHijExact1( double K[], int G[], double *HijExact1, int *i, int *j, int *
 	for ( int k = 0; k < *p; k++ )
 		nustar += G[*i * *p + k] * G[*j * *p + k];
 
-	*HijExact1 = sqrt(2) *
+	*HijExact1 = sqrt(2.) *
 			   exp( lgamma( ( *b + nustar + 1 ) / 2 ) - lgamma( ( *b + nustar ) / 2 )
 	           + ( log(Dsjj) - log(a11) + ( Dsii - pow( Dsij, 2 ) / Dsjj ) * a11 - sumDiag ) / 2 ) ;
 
@@ -1462,7 +1461,7 @@ void ratesMatrixExact1( double K[], int G[], double rates[], int *b, int *bstar,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void bdmcmcExact1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
@@ -1541,7 +1540,7 @@ void bdmcmcExact1( int *iter, int *burnin, int G[], double Ts[], double K[], int
 // Copula Gaussian graphical models 
 //********* with NEW idea of exact normalizing constant ***********************
 ////////////////////////////////////////////////////////////////////////////////
-void bdmcmcCopula1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n,
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
@@ -1629,7 +1628,7 @@ void bdmcmcCopula1( int *iter, int *burnin, int G[], double Ts[], double K[], in
 // copula approach for data with missing values
 //********* with NEW idea of exact normalizing constant ***********************
 ///////////////////////////////////////////////////////////////////////////////
-void bdmcmcCopulaNA1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void bdmcmcCopulaNA( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n,
 			 string allGraphs[], double allWeights[], double Ksum[], 
 			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,

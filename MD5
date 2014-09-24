@@ -1,6 +1,6 @@
-95d7706fbc06edab2c751cd64642b6e7 *DESCRIPTION
+a67feeaa9622607c21f72d4332a507f4 *DESCRIPTION
 9cfd4016c296cfb884467d33edf49857 *NAMESPACE
-edf23a66e2af545d08d4ecf380790a48 *R/BDgraph.R
+1fc0b9878b99477d6979c854298a7acd *R/BDgraph.R
 885abc1f6d2d2a90045e0e41cfdba34e *data/CellSignal.RData
 3b1d0087898f992dd8a92ec5ed672ce3 *data/geneExpression.RData
 4db46ea2b4302923b4d6cdf84b6e2e67 *data/surveyData.RData
@@ -28,4 +28,4 @@ d86203b0c756ef1844033facc2aed077 *man/summary.bdgraph.Rd
 600286ded56cfe6a36326e226af0533f *man/traceplot.Rd
 9bc5aa7d4334d43640f515c9a1fd70bd *src/Makevars
 9bc5aa7d4334d43640f515c9a1fd70bd *src/Makevars.win
-fcf2ea23ecc7a3cc730e8bce16f75b1e *src/bdmcmc.cpp
+a3ff0b5c1096ce28ed33a5f05ff883a9 *src/bdmcmc.cpp

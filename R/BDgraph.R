@@ -20,14 +20,14 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 	p    <- dimd[2]
 	n    <- dimd[1]
 
-	if ( method == "copula" | method == "copulaNA" | method == "copula1" | method == "copulaNA1" )
+	if ( method == "copula" | method == "copulaNA" | method == "copula-dmh" | method == "copula-dmh-NA" | method == "copula-exact" | method == "copula-exact-NA" )
 	{
 		Z              <- qnorm( apply( data, 2, rank, ties.method = "random" ) / (n + 1) )
 		Zfill          <- matrix( rnorm( n * p ), n, p )   # for missing values
 		Z[is.na(data)] <- Zfill[is.na(data)]               # for missing values
 		Z              <- t( ( t(Z) - apply( Z, 2, mean ) ) / apply( Z, 2, sd ) )
 		S              <- t(Z) %*% Z
-		# ?? I should check it 
+		# ?? I should check
 		R <- 0 * data
 		for ( j in 1:p ) 
 			R[,j] <- match( data[ , j], sort( unique( data[ , j] ) ) ) 
@@ -45,10 +45,10 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 
 	if ( is.null(D) ) 
 	{
-		method = "exact1"
-		if ( method == "copula" )   method == "copula1"
-		if ( method == "copulaNA" ) method == "copulaNA1"
-	}
+		if ( method == "approx" | method == "dmh" ) method == "exact"
+		if ( method == "copula-dmh" )               method == "copula"
+		if ( method == "copula-dmh-NA" )            method == "copulaNA"
+	} 
 
 	if ( is.null(D) )
 	{ 
@@ -125,19 +125,18 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 	lastGraph = rates
 	lastK     = rates
 
-	mes <- paste( c(" ", iter," iteration is started.                    " ), collapse = "" )
+	mes <- paste( c(iter," iteration is started.                    " ), collapse = "" )
 	cat( mes, "\r" )
 	#flush.console()
 
-	if ( method == "exact" )
+	if ( method == "dmh" )
 	{	
-# bdmcmcExact( int *iter, int *burnin, double G[], double T[], double Ts[], double K[], int *p, 
+# bdmcmcDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 double lastGraph[], double lastK[],
+#			 int lastGraph[], double lastK[],
 #			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(T), as.double(Ts), as.double(K), as.integer(p), 
+		result = .C( "bdmcmcDmh", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p), 
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
@@ -146,15 +145,30 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		################################################################################
 	}
 
-	if ( method == "exact1" )
+	if ( method == "exact" )
 	{
-# bdmcmcApprox( int *iter, int *burnin, double G[], double Ts[], double K[], int *p, 
+# bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 double lastGraph[], double lastK[],
+#			 int lastGraph[], double lastK[],
+#			 int *b, int *bstar, double Ds[] )   
+		result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p), 
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+		################################################################################	
+	}
+	
+	if ( method == "approx" )
+	{
+# bdmcmcApprox( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 int lastGraph[], double lastK[],
 #			 int *b, int *bstar, double Ds[] )
-		result = .C( "bdmcmcExact1", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(Ts), as.double(K), as.integer(p), 
+		result = .C( "bdmcmcApprox", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p), 
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
@@ -163,34 +177,15 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		################################################################################	
 	}
 
-		
-	if ( method == "approx" )
+	if ( method == "copula-dmh" )
 	{
-# bdmcmcApprox( int *iter, int *burnin, double G[], double T[], double Ts[], double K[], int *p, 
-#			 string allGraphs[], double allWeights[], double Ksum[], 
-#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 double lastGraph[], double lastK[],
-#			 int *b, int *bstar, double Ti[], double Ds[] )
-		result = .C( "bdmcmcApprox", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(T), as.double(Ts), as.double(K), as.integer(p), 
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(Ti), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
-		################################################################################	
-	}
-
-	if ( method == "copula" )
-	{
-# bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
+# bdmcmcCopulaDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 double lastGraph[], double lastK[],
+#			 int lastGraph[], double lastK[],
 #			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
+		result = .C( "bdmcmcCopulaDmh", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
 		            as.double(Z), as.integer(R), as.integer(n),
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
@@ -200,16 +195,15 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 				################################################################################
 	}
 
-	if ( method == "copulaNA1" )
+	if ( method == "copula-dmh-NA" )
 	{
-# bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
+# bdmcmcCopulaDmhNA( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 double lastGraph[], double lastK[],
+#			 int lastGraph[], double lastK[],
 #			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcCopulaNA1", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(Ts), as.double(K), as.integer(p),
+		result = .C( "bdmcmcCopulaDmhNA", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
 		            as.double(Z), as.integer(R), as.integer(n),
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
@@ -219,16 +213,15 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		################################################################################
 	}
 	
-	if ( method == "copula1" )
+	if ( method == "copula-exact" | method == "copula" )
 	{
-#void bdmcmcCopula1( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+# bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
 #			 int lastGraph[], double lastK[],
 #			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcCopula1", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(Ts), as.double(K), as.integer(p),
+		result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p),
 		            as.double(Z), as.integer(R), as.integer(n),
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
@@ -238,16 +231,15 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 				################################################################################
 	}
 
-	if ( method == "copulaNA1" )
+	if ( method == "copula-exact-NA" | method == "copulaNA" )
 	{
-# bdmcmcCopula( int *iter, int *burnin, double G[], double Ti[], double Ts[], double K[], int *p, 
+# bdmcmcCopulaNA( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
 #			 string allGraphs[], double allWeights[], double Ksum[], 
 #			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 double lastGraph[], double lastK[],
+#			 int lastGraph[], double lastK[],
 #			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcCopulaNA", as.integer(iter), as.integer(burnin), as.integer(G), 
-		            as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
+		result = .C( "bdmcmcCopulaNA", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p),
 		            as.double(Z), as.integer(R), as.integer(n),
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
 				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
