@@ -1,6 +1,10 @@
-a67feeaa9622607c21f72d4332a507f4 *DESCRIPTION
+19e8940966f7bd1ad52fc871617d6b5b *DESCRIPTION
 9cfd4016c296cfb884467d33edf49857 *NAMESPACE
-1fc0b9878b99477d6979c854298a7acd *R/BDgraph.R
+2114670f6eeaaa614b0fbb5e3e38adf1 *R/BDgraph.R
+7e0fc2b0095e3c799d8fad040263cba8 *R/bdgraph_select.R
+25dd60b2fb970c361a2efd09fd905c3b *R/bdgraph_sim.R
+5a7587636087468c255da3a7a2591a53 *R/rgwish.R
+7d21addb8ff9f5387d02c6fd9bec55be *R/roc.R
 885abc1f6d2d2a90045e0e41cfdba34e *data/CellSignal.RData
 3b1d0087898f992dd8a92ec5ed672ce3 *data/geneExpression.RData
 4db46ea2b4302923b4d6cdf84b6e2e67 *data/surveyData.RData
