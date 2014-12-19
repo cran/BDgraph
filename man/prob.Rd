@@ -34,15 +34,15 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 
 \examples{
 \dontrun{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 50, p = 6, size = 6, vis = TRUE )
-  
-  output   <- bdgraph( data = data.sim )
- 
-  # Estimated posterior probability of the true graph
-  prob( output, G = data.sim )
-  
-  # Estimated posterior probability of the first and second graphs with highest probabilities
-  prob( output, g = 2 )
-  }
+# generating synthetic multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 50, p = 6, size = 6, vis = TRUE )
+
+output   <- bdgraph( data = data.sim )
+
+# Estimated posterior probability of the true graph
+prob( output, G = data.sim )
+
+# Estimated posterior probability of the first and second graphs with highest probabilities
+prob( output, g = 2 )
+}
 }

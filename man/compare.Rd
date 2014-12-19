@@ -49,20 +49,20 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 
 \examples{
 \dontrun{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
-  
-  # selecting the best graph according to BD-MCMC algorithm
-  output <- bdgraph( data = data.sim, iter = 10000 )
-  # comparing the result
-  compare( data.sim, output, colnames = c("true", "BDgraph"), vis = TRUE )
+# generating synthetic multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
 
-  # selecting the best graph by 'huge' package
-  require( huge )  
-  huge.g <- huge( data.sim $ data, method = "mb" )
-  huge.g <- huge.select( huge.g )    
-  
-  # comparing the result
-  compare( data.sim, output, huge.g, colnames = c("true", "BDgraph", "huge") , vis = T )
-  }
+# selecting the best graph according to BD-MCMC algorithm
+output <- bdgraph( data = data.sim, iter = 10000 )
+# comparing the result
+compare( data.sim, output, colnames = c("true", "BDgraph"), vis = TRUE )
+
+# selecting the best graph by 'huge' package
+require( huge )  
+huge.g <- huge( data.sim $ data, method = "mb" )
+huge.g <- huge.select( huge.g )    
+
+# comparing the result
+compare( data.sim, output, huge.g, colnames = c("true", "BDgraph", "huge") , vis = T )
+}
 }

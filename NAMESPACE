@@ -8,11 +8,16 @@ export( bdgraph,
 		select,
 		prob,
 		bdgraph.sim,
+		bdgraph.npn,
 		I.g,
 		compare,
 
 		plotcoda,
 		traceplot,
+		plotroc,
+		
+		rgwish,
+		rwish,
 
 		print.bdgraph, plot.bdgraph, summary.bdgraph,
 		print.simulate, plot.simulate

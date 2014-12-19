@@ -61,17 +61,17 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 \seealso{\code{\link{bdgraph}}}
 
 \examples{
-	\dontrun{
-		# generating synthetic multivariate normal data from a 'random' graph
-		data.sim <- bdgraph.sim( n = 50, p = 10, prob = 0.3, vis = TRUE )
-		print(data.sim)
+\dontrun{
+# generating synthetic multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 50, p = 10, prob = 0.3, vis = TRUE )
+print(data.sim)
 
-		# generating synthetic multivariate normal data from a 'hub' graph
-		data.sim <- bdgraph.sim( n = 3, p = 6, graph = "hub", vis = FALSE )
-		data.sim $ data
+# generating synthetic multivariate normal data from a 'hub' graph
+data.sim <- bdgraph.sim( n = 3, p = 6, graph = "hub", vis = FALSE )
+data.sim $ data
 
-		# generating synthetic mixed data from a 'hub' graph 
-		data.sim <- bdgraph.sim( n = 10, p = 8, graph = "hub", type = "mixed" )
-		data.sim $ data
-	}
+# generating synthetic mixed data from a 'hub' graph 
+data.sim <- bdgraph.sim( n = 10, p = 8, graph = "hub", type = "mixed" )
+data.sim $ data
+}
 }

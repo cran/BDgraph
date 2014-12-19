@@ -29,10 +29,10 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 \seealso{\code{\link{bdgraph}}}
 
 \examples{
-	\dontrun{
-		# generating synthetic multivariate normal data from a 'random' graph
-		data.sim <- bdgraph.sim( n = 10, p = 15 )
+\dontrun{
+# generating synthetic multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 10, p = 15 )
 
-		plot( data.sim )
-	}
+plot( data.sim )
+}
 }

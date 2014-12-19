@@ -48,9 +48,9 @@ outRoc = function( G, prob, cut )
 {
 	G[ lower.tri( G, diag = TRUE ) ]     <- 0
 	prob[ lower.tri( prob, diag = TRUE ) ] <- 0
-	p = nrow(prob)
-	pp = p * ( p - 1 ) / 2
-	sumEdges = sum(G)
+	p          = nrow(prob)
+	pp         = p * ( p - 1 ) / 2
+	sumEdges   = sum(G)
 	sumNoEdges = pp - sumEdges
 	
 	tp = c( rep( 0, cut + 1 ) )

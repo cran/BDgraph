@@ -137,13 +137,13 @@ void rwish ( double Ti[], double K[], int *b, int *p )
 
 // A is adjacency matrix which has zero in its diagonal
 // threshold = 1e-8
-void rgwish ( int G[], double T[], double K[], int *b, int *p )
+void rgwish ( int G[], double Ti[], double K[], int *b, int *p )
 {
 	double threshold = 1e-8;
 	
 	int j, k, a, l;
 	
-	rwish( T, K, b, p );
+	rwish( Ti, K, b, p );
 	
 	vector<double> Sigma( *p * *p ); // double Sigma[*p * *p];
 	inverse( K, &Sigma[0], p );
@@ -218,7 +218,7 @@ void rgwish ( int G[], double T[], double K[], int *b, int *p )
 					}			
 			} 
 		}//loop through j
-		  //---------- End Big loop --------------------------			
+		//---------- End Big loop --------------------------			
 
 		maxDiff( &W[0], &W_last[0], &difference, p );
 	}//main while loop
@@ -628,7 +628,7 @@ void bdmcmcDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], doubl
 
 		// using exchange algorithm
 		// K_prop <- rgwish.exact( G = G + t(G), b = b, T = Ti, p = p )
-		// rgwish ( int G[], double T[], double K[], int *b, int *p )
+		// rgwish ( int G[], double Ti[], double K[], int *b, int *p )
 		rgwish( G, Ti, &K_prop[0], b, p );
 		
 		// computing birth and death rates

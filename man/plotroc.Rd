@@ -35,14 +35,14 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 
 \examples{
 \dontrun{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
-  
-  # selecting the best graph according to BD-MCMC algorithm
-  output <- bdgraph( data = data.sim, iter = 10000 )
-  # comparing the result
-  plotroc( data.sim, output )
-  
-  plotroc( data.sim, output, smooth = TRUE )
-  }
+# generating synthetic multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+
+# selecting the best graph according to BD-MCMC algorithm
+output <- bdgraph( data = data.sim, iter = 10000 )
+# comparing the result
+plotroc( data.sim, output )
+
+plotroc( data.sim, output, smooth = TRUE )
+}
 }

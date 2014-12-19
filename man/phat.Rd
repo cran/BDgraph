@@ -30,12 +30,12 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 
 \examples{
 \dontrun{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
-  
-  output   <- bdgraph( data = data.sim )
-  
-  phat( output, round = 2 )
-  }
+# generating synthetic multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
+
+output   <- bdgraph( data = data.sim )
+
+phat( output, round = 2 )
+}
 }
 

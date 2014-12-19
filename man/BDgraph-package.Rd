@@ -16,7 +16,7 @@ in graphical models.
 
   Functions:
   \preformatted{
-bdgraph          Graph selection based on birth-death MCMC algorithm
+bdgraph          birth-death MCMC algorithm for graphical models
 bdgraph.sim      Synthetic graph data generator 
 bdgraph.npt      Nonparametric transfer 
 CellSignal       A flow cytometry dataset 
@@ -30,6 +30,7 @@ plotroc          ROC plot
 print.bdgraph    Print function for "bdgraph" output
 prob             Posterior probabilities of the graphs
 rgwish           Sampling from G-Wishart distribution
+rwish            Sampling from Wishart distribution
 select           Selecting the best graph
 surveyData       Labor force survey data
 summary.bdgraph  Summary function for "bdgraph" output

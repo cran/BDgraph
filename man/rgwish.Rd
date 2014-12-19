@@ -15,8 +15,8 @@ Generate n random matrices, distributed according to the G-Wishart distribution 
     Adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which \eqn{G_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{G_{ij}=0}.
     }
-  \item{b}{the degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default is 3.}
-  \item{D}{the positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
+  \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default is 3.}
+  \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
            The default is an identity matrix.}
 }
 \details{
@@ -39,12 +39,12 @@ Lenkoski, A. (2013). A direct sampler for G-Wishart variates, Stat 2, 119-128.
 \author{Abdolreza Mohammadi and Ernst Wit}
 
 \examples{
-	\dontrun{
-		G <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
-		G # graph with 5 nodes and 4 links
+\dontrun{
+G <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
+G # graph with 5 nodes and 4 links
 
-		sample <- rgwish( n = 3, G = G, b = 3, D = diag(5) )
-		sample
-	}
+sample <- rgwish( n = 3, G = G, b = 3, D = diag(5) )
+sample
+}
 }
 

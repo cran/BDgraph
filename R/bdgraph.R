@@ -3,7 +3,7 @@
 ################################################################################
 # in option "copulaNA", I should check ", PACKAGE = BDgraph)"
 ################################################################################
-bdgraph = function( data, n = NULL, method = "exact", iter = 5000, 
+bdgraph = function( data, n = NULL, method = "ggm", iter = 5000, 
 					burnin = iter / 2, b = 3, D = NULL, Gstart = "empty" )
 {
 	startTime <- Sys.time()
@@ -13,14 +13,22 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 
 	if ( is.matrix(data) == FALSE & is.data.frame(data) == FALSE ) stop( "Data should be a matrix or dataframe" )
 	if ( is.data.frame(data) ) data <- data.matrix(data)
-	if ( any( is.na(data) ) )  method = "copulaNA"
 	if ( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
-
+	if ( any( is.na(data) ) ) 
+	{
+		if ( method == "ggm" ) 
+		{
+			stop( "ggm method does not deal with missing value. You could choose method = cggm" )
+		} else {
+			method = "cggm-NA"
+		}
+	}
+		
 	dimd <- dim(data)
 	p    <- dimd[2]
 	n    <- dimd[1]
 
-	if ( method == "copula" | method == "copulaNA" | method == "copula-dmh" | method == "copula-dmh-NA" | method == "copula-exact" | method == "copula-exact-NA" )
+	if ( method == "cggm" | method == "cggm-NA" | method == "cggm-dmh" | method == "cggm-dmh-NA" )
 	{
 		Z              <- qnorm( apply( data, 2, rank, ties.method = "random" ) / (n + 1) )
 		Zfill          <- matrix( rnorm( n * p ), n, p )   # for missing values
@@ -30,8 +38,8 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		# ?? I should check
 		R <- 0 * data
 		for ( j in 1:p ) 
-			R[,j] <- match( data[ , j], sort( unique( data[ , j] ) ) ) 
-		R[is.na(R)] = 0 # dealing with missing values
+			R[,j] = match( data[ , j], sort( unique( data[ , j] ) ) ) 
+		R[ is.na(R) ] = 0     # dealing with missing values
 	} else {
 		if ( isSymmetric(data) )
 		{
@@ -43,28 +51,21 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		}
 	}
 
-	if ( is.null(D) ) 
-	{
-		if ( method == "approx" | method == "dmh" ) method == "exact"
-		if ( method == "copula-dmh" )               method == "copula"
-		if ( method == "copula-dmh-NA" )            method == "copulaNA"
-	} 
-
 	if ( is.null(D) )
 	{ 
 		D  <- diag(p)
 		Ti <- D
-		H  <- D
 	} else {
 		Ti <- chol( solve(D) )
-		H  <- Ti / t( matrix( rep( diag(Ti) ,p ), p, p ) )
+		if ( method == "ggm" )     method == "ggm-approx"
+		if ( method == "cggm" )    method == "cggm-dmh"
+		if ( method == "cggm-NA" ) method == "cggm-dmh-NA"
 	}
 
 	bstar <- b + n
 	Ds    <- D + S
 	invDs <- solve(Ds)
 	Ts    <- chol(invDs)
-	Hs    <- Ts / t( matrix( rep( diag(Ts) ,p ), p, p ) )	
 
 	if ( class(Gstart) == "bdgraph" ) 
 	{
@@ -83,7 +84,7 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		G = 0 * S
 		
 		K <- matrix( 0, p, p )
-		# rgwish ( double G[], double T[], double K[], int *b, int *p )
+		# rgwish ( integer G[], double Ti[], double K[], int *b, int *p )
 		result = .C( "rgwish", as.integer(G), as.double(Ts), K = as.double(K), as.integer(bstar), 
 					  as.integer(p), PACKAGE = "BDgraph" )
 		K = matrix ( result $ K, p, p ) 
@@ -93,9 +94,9 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 	{
 		G       = matrix(1, p, p)
 		diag(G) = 0
-		# K       = rwishCpp( Ti = Ts, p = p, b = bstar )
+	
 		K = matrix( 0, p, p)
-		# rwish ( double T[], double K[], int *p, int *b )
+		# rwish ( double Ti[], double K[], int *p, int *b )
 		result = .C( "rwish", as.double(Ts), K = as.double(K), as.integer(bstar), as.integer(p), PACKAGE = "BDgraph" )
 		K = matrix ( result $ K, p, p ) 
 	}	
@@ -106,7 +107,7 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 		diag(G) = 0
 		
 		K <- matrix( 0, p, p )
-		# rgwish ( double G[], double T[], double K[], int *b, int *p )
+		# rgwish ( integer G[], double Ti[], double K[], int *b, int *p )
 		result = .C( "rgwish", as.integer(G), as.double(Ts), K = as.double(K), as.integer(bstar), 
 					  as.integer(p), PACKAGE = "BDgraph" )
 		K = matrix ( result $ K, p, p ) 	
@@ -129,23 +130,7 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 	cat( mes, "\r" )
 	#flush.console()
 
-	if ( method == "dmh" )
-	{	
-# bdmcmcDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
-#			 string allGraphs[], double allWeights[], double Ksum[], 
-#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 int lastGraph[], double lastK[],
-#			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcDmh", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p), 
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
-		################################################################################
-	}
-
-	if ( method == "exact" )
+	if ( method == "ggm" )
 	{
 # bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 #			 string allGraphs[], double allWeights[], double Ksum[], 
@@ -158,10 +143,24 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
 				    as.integer(b), as.integer(bstar), as.double(Ds)
 				    , PACKAGE = "BDgraph" )
-		################################################################################	
 	}
 	
-	if ( method == "approx" )
+	if ( method == "ggm-dmh" )
+	{	
+# bdmcmcDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 int lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[] )
+		result = .C( "bdmcmcDmh", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p), 
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+	}
+
+	if ( method == "ggm-approx" )
 	{
 # bdmcmcApprox( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
 #			 string allGraphs[], double allWeights[], double Ksum[], 
@@ -174,46 +173,9 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
 				    as.integer(b), as.integer(bstar), as.double(Ds)
 				    , PACKAGE = "BDgraph" )
-		################################################################################	
 	}
 
-	if ( method == "copula-dmh" )
-	{
-# bdmcmcCopulaDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
-#			 double Z[], int R[], int *n,
-#			 string allGraphs[], double allWeights[], double Ksum[], 
-#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 int lastGraph[], double lastK[],
-#			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcCopulaDmh", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
-		            as.double(Z), as.integer(R), as.integer(n),
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
-				################################################################################
-	}
-
-	if ( method == "copula-dmh-NA" )
-	{
-# bdmcmcCopulaDmhNA( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
-#			 double Z[], int R[], int *n,
-#			 string allGraphs[], double allWeights[], double Ksum[], 
-#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
-#			 int lastGraph[], double lastK[],
-#			 int *b, int *bstar, double D[], double Ds[] )
-		result = .C( "bdmcmcCopulaDmhNA", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
-		            as.double(Z), as.integer(R), as.integer(n),
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds) 
-				    , PACKAGE = "BDgraph" )
-		################################################################################
-	}
-	
-	if ( method == "copula-exact" | method == "copula" )
+	if ( method == "cggm" )
 	{
 # bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
@@ -228,10 +190,9 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
 				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
 				    , PACKAGE = "BDgraph" )
-				################################################################################
 	}
 
-	if ( method == "copula-exact-NA" | method == "copulaNA" )
+	if ( method == "cggm-NA" )
 	{
 # bdmcmcCopulaNA( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 #			 double Z[], int R[], int *n,
@@ -246,9 +207,42 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
 				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds) 
 				    , PACKAGE = "BDgraph" )
-		################################################################################
 	}
 
+	if ( method == "cggm-dmh" )
+	{
+# bdmcmcCopulaDmh( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+#			 double Z[], int R[], int *n,
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 int lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[] )
+		result = .C( "bdmcmcCopulaDmh", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+	}
+
+	if ( method == "cggm-dmh-NA" )
+	{
+# bdmcmcCopulaDmhNA( int *iter, int *burnin, int G[], double Ti[], double Ts[], double K[], int *p, 
+#			 double Z[], int R[], int *n,
+#			 string allGraphs[], double allWeights[], double Ksum[], 
+#			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+#			 int lastGraph[], double lastK[],
+#			 int *b, int *bstar, double D[], double Ds[] )
+		result = .C( "bdmcmcCopulaDmhNA", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ti), as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds) 
+				    , PACKAGE = "BDgraph" )
+	}
+	
 	Ksum         = matrix( result $ Ksum, p, p )
 	allGraphs    = result $ allGraphs
 	allWeights   = result $ allWeights
@@ -258,10 +252,6 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 	lastGraph    = matrix( result $ lastGraph, p, p )
 	lastK        = matrix( result $ lastK, p, p )
 
-#	mes <- paste( c(" ", iter," iteration done.                 " ), collapse = "" )
-#	cat( mes, "\r" )
-#	cat( "\n" )
-#	flush.console()
 	print( Sys.time() - startTime )  
 
 	colnames( lastGraph ) = colnames( data )
@@ -271,7 +261,7 @@ bdgraph = function( data, n = NULL, method = "exact", iter = 5000,
 	class( output ) <- "bdgraph"
 	return( output )   
 }
-   
+     
 # plot for class bdgraph
 plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 {
@@ -303,6 +293,7 @@ plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
 	
 	if (g > 1 & g < 7) par(op)
 }
+   
 # summary of bdgraph output
 summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 {
@@ -326,7 +317,7 @@ summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 		# plot best graph
 		G  <- graph.adjacency( graphi, mode = "undirected", diag = FALSE )
 		 
-		op <- par(mfrow = c(2, 2), pty = "s")
+		op = par( mfrow = c(2, 2), pty = "s", omi = c(0.3,0.3,0.3,0.3), mai = c(0.3,0.3,0.3,0.3) ) 
 
 		plot.igraph(G, layout = layout, main = "Best graph",
 		  sub = paste( c( "Posterior probability = ", max( prob.G ) ), collapse = "" ), ... )
@@ -380,6 +371,7 @@ summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 					  
 	return(return.list)
 }  
+   
 # print of the bdgraph output
 print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 {
@@ -436,36 +428,7 @@ print.bdgraph = function(x, round = 3, Khat = FALSE, phat = FALSE, ...)
 		printSpMatrix(Matrix(round(phat, round), sparse = TRUE), col.names = TRUE, note.dropping.colnames = FALSE)  
 	}
 } 
-# non-parametric transfer function for non-normal data
-bdgraph.npn = function(data, npn = "shrinkage", npn.thresh = NULL)
-{
-    if (is.matrix(data) == FALSE & is.data.frame(data) == FALSE) stop("Data should be a matrix or dataframe")
-	
-    if (is.data.frame(data) == TRUE) data <- data.matrix(data)
-	
-    if (any(is.na(data))) stop("Data should contain no missing data") 
-	
-	n <- nrow(data)
-  	# shrinkage transfer
-	if(npn == "shrinkage")
-	{
-		data <- qnorm(apply(data, 2, rank) / (n + 1))
-		data <- data / sd(data[ , 1])
-	}
-	
-	# truncation transfer
-	if(npn == "truncation")
-	{
-		if(is.null(npn.thresh)) npn.thresh <- 0.25 * (n ^ - 0.25) * (pi * log(n)) ^ - 0.5
-		data <- qnorm( pmin(pmax(apply(data, 2, rank) / n, npn.thresh), 1 - npn.thresh) )
-    	data <- data / sd(data[ , 1])
-	}
-
-	if(npn == "skeptic") data <- 2 * sin( pi / 6 * cor(data, method = "spearman") )
-	
-	return(data)
-}
-
+   
 
 
 

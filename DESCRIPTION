@@ -1,7 +1,7 @@
 Package: BDgraph
 Type: Package
-Title: Graph estimation based on birth-death MCMC approach
-Version: 2.13
+Title: Graph Estimation Based on Birth-Death MCMC Approach
+Version: 2.14
 Date: 2013-02-04
 Author: Abdolreza Mohammadi and Ernst Wit
 Depends: R (>= 3.0.0), Matrix, igraph
@@ -12,7 +12,7 @@ Acknowledgements: The help of the CRAN team to integrate C++ code with
 License: GPL (>= 3)
 LazyLoad: yes
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2014-11-17 08:44:25 UTC; p262842
+Packaged: 2014-11-21 09:44:07 UTC; p262842
 Repository: CRAN
-Date/Publication: 2014-11-17 11:15:15
+Date/Publication: 2014-12-19 07:26:31
 NeedsCompilation: yes
