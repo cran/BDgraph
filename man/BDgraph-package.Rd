@@ -6,49 +6,39 @@
 \title{ Graph selection based on birth-death MCMC }
 
 \description{
-The R package BDgraph provides a statistical tool for Bayesian structure learning in 
-undirected graphical models based on birth-death MCMC methodology.      
+The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models based on birth-death MCMC methodology.      
+It implements the recent improvements in the Bayesian literature, including Mohammadi and Wit (2014) and Mohammadi et al. (2015).
 }
 \details{
-  This package provides an implementation of the procedures described in Mohammadi and Wit (2013). 
-The main function is 'bdgraph' which is a birth-death MCMC algorithm for Bayesian inference 
-in graphical models.
+The package includes 10 main functions: 
 
-  Functions:
-  \preformatted{
-bdgraph          birth-death MCMC algorithm for graphical models
-bdgraph.sim      Synthetic graph data generator 
-bdgraph.npt      Nonparametric transfer 
-CellSignal       A flow cytometry dataset 
-compare          Comparing the result 
-geneExpression   Human gene expression dataset
-I.g              Normalizing constant of G-Wishart distribution
-phat             Posterior edge inclusion probabilities
-plot.bdgraph     Plot function for "bdgraph" output
-plotcoda         Convergence plot
-plotroc          ROC plot
-print.bdgraph    Print function for "bdgraph" output
-prob             Posterior probabilities of the graphs
-rgwish           Sampling from G-Wishart distribution
-rwish            Sampling from Wishart distribution
-select           Selecting the best graph
-surveyData       Labor force survey data
-summary.bdgraph  Summary function for "bdgraph" output
-traceplot        Trace plot of graph size from "bdgraph" output
-  }
+Functions:
+\preformatted{
+bdgraph        birth-death MCMC sampling algorithm for graphical models
+bdgraph.sim    Synthetic graph data generator 
+bdgraph.npt    Nonparametric transfer 
+compare        Comparing the result 
+phat           Posterior link probabilities
+plotcoda       Convergence plot
+plotroc        ROC plot
+rgwish         Sampling from G-Wishart distribution
+select         Selecting the best graph
+traceplot      Trace plot of graph size
+}
 }
 
 \author{Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit}
 
 \references{
-Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and E. Wit (2014). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis} (Forthcoming). \url{http://arxiv.org/abs/1210.5371v6}
 
+Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108}
 
-Lenkoski, A. (2013). A direct sampler for G-Wishart variates, Stat 2, 119-128.
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
 
-Wang, H. and S. Li (2012). Efficient Gaussian graphical model determination under 
-G-Wishart prior distributions. Electronic Journal of Statistics 6, 168-198.
+Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling 1}, 225-230
+
+Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat 2}, 119-128
 }
 
 \keyword{ package }

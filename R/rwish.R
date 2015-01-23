@@ -7,7 +7,7 @@ rwish = function( n = 1, p = 2, b = 3, D = diag(p) )
 	K  = matrix( 0, p, p )
 	for ( i in 1 : n )
 	{
-		# rwish ( double T[], double K[], int *p, int *b )
+		# rwish ( double Ti[], double K[], int *b, int *p )
 		result = .C( "rwish", as.double(Ti), K = as.double(K), as.integer(b), 
 		             as.integer(p)
 		             , PACKAGE = "BDgraph" )

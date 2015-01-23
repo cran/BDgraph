@@ -3,7 +3,7 @@
 \docType{data}
 \title{A flow cytometry dataset}
 
-\description{This data set contains flow cytometry of \eqn{p = 11} proteins measured on \eqn{n = 11672} cells.}
+\description{This dataset contains flow cytometry of \eqn{11} proteins measured on \eqn{11672} red blood cells.}
 
 \usage{data(CellSignal)}
 

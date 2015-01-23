@@ -91,8 +91,8 @@ plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
 		y   = c( 0, fit $ y )
 	}
 	
-	par( mar = c( 3.8, 4.2, 1.8, 1 ) )
-    plot( x = x, y = y, type = "l", col = "black", lty = 1, cex.lab = 1.6, cex.main = 2.5, cex.axis = 1.7,
+	# par( mar = c( 3.8, 4.2, 1.8, 1 ) )
+    plot( x = x, y = y, type = "l", col = "black", lty = 1, cex.lab = 1.3, cex.main = 2, cex.axis = 1.2,
          main = "ROC Curve", xlab = "False Postive Rate", ylab = "True Postive Rate", ylim = c(0,1) )
   
     if( !is.null(prob2) )
@@ -109,7 +109,7 @@ plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
 			y2   = c( 0, fit2 $ y )
 		}
 		
-        points( x = x2, y = y2, type = "l", col = "blue", lty = 2, lw = 2,
-                main = "ROC Curve", xlab = "False Postive Rate", ylab = "True Postive Rate", ylim = c(0,1) )
+        points( x = x2, y = y2, type = "l", col = "blue", lty = 2, lw = 2 )
     }
 }
+    

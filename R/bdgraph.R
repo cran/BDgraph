@@ -263,7 +263,7 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 }
      
 # plot for class bdgraph
-plot.bdgraph = function(x, g = 1, layout = layout.circle, ...)
+plot.bdgraph = function( x, g = 1, layout = layout.circle, ... )
 {
 	list.G  <- x $ sampleGraphs
 	graphWeights <- x $ graphWeights
@@ -323,7 +323,7 @@ summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 		  sub = paste( c( "Posterior probability = ", max( prob.G ) ), collapse = "" ), ... )
 		
 		# plot posterior distribution of graph
-		plot(x = 1 : length(graphWeights), y = graphWeights / sum(graphWeights), type = "h", main = "Posterior probability",
+		plot(x = 1 : length(graphWeights), y = graphWeights / sum(graphWeights), type = "h", main = "Posterior probability of graphs",
 			 ylab = "Pr(graph|data)", xlab = "graph")
 		abline(h = max(graphWeights) / sum(graphWeights), col = "red")
 		text(which(max(graphWeights) == graphWeights), max(graphWeights) / sum(graphWeights), "P(best graph|data)", col = "gray60", adj = c(0, + 1))
@@ -338,15 +338,15 @@ summary.bdgraph = function( object, vis = TRUE, layout = layout.circle, ... )
 			weightsg[i] <- sum( graphWeights[which( suma == xx[i] )] )
 		}
 
-		plot( x = xx, y = weightsg / sum(graphWeights), type = "h", main = "Posterior probability",
-			 ylab = "Pr(graph size|data)", xlab = "graph size" )
+		plot( x = xx, y = weightsg / sum(graphWeights), type = "h", main = "Posterior probability of graphs size",
+			 ylab = "Pr(graph size|data)", xlab = "Graph size" )
 
 		# plot trace of graph size
 		allGraphs <- object $ allGraphs
 		yy        <- sapply( allGraphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )
 		
-		plot( x = 1 : length(allGraphs), yy, type = "l", main = "Trace for graph size",
-			  ylab = "graph size", xlab = "iteration")
+		plot( x = 1 : length(allGraphs), yy, type = "l", main = "Trace of graph size",
+			  ylab = "Graph size", xlab = "Iteration")
 		
 		abline(h = sum(graphi), col = "red")	  
 		

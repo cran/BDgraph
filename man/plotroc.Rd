@@ -4,7 +4,7 @@
 \title{ ROC plot }
 
 \description{
-Plot the ROC curve according to the true graph structure for the "bdgraph" output.
+Draws the ROC curve according to the true graph structure for the object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
 }
 
 \usage{
@@ -13,21 +13,26 @@ plotroc( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
 
 \arguments{
   \item{G}{
-The adjacency matrix corresponding to the true graph structure in which \eqn{G_{ij}=1} if there is a link between notes \eqn{i}{i} and
-\eqn{j}{j}, otherwise \eqn{G_{ij}=0}. It also can be an object with S3 class "simulate".
+The adjacency matrix corresponding to the true graph structure in which \eqn{g_{ij}=1} if there is a link between notes \eqn{i}{i} and
+\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.
 }
-  \item{prob}{ Upper triangular matrix which shows the stimated posterior inclusion probabilities for all possible edges. It also can be an object with S3 class "bdgraph". }
+  \item{prob}{ Upper triangular matrix which shows the stimated posterior probabilities for all possible links. It also can be an object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   
-  \item{prob2}{ This option is for comparing two different estimations. Upper triangular matrix which shows the stimated posterior inclusion probabilities for all possible edges. It also can be an object with S3 class "bdgraph". }
+  \item{prob2}{ This option is for comparing two different estimations. Upper triangular matrix which shows the stimated posterior inclusion probabilities for all possible links. It also can be an object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   
-  \item{cut}{ Number of cut point. Default is 20. }
+  \item{cut}{ Number of cut points. The default value is 20. }
   
   \item{smooth}{ Logical: for smoothing the ROC curve. The default is FALSE.} 
   }
 
 \references{
-Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and E. Wit (2014). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis} (Forthcoming). \url{http://arxiv.org/abs/1210.5371v6}
+
+Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108}
+
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
+
+Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling 1}, 225-230
 }
 \author{Abdolreza Mohammadi and Ernst Wit \cr}
 
@@ -35,14 +40,18 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 
 \examples{
 \dontrun{
-# generating synthetic multivariate normal data from a 'random' graph
+# generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
 
-# selecting the best graph according to BD-MCMC algorithm
+# runing sampling algorithm
 output <- bdgraph( data = data.sim, iter = 10000 )
 # comparing the result
 plotroc( data.sim, output )
 
-plotroc( data.sim, output, smooth = TRUE )
+# To compare the result based on CGGMs approach
+output2 <- bdgraph( data = data.sim, method = "cggm", iter = 10000 )
+# comparing the results
+plotroc( data.sim, output, output2 )
+legend( "bottomright", c("Gaussian", "Copula"), lty = c(1,2), col = c(1, 4))   
 }
 }

@@ -208,10 +208,10 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		
 		if ( p < 20 )
 		{
-			plot.igraph( graphG, layout = layout.circle, main = "True graph structure",
+			plot.igraph( graphG, layout = layout.circle, main = "Graph structure",
 						edge.color = 'black', vertex.color = "white", vertex.size = 10 )
 		} else {
-			plot.igraph( graphG, layout = layout.circle, main = "True graph structure", 
+			plot.igraph( graphG, layout = layout.circle, main = "Graph structure", 
 						edge.color = 'black', vertex.color = "white", vertex.size = 2 )
 		}
 	}
@@ -239,7 +239,7 @@ print.simulate = function (x, ...)
 # plot for class "simulate" from bdgraph.sim function
 plot.simulate = function(x, main = NULL, layout = layout.circle, ...)
 {
-    if (is.null(main)) main <- "True graph structure"
+    if (is.null(main)) main <- "Graph structure"
   	g <- graph.adjacency( as.matrix(x $ G), mode = "undirected", diag = FALSE )
 	
     plot.igraph(g, main = main, layout = layout, ...)

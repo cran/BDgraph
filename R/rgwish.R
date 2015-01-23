@@ -14,7 +14,13 @@ rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 	
 	p <- nrow(G)  
 	
-	if ( is.null(D) ) D <- diag(p)	
+	if ( is.null(D) ) 
+	{
+		D <- diag(p)
+	} else {
+		if ( dim(D)[1] != p ) stop( "Dimension of matrix G and D must to be the same." )
+	}
+		
 	Ti = chol( solve(D) ) 
 	
 	samples <- array( 0, c( p, p, n ) )
@@ -22,7 +28,7 @@ rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 	
 	for ( i in 1 : n )
 	{
-		# rgwish ( int G[], double T[], double K[], int *b, int *p )
+		# rgwish ( int G[], double Ti[], double K[], int *b, int *p )
 		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), 
 					 as.integer(b), as.integer(p)
 					 , PACKAGE = "BDgraph" )
@@ -31,3 +37,4 @@ rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 
 	return( samples )   
 }
+  

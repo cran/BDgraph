@@ -1,5 +1,5 @@
 # plot of graph size to check the convergency of BDMCMC algorithm
-traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
+traceplot = function( output, acf = FALSE, pacf = FALSE, main = NULL, ... )
 {
     allGraphs   <- output $ allGraphs
 	graphWeights <- output $ graphWeights
@@ -9,41 +9,42 @@ traceplot = function(output, acf = FALSE, pacf = FALSE, main = NULL, ...)
 	
 	if (is.null(main)) main = "Trace of graph size"
 	
-	if (acf == FALSE & pacf == FALSE)
+	if ( acf == FALSE & pacf == FALSE )
 	{
-		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
-			ylab = "graph size", xlab = "iteration", ...)
+		plot( x = 1 : length(allGraphs), y, type = "l", main = main, cex.main = 1.5, cex.lab = 1.3, cex.axis = 1.2,
+			ylab = "Graph size", xlab = "Iteration", ... )
 		abline(h = lin, col = "red")	   
 	}
 	
-	if (acf == TRUE & pacf == TRUE)
+	if ( acf == TRUE & pacf == TRUE )
 	{
-		op <- par(mfrow = c(2, 2), pty = "s") 
+		op = par( mfrow = c(2, 2), pty = "s" )  
 		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
-			   ylab = "graph size", xlab = "iteration", ...)
-		abline(h = lin, col = "red")	  
-		acf(y,  main = "ACF for graph size")
-		pacf(y, main = "PACF for graph size")
+			   ylab = "Graph size", xlab = "Iteration", ...)
+		abline( h = lin, col = "red" )	  
+		acf( y,  main = "ACF for graph size" )
+		pacf( y, main = "PACF for graph size" )
 		par(op)
 	}
 	
-	if (acf == TRUE & pacf == FALSE)
+	if ( acf == TRUE & pacf == FALSE )
 	{
 		op <- par(mfrow = c(1, 2), pty = "s") 
 		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
-			   ylab = "graph size", xlab = "iteration", ...)
+			   ylab = "Graph size", xlab = "Iteration", ...)
 		abline(h = lin, col = "red")	  
 		acf(y, main = "ACF for graph size")
 		par(op)
 	}
 	
-	if (acf == FALSE & pacf == TRUE)
+	if ( acf == FALSE & pacf == TRUE )
 	{
 		op <- par(mfrow = c(1, 2), pty = "s") 
 		plot(x = 1 : length(allGraphs), y, type = "l", main = main,
-			   ylab = "graph size", xlab = "iteration", ...)
+			   ylab = "Graph size", xlab = "Iteration", ...)
 		abline(h = lin, col = "red")	  
 		pacf(y, main = "PAIC for graph size")
 		par(op)
 	}		
 }  
+   

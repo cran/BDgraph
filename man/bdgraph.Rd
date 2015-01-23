@@ -2,11 +2,10 @@
 \alias{bdgraph}
 
 \title{
-	Birth-death MCMC algorithm for graphical models 
+	Birth-death MCMC sampling algorithm for graphical models 
 }
 \description{
-	This function is the BD-MCMC algorithm for model selection in undirected Gaussian 
-	graphical models based on birth-death MCMC methodology. 
+	The main function of the \pkg{BDgraph} package. The function consists of two sampling algorithm for model determination in undirected graphical models based on birth-death MCMC methodology. 
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2, 
@@ -15,62 +14,65 @@ bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2,
 
 \arguments{
 	\item{data}{
-	It could be a matrix or a data.frame of the data ( \eqn{n \times p}) or a covariance matrix as \eqn{S=x'x} which \eqn{x} is the data matrix. It also could be an object of class "simulate".
+	It could be a (\eqn{n \times p}) matrix or a data.frame of data or a covariance matrix as \eqn{S=X'X} which \eqn{X} is the data matrix. It also could be an object of class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.
 	}
 
-	\item{n}{The number of observations. It is needed if the "data" is a covariance matrix.}
+	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
 	  
 	\item{method}{
-		A character with two options "ggm" (defult) and "cggm". 
-		Option "ggm" is based on Gaussian graphical models which is based on gaussianty assumiton.
-		Option "cggm" is based on copula Gaussian graphical models which is for the data that not follow gaussianty assumiton e.g. continuous non-Gaussian, discrete, or mixed data sets.
+		A character with two options \code{"ggm"} (defult) and \code{"cggm"}. 
+		Option \code{"ggm"} is for Gaussian graphical models based on gaussianty assumiton.
+		Option \code{"cggm"} is for copula Gaussian graphical models for the data that not follow gaussianty assumiton (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
 
-	\item{iter}{The number of iteration for the BD-MCMC algorithm.}
-	\item{burnin}{The number of burn-in iteration for the BD-MCMC algorithm.}
+	\item{iter}{The number of iteration for the sampling algorithm.}
+	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
 	\item{b}{
-		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}. G-Wishart distribution is the prior
-		distribution of precision matrix. The default is 3.
+		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of precision matrix. The default is 3.
 	}
 	\item{D}{
-		The positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}. G-Wishart distribution is the prior 
-		distribution of precision matrix. The default is an identity matrix.
+		The positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}. The default is an identity matrix.
 	}
 	\item{Gstart}{
-		It is corresponding to a starting point for graph. It can be either "full" (default), "empty", or an object with S3 class "bdgraph". 
-		Option "full" means the initial graph is a full graph and "empty" means a empty graph. 
-		Gstart also could be an object with S3 class "bdgraph"; With this option we could run the bdgraph algorithm from last objects of 
-		previous bdgraph run (see examples).     
+		It corresponds to a starting point for graph. It can be \code{"full"} (default), \code{"empty"}, or an object with \code{S3} class \code{"bdgraph"}. 
+		Option \code{"full"} means the initial graph is a full graph and \code{"empty"} means a empty graph. 
+		Gstart also could be an object with \code{S3} class \code{"bdgraph"}; With this option we could run the sampling algorithm from last objects of 
+		previous run (see examples).     
 	} 
 }
 
 \value{
-	an object with S3 class "bdgraph" as follow:
+	An object with \code{S3} class \code{"bdgraph"} is returned:
 
 	\item{sampleGraphs}{A vector which includes the adjacency matrices for all iteration after burn-in.}
 	\item{graphWeights}{A vector which includes the waiting times for all iteration after burn-in.}
 
 	\item{allGraphs}{A vector which includes the adjacency matrices for all iteration (includes burn-in iteration). 
-		  It is needed to check the convergency of the BD-MCMC algorithm.}
+		  It is needed for monitoring the convergency of the BD-MCMC algorithm.}
 
-	\item{allWeights}{A vector which includes the waiting times for all iteration (includes burn-in iteration).}
+	\item{allWeights}{A vector which includes the waiting times for all iteration (includes burn-in iteration). It is needed for monitoring the convergency of the BD-MCMC algorithm.}
 
 	\item{Khat}{Estimation for precision matrix which is a mean of all samples from precision matrices.}
 }
 
 \references{
-	Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
-	graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and E. Wit (2014). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis} (Forthcoming). \url{http://arxiv.org/abs/1210.5371v6}
+
+Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
+
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
+
+Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling 1}, 225-230
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph.sim}} }
+\seealso{ \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
 
 \examples{
 \dontrun{
-# generating synthetic multivariate normal data from a 'random' graph
+# generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 20, p = 6, size = 7, vis = TRUE )
 
 output <- bdgraph( data = data.sim, iter = 1000 )

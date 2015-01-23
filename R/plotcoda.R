@@ -15,11 +15,11 @@ plotcoda = function( output, thin = NULL, main = NULL, ... )
 
 	for ( g in 1 : length.allG.new )
 	{
-		mes <- paste(c("Calculation ... in progress : ", floor(100 * g / length.allG.new), "%"), collapse = "")
+		mes <- paste( c( "Calculation ... in progress : ", floor( 100 * g / length.allG.new ), "%" ), collapse = "" )
 		cat(mes, "\r")
 		flush.console()	
 
-		inp      <- which(unlist(strsplit(as.character(allG.new[g]), "")) == 1)
+		inp      <- which( unlist(strsplit(as.character(allG.new[g]), "")) == 1 )
 		ffv[inp] <- ffv[inp] + allWeights.new[g]
 		ff[ ,g]  <- ffv / sum(allWeights.new[c(1 : g)])    	 
 	}
@@ -29,10 +29,10 @@ plotcoda = function( output, thin = NULL, main = NULL, ... )
 	cat("\n")
 	flush.console()
 
-	matplot(x = thin * (1 : length.allG.new), y = t(ff), type = "l", lty = 1, col = 1,
-		  xlab = "iteration", ylab = "posterior link probability")
+	matplot( x = thin * (1 : length.allG.new), y = t(ff), type = "l", lty = 1, col = 1,
+		  xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
-	if ( is.null(main) ) main <- "Trace of the Posterior Probabilities of the Edges"
-	title( main = main )
+	if ( is.null(main) ) main <- "Trace of the Posterior Probabilities of the Links"
+	title( main = main, cex.main = 1.5 )
 }
   

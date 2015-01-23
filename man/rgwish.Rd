@@ -4,37 +4,42 @@
 \title{Sampling from G-Wishart distribution}
 
 \description{
-Generate n random matrices, distributed according to the G-Wishart distribution with parameters b and D, \eqn{W_G(b, D)}.
+Generate random matrices, distributed according to the G-Wishart distribution with parameters b and D, \eqn{W_G(b, D)}.
 }
 
 \usage{rgwish( n = 1, G = NULL, b = 3, D = NULL )}
 
 \arguments{
-  \item{n}{The number of samples required. The default is 1.}
+  \item{n}{The number of samples required. The default value is 1.}
   \item{G}{
-    Adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which \eqn{G_{ij}=1} 
-    if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{G_{ij}=0}.
+    Adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which \eqn{g_{ij}=1} 
+    if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{g_{ij}=0}.
     }
-  \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default is 3.}
+  \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default value is 3.}
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
            The default is an identity matrix.}
 }
 \details{
-Sampling from G-Wishart(b,D) distribution with density:
+Sampling from G-Wishart distribution, \eqn{K \sim W_G(b, D)}, with density:
 
-  \deqn{p(K) \propto |K| ^ {(b - 2) / 2} exp(- \frac{1}{2} trace(K \times D))}
+  \deqn{Pr(K) \propto |K| ^ {(b - 2) / 2} \exp \left\{- \frac{1}{2} \mbox{trace}(K \times D)\right\},}
 
 which \eqn{b > 2} is the degree of freedom and D is a symmetric positive definite matrix.
 }
 \value{
 A numeric array, say A, of dimension \eqn{(p \times p \times n)}, where each \eqn{A[,,i]}{A[,,i]} is a positive 
-definite matrix, a realization of the G-Wishart distribution \eqn{W_G(b, D)}.
+definite matrix, a realization of the G-Wishart distribution, \eqn{W_G(b, D)}.
 }
 \references{
-Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
+Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat 2}, 119-128
 
-Lenkoski, A. (2013). A direct sampler for G-Wishart variates, Stat 2, 119-128.
+Mohammadi, A. and E. Wit (2014). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis} (Forthcoming). \url{http://arxiv.org/abs/1210.5371v6}
+
+Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108}
+
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
+
+Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling 1}, 225-230
 }
 \author{Abdolreza Mohammadi and Ernst Wit}
 

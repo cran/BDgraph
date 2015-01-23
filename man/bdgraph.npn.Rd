@@ -3,37 +3,31 @@
 
 \title{Nonparametric transfer}
 
-\description{
-This function transfer non-Gaussian data to Gaussian models.  
-}
-\usage{
-bdgraph.npn( data, npn = "shrinkage", npn.thresh = NULL )
-}
+\description{ This function transfers non-Gaussian data to Gaussian.  }
+
+\usage{ bdgraph.npn( data, npn = "shrinkage", npn.thresh = NULL ) }
 
 \arguments{
-  \item{data}{ It could be a matrix or a data.frame corresponding to the data (\eqn{n \times p}{n x p}). }
+  \item{data}{ It could be a (\eqn{n \times p}{n x p}) matrix or a data.frame corresponding to the data. }
   \item{npn}{ 
-  A character with three options "shrinkage" (default), "truncation", and "skeptic". Option "shrinkage" is for the 
-  shrunken transformation, option "truncation" is for the truncated transformation, option "skeptic" is for the 
+  A character with three options \code{"shrinkage"} (default), \code{"truncation"}, and \code{"skeptic"}. Option \code{"shrinkage"} is for the 
+  shrunken transformation, option \code{"truncation"} is for the truncated transformation, option \code{"skeptic"} is for the 
   non-paranormal skeptic transformation. For more details see references.
   }
   \item{npn.thresh}{ The truncation threshold; it is only for the truncated transformation (when
-  \code{npn = "truncation"}). The default value is \eqn{1/(4n^{1/4} \sqrt{\pi \log(n)})}. }
+  \code{npn = } \code{"truncation"}). The default value is \eqn{1/(4n^{1/4} \sqrt{\pi \log(n)})}. }
 }
+
 \value{
-\item{data}{ A matrix (\eqn{n \times p}) of transferred data, if \code{npn = "shrinkage" or "truncation"}, and 
-  a non-paranormal correlation matrix (\eqn{p \times p}), if \code{npn = "skeptic"}.  
+\item{data}{ A (\eqn{n \times p}) matrix of transferred data, if \code{npn = "shrinkage" or "truncation"}, and 
+  a non-paranormal correlation (\eqn{p \times p}) matrix, if \code{npn = "skeptic"}.  
   }
 }
+
 \references{
-Liu, H., Han, F., Yuan, M., Lafferty, J., and Wasserman, L., (2012). High Dimensional Semiparametric Gaussian Copula 
-Graphical Models. \emph{Annals of Statistics} 
+Liu, H., F. Han, M. Yuan, J. Lafferty, and L. Wasserman (2012). High Dimensional Semiparametric Gaussian Copula Graphical Models, \emph{Annals of Statistics 40(4)}, 2293-2326
 
-Zhao, T. and H. Liu. (2012). The huge Package for High-dimensional Undirected Graph Estimation in R. 
-\emph{Journal of Machine Learning Research}
-
-Mohammadi, A. and Wit, E. C. (2014). Bayesian structure learning in sparse Gaussian 
-graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.5371v6}
+Zhao, T. and H. Liu (2012). The huge Package for High-dimensional Undirected Graph Estimation in R, \emph{Journal of Machine Learning Research 13}, 1059-1062
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit \cr }
@@ -42,18 +36,18 @@ graphical models, Bayesian Analysis, acceped. \url{http://arxiv.org/abs/1210.537
 
 \examples{
 \dontrun{
-  # generating synthetic multivariate normal data from a 'random' graph
-  data.sim <- bdgraph.sim( n = 6, p = 4, size = 4 )
-  data     <- ( data.sim $ data - 3 ) ^ 4
-  data
-  
-  # transfer the data by truncation 
-  bdgraph.npn( data, npn = "truncation" )
-  
-  # transfer the data by shrunken 
-  bdgraph.npn( data, npn = "shrunken" )
+# generating multivariate normal data from a 'random' graph
+data.sim <- bdgraph.sim( n = 6, p = 4, size = 4 )
+data     <- ( data.sim $ data - 3 ) ^ 4
+data
 
-  # transfer the data by skeptic 
-  bdgraph.npn( data, npn = "skeptic" )
-  }
+# transfer the data by truncation 
+bdgraph.npn( data, npn = "truncation" )
+
+# transfer the data by shrunken 
+bdgraph.npn( data, npn = "shrunken" )
+
+# transfer the data by skeptic 
+bdgraph.npn( data, npn = "skeptic" )
+}
 }

@@ -23,7 +23,7 @@ select = function ( output, cut = NULL, vis = FALSE )
 
 		graphi[upper.tri(graphi)] <- gv
 	} else {
-		if ( ( cut < 0 ) || ( cut > 1 ) )   stop( "What hell you expect? Value of 'cut' should be between zero and one." )
+		if ( ( cut < 0 ) || ( cut > 1 ) )   stop( "Value of 'cut' should be between zero and one." )
 		prob  <- as.matrix( phat( output ) )
 		prob[ prob >= cut ] = 1
 		prob[ prob < cut ]  = 0
@@ -36,11 +36,11 @@ select = function ( output, cut = NULL, vis = FALSE )
 
 		if ( is.null(cut) )
 		{
-			plot.igraph(G, layout = layout.circle, main = "Graph with highest probability", 
+			plot.igraph(G, layout = layout.circle, main = "Graph with highest posterior probability", 
 				sub = paste(c("Posterior probability = ", round(max(prob.G), 4)), collapse = ""))
 		} else {
 			plot.igraph(G, layout = layout.circle, 
-			            main = paste( c( "Graph with edges posterior inclution probabilities = ",  cut ), collapse = "" ) )
+			            main = paste( c( "Graph with links posterior probabilities = ",  cut ), collapse = "" ) )
 		}
 	}
 
