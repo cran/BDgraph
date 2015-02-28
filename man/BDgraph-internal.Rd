@@ -7,7 +7,7 @@
 
 \docType{data}
 
-\title{ Internal bdgraph functions and datasets }
+\title{ Internal BDgraph functions and datasets }
 
 \description{ Nothing to see here move along }
 

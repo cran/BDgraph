@@ -35,4 +35,4 @@ plotcoda = function( output, thin = NULL, main = NULL, ... )
 	if ( is.null(main) ) main <- "Trace of the Posterior Probabilities of the Links"
 	title( main = main, cex.main = 1.5 )
 }
-  
+    

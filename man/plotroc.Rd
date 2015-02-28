@@ -26,13 +26,13 @@ The adjacency matrix corresponding to the true graph structure in which \eqn{g_{
   }
 
 \references{
-Mohammadi, A. and E. Wit (2014). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis} (Forthcoming). \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and E. Wit (2015). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108}
+Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
 
 Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
 
-Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling 1}, 225-230
+Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling}, 1:225-230
 }
 \author{Abdolreza Mohammadi and Ernst Wit \cr}
 
@@ -49,7 +49,7 @@ output <- bdgraph( data = data.sim, iter = 10000 )
 plotroc( data.sim, output )
 
 # To compare the result based on CGGMs approach
-output2 <- bdgraph( data = data.sim, method = "cggm", iter = 10000 )
+output2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 # comparing the results
 plotroc( data.sim, output, output2 )
 legend( "bottomright", c("Gaussian", "Copula"), lty = c(1,2), col = c(1, 4))   

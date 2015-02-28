@@ -11,7 +11,7 @@
   \item{data}{ It could be a (\eqn{n \times p}{n x p}) matrix or a data.frame corresponding to the data. }
   \item{npn}{ 
   A character with three options \code{"shrinkage"} (default), \code{"truncation"}, and \code{"skeptic"}. Option \code{"shrinkage"} is for the 
-  shrunken transformation, option \code{"truncation"} is for the truncated transformation, option \code{"skeptic"} is for the 
+  shrunken transformation, option \code{"truncation"} is for the truncated transformation and option \code{"skeptic"} is for the 
   non-paranormal skeptic transformation. For more details see references.
   }
   \item{npn.thresh}{ The truncation threshold; it is only for the truncated transformation (when
@@ -25,9 +25,9 @@
 }
 
 \references{
-Liu, H., F. Han, M. Yuan, J. Lafferty, and L. Wasserman (2012). High Dimensional Semiparametric Gaussian Copula Graphical Models, \emph{Annals of Statistics 40(4)}, 2293-2326
+Liu, H., F. Han, M. Yuan, J. Lafferty, and L. Wasserman (2012). High Dimensional Semiparametric Gaussian Copula Graphical Models, \emph{Annals of Statistics}  40(4):2293-2326
 
-Zhao, T. and H. Liu (2012). The huge Package for High-dimensional Undirected Graph Estimation in R, \emph{Journal of Machine Learning Research 13}, 1059-1062
+Zhao, T. and H. Liu (2012). The huge Package for High-dimensional Undirected Graph Estimation in R, \emph{Journal of Machine Learning Research}, 13:1059-1062
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit \cr }

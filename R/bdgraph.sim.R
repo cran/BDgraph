@@ -132,7 +132,9 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
     { 
 		G     <- 1 * ( abs(K) > 0.02 )
 		if( is.null(sigma) ) sigma <- solve(K)	
-    } else {
+    } 
+    else 
+    {
 		Ti      <- chol( solve(D) )
 		diag(G) <- 0
 		
@@ -202,22 +204,16 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 	}
 	
 	# graph visualization
-	if ( vis == TRUE )
+	if ( vis )
 	{
 		graphG <- graph.adjacency( G, mode = "undirected", diag = FALSE )
 		
-		if ( p < 20 )
-		{
-			plot.igraph( graphG, layout = layout.circle, main = "Graph structure",
-						edge.color = 'black', vertex.color = "white", vertex.size = 10 )
-		} else {
-			plot.igraph( graphG, layout = layout.circle, main = "Graph structure", 
-						edge.color = 'black', vertex.color = "white", vertex.size = 2 )
-		}
+		if ( p < 20 ) size = 10 else size = 2
+		plot.igraph( graphG, layout = layout.circle, main = "Graph structure", vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
 	}
 	
-	dimlab     <- as.character(1 : p)
-	simulation <- list( G = Matrix(G, sparse = TRUE, dimnames = list(dimlab, dimlab)), 
+	dimlab     <- as.character( 1 : p )
+	simulation <- list( G = Matrix( G, sparse = TRUE, dimnames = list( dimlab, dimlab ) ), 
 	                    data = d, sigma = sigma, K = K, graph = graph, type = type )
 	
 	class(simulation) <- "simulate"
@@ -237,10 +233,11 @@ print.simulate = function (x, ...)
 	cat( paste( "  Sparsity        =", round(sum(x $ G) / (p * (p - 1)), 4) ), fill = TRUE )
 }
 # plot for class "simulate" from bdgraph.sim function
-plot.simulate = function(x, main = NULL, layout = layout.circle, ...)
+plot.simulate = function( x, main = NULL, layout = layout.circle, ... )
 {
     if (is.null(main)) main <- "Graph structure"
   	g <- graph.adjacency( as.matrix(x $ G), mode = "undirected", diag = FALSE )
 	
-    plot.igraph(g, main = main, layout = layout, ...)
+    plot.igraph( g, main = main, layout = layout, ... )
 }		
+   

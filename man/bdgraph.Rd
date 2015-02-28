@@ -20,9 +20,9 @@ bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2,
 	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
 	  
 	\item{method}{
-		A character with two options \code{"ggm"} (defult) and \code{"cggm"}. 
+		A character with two options \code{"ggm"} (defult) and \code{"gcgm"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on gaussianty assumiton.
-		Option \code{"cggm"} is for copula Gaussian graphical models for the data that not follow gaussianty assumiton (e.g. continuous non-Gaussian, discrete, or mixed dataset).
+		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow gaussianty assumiton (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
 
 	\item{iter}{The number of iteration for the sampling algorithm.}
@@ -57,13 +57,13 @@ bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2,
 }
 
 \references{
-Mohammadi, A. and E. Wit (2014). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis} (Forthcoming). \url{http://arxiv.org/abs/1210.5371v6}
+Mohammadi, A. and E. Wit (2015). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis}, 10(1):109-138
 
 Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
 
 Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
 
-Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling 1}, 225-230
+Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling}, 1:225-230
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }
@@ -89,7 +89,7 @@ compare( data.sim, output, output2, colnames = c("True graph", "Frist run", "Sec
 # generating mixed data from a 'scale-free' graph
 data.sim <- bdgraph.sim( n = 100, p = 6, type = "mixed", graph = "scale-free", vis = TRUE )
 
-output <- bdgraph( data = data.sim, method = "cggm", iter = 10000 )
+output <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 
 summary( output )
 

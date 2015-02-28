@@ -1,16 +1,18 @@
 Package: BDgraph
 Type: Package
 Title: Graph Estimation Based on Birth-Death MCMC Approach
-Version: 2.15
+Version: 2.16
 Date: 2013-02-04
 Author: Abdolreza Mohammadi and Ernst Wit
 Depends: R (>= 3.0.0), Matrix, igraph
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
-Description: This package provides a general framework to perform Bayesian structure learning in undirected graphical models. The package provides recent improvements in the Bayesian literature. The package consists of two main MCMC sampling algorithm efficiently implemented in C++ to maximize computational speed. The main target of the package is high-dimensional data analysis wherein either continuous or discrete variables and usually number of variables are less than number of observations. Acknowledgements: The help of the CRAN team to integrate C++ code with R is gratefully acknowledged.
+Description: A general framework to perform Bayesian structure learning in undirected graphical models. The main target is high-dimensional data analysis wherein either continuous or discrete variables. 
+Acknowledgements: The help of the CRAN team to integrate C++ code with
+        R is gratefully acknowledged.
 License: GPL (>= 3)
 LazyLoad: yes
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2015-01-23 15:14:18 UTC; p262842
+Packaged: 2015-02-27 16:35:34 UTC; p262842
 Repository: CRAN
-Date/Publication: 2015-01-23 16:59:00
+Date/Publication: 2015-02-28 01:16:46
 NeedsCompilation: yes
