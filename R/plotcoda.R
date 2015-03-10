@@ -1,5 +1,5 @@
 # To check the convergency of the BDMCMC algorithm
-plotcoda = function( output, thin = NULL, main = NULL, ... )
+plotcoda = function( output, thin = NULL, main = NULL, links = TRUE, ... )
 {
 	if ( is.null(thin) ) thin = ceiling( length( output $ allGraphs ) / 1000 )
 
@@ -7,10 +7,10 @@ plotcoda = function( output, thin = NULL, main = NULL, ... )
 	allWeights <- output $ allWeights
 	allGraphs  <- output $ allGraphs
 
-	allG.new        <- allGraphs[c(thin * (1 : floor(length(allGraphs) / thin)))]
-	allWeights.new <- allWeights[c(thin * (1 : floor(length(allWeights) / thin)))]
-	length.allG.new <- length(allG.new)
-	ff              <- matrix(0, p * (p - 1) / 2, length.allG.new)
+	allG.new        <- allGraphs[ c( thin * ( 1 : floor( length( allGraphs ) / thin ) ) ) ]
+	allWeights.new <- allWeights[ c( thin * ( 1 : floor( length( allWeights ) / thin ) ) ) ]
+	length.allG.new <- length( allG.new )
+	ff              <- matrix( 0, p * ( p - 1 ) / 2, length.allG.new )
 	ffv             <- 0 * ff[ , 1]
 
 	for ( g in 1 : length.allG.new )
@@ -21,9 +21,17 @@ plotcoda = function( output, thin = NULL, main = NULL, ... )
 
 		inp      <- which( unlist(strsplit(as.character(allG.new[g]), "")) == 1 )
 		ffv[inp] <- ffv[inp] + allWeights.new[g]
-		ff[ ,g]  <- ffv / sum(allWeights.new[c(1 : g)])    	 
+		ff[ ,g]  <- ffv / sum( allWeights.new[ c( 1 : g ) ] )    	 
 	}
 
+	if ( links )
+		if ( p > 15 )
+		{
+			qp = p * ( p - 1 ) / 2
+			randomLinks = sample( x = 1:qp, size = ( qp - 100 ), replace = FALSE )
+			ff[ randomLinks, ] = 0
+		}
+	
 	mes <- paste(c("Calculation ... done.                        "), collapse = "")
 	cat(mes, "\r")
 	cat("\n")
@@ -32,7 +40,7 @@ plotcoda = function( output, thin = NULL, main = NULL, ... )
 	matplot( x = thin * (1 : length.allG.new), y = t(ff), type = "l", lty = 1, col = 1,
 		  xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
-	if ( is.null(main) ) main <- "Trace of the Posterior Probabilities of the Links"
+	if ( is.null( main ) ) main <- "Trace of the Posterior Probabilities of the Links"
 	title( main = main, cex.main = 1.5 )
 }
     

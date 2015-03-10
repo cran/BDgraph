@@ -1239,6 +1239,25 @@ void scaleFree( int *G, int *p )
 	PutRNGstate();
 }
 ////////////////////////////////////////////////////////////////////////////////
+// For computing Phat function based on ourput of BDMCMC algorithm
+//~ for ( i in 1 : length(sampleGraphs) )
+//~ {
+	//~ inp       <- which( unlist( strsplit( as.character(sampleGraphs[i]), "" ) ) == 1 )
+	//~ pvec[inp] <- pvec[inp] + graphWeights[i]
+//~ }
+
+void phatC( string sampleGraphs[], double graphWeights[], double pvec[], int *sampleLength, int *p )
+{
+	int qp = *p * ( *p - 1 ) / 2, sl = *sampleLength;
+	
+	for ( int iter = 0; iter < sl; iter++ )
+		for ( int link = 0; link < qp; link++ )
+			if ( sampleGraphs[iter][link] == '1' ) pvec[link] += graphWeights[iter];
+}
+     
+////////////////////////////////////////////////////////////////////////////////
+
+
 
 } // exturn "C"
 

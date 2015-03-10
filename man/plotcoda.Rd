@@ -8,7 +8,7 @@ Displays a plot which provides the cumulative occupancy fractions of all possibl
 The plot can be used for monitoring the convergence of the BD-MCMC sampling algorithm.
 }
 
-\usage{ plotcoda( output, thin = NULL, main = NULL, ... ) }
+\usage{ plotcoda( output, thin = NULL, main = NULL, links = TRUE, ... ) }
 
 \arguments{
   \item{output}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
@@ -16,6 +16,8 @@ The plot can be used for monitoring the convergence of the BD-MCMC sampling algo
   \item{thin}{ An option for getting fast result for a cumulative plot according to part of the iteration.}
     
   \item{main}{ Graphical parameter (see plot). }
+ 
+  \item{links}{ Logical: if TRUE and number of variables (p) is more that 15, you will see a plot result for 100 selected links. The default is TRUE. } 
   
   \item{\dots}{ System reserved (no specific usage). }  
 }

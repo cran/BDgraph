@@ -9,7 +9,6 @@ export( bdgraph,
 		prob,
 		bdgraph.sim,
 		bdgraph.npn,
-		I.g,
 		compare,
 
 		plotcoda,

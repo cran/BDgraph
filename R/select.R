@@ -2,11 +2,12 @@
 # OR if cut is NULL to select the best graph (graph with the highest posterior probability) 
 select = function ( output, cut = NULL, vis = FALSE )
 {
-	if ( is.null(cut) )
+	p = nrow( output $ lastGraph )
+
+	if ( is.null( cut ) )
 	{
 		sampleGraphs <- output $ sampleGraphs
 		graphWeights <- output $ graphWeights
-		p            <- nrow( output $ lastGraph )
 		prob.G       <- graphWeights / sum( graphWeights )
 		max.prob.G   <- which( prob.G == max( prob.G ) )
 		
@@ -17,18 +18,17 @@ select = function ( output, cut = NULL, vis = FALSE )
 		gv[ which( unlist( strsplit( as.character(gi), "" ) ) == 1 ) ] <- 1
 
 		dimlab   <- colnames( output $ lastGraph )
-		if ( is.null(dimlab) ) dimlab <- as.character(1 : p)
+		if ( is.null( dimlab ) ) dimlab <- as.character( 1 : p )
 		
 		graphi <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
-
 		graphi[ upper.tri(graphi) ] <- gv
 	} 
 	else 
 	{
 		if ( ( cut < 0 ) || ( cut > 1 ) )   stop( "Value of 'cut' should be between zero and one." )
 		prob  <- as.matrix( phat( output ) )
-		prob[ prob > cut ] = 1
-		prob[ prob <= cut ]  = 0
+		prob[ prob > cut ]  = 1
+		prob[ prob <= cut ] = 0
 		graphi = prob
 	}
 	
@@ -44,10 +44,10 @@ select = function ( output, cut = NULL, vis = FALSE )
 		} 
 		else 
 		{
-			plot.igraph( G, layout = layout.circle, main = paste( c( "Graph with links posterior probabilities = ",  cut ), collapse = "" ), vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black' )
+			plot.igraph( G, layout = layout.circle, main = paste( c( "Graph with links posterior probabilities > ",  cut ), collapse = "" ), vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black' )
 		}
 	}
 
 	return( Matrix( graphi + t(graphi), sparse = TRUE ) )
 }
-     
+       

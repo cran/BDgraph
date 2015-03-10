@@ -11,11 +11,15 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 	if ( !is.matrix(data) & !is.data.frame(data) ) stop( "Data should be a matrix or dataframe" )
 	if ( is.data.frame(data) ) data <- data.matrix(data)
 	if ( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
-	gcgm_NA = 0
+
 	if ( any( is.na(data) ) ) 
 	{
 		if( method == "ggm" ) stop( "ggm method does not deal with missing value. You could choose method = gcgm" )	
 		gcgm_NA = 1
+	}
+	else
+	{
+		gcgm_NA = 0
 	}
 		
 	dimd <- dim(data)
@@ -29,7 +33,7 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 		R[ is.na(R) ] = 0     # dealing with missing values	
 
 		# copula for continuous non-Gaussian data
-		if( gcgm_NA != 1 && min( apply( R, 2, max ) ) > ( n - 5 * n / 100 ) )
+		if( gcgm_NA == 0 && min( apply( R, 2, max ) ) > ( n - 5 * n / 100 ) )
 		{
 			# copula transfer 
 			data = qnorm( apply( data, 2, rank ) / ( n + 1 ) )
@@ -37,7 +41,7 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 		
 			method = "ggm"
 		}
-		else 
+		else
 		{	# for non-Gaussian data
 			Z              <- qnorm( apply( data, 2, rank, ties.method = "random" ) / (n + 1) )
 			Zfill          <- matrix( rnorm( n * p ), n, p )   # for missing values
@@ -54,7 +58,9 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 			if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
 			cat( "Input is identified as the covriance matrix. \n" )
 			S <- data
-		} else {
+		}
+		else
+		{
  			S <- t(data) %*% data
 		}
 	}
