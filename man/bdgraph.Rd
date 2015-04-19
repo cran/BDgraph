@@ -5,7 +5,7 @@
 	Birth-death MCMC sampling algorithm for graphical models 
 }
 \description{
-	The main function of the \pkg{BDgraph} package. The function consists of two sampling algorithm for model determination in undirected graphical models based on birth-death MCMC methodology. 
+	The main function of the \pkg{BDgraph} package. The function consists of two sampling algorithm for model determination in undirected graphical models based on birth-death MCMC method. 
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2, 
@@ -21,15 +21,15 @@ bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2,
 	  
 	\item{method}{
 		A character with two options \code{"ggm"} (defult) and \code{"gcgm"}. 
-		Option \code{"ggm"} is for Gaussian graphical models based on gaussianty assumiton.
-		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow gaussianty assumiton (e.g. continuous non-Gaussian, discrete, or mixed dataset).
+		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
+		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
 
 	\item{iter}{The number of iteration for the sampling algorithm.}
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
 	\item{b}{
-		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of precision matrix. The default is 3.
+		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix. The default is 3.
 	}
 	\item{D}{
 		The positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}. The default is an identity matrix.
@@ -45,25 +45,23 @@ bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2,
 \value{
 	An object with \code{S3} class \code{"bdgraph"} is returned:
 
-	\item{sampleGraphs}{A vector which includes the adjacency matrices for all iteration after burn-in.}
-	\item{graphWeights}{A vector which includes the waiting times for all iteration after burn-in.}
+	\item{sampleGraphs}{A vector which includes the adjacency matrices for all iterations after burn-in.}
+	\item{graphWeights}{A vector which includes the waiting times for all iterations after burn-in.}
 
-	\item{allGraphs}{A vector which includes the adjacency matrices for all iteration (includes burn-in iteration). 
-		  It is needed for monitoring the convergency of the BD-MCMC algorithm.}
+	\item{allGraphs}{A vector which includes the adjacency matrices for all iterations (includes burn-in iteration). 
+		  It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
-	\item{allWeights}{A vector which includes the waiting times for all iteration (includes burn-in iteration). It is needed for monitoring the convergency of the BD-MCMC algorithm.}
+	\item{allWeights}{A vector which includes the waiting times for all iterations (includes burn-in iteration). It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
 	\item{Khat}{Estimation for precision matrix which is a mean of all samples from precision matrices.}
 }
 
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
-
-Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling}, 1:225-230
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

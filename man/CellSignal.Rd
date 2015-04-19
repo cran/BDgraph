@@ -7,7 +7,7 @@
 
 \usage{data(CellSignal)}
 
-\format{The format is a list with 11672 rows (number of cells) and 11 column (number of proteins).}
+\format{The format is a list of 11672 rows (number of cells) and 11 column (number of proteins).}
 
 \source{Data are publicly available at http://www.sciencemag.org/content/308/5721/523/suppl/DC1}
 

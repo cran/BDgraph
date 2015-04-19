@@ -17,22 +17,22 @@ Provides the posterior probabilities for the \code{'g'} most likely graphs or a 
             \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}.
             It also can be an object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}. }
 }
+
 \value{
 \item{ best.G }{ The graphs with the highest posterior probabilities.}
 
 \item{ prob.G }{ A vector of the posterior probabilities of the graphs corresponding to \code{'best.G'}.}
 }
+
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
-
-Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling}, 1:225-230
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
 }
 
-\author{Abdolreza Mohammadi and Ernst Wit}
+\author{ Abdolreza Mohammadi and Ernst Wit }
 
 \seealso{ \code{\link{bdgraph}} }
 

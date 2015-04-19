@@ -14,14 +14,14 @@ extern "C" {
 // copying square matrix A to matrix copyA, for arrary with one dimention
 void copyMatrix( double A[], double copyA[], int *pxp )
 {
-	for( register unsigned short int i = 0, dim = *pxp; i < dim; i++ ) copyA[i] = A[i]; 	
+	for( register int i = 0, dim = *pxp; i < dim; i++ ) copyA[i] = A[i]; 	
 }
 	
 // Takes square matrix A (p x p) and retrieves square submatrix B (p_sub x p_sub), dictated by vector sub
 void subMatrix( double A[], double subA[], int sub[], int *p_sub, int *p  )
 {
 	for( int i = 0, psub = *p_sub, pdim = *p; i < psub; i++ )
-		for( register unsigned short int j = 0; j < psub; j++ )
+		for( register int j = 0; j < psub; j++ )
 			subA[j * psub + i] = A[sub[j] * pdim + sub[i]]; 
 }
 
@@ -29,7 +29,7 @@ void subMatrix( double A[], double subA[], int sub[], int *p_sub, int *p  )
 // Likes A[j, -j] in R
 void subRowMins( double A[], double subA[], int *sub, int *p )
 {
-	register unsigned short int i;
+	register int i;
 	int dimSub = *sub, pdim = *p;
 	
 	for( i = 0; i < dimSub; i++ )
@@ -43,7 +43,7 @@ void subRowMins( double A[], double subA[], int *sub, int *p )
 // Likes A[(i,j), -(i,j)] in R
 void subRowsMins( double A[], double subA[], int *row, int *col, int *p )
 {	
-	register unsigned short int j; 
+	register int j; 
 	int l = 0, pdim = *p, sub0 = *row, sub1 = *col;
 	
 	for( j = 0; j < sub0; j++ )
@@ -69,7 +69,7 @@ void subRowsMins( double A[], double subA[], int *row, int *col, int *p )
 // Like A11=A[j, j], A12=A[j, -j], and A22=A[-j, -j] in R
 void subMatrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
-	register unsigned short int j;
+	register int j;
 	int i, pdim = *p, p1 = pdim - 1, psub = *sub;
 
 	for( i = 0; i < psub; i++ )
@@ -99,7 +99,7 @@ void subMatrices1( double A[], double A12[], double A22[], int *sub, int *p )
 // Like A11=A[e, e], A12=A[e, -e], and A22=A[-e, -e] in R
 void subMatrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
-	register unsigned short int j;
+	register int j;
 	int i, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
 	A11[0] = A[sub0 * pdim + sub0];
 	A11[1] = A[sub0 * pdim + sub1];
@@ -154,7 +154,7 @@ void subMatrices( double A[], double A11[], double A12[], double A22[], int *row
    
 ////////////////////////////////////////////////////////////////////////////////
 //  Multiplies (p_i x p_k) matrix by (p_k x p_j) matrix to give (p_i x p_j) matrix
-//  C := A * B
+//  C := A %*% B
 void multiplyMatrix( double A[], double B[], double C[], int *p_i, int *p_j, int *p_k )
 {
 	double alpha = 1.0, beta  = 0.0;
@@ -170,8 +170,8 @@ void inverse( double A[], double A_inv[], int *p )
 	char uplo = 'U';
 
 	// creating an identity matrix
-	for( unsigned short int i = 0; i < dim; i++ )
-		for(register unsigned short int j = 0; j < dim; j++ )
+	for( int i = 0; i < dim; i++ )
+		for(register int j = 0; j < dim; j++ )
 			A_inv[j * dim + i] = (i == j);
 	
 	// LAPACK function: computes solution to A x X = B, where A is symmetric positive definite matrix
@@ -189,23 +189,23 @@ void inverse2x2( double B[], double B_inv[] )
 }
 
 // sampling from Wishart distribution
-// Ti = chol( solve( D ) )
-void rwish( double Ti[], double K[], int *b, int *p )
+// Ts = chol( solve( Ds ) )
+void rwish( double Ts[], double K[], int *b, int *p )
 {
 	int dim = *p, pxp = dim * dim, bK = *b;
 	vector<double> psi( pxp ); 
 
 	// ---- Sample values in Psi matrix ---
     GetRNGstate();
-	for( unsigned short int i = 0; i < dim; i++ )
-		for( register unsigned short int j = 0; j < dim; j++ )
+	for( int i = 0; i < dim; i++ )
+		for( register int j = 0; j < dim; j++ )
 			psi[j * dim + i] = (i < j) ? rnorm(0, 1) : ( (i > j) ? 0.0 : sqrt( rchisq( bK + dim - i - 1 ) ) );
 	PutRNGstate();
 	// ------------------------------------
 
-    // C = psi %*% Ti 
+    // C = psi %*% Ts
     vector<double> C( pxp ); 
-	multiplyMatrix( &psi[0], Ti, &C[0], &dim, &dim, &dim );
+	multiplyMatrix( &psi[0], Ts, &C[0], &dim, &dim, &dim );
 
 	// K = t(C) %*% C 
 	double alpha = 1.0, beta  = 0.0;
@@ -214,15 +214,15 @@ void rwish( double Ti[], double K[], int *b, int *p )
 	F77_NAME(dgemm)( &transA, &transB, &dim, &dim, &dim, &alpha, &C[0], &dim, &C[0], &dim, &beta, K, &dim );
 }
 
-// A is adjacency matrix which has zero in its diagonal
+// G is adjacency matrix which has zero in its diagonal
 // threshold = 1e-8
-void rgwish( int G[], double Ti[], double K[], int *b, int *p )
+void rgwish( int G[], double Ts[], double K[], int *b, int *p )
 {
 	register int k;
 	int j, l, a, one = 1, dim = *p, pxp = dim * dim;	
 	double temp;
 	
-	rwish( Ti, K, b, &dim );
+	rwish( Ts, K, b, &dim );
 	
 	vector<double> Sigma( pxp ); 
 	inverse( K, &Sigma[0], &dim );
@@ -316,9 +316,9 @@ void rgwish( int G[], double Ti[], double K[], int *b, int *p )
 	inverse( &W[0], K, &dim );
 }
      
-// A is adjacency matrix which has zero in its diagonal
+// G is adjacency matrix which has zero in its diagonal
 // threshold = 1e-8
-void rgwish_sigma( int G[], double Ti[], double K[], double W[], int *b, int *p )
+void rgwish_sigma( int G[], double Ts[], double K[], double W[], int *b, int *p )
 {
 	register int k;
 	int i, j, l, a, one = 1, dim = *p, pxp = dim * dim, bK = *b;	
@@ -333,9 +333,9 @@ void rgwish_sigma( int G[], double Ti[], double K[], double W[], int *b, int *p 
 	PutRNGstate();
 	// ------------------------------------
 
-    // C <- psi %*% Ti 
+    // C <- psi %*% Ts
     vector<double> C( pxp ); 
-	multiplyMatrix( &psi[0], Ti, &C[0], &dim, &dim, &dim );
+	multiplyMatrix( &psi[0], Ts, &C[0], &dim, &dim, &dim );
 
 	vector<double> invC( pxp ); 
 	char side = 'L', up = 'U', transA = 'N', diag = 'N';
@@ -450,182 +450,6 @@ void rgwish_sigma( int G[], double Ti[], double K[], double W[], int *b, int *p 
      
 ////////////////////////////////////////////////////////////////////////////////
 // bdmcmc algoirthm with exact value of normalizing constant for D = I_p
-// ********************* NEW WORK *****************************************
-////////////////////////////////////////////////////////////////////////////////
-//	K0_ij    <- diag(c(K[i, i], K_12 %*% invKjj %*% t(K_12))) 
-void K022ij( double K[], double sigma[], double *K022, int *i, int *j, int *p )
-{
-	int one = 1, dim = *p, p1 = dim - 1, p1xp1 = p1 * p1;
-	
-	vector<double> K12( p1 ); 
-	subRowMins( K, &K12[0], j, &dim );  // K12 = K[j, -j]  
-
-	K12[ *i ] = 0.0;   // K12[1,i] = 0
-
-	double sigma11 = sigma[*j * dim + *j];      // sigma[j, j]  
-	vector<double> sigma12( p1 );               // sigma[-j, j]  
-	vector<double> sigma22( p1xp1 );            // sigma[-j, -j]
-	subMatrices1( sigma, &sigma12[0], &sigma22[0], j, &dim );
-
-	// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-	vector<double> K22_inv( p1xp1 ); 
-	for( unsigned short int ii = 0; ii < p1; ii++ )
-		for( register unsigned short int jj = 0; jj < p1; jj++ )
-			K22_inv[jj * p1 + ii] = sigma22[jj * p1 + ii] - sigma12[ii] * sigma12[jj] / sigma11;
-	
-	// K12 %*% K22_inv
-	vector<double> K12xK22_inv( p1 ); 
-	multiplyMatrix( &K12[0], &K22_inv[0], &K12xK22_inv[0], &one, &p1, &p1 );
-	
-	// K121 = K12 %*% solve(K[-e, -e]) %*% t(K12) 
-	double alpha = 1.0, beta = 0.0;
-	char transA = 'N', transB = 'T';																	
-	F77_NAME(dgemm)( &transA, &transB, &one, &one, &p1, &alpha, &K12xK22_inv[0], &one, &K12[0], &one, &beta, K022, &one );			
-}
-
-// K[e, -e] %*% solve(K[-e, -e]) %*% t( K[e, -e] ) 
-void K121output( double K[], double sigma[], double K121[], int *i, int *j, int *p )
-{
-	int two = 2, dim = *p, p2 = dim - 2, p2xp2 = p2 * p2, p2x2  = p2 * 2;
-	
-	vector<double> K12( p2x2 );   
-	subRowsMins( K, &K12[0], i, j, &dim );  // K12 = K[e, -e]  
-	
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
-	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	subMatrices( sigma, &sigma11[0], &sigma12[0], &sigma22[0], i, j, &dim );
-
-	// solve( sigma[e, e] )
-	vector<double> sigma11_inv( 4 ); 
-	inverse2x2( &sigma11[0], &sigma11_inv[0] );
-
-	// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
-	F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-	// sigma21xsigma11_inv %*% sigma12
-	vector<double> sigma2112( p2xp2 ); 
-	multiplyMatrix( &sigma21xsigma11_inv[0], &sigma12[0], &sigma2112[0], &p2, &p2, &two );
-
-	// solve( K[-e, -e] ) = sigma22 - sigma2112
-	vector<double> K22_inv( p2xp2 ); 
-	for( register unsigned short int i = 0; i < p2xp2 ; i++ ) K22_inv[i] = sigma22[i] - sigma2112[i];	
-	
-	// K12 %*% K22_inv
-	vector<double> K12xK22_inv( p2x2 );   
-	multiplyMatrix( &K12[0], &K22_inv[0], &K12xK22_inv[0], &two, &p2, &p2 );
-	
-	// K121 <- K12 %*% solve(K[-e, -e]) %*% t(K12) 																
-	F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, K121, &two );			
-}
-  
-// Colculating all the birth and death rates
-void ratesMatrixExact( double K[], double sigma[], double invDsee[], int G[], double rates[], int *b, double Ds[], int *p )
-{
-	register unsigned short int col; 
-	double sumDiag, K022, a11, bstar = *b, sigmaj11;
-	int row, rowCol, i, j, k, ii, ij, jj, nustar, one = 1, two = 2, dim = *p, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
-	vector<double> K121( 4 ); 
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
-
-	vector<double> Kj12( p1 );             // K[j, -j]
-	vector<double> sigmaj12( p1 );         // sigma[-j, j]  
-	vector<double> sigmaj22( p1xp1 );      // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
-	vector<double> Kj12xK22_inv( p1 ); 
-
-	vector<double> K12( p2x2 );            // K[e, -e]
-	vector<double> sigma11( 4 );           // sigma[e, e]
-	vector<double> sigma12( p2x2 );        // sigma[e, -e]
-	vector<double> sigma22( p2xp2 );       // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
-	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
-	vector<double> K12xK22_inv( p2x2 );   
-
-	for( i = 0; i < dim; i++ )
-		for( j = i + 1; j < dim; j++ )
-		{
-			ii = i * dim + i;
-			ij = j * dim + i;
-			jj = j * dim + j;
-
-// For (i,j) = 0 ---------------------------------------------------------------|
-			// For (i,j) = 0 
-			// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-			//~ K022ij( &K[0], &sigma[0], &K022, &i, &j, &dim );
-
-			subRowMins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
-			Kj12[ i ] = 0.0;                      // K12[1,i] = 0
-
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			subMatrices1( sigma, &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-
-			// K12 %*% K22_inv
-			multiplyMatrix( &Kj12[0], &Kj22_inv[0], &Kj12xK22_inv[0], &one, &p1, &p1 );
-
-			// K121 = K12 %*% solve(K[-e, -e]) %*% t(K12) 
-			F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-// Finished (i,j) = 0 ----------------------------------------------------------|
-
-// For (i,j) = 1 ---------------------------------------------------------------|
-			// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 
-			//~ K121output(  K[],  sigma, K121[],    *i, *j, *p )
-			//~ K121output( &K[0], sigma, &K121[0], &i, &j, &dim );
-			
-			subRowsMins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-			
-			subMatrices( sigma, &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-			// solve( sigma[e, e] )
-			inverse2x2( &sigma11[0], &sigma11_inv[0] );
-
-			// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-			// sigma21xsigma11_inv %*% sigma12
-			multiplyMatrix( &sigma21xsigma11_inv[0], &sigma12[0], &sigma2112[0], &p2, &p2, &two );
-
-			// solve( K[-e, -e] ) = sigma22 - sigma2112
-			for( k = 0; k < p2xp2 ; k++ ) K22_inv[k] = sigma22[k] - sigma2112[k];	
-			
-			// K12 %*% K22_inv
-			multiplyMatrix( &K12[0], &K22_inv[0], &K12xK22_inv[0], &two, &p2, &p2 );
-			
-			// K121 <- K12 %*% solve(K[-e, -e]) %*% t(K12) 																
-			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-// Finished (i,j) = 1-----------------------------------------------------------|
-
-			a11 = K[ii] - K121[0];	
-			//~ sumDiagAB( &Dsee[0], &K0_ij[0], &K121[0], &sumDiag );
-			// sumDiag = sum( Ds[e,e] * ( K0_ij - K121 ) ) in R
-			sumDiag = Ds[ii] * a11 - Ds[ij] * K121[1] - Ds[ij] * K121[2] + Ds[jj] * ( K022 - K121[3] );
-			
-			//	nustar = b + sum( Gf[,i] * Gf[,j] )
-			nustar = bstar;
-			for( k = 0; k < dim; k++ )
-				nustar += G[i * dim + k] * G[j * dim + k];
-
-			rates[ij] = sqrt( 2.0 * Ds[jj] / a11 ) * exp( lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) + ( invDsee[ij] * a11 - sumDiag ) / 2 );
-
-			if( G[ij] == 0 ) rates[ij] = 1.0 / rates[ij];		
-		}
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 string allGraphs[], double allWeights[], double Ksum[], 
@@ -633,11 +457,11 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double Ds[] )
 {
-	register unsigned short int col; 
+	register int col; 
 	bool thisOne;
 
 	int selectedEdgei, selectedEdgej, selectedEdgeij, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
-	int row, rowCol, i, j, k, ii, ij, jj, Dsjj, Dsij, counter, nustar, one = 1, two = 2;
+	int row, rowCol, i, j, k, ij, jj, Dsjj, Dsij, counter, nustar, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	double rate, maxRates, sumRates, sumDiag, K022, a11, b1 = *b, sigmaj11;
@@ -668,7 +492,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 
-	for( unsigned int g = 0, iteration = *iter; g < iteration; g++ )
+	for( int g = 0, iteration = *iter; g < iteration; g++ )
 	{
 		if( ( g + 1 ) % 1000 == 0 )	Rprintf( " Iteration  %d                 \n", g + 1 ); 
 		
@@ -819,8 +643,8 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 // for copula function
 void getMean( double Z[], double K[], double *muij, double *sigma, int *i, int *j, int *n, int *p )
 {
-	register unsigned short int k;
-	unsigned short int dim = *p, number = *n, row = *i, col = *j;
+	register int k;
+	int dim = *p, number = *n, row = *i, col = *j;
 	double mu_ij = 0.0;
 	
 	for( k = 0; k < col; k++ ) 
@@ -835,10 +659,10 @@ void getMean( double Z[], double K[], double *muij, double *sigma, int *i, int *
 // for copula function
 void getBounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
-	unsigned short int kj, ij, row = *i, col = *j;
+	int kj, ij, row = *i, col = *j;
 	double lowb = -1e308, upperb = +1e308;
 
-	for( register unsigned short int k = 0, number = *n; k < number; k++ )
+	for( register int k = 0, number = *n; k < number; k++ )
 	{
 		kj = col * number + k;
 		ij = col * number + row;
@@ -892,10 +716,10 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 // for copula function with missing data 
 void getBoundsNA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
-	unsigned short int kj, ij, row = *i, col = *j;
+	int kj, ij, row = *i, col = *j;
 	double lowb = -1e308, upperb = +1e308;
 
-	for( register unsigned short int k = 0, number = *n; k < number; k++ )
+	for( register int k = 0, number = *n; k < number; k++ )
 	{
 		kj = col * number + k;
 		ij = col * number + row;
@@ -968,7 +792,7 @@ void getDs( double K[], double Z[], int R[], double D[], double Ds[], int *gcgm,
 	//        DGEMM ( TRANSA,  TRANSB, M, N, K,  ALPHA, A,LDA,B, LDB,BETA, C, LDC )																				
 	F77_NAME(dgemm)( &transA, &transB, &dim, &dim, n, &alpha, Z, n, Z, n, &beta, &S[0], &dim );		
 	// Ds = D + S
-	for( register unsigned short int i = 0; i < pxp ; i++ ) Ds[i] = D[i] + S[i];		
+	for( register int i = 0; i < pxp ; i++ ) Ds[i] = D[i] + S[i];		
 }
 
 // Cholesky decomposition of symmetric positive-definite matrix
@@ -998,7 +822,7 @@ void getTs( double Ds[], double Ts[], int *p )
 	vector<double> copyDs( pxp ); 
 
 	//~ copyMatrix( Ds, &copyDs[0], &pxp );
-	for( register unsigned int i = 0; i < pxp; i++ ) copyDs[i] = Ds[i]; 	
+	for( register int i = 0; i < pxp; i++ ) copyDs[i] = Ds[i]; 	
 	
 	inverse( &copyDs[0], &invDs[0], &dim );	
 
@@ -1019,9 +843,9 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 	int selectedEdgei, selectedEdgej, selectedEdgeij, l, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
 	bool thisOne;
 
-	register unsigned short int col; 
+	register int col; 
 	double Dsjj, Dsij, sumDiag, K022, a11, b1 = *b, sigmaj11;
-	int row, rowCol, i, j, k, ii, ij, jj, nustar, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int row, rowCol, i, j, k, ij, jj, nustar, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	//~ vector<double> rates( pxp, 0.0 ); 
 	vector<double> sigma( pxp ); 
@@ -1052,7 +876,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 
-	for( unsigned int g = 0, iteration = *iter; g < iteration; g++ )
+	for( int g = 0, iteration = *iter; g < iteration; g++ )
 	{
 		if( ( g + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                  \n", g + 1 );
 
@@ -1203,7 +1027,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
 void scaleFree( int *G, int *p )
 {
-    unsigned int i, j, tmp, total, dim = *p, p0 = 2;
+    int i, j, tmp, total, dim = *p, p0 = 2;
     double randomValue;
     vector<int> size_a( dim ); 
 
@@ -1226,6 +1050,7 @@ void scaleFree( int *G, int *p )
        
         tmp = 0;
         j   = 0;
+        
         while ( tmp < randomValue && j < i ) 
             tmp += size_a[j++];
         
@@ -1238,42 +1063,7 @@ void scaleFree( int *G, int *p )
     }
 	PutRNGstate();
 }
-////////////////////////////////////////////////////////////////////////////////
-// For computing Phat function based on ourput of BDMCMC algorithm
-//~ for ( i in 1 : length(sampleGraphs) )
-//~ {
-	//~ inp       <- which( unlist( strsplit( as.character(sampleGraphs[i]), "" ) ) == 1 )
-	//~ pvec[inp] <- pvec[inp] + graphWeights[i]
-//~ }
-
-void phatC( string sampleGraphs[], double graphWeights[], double pvec[], int *sampleLength, int *p )
-{
-	int qp = *p * ( *p - 1 ) / 2, sl = *sampleLength;
-	
-	for ( int iter = 0; iter < sl; iter++ )
-		for ( int link = 0; link < qp; link++ )
-			if ( sampleGraphs[iter][link] == '1' ) pvec[link] += graphWeights[iter];
-}
-     
-////////////////////////////////////////////////////////////////////////////////
-
-
-
+    
 } // exturn "C"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -21,19 +21,20 @@ The plot can be used for monitoring the convergence of the BD-MCMC sampling algo
   
   \item{\dots}{ System reserved (no specific usage). }  
 }
+
 \details{
-Note that a spending time for this function depends on the graph. It should be slow for the 
-high-dimensional graphs. To make it faster, you can choose bigger value for 'thin' option.
+Note that a spending time for this function depends on the number of nodes. 
+It should be slow for the high-dimensional graphs. For fast faster, you can choose bigger value than other alternatives for the 'thin' option.
 }
+
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
-
-Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling}, 1:225-230
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
 }
+
 \author{Abdolreza Mohammadi and Ernst Wit}
 
 \seealso{\code{\link{bdgraph}}}

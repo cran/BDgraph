@@ -3,29 +3,27 @@
 
 \title{ Print function for \code{S3} class \code{"simulate"} }
 
-\description{ Print the information about the type of data, the sample size, the graph type, the number of nodes, number of linkes and sparsity of the true graph. }
+\description{ Print the information about the type of data, the sample size, the graph type, the number of nodes, number of links and sparsity of the true graph. }
 
 \usage{ \method{print}{simulate}( x, ... ) }
 
 \arguments{
   \item{x}{ An object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.  }
-  \item{\dots}{ System reserved (no specific usege). }
+  \item{\dots}{ System reserved (no specific usage). }
 }
+
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian structure learning in sparse Gaussian graphical models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). BDgraph: Bayesian Undirected Graph Estimation in R, \emph{Arxiv preprint arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Copula Gaussian Graphical Models, \emph{Arxiv preprint arXiv:1501.04849} 
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
+}
 
-Mohammadi, A., F. Abegaz Yazew, and E. Wit (2014). Bayesian Copula Gaussian graphical modelling, \emph{Proceedings of the 29th International Workshop on Statistical Modelling}, 1:225-230
-}
-\author{
-Abdolreza Mohammadi and Ernst Wit
-}
-\seealso{
-\code{\link{bdgraph.sim}}
-}
+\author{ Abdolreza Mohammadi and Ernst Wit }
+
+\seealso{ \code{\link{bdgraph.sim}} }
+
 \examples{
 \dontrun{
 # generating multivariate normal data from a 'random' graph 

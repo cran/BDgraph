@@ -24,8 +24,9 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 			if ( prob < 0 | prob > 1 ) stop("'prob' should be between zero and one")
 			
 			G[upper.tri(G)] <- rbinom( p * (p - 1) / 2, 1, prob )
-			
-		} else {
+		} 
+		else 
+		{
 			if ( size < 0 | size > p * (p - 1) / 2 )  stop("Graph size should be between zero and p*(p-1)/2")
 			
 			smp <- sample( 1 : (p * (p - 1) / 2), size, replace = FALSE )
@@ -43,7 +44,9 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 			if ( !is.null(size) )
 			{
 				class <- length(size)
-			} else {
+			} 
+			else 
+			{
 				class <- max( 2, ceiling(p / 20) )
 			}
 		}
@@ -69,8 +72,9 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 				gg[upper.tri(gg)] <- rbinom( vp[i] * (vp[i] - 1) / 2, 1, prob )
 				G[tmp, tmp]       <- gg
 			}
-		} else {
-
+		} 
+		else 
+		{
 			if ( class != length(size) )  stop( "Number of graph sizes is not match with number of clusters" )
 			if ( sum(size) < 0 | sum(size) > p * (p - 1) / 2 )   stop( "Total graph sizes should be between zero and p*(p-1)/2" )
 
