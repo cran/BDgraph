@@ -1,8 +1,10 @@
-01675f1cd301b78a43acca069480c623 *DESCRIPTION
-69d744caab9b14be0f305b108c081683 *NAMESPACE
+941948511af423e0fe07e65b60d4992c *DESCRIPTION
+6c49ec960658dc626422bd94b5c26f51 *NAMESPACE
+57b6e59c2c58461d8db491ca1fa6404a *NEWS
+e2201afa24d9e465d158740d72968afa *R/I.g.R
 3520c1f7bcd323a36e9548bae858dfad *R/bdgraph.R
 2cf8cee8450d8533f3a56f5dce9ead76 *R/bdgraph.npn.R
-9ef93fc1195c5270bec0e371fee0bed0 *R/bdgraph.sim.R
+2c2f8f544ea8020f5a23b41316deb77d *R/bdgraph.sim.R
 464dcf510c6dca2e91e23951c75e52ee *R/compare.R
 83bbf5ea73c1486400f093cc51537530 *R/phat.R
 278c2a0760f47ca6c0bcb519ffbedb6c *R/plotcoda.R
@@ -12,7 +14,7 @@ a2dbab506b38d9baf035e9fe328afe7e *R/prob.R
 0cbd55c35bcf106ced03ff482c758ad3 *R/rwish.R
 6a84c8051e92f1493b5e40a2c881d411 *R/select.R
 13d768cba056893ddedda6c28f6aa323 *R/traceplot.R
-04c4fbe6aba28191e4a4423f9d40e715 *build/vignette.rds
+1277179930e937a9008706654244ce61 *build/vignette.rds
 885abc1f6d2d2a90045e0e41cfdba34e *data/CellSignal.RData
 3b1d0087898f992dd8a92ec5ed672ce3 *data/geneExpression.RData
 4db46ea2b4302923b4d6cdf84b6e2e67 *data/surveyData.RData
@@ -22,6 +24,7 @@ fb638f485ab34690edc64509222d3b8b *inst/doc/vignette.Rnw
 94e534831efd7d87048a3f92056853ec *man/BDgraph-internal.Rd
 5f2cee517c62f696b9361e8b1167faf8 *man/BDgraph-package.Rd
 99ec0fd3d6a053abab195fe92b182e7e *man/CellSignal.Rd
+bf8ebdcad4fb6560f89aa9aeeabe6b0e *man/I.g.Rd
 e0f006ccd592f5e16c2cf48408c1af55 *man/bdgraph.Rd
 9489428ac944edfbd2b254ec38d1ab51 *man/bdgraph.npn.Rd
 4586d3592be3fed25fc856cb26309565 *man/bdgraph.sim.Rd

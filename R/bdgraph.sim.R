@@ -23,13 +23,13 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		{
 			if ( prob < 0 | prob > 1 ) stop("'prob' should be between zero and one")
 			
-			G[upper.tri(G)] <- rbinom( p * (p - 1) / 2, 1, prob )
+			G[upper.tri(G)] <- rbinom( p * ( p - 1 ) / 2, 1, prob )
 		} 
 		else 
 		{
-			if ( size < 0 | size > p * (p - 1) / 2 )  stop("Graph size should be between zero and p*(p-1)/2")
+			if ( size < 0 | size > p * ( p - 1 ) / 2 )  stop("Graph size should be between zero and p*(p-1)/2")
 			
-			smp <- sample( 1 : (p * (p - 1) / 2), size, replace = FALSE )
+			smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
 			G[upper.tri(G)][smp] <- 1
 		}
 		
@@ -47,7 +47,7 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 			} 
 			else 
 			{
-				class <- max( 2, ceiling(p / 20) )
+				class <- max( 2, ceiling( p / 20 ) )
 			}
 		}
 
@@ -57,17 +57,17 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		n.large <- n.small + 1
 		vp      <- c( rep( n.small, g.small ), rep( n.large, g.large ) )
 		 
-		G       <- matrix(0, p, p)
+		G       <- matrix( 0, p, p )
 		 
 		if ( is.null(size) )
 		{
 			if ( is.null(prob) ) prob <- 0.2
 			if ( class > 1 ) prob <- class * prob
-			if (prob < 0 | prob > 1) stop( "'prob' should be between zero and one" )
+			if ( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
 
 			for ( i in 1 : class )
 			{
-				tmp <- if ( i == 1 ) (1 : vp[1]) else ( ( sum(vp[1 : (i-1)]) + 1 ) : sum(vp[1:i]) )
+				tmp <- if ( i == 1 ) (1 : vp[1]) else ( ( sum( vp[1 : (i-1)] ) + 1 ) : sum( vp[1:i] ) )
 				gg                <- matrix( 0, vp[i], vp[i] )
 				gg[upper.tri(gg)] <- rbinom( vp[i] * (vp[i] - 1) / 2, 1, prob )
 				G[tmp, tmp]       <- gg
@@ -80,9 +80,9 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 
 			for (i in 1 : class)
 			{
-				tmp <- if ( i == 1 ) ( 1 : vp[1] ) else ( (sum(vp[1 : (i-1)]) + 1) : sum(vp[1:i]) )
-				gg  <- matrix(0, vp[i], vp[i])
-				smp <- sample( 1 : (vp[i] * (vp[i] - 1) / 2), size[i], replace = FALSE )
+				tmp <- if ( i == 1 ) ( 1 : vp[1] ) else ( ( sum( vp[1 : (i-1)] ) + 1 ) : sum( vp[1:i] ) )
+				gg  <- matrix( 0, vp[i], vp[i] )
+				smp <- sample( 1 : ( vp[i] * (vp[i] - 1) / 2 ), size[i], replace = FALSE )
 				gg[upper.tri(gg)][smp] <- 1
 				G[tmp, tmp]            <- gg
 			}
@@ -94,15 +94,15 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 	if( graph == "hub" )
 	{
 		# partition variables
-		if ( is.null(class) ) class <- ceiling(p / 20) 
+		if ( is.null( class ) ) class <- ceiling( p / 20 ) 
 
 		# partition variables into groups
 		g.large <- p %% class
 		g.small <- class - g.large
 		n.small <- floor( p / class )
 		n.large <- n.small + 1
-		g.list  <- c( rep(n.small, g.small), rep(n.large, g.large) )
-		g.ind   <- rep( c(1:class), g.list )
+		g.list  <- c( rep( n.small, g.small ), rep( n.large, g.large ) )
+		g.ind   <- rep( c( 1:class ), g.list )
 		
 		G <- matrix(0, p, p)
 		
@@ -144,20 +144,20 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		
 		K <- matrix( 0, p, p )
 		# rgwish ( double G[], double T[], double K[], int *b, int *p )
-		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), 
-					  as.integer(p), PACKAGE = "BDgraph" )
+		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), 
+		             as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
 		K = matrix ( result $ K, p, p ) 		
 			
-		sigma <- solve(K)
+		sigma <- solve( K )
 	}
 	
 	diag(G) <- 0
-	p       <- nrow(G)
+	p       <- nrow( G )
 	
 	# generate multivariate normal data
-	if ( typeof(mean) == "double" ) mean <- rep(mean, p)
-	R <- chol(sigma)
-	z <- matrix( rnorm(p * n), p, n )
+	if ( typeof(mean) == "double" ) mean <- rep( mean, p )
+	R <- chol( sigma )
+	z <- matrix( rnorm( p * n ), p, n )
 	d <- t(R) %*% z + mean
 	d <- t(d)
 
@@ -173,7 +173,7 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		d[,col_number] <- qpois( p = prob, lambda = 10 )
 
 		# generating ordinal data
-		col_number     <- c( (ps + 1):(2 * ps) )
+		col_number     <- c( ( ps + 1 ):( 2 * ps ) )
 		prob           <- pnorm( d[, col_number] )
 		d[,col_number] <- qpois( p = prob, lambda = 2 )
 
@@ -197,12 +197,12 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 
 	if ( type == "discrete" )
 	{
-		runif_m   <- matrix( runif(cut * p), nrow = p, ncol = cut )   
+		runif_m   <- matrix( runif( cut * p ), nrow = p, ncol = cut )   
 		marginals <- apply( runif_m, 1, function(x) { qnorm( cumsum( x / sum(x) )[-length(x)] ) } )
 			 
 		for ( j in 1:p )
 		{
-			breaks <- c( min(d[,j]) - 1, marginals[,j], max(d[,j]) + 1 )  
+			breaks <- c( min( d[,j] ) - 1, marginals[,j], max(d[,j]) + 1 )  
 			d[,j]  <- as.integer( cut( d[,j], breaks = breaks, right = FALSE ) )
 		}	
 	}
@@ -213,7 +213,8 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 		graphG <- graph.adjacency( G, mode = "undirected", diag = FALSE )
 		
 		if ( p < 20 ) size = 10 else size = 2
-		plot.igraph( graphG, layout = layout.circle, main = "Graph structure", vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
+		plot.igraph( graphG, layout = layout.circle, main = "Graph structure", 
+		             vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
 	}
 	
 	dimlab     <- as.character( 1 : p )
@@ -224,9 +225,9 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 	return(simulation)
 }
 # Print function for simulation data
-print.simulate = function (x, ...)
+print.simulate = function( x, ... )
 {
-	p <- ncol(x $ sigma)
+	p <- ncol( x $ sigma )
 
 	cat( paste( "  Data generated by bdgraph.sim"                           ), fill = TRUE )
 	cat( paste( "  Data type       =", x $ type                             ), fill = TRUE )
@@ -239,7 +240,7 @@ print.simulate = function (x, ...)
 # plot for class "simulate" from bdgraph.sim function
 plot.simulate = function( x, main = NULL, layout = layout.circle, ... )
 {
-    if (is.null(main)) main <- "Graph structure"
+    if ( is.null(main) ) main <- "Graph structure"
   	g <- graph.adjacency( as.matrix(x $ G), mode = "undirected", diag = FALSE )
 	
     plot.igraph( g, main = main, layout = layout, ... )

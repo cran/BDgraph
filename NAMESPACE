@@ -17,6 +17,7 @@ export( bdgraph,
 		
 		rgwish,
 		rwish,
+		I.g,
 
 		print.bdgraph, plot.bdgraph, summary.bdgraph,
 		print.simulate, plot.simulate
