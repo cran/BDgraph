@@ -8,7 +8,7 @@ plotcoda = function( output, thin = NULL, main = NULL, links = TRUE, ... )
 	allGraphs  <- output $ allGraphs
 
 	allG.new        <- allGraphs[ c( thin * ( 1 : floor( length( allGraphs ) / thin ) ) ) ]
-	allWeights.new <- allWeights[ c( thin * ( 1 : floor( length( allWeights ) / thin ) ) ) ]
+	allWeights.new  <- allWeights[ c( thin * ( 1 : floor( length( allWeights ) / thin ) ) ) ]
 	length.allG.new <- length( allG.new )
 	ff              <- matrix( 0, p * ( p - 1 ) / 2, length.allG.new )
 	ffv             <- 0 * ff[ , 1]
@@ -32,7 +32,7 @@ plotcoda = function( output, thin = NULL, main = NULL, links = TRUE, ... )
 			ff[ randomLinks, ] = 0
 		}
 	
-	mes <- paste(c("Calculation ... done.                        "), collapse = "")
+	mes <- paste( c( "Calculation ... done.                        " ), collapse = "" )
 	cat(mes, "\r")
 	cat("\n")
 	flush.console()

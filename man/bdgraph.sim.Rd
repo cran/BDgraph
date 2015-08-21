@@ -45,7 +45,7 @@ bdgraph.sim( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2,
 }
 
 \value{
-	An object with \code{S3} class \code{"simulate"} is returned:
+	An object with \code{S3} class \code{"sim"} is returned:
 	\item{data}{Generated data as a \eqn{n \times p}{n x p} matrix.}
 	\item{sigma}{The covariance matrix of the generated data.}
 	\item{K}{The precision matrix of the generated data.}

@@ -1,12 +1,13 @@
 ## Main function: BDMCMC algorithm for graphical models 
 ################################################################################
-bdgraph = function( data, n = NULL, method = "ggm", iter = 5000, 
-					burnin = iter / 2, b = 3, D = NULL, Gstart = "empty" )
+bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", 
+					iter = 5000, burnin = iter / 2, b = 3, D = NULL, 
+					Gstart = "empty" )
 {
 	startTime <- Sys.time()
 	burnin = floor( burnin )
 	
-	if ( class(data) == "simulate" ) data <- data $ data
+	if ( class(data) == "sim" ) data <- data $ data
 
 	if ( !is.matrix(data) & !is.data.frame(data) ) stop( "Data should be a matrix or dataframe" )
 	if ( is.data.frame(data) ) data <- data.matrix(data)
@@ -78,7 +79,7 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 		K <- Gstart $ lastK
 	} 
 
-	if ( class(Gstart) == "simulate" ) 
+	if ( class(Gstart) == "sim" ) 
 	{
 		G <- as.matrix( Gstart $ G )
 		K <- as.matrix( Gstart $ K )
@@ -115,10 +116,12 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 		K = matrix ( result $ K, p, p ) 	
 	}
 		
-	allGraphs    <- c( rep ( "a", iter ) ) # vector of numbers like "10100"
-	allWeights   <- c( rep ( 0, iter ) )   # waiting time for every state		
-	sampleGraphs <- allGraphs              # vector of numbers like "10100" 
-	graphWeights <- allWeights             # waiting time for every state
+	qp1          = ( p * ( p - 1 ) / 2 ) + 1
+	stringG      = paste( c( rep( 0, qp1 ) ), collapse = '' )
+	allGraphs    = c( rep ( stringG, iter ) ) # vector of numbers like "10100"
+	allWeights   = c( rep ( 0, iter ) )       # waiting time for every state		
+	sampleGraphs = allGraphs                  # vector of numbers like "10100" 
+	graphWeights = allWeights                 # waiting time for every state
 	
 	sizeSampleG = 0
 
@@ -130,7 +133,7 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 	mes <- paste( c(iter," iteration is started.                    " ), collapse = "" )
 	cat( mes, "\r" )
 
-	if ( method == "ggm" )
+	if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) )
 	{
 		result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p), 
 					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
@@ -139,8 +142,18 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 				    as.integer(b), as.integer(bstar), as.double(Ds)
 				    , PACKAGE = "BDgraph" )
 	}
+
+	if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
+	{
+		result = .C( "rjmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p), 
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+	}
 	
-	if ( method == "gcgm" )
+	if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) )
 	{
 		result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p),
 		            as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
@@ -151,6 +164,17 @@ bdgraph = function( data, n = NULL, method = "ggm", iter = 5000,
 				    , PACKAGE = "BDgraph" )
 	}
 
+	if( ( method == "gcgm" ) && ( algorithm == "rjmcmc" ) )
+	{
+		result = .C( "rjmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p),
+		            as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+				    , PACKAGE = "BDgraph" )
+	}
+	
 	Ksum         = matrix( result $ Ksum, p, p )
 	allGraphs    = result $ allGraphs
 	allWeights   = result $ allWeights

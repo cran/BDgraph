@@ -24,13 +24,13 @@ roc = function ( G, est )
 	# Precision is the probability that a randomly selected link is relevant
 	Recall <- tp / ( tp + fn ) # also called TPR
 	
-	if ( is.na(Recall) ) Recall <- 0
+	if ( is.na( Recall ) ) Recall <- 0
 	# Recall is the probability that a randomly selected relevant link 
 	# is retrieved in a search 
 	FPR <- fp / ( fp + tn ) # False positive rate
 	
-	if ( is.na(FPR) ) FPR <- 0
-	Accuracy <- ( tp + tn ) / (tp + tn + fp + fn)
+	if ( is.na( FPR ) ) FPR <- 0
+	Accuracy <- ( tp + tn ) / ( tp + tn + fp + fn )
 	
 	if ( is.na(Accuracy) ) Accuracy <- 0
 	# Specificity <- tn / (tn + fp) # or 1 - false positive rate 
@@ -39,7 +39,7 @@ roc = function ( G, est )
 	F1score <- ( 2 * tp ) / ( 2 * tp + fp + fn )
 	if ( is.na(F1score) ) F1score <- 0
 	# harmonic mean of precision and recall, called F-measure or balanced F-score:
-	roc.matrix <- matrix( c(tp, tn, fp, fn, Recall, FPR, Accuracy, F1score, Precision), 9, 1 )
+	roc.matrix <- matrix( c( tp, tn, fp, fn, Recall, FPR, Accuracy, F1score, Precision ), 9, 1 )
 	
 	return( round( roc.matrix, 3 ) )
 }
@@ -58,7 +58,7 @@ outRoc = function( G, prob, cut )
 	fp = c( rep( 0, cut + 1 ) )
 	fp[1] = 1
 
-	cutPoint = (0:cut) / cut
+	cutPoint = ( 0:cut ) / cut
 	
 	for ( i in 2:cut )
 	{
@@ -77,8 +77,8 @@ outRoc = function( G, prob, cut )
 # To plot ROC curve
 plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
 {
-    if ( class(G)     == "simulate" ) G     <- as.matrix( G $ G )
-    if ( class(prob)  == "bdgraph" )  prob  <- as.matrix( phat( prob, round = 10 ) ) 
+    if ( class(G)     == "sim" )     G     <- as.matrix( G $ G )
+    if ( class(prob)  == "bdgraph" ) prob  <- as.matrix( phat( prob, round = 10 ) ) 
     
     output = outRoc( G = G, prob = prob, cut = cut )
     x      = output $ fp

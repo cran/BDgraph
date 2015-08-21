@@ -1,15 +1,15 @@
-\name{plot.simulate}
-\alias{plot.simulate}
+\name{plot.sim}
+\alias{plot.sim}
 
-\title{ Plot function for \code{S3} class \code{"simulate"} }
+\title{ Plot function for \code{S3} class \code{"sim"} }
 
 \description{ Visualize structure of the true graph. }
 \usage{
-\method{plot}{simulate}( x, main = NULL, layout = layout.circle, ... )
+\method{plot}{sim}( x, main = NULL, layout = layout.circle, ... )
 }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.  }
+  \item{x}{ An object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.  }
   
   \item{main}{ Graphical parameter (see plot).}
   

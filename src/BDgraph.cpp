@@ -452,11 +452,14 @@ void rgwish_sigma( int G[], double Ts[], double K[], double W[], int *b, int *p 
 // bdmcmc algoirthm with exact value of normalizing constant for D = I_p
 ////////////////////////////////////////////////////////////////////////////////
 void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
-			 string allGraphs[], double allWeights[], double Ksum[], 
-			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double Ds[] )
 {
+	vector<string> allGraphs_C( *iter );
+	vector<string> sampleGraphs_C( *iter );
+	
 	register int col; 
 	bool thisOne;
 
@@ -471,7 +474,8 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	copyMatrix( K, lastK, &pxp );
 	inverse( lastK, &sigma[0], &dim );			
 
-	vector<char> charG( dim * ( dim - 1 ) / 2 ); // char stringG[pp];
+	int qp = dim * ( dim - 1 ) / 2;
+	vector<char> charG( qp ); // char stringG[pp];
 
 	double alpha = 1.0, beta = 0.0;
 	char transT = 'T', transN = 'N';																	
@@ -596,7 +600,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			}
 		}	
 		
-		allGraphs[g]  = std::string( charG.begin(), charG.end() );	
+		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
 		allWeights[g] = 1 / sumRates;
 ////////////////////////////////////////////////////////////////////////////////	
 		
@@ -606,7 +610,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			
 			thisOne = false;
 			for( i = 0; i < sizeSampleGraph; i++ )
-				if( sampleGraphs[i] == allGraphs[g] )
+				if( sampleGraphs_C[i] == allGraphs_C[g] )
 				{
 					graphWeights[i] += allWeights[g];
 					thisOne = true;
@@ -615,7 +619,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			
 			if( !thisOne || sizeSampleGraph == 0 )
 			{
-				sampleGraphs[sizeSampleGraph] = allGraphs[g];
+				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
 				graphWeights[sizeSampleGraph] = allWeights[g];
 				sizeSampleGraph++;				
 			} 
@@ -626,6 +630,214 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 		G[selectedEdgei * dim + selectedEdgej] = G[selectedEdgeij];
 
 		rgwish_sigma( G, Ts, K, &sigma[0], bstar, &dim );
+	}
+
+	for( i = 0; i < *iter; i++ ) 
+	{
+		allGraphs_C[i].copy(allGraphs[i], qp, 0);
+		allGraphs[i][qp] = '\0';
+		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
+		sampleGraphs[i][qp] = '\0';
+	}
+	
+	*sizeSampleG = sizeSampleGraph;
+	// For last graph and its precision matrix
+	for( i = 0; i < pxp; i++ ) 
+	{
+		lastK[i]     = K[i];	
+		lastGraph[i] = G[i];
+	}
+}
+        
+////////////////////////////////////////////////////////////////////////////////
+// RJMCMC algoirthm with exact value of normalizing constant for D = I_p
+////////////////////////////////////////////////////////////////////////////////
+void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 int lastGraph[], double lastK[],
+			 int *b, int *bstar, double Ds[] )
+{
+	vector<string> allGraphs_C( *iter );
+	vector<string> sampleGraphs_C( *iter );
+
+	register int col; 
+	bool thisOne;
+
+	int randomEdge, selectedEdgei, selectedEdgej, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
+	int row, rowCol, i, j, k, ij, jj, Dsjj, Dsij, counter, nustar, one = 1, two = 2;
+	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+
+	double sumDiag, K022, a11, b1 = *b, sigmaj11;
+
+	vector<double> sigma( pxp ); 
+	copyMatrix( K, lastK, &pxp );
+	inverse( lastK, &sigma[0], &dim );			
+
+	int qp = dim * ( dim - 1 ) / 2;
+	vector<char> charG( qp ); // char stringG[pp];
+
+	double alpha = 1.0, beta = 0.0;
+	char transT = 'T', transN = 'N';																	
+
+	vector<double> K121( 4 ); 
+	vector<double> Kj12( p1 );             // K[j, -j]
+	vector<double> sigmaj12( p1 );         // sigma[-j, j]  
+	vector<double> sigmaj22( p1xp1 );      // sigma[-j, -j]
+	vector<double> Kj22_inv( p1xp1 ); 
+	vector<double> Kj12xK22_inv( p1 ); 
+	vector<double> K12( p2x2 );            // K[e, -e]
+	vector<double> sigma11( 4 );           // sigma[e, e]
+	vector<double> sigma12( p2x2 );        // sigma[e, -e]
+	vector<double> sigma22( p2xp2 );       // sigma[-e, -e]
+	vector<double> sigma11_inv( 4 ); 
+	vector<double> sigma21xsigma11_inv( p2x2 ); 
+	vector<double> sigma2112( p2xp2 ); 
+	vector<double> K22_inv( p2xp2 ); 
+	vector<double> K12xK22_inv( p2x2 );   
+
+	double alpha_ij;
+	GetRNGstate();
+	for( int g = 0, iteration = *iter; g < iteration; g++ )
+	{
+		if( ( g + 1 ) % 1000 == 0 )	Rprintf( " Iteration  %d                 \n", g + 1 ); 
+		
+// STEP 1: selecting random edge and calculating alpha
+
+		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
+		randomEdge = static_cast<int>( runif( 0, 1 ) * qp );
+
+		counter = 0;
+		for( j = 1; j < dim; j++ )
+			for( i = 0; i < j; i++ )
+			{
+				if( counter == randomEdge )    
+				{
+					selectedEdgei = i;
+					selectedEdgej = j;
+				}
+				
+				charG[counter++] = G[j * dim + i] + '0'; // adjToString( G, &allGraphs[g], p );
+			}
+		
+		// -------- Calculating alpha -------------------------------------|
+		ij   = selectedEdgej * dim + selectedEdgei;
+		jj   = selectedEdgej * dim + selectedEdgej;
+		Dsij = Ds[ij];
+		Dsjj = Ds[jj];
+		
+		sigmaj11 = sigma[jj];        // sigma[j, j]  
+		subMatrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &selectedEdgej, &dim );
+
+		// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
+		for( row = 0; row < p1; row++ )
+			for( col = 0; col < p1; col++ )
+			{
+				rowCol = col * p1 + row;
+				Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
+			}
+
+// For (i,j) = 0 ---------------------------------------------------------------|
+		// For (i,j) = 0 
+		// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
+		//~ K022ij( &K[0], &sigma[0], &K022, &i, &j, &dim );
+
+		subRowMins( K, &Kj12[0], &selectedEdgej, &dim );  // K12 = K[j, -j]  
+		Kj12[ selectedEdgei ] = 0.0;                      // K12[1,i] = 0
+
+		// K12 %*% K22_inv
+		multiplyMatrix( &Kj12[0], &Kj22_inv[0], &Kj12xK22_inv[0], &one, &p1, &p1 );
+
+		// K121 = K12 %*% solve(K[-e, -e]) %*% t(K12) 
+		F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
+// Finished (i,j) = 0 ----------------------------------------------------------|
+
+// For (i,j) = 1 ---------------------------------------------------------------|
+		// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 
+		//~ K121output(  K[],  sigma, K121[],    *i, *j, *p )
+		//~ K121output( &K[0], sigma, &K121[0], &i, &j, &dim );
+		
+		subRowsMins( K, &K12[0], &selectedEdgei, &selectedEdgej, &dim );  // K12 = K[e, -e]  
+		
+		subMatrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &selectedEdgei, &selectedEdgej, &dim );
+
+		// solve( sigma[e, e] )
+		inverse2x2( &sigma11[0], &sigma11_inv[0] );
+
+		// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
+		F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+
+		// sigma21xsigma11_inv %*% sigma12
+		multiplyMatrix( &sigma21xsigma11_inv[0], &sigma12[0], &sigma2112[0], &p2, &p2, &two );
+
+		// solve( K[-e, -e] ) = sigma22 - sigma2112
+		for( k = 0; k < p2xp2 ; k++ ) K22_inv[k] = sigma22[k] - sigma2112[k];	
+		
+		// K12 %*% K22_inv
+		multiplyMatrix( &K12[0], &K22_inv[0], &K12xK22_inv[0], &two, &p2, &p2 );
+		
+		// K121 <- K12 %*% solve(K[-e, -e]) %*% t(K12) 																
+		F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
+// Finished (i,j) = 1-----------------------------------------------------------|
+
+		a11 = K[selectedEdgei * dim + selectedEdgei] - K121[0];	
+		//~ sumDiagAB( &Dsee[0], &K0_ij[0], &K121[0], &sumDiag );
+		//~ sumDiag = Dsii * a11 - Dsij * K121[1] - Dsij * K121[2] + Dsjj * ( K022 - K121[3] );
+		sumDiag = - Dsij * K121[1] - Dsij * K121[2] + Dsjj * ( K022 - K121[3] );
+
+		//	nustar = b + sum( Gf[,i] * Gf[,j] )
+		nustar = b1;
+		for( k = 0; k < dim; k++ )
+			nustar += G[selectedEdgei * dim + k] * G[selectedEdgej * dim + k];
+
+		//~ alpha_ij[ij] = sqrt( 2.0 * Dsjj / a11 ) * exp( lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) + ( ( Dsii - Dsij * Dsij / Dsjj ) * a11 - sumDiag ) / 2 );
+		//~ alpha_ij = log( sqrt( 2.0 * Dsjj / a11 ) ) + lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
+		alpha_ij = ( log(2.0) + log(Dsjj) - log(a11) ) / 2 + lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
+
+		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
+		// -------- End calculating alpha -----------------------------|
+		
+		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
+		allWeights[g] = 1.0;
+////////////////////////////////////////////////////////////////////////////////	
+		
+		if( g > burn_in )
+		{
+			for( i = 0; i < pxp ; i++ ) Ksum[i] += K[i];	
+			
+			thisOne = false;
+			for( i = 0; i < sizeSampleGraph; i++ )
+				if( sampleGraphs_C[i] == allGraphs_C[g] )
+				{
+					graphWeights[i] += allWeights[g];
+					thisOne = true;
+					break;
+				} 
+			
+			if( !thisOne || sizeSampleGraph == 0 )
+			{
+				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
+				graphWeights[sizeSampleGraph] = allWeights[g];
+				sizeSampleGraph++;				
+			} 
+		}
+  		
+		if( log( runif( 0, 1 ) ) < alpha_ij )
+		{
+			G[ij] = 1 - G[ij];
+			G[selectedEdgei * dim + selectedEdgej] = G[ij];
+		}
+
+		rgwish_sigma( G, Ts, K, &sigma[0], bstar, &dim );
+	}
+	PutRNGstate();
+
+	for( i = 0; i < *iter; i++ ) 
+	{
+		allGraphs_C[i].copy(allGraphs[i], qp, 0);
+		allGraphs[i][qp] = '\0';
+		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
+		sampleGraphs[i][qp] = '\0';
 	}
 	
 	*sizeSampleG = sizeSampleGraph;
@@ -831,15 +1043,226 @@ void getTs( double Ds[], double Ts[], int *p )
 
 ////////////////////////////////////////////////////////////////////////////////
 // Gaussian copula graphical models 
+// Based on reversible jump MCMC algorithm
 //********* with NEW idea of exact normalizing constant ***********************
 ////////////////////////////////////////////////////////////////////////////////
-void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
-			 string allGraphs[], double allWeights[], double Ksum[], 
-			 string sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double D[], double Ds[] )
 {
+	vector<string> allGraphs_C( *iter );
+	vector<string> sampleGraphs_C( *iter );	
+	
+	int randomEdge, counter, selectedEdgei, selectedEdgej, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
+	bool thisOne;
+
+	register int col; 
+	double Dsjj, Dsij, sumDiag, K022, a11, b1 = *b, sigmaj11;
+	int row, rowCol, i, j, k, ij, jj, nustar, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+
+	//~ vector<double> rates( pxp, 0.0 ); 
+	vector<double> sigma( pxp ); 
+	copyMatrix( K, &lastK[0], &pxp );
+	inverse( &lastK[0], &sigma[0], &dim );			
+
+	int qp = dim * ( dim - 1 ) / 2;
+	vector<char> charG( qp ); // char stringG[pp];
+	
+	vector<double> K121( 4 ); 
+
+	double alpha = 1.0, beta = 0.0;
+	char transT = 'T', transN = 'N';																	
+
+	vector<double> Kj12( p1 );             // K[j, -j]
+	vector<double> sigmaj12( p1 );         // sigma[-j, j]  
+	vector<double> sigmaj22( p1xp1 );      // sigma[-j, -j]
+	vector<double> Kj22_inv( p1xp1 ); 
+	vector<double> Kj12xK22_inv( p1 ); 
+
+	vector<double> K12( p2x2 );            // K[e, -e]
+	vector<double> sigma11( 4 );           // sigma[e, e]
+	vector<double> sigma12( p2x2 );        // sigma[e, -e]
+	vector<double> sigma22( p2xp2 );       // sigma[-e, -e]
+	vector<double> sigma11_inv( 4 ); 
+	vector<double> sigma21xsigma11_inv( p2x2 ); 
+	vector<double> sigma2112( p2xp2 ); 
+	vector<double> K22_inv( p2xp2 ); 
+	vector<double> K12xK22_inv( p2x2 );   
+
+	double alpha_ij;
+	GetRNGstate();
+	for( int g = 0, iteration = *iter; g < iteration; g++ )
+	{
+		if( ( g + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                  \n", g + 1 );
+
+		getDs( K, Z, R, D, Ds, gcgm, n, &dim );
+
+		getTs( Ds, Ts, &dim );
+		
+// STEP 1: selecting random edge and calculating alpha
+
+		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
+		randomEdge = static_cast<int>( runif( 0, 1 ) * qp );
+
+		counter   = 0;
+		for( j = 1; j < dim; j++ )
+			for( i = 0; i < j; i++ )
+			{
+				if( counter == randomEdge )    
+				{
+					selectedEdgei = i;
+					selectedEdgej = j;
+				}
+				
+				charG[counter++] = G[j * dim + i] + '0'; // adjToString( G, &allGraphs[g], p );
+			}
+		
+		// -------- Calculating alpha -------------------------------------|
+		ij   = selectedEdgej * dim + selectedEdgei;
+		jj   = selectedEdgej * dim + selectedEdgej;
+		Dsij = Ds[ij];
+		Dsjj = Ds[jj];
+		
+		sigmaj11 = sigma[jj];        // sigma[j, j]  
+		subMatrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &selectedEdgej, &dim );
+
+		// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
+		for( row = 0; row < p1; row++ )
+			for( col = 0; col < p1; col++ )
+			{
+				rowCol = col * p1 + row;
+				Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
+			}
+
+// For (i,j) = 0 ---------------------------------------------------------------|
+		// For (i,j) = 0 
+		// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
+		//~ K022ij( &K[0], &sigma[0], &K022, &i, &j, &dim );
+
+		subRowMins( K, &Kj12[0], &selectedEdgej, &dim );  // K12 = K[j, -j]  
+		Kj12[ selectedEdgei ] = 0.0;                      // K12[1,i] = 0
+
+		// K12 %*% K22_inv
+		multiplyMatrix( &Kj12[0], &Kj22_inv[0], &Kj12xK22_inv[0], &one, &p1, &p1 );
+
+		// K121 = K12 %*% solve(K[-e, -e]) %*% t(K12) 
+		F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
+// Finished (i,j) = 0 ----------------------------------------------------------|
+
+// For (i,j) = 1 ---------------------------------------------------------------|
+		// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 
+		//~ K121output(  K[],  sigma, K121[],    *i, *j, *p )
+		//~ K121output( &K[0], sigma, &K121[0], &i, &j, &dim );
+		
+		subRowsMins( K, &K12[0], &selectedEdgei, &selectedEdgej, &dim );  // K12 = K[e, -e]  
+		
+		subMatrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &selectedEdgei, &selectedEdgej, &dim );
+
+		// solve( sigma[e, e] )
+		inverse2x2( &sigma11[0], &sigma11_inv[0] );
+
+		// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
+		F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+
+		// sigma21xsigma11_inv %*% sigma12
+		multiplyMatrix( &sigma21xsigma11_inv[0], &sigma12[0], &sigma2112[0], &p2, &p2, &two );
+
+		// solve( K[-e, -e] ) = sigma22 - sigma2112
+		for( k = 0; k < p2xp2 ; k++ ) K22_inv[k] = sigma22[k] - sigma2112[k];	
+		
+		// K12 %*% K22_inv
+		multiplyMatrix( &K12[0], &K22_inv[0], &K12xK22_inv[0], &two, &p2, &p2 );
+		
+		// K121 <- K12 %*% solve(K[-e, -e]) %*% t(K12) 																
+		F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
+// Finished (i,j) = 1-----------------------------------------------------------|
+
+		a11 = K[selectedEdgei * dim + selectedEdgei] - K121[0];	
+		//~ sumDiagAB( &Dsee[0], &K0_ij[0], &K121[0], &sumDiag );
+		//~ sumDiag = Dsii * a11 - Dsij * K121[1] - Dsij * K121[2] + Dsjj * ( K022 - K121[3] );
+		sumDiag = - Dsij * K121[1] - Dsij * K121[2] + Dsjj * ( K022 - K121[3] );
+
+		//	nustar = b + sum( Gf[,i] * Gf[,j] )
+		nustar = b1;
+		for( k = 0; k < dim; k++ )
+			nustar += G[selectedEdgei * dim + k] * G[selectedEdgej * dim + k];
+
+		//~ alpha_ij[ij] = sqrt( 2.0 * Dsjj / a11 ) * exp( lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) + ( ( Dsii - Dsij * Dsij / Dsjj ) * a11 - sumDiag ) / 2 );
+		//~ alpha_ij = log( sqrt( 2.0 * Dsjj / a11 ) ) + lgamma( ( nustar + 1 ) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
+		alpha_ij = ( log(2.0) + log(Dsjj) - log(a11) ) / 2 + lgamma( ( nustar + 1 ) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
+
+		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
+		// -------- End calculating alpha -----------------------------|
+		
+		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
+		allWeights[g] = 1;
+////////////////////////////////////////////////////////////////////////////////	
+		
+		if( g > burn_in )
+		{
+			for( i = 0; i < pxp ; i++ ) Ksum[i] += K[i];	
+			
+			thisOne = false;
+			for( i = 0; i < sizeSampleGraph; i++ )
+				if( sampleGraphs_C[i] == allGraphs_C[g] )
+				{
+					graphWeights[i] += allWeights[g];
+					thisOne = true;
+					break;
+				} 
+			
+			if( !thisOne || sizeSampleGraph == 0 )
+			{
+				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
+				graphWeights[sizeSampleGraph] = allWeights[g];
+				sizeSampleGraph++;				
+			} 
+		}
+
+		if( log( runif( 0, 1 ) ) < alpha_ij )
+		{
+			G[ij] = 1 - G[ij];
+			G[selectedEdgei * dim + selectedEdgej] = G[ij];
+		}
+
+		rgwish_sigma( G, Ts, K, &sigma[0], bstar, &dim );
+	}
+	PutRNGstate();
+
+	for( i = 0; i < *iter; i++ ) 
+	{
+		allGraphs_C[i].copy(allGraphs[i], qp, 0);
+		allGraphs[i][qp] = '\0';
+		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
+		sampleGraphs[i][qp] = '\0';
+	}
+	
+	*sizeSampleG = sizeSampleGraph;
+	// For last graph and its precision matrix
+	for( i = 0; i < pxp; i++ ) 
+	{
+		lastK[i]     = K[i];	
+		lastGraph[i] = G[i];
+	}
+}
+    
+////////////////////////////////////////////////////////////////////////////////
+// Gaussian copula graphical models 
+// based on birth-death MCMC algorithm ***********************
+////////////////////////////////////////////////////////////////////////////////
+void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+			 double Z[], int R[], int *n, int *gcgm,
+			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
+			 int lastGraph[], double lastK[],
+			 int *b, int *bstar, double D[], double Ds[] )
+{
+	vector<string> allGraphs_C( *iter );
+	vector<string> sampleGraphs_C( *iter );
+	
 	int selectedEdgei, selectedEdgej, selectedEdgeij, l, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
 	bool thisOne;
 
@@ -852,7 +1275,8 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 	copyMatrix( K, &lastK[0], &pxp );
 	inverse( &lastK[0], &sigma[0], &dim );			
 
-	vector<char> charG( dim * ( dim - 1 ) / 2 ); // char stringG[pp];
+	int qp = dim * ( dim - 1 ) / 2;
+	vector<char> charG( qp ); // char stringG[pp];
 	double rate, maxRates, sumRates; 
 	
 	vector<double> K121( 4 ); 
@@ -982,7 +1406,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 			}
 		}
 		
-		allGraphs[g]  = std::string( charG.begin(), charG.end() );	
+		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
 		allWeights[g] = 1 / sumRates;
 ////////////////////////////////////////////////////////////////////////////////	
 		
@@ -992,7 +1416,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 			
 			thisOne = false;
 			for( i = 0; i < sizeSampleGraph; i++ )
-				if( sampleGraphs[i] == allGraphs[g] )
+				if( sampleGraphs_C[i] == allGraphs_C[g] )
 				{
 					graphWeights[i] += allWeights[g];
 					thisOne = true;
@@ -1001,7 +1425,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 			
 			if( !thisOne || sizeSampleGraph == 0 )
 			{
-				sampleGraphs[sizeSampleGraph] = allGraphs[g];
+				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
 				graphWeights[sizeSampleGraph] = allWeights[g];
 				sizeSampleGraph++;				
 			} 
@@ -1013,6 +1437,14 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 
 		rgwish_sigma( G, Ts, K, &sigma[0], bstar, &dim );
 	}
+
+	for( i = 0; i < *iter; i++ ) 
+	{
+		allGraphs_C[i].copy(allGraphs[i], qp, 0);
+		allGraphs[i][qp] = '\0';
+		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
+		sampleGraphs[i][qp] = '\0';
+	}
 	
 	*sizeSampleG = sizeSampleGraph;
 	// For last graph and its precision matrix
@@ -1022,7 +1454,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 		lastGraph[i] = G[i];
 	}
 }
-
+    
 ////////////////////////////////////////////////////////////////////////////////
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
 void scaleFree( int *G, int *p )

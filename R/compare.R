@@ -1,7 +1,7 @@
 # To compare the result according to the true graph
 compare = function ( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FALSE ) 
 {
-	if ( class(G)    == "simulate" ) G    <- G $ G 
+	if ( class(G)    == "sim" ) G    <- G $ G 
 	if ( class(G)    == "bdgraph" ){ es <- select(G) ; G <- est $ G ; est <- es }
 	if ( class(est)  == "bdgraph" )  est  <- select( est ) 
 	if ( class(est2) == "bdgraph" )  est2 <- select( est2 ) 

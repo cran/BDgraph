@@ -12,7 +12,7 @@ Draws the ROC curve according to the true graph structure for the object of \cod
 \arguments{
   \item{G}{
 	The adjacency matrix corresponding to the true graph structure in which \eqn{g_{ij}=1} if there is a link between notes \eqn{i}{i} and
-	\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.
+	\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
   }
   
   \item{prob}{ Upper triangular matrix which shows the stimated posterior probabilities for all possible links. It also can be an object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }

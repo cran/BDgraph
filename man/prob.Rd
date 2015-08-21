@@ -15,7 +15,7 @@ Provides the posterior probabilities for the \code{'g'} most likely graphs or a 
             This option is ignored if \code{'G'} is specified. }
   \item{G}{ Adjacency matrix corresponding to a graph structure. It is an upper triangular matrix in which 
             \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}.
-            It also can be an object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}. }
+            It also can be an object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}. }
 }
 
 \value{

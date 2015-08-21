@@ -124,7 +124,7 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 	if ( graph == "scale-free" )
 	{
 #		data_sim <- huge.generator( n = 2, d = 5, graph = "scale-free" )
-		G = matrix(0, p, p)
+		G = matrix( 0, p, p )
 		# scaleFree( int *G, int *p )
 		resultGraph = .C( "scaleFree", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
 		G           = matrix( resultGraph $ G, p, p ) 
@@ -135,7 +135,7 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
     if ( is.matrix(K) )
     { 
 		G     <- 1 * ( abs(K) > 0.02 )
-		if( is.null(sigma) ) sigma <- solve(K)	
+		if( is.null( sigma ) ) sigma <- solve(K)	
     } 
     else 
     {
@@ -221,11 +221,11 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
 	simulation <- list( G = Matrix( G, sparse = TRUE, dimnames = list( dimlab, dimlab ) ), 
 	                    data = d, sigma = sigma, K = K, graph = graph, type = type )
 	
-	class(simulation) <- "simulate"
-	return(simulation)
+	class( simulation ) <- "sim"
+	return( simulation )
 }
 # Print function for simulation data
-print.simulate = function( x, ... )
+print.sim = function( x, ... )
 {
 	p <- ncol( x $ sigma )
 
@@ -237,8 +237,8 @@ print.simulate = function( x, ... )
 	cat( paste( "  Graph size      =", sum(x $ G) / 2                       ), fill = TRUE )
 	cat( paste( "  Sparsity        =", round(sum(x $ G) / (p * (p - 1)), 4) ), fill = TRUE )
 }
-# plot for class "simulate" from bdgraph.sim function
-plot.simulate = function( x, main = NULL, layout = layout.circle, ... )
+# plot for class "sim" from bdgraph.sim function
+plot.sim = function( x, main = NULL, layout = layout.circle, ... )
 {
     if ( is.null(main) ) main <- "Graph structure"
   	g <- graph.adjacency( as.matrix(x $ G), mode = "undirected", diag = FALSE )

@@ -10,7 +10,7 @@
 \arguments{
   \item{G}{
 	The adjacency matrix corresponding to the true graph in which \eqn{g_{ij}=1} if there is a link between notes \eqn{i}{i} and
-	\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object with \code{S3} class \code{"simulate"} from function \code{\link{bdgraph.sim}}.
+	\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
 	}
   \item{est}{ An adjacency matrix corresponding to an estimated graph. It also can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}} or \code{"select"} (from \pkg{huge} package). }
   \item{est2}{ An adjacency matrix corresponding to an estimated graph. It also can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}} or "select" (from \pkg{huge} package). }

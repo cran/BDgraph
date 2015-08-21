@@ -1,14 +1,14 @@
-\name{print.simulate}
-\alias{print.simulate}
+\name{print.sim}
+\alias{print.sim}
 
-\title{ Print function for \code{S3} class \code{"simulate"} }
+\title{ Print function for \code{S3} class \code{"sim"} }
 
 \description{ Print the information about the type of data, the sample size, the graph type, the number of nodes, number of links and sparsity of the true graph. }
 
-\usage{ \method{print}{simulate}( x, ... ) }
+\usage{ \method{print}{sim}( x, ... ) }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.  }
+  \item{x}{ An object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.  }
   \item{\dots}{ System reserved (no specific usage). }
 }
 

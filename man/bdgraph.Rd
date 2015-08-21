@@ -8,13 +8,13 @@
 	The main function of the \pkg{BDgraph} package. The function consists of two sampling algorithm for model determination in undirected graphical models based on birth-death MCMC method. 
 }
 \usage{
-bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2, 
-         b = 3, D = NULL, Gstart = "empty" )
+bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
+		 burnin = iter / 2, b = 3, D = NULL, Gstart = "empty" )
 }
 
 \arguments{
 	\item{data}{
-	It could be a (\eqn{n \times p}) matrix or a data.frame of data or a covariance matrix as \eqn{S=X'X} which \eqn{X} is the data matrix. It also could be an object of class \code{"simulate"}, from function \code{\link{bdgraph.sim}}.
+	It could be a (\eqn{n \times p}) matrix or a data.frame of data or a covariance matrix as \eqn{S=X'X} which \eqn{X} is the data matrix. It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
 	}
 
 	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
@@ -25,6 +25,12 @@ bdgraph( data, n = NULL, method = "ggm", iter = 5000, burnin = iter / 2,
 		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
 
+	\item{algorithm}{
+		A character with two options \code{"bdmcmc"} (defult) and \code{"rjmcmc"}. 
+		Option \code{"bdmcmc"} is based on birth-death MCMC algorithm.
+		Option \code{"rjmcmc"} is based on reverible jump MCMC algorithm.
+	}
+	
 	\item{iter}{The number of iteration for the sampling algorithm.}
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
