@@ -1,11 +1,12 @@
 useDynLib( "BDgraph" )
 import( "Matrix", "igraph" )
-importFrom("grDevices", "dev.new")
-importFrom("graphics", "abline", "matplot", "par", "plot", "points",
-		 "text", "title")
-importFrom("stats", "cor", "pnorm", "qbinom", "qexp", "qnorm", "qpois",
-		 "rbinom", "rchisq", "rnorm", "runif", "sd", "smooth.spline")
-importFrom("utils", "flush.console")
+
+importFrom( "grDevices", "dev.new" )
+importFrom( "graphics", "abline", "matplot", "par", "plot", "points",
+		 "text", "title" )
+importFrom( "stats", "cor", "pnorm", "qbinom", "qexp", "qnorm", "qpois",
+		 "rbinom", "rchisq", "rnorm", "runif", "sd", "smooth.spline" )
+importFrom( "utils", "flush.console" )
 
 useDynLib( BDgraph, .registration = TRUE )
 export( bdgraph,

@@ -1,8 +1,8 @@
 Package: BDgraph
 Type: Package
 Title: Bayesian Graph Selection Based on Birth-Death MCMC Approach
-Version: 2.20
-Date: 2015-08-21
+Version: 2.21
+Date: 2015-08-23
 Author: Abdolreza Mohammadi and Ernst Wit
 Depends: R (>= 3.0.0), Matrix, igraph
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
@@ -12,7 +12,7 @@ Acknowledgements: The help of the CRAN team to integrate C++ code with
 License: GPL (>= 3)
 LazyLoad: yes
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2015-08-21 15:08:46 UTC; reza
+Packaged: 2015-08-23 07:37:47 UTC; reza
 Repository: CRAN
-Date/Publication: 2015-08-21 18:04:28
+Date/Publication: 2015-08-23 10:32:48
 NeedsCompilation: yes

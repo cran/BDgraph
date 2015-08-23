@@ -305,10 +305,10 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p )
 			} 
 		}
 
-		difference = fabs( W[0] - W_last[0] );
+		difference = fabs( static_cast<double>( W[0] - W_last[0] ) );
 		for( k = 1; k < pxp; k++ )
 		{
-			temp = fabs( W[k] - W_last[k] );
+			temp = fabs( static_cast<double>( W[k] - W_last[k] ) );
 			if( temp > difference ) difference = temp; 
 		}		
 	}
@@ -434,10 +434,10 @@ void rgwish_sigma( int G[], double Ts[], double K[], double W[], int *b, int *p 
 			} 
 		}
 
-		difference = fabs( W[0] - W_last[0] );
+		difference = fabs( static_cast<double>( W[0] - W_last[0] ) );
 		for( k = 1; k < pxp; k++ )
 		{
-			temp = fabs( W[k] - W_last[k] );
+			temp = fabs( static_cast<double>( W[k] - W_last[k] ) );
 			if( temp > difference ) difference = temp; 
 		}		
 	}
@@ -792,7 +792,8 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 
 		//~ alpha_ij[ij] = sqrt( 2.0 * Dsjj / a11 ) * exp( lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) + ( ( Dsii - Dsij * Dsij / Dsjj ) * a11 - sumDiag ) / 2 );
 		//~ alpha_ij = log( sqrt( 2.0 * Dsjj / a11 ) ) + lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
-		alpha_ij = ( log(2.0) + log(Dsjj) - log(a11) ) / 2 + lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
+		alpha_ij = ( log( static_cast<double>(2.0) ) + log( static_cast<double>(Dsjj) ) - log( static_cast<double>(a11) ) ) / 2 + 
+		          lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -----------------------------|
@@ -822,7 +823,7 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			} 
 		}
   		
-		if( log( runif( 0, 1 ) ) < alpha_ij )
+		if( log( static_cast<double>( runif( 0, 1 ) ) ) < alpha_ij )
 		{
 			G[ij] = 1 - G[ij];
 			G[selectedEdgei * dim + selectedEdgej] = G[ij];
@@ -1192,7 +1193,8 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 
 		//~ alpha_ij[ij] = sqrt( 2.0 * Dsjj / a11 ) * exp( lgamma( (nustar + 1) / 2 ) - lgamma( nustar / 2 ) + ( ( Dsii - Dsij * Dsij / Dsjj ) * a11 - sumDiag ) / 2 );
 		//~ alpha_ij = log( sqrt( 2.0 * Dsjj / a11 ) ) + lgamma( ( nustar + 1 ) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
-		alpha_ij = ( log(2.0) + log(Dsjj) - log(a11) ) / 2 + lgamma( ( nustar + 1 ) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
+		alpha_ij = ( log( static_cast<double>(2.0) ) + log( static_cast<double>(Dsjj) ) - log( static_cast<double>(a11) ) ) / 2 + 
+		           lgamma( ( nustar + 1 ) / 2 ) - lgamma( nustar / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sumDiag ) / 2;
 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -----------------------------|
@@ -1222,7 +1224,7 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 			} 
 		}
 
-		if( log( runif( 0, 1 ) ) < alpha_ij )
+		if( log( static_cast<double>( runif( 0, 1 ) ) ) < alpha_ij )
 		{
 			G[ij] = 1 - G[ij];
 			G[selectedEdgei * dim + selectedEdgej] = G[ij];
