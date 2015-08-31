@@ -11,7 +11,7 @@ select = function ( output, cut = NULL, vis = FALSE )
 		prob.G       <- graphWeights / sum( graphWeights )
 		max.prob.G   <- which( prob.G == max( prob.G ) )
 		
-		if( length(max.prob.G) > 1 ) max.prob.G <- max.prob.G[1] 
+		if( length( max.prob.G ) > 1 ) max.prob.G <- max.prob.G[1] 
 		
 		gi        <- sampleGraphs[max.prob.G]
 		gv        <- c( rep( 0, p * ( p - 1 ) / 2 ) )

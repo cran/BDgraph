@@ -9,7 +9,7 @@
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-		 burnin = iter / 2, b = 3, D = NULL, Gstart = "empty" )
+		 burnin = iter / 2, b = 3, Gstart = "empty" )
 }
 
 \arguments{
@@ -37,9 +37,6 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{b}{
 		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix. The default is 3.
 	}
-	\item{D}{
-		The positive definite matrix for G-Wishart distribution, \eqn{W_G(b,D)}. The default is an identity matrix.
-	}
 	\item{Gstart}{
 		It corresponds to a starting point for graph. It can be \code{"full"} (default), \code{"empty"}, or an object with \code{S3} class \code{"bdgraph"}. 
 		Option \code{"full"} means the initial graph is a full graph and \code{"empty"} means a empty graph. 
@@ -51,15 +48,15 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 \value{
 	An object with \code{S3} class \code{"bdgraph"} is returned:
 
-	\item{sampleGraphs}{A vector which includes the adjacency matrices for all iterations after burn-in.}
-	\item{graphWeights}{A vector which includes the waiting times for all iterations after burn-in.}
+	\item{sampleGraphs}{ A vector of strings which includes the adjacency matrices of visited graphs after burn-in.}
+	\item{graphWeights}{ A vector which includes the waiting times of visited graphs after burn-in. }
 
-	\item{allGraphs}{A vector which includes the adjacency matrices for all iterations (includes burn-in iteration). 
+	\item{allGraphs}{A vector which includes the identity of the adjacency matrices for all iterations after burn-in. 
 		  It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
-	\item{allWeights}{A vector which includes the waiting times for all iterations (includes burn-in iteration). It is needed for monitoring the convergence of the BD-MCMC algorithm.}
+	\item{allWeights}{A vector which includes the waiting times for all iterations after burn-in. It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
-	\item{Khat}{Estimation for precision matrix which is a mean of all samples from precision matrices.}
+	\item{Khat}{ Posterior estimation of the precision matrix. }
 }
 
 \references{

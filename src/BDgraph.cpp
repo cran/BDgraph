@@ -452,18 +452,20 @@ void rgwish_sigma( int G[], double Ts[], double K[], double W[], int *b, int *p 
 // bdmcmc algoirthm with exact value of normalizing constant for D = I_p
 ////////////////////////////////////////////////////////////////////////////////
 void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
-			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 int allGraphs[], double allWeights[], double Ksum[], 
 			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double Ds[] )
 {
-	vector<string> allGraphs_C( *iter );
-	vector<string> sampleGraphs_C( *iter );
+	int iteration = *iter, burn_in = *burnin;
+	int counterallG = 0;
+	string stringG;
+	vector<string> sampleGraphs_C( iteration - burn_in );
 	
 	register int col; 
 	bool thisOne;
 
-	int selectedEdgei, selectedEdgej, selectedEdgeij, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
+	int selectedEdgei, selectedEdgej, selectedEdgeij, sizeSampleGraph = *sizeSampleG;
 	int row, rowCol, i, j, k, ij, jj, Dsjj, Dsij, counter, nustar, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
@@ -496,7 +498,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 
-	for( int g = 0, iteration = *iter; g < iteration; g++ )
+	for( int g = 0; g < iteration; g++ )
 	{
 		if( ( g + 1 ) % 1000 == 0 )	Rprintf( " Iteration  %d                 \n", g + 1 ); 
 		
@@ -600,30 +602,35 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			}
 		}	
 		
-		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
-		allWeights[g] = 1 / sumRates;
 ////////////////////////////////////////////////////////////////////////////////	
-		
-		if( g > burn_in )
+		if( g >= burn_in )
 		{
 			for( i = 0; i < pxp ; i++ ) Ksum[i] += K[i];	
+
+			stringG = std::string( charG.begin(), charG.end() );	
+			allWeights[counterallG] = 1 / sumRates;
 			
 			thisOne = false;
 			for( i = 0; i < sizeSampleGraph; i++ )
-				if( sampleGraphs_C[i] == allGraphs_C[g] )
+				if( sampleGraphs_C[i] == stringG )
 				{
-					graphWeights[i] += allWeights[g];
+					graphWeights[i] += allWeights[counterallG];
+					allGraphs[counterallG] = i;
 					thisOne = true;
 					break;
 				} 
 			
 			if( !thisOne || sizeSampleGraph == 0 )
 			{
-				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
-				graphWeights[sizeSampleGraph] = allWeights[g];
+				sampleGraphs_C[sizeSampleGraph] = stringG;
+				graphWeights[sizeSampleGraph]   = allWeights[counterallG];
+				allGraphs[counterallG]          = sizeSampleGraph; 
 				sizeSampleGraph++;				
-			} 
+			}
+			
+			counterallG++; 
 		}
+////////////////////////////////////////////////////////////////////////////////	
 
 		selectedEdgeij    = selectedEdgej * dim + selectedEdgei;
 		G[selectedEdgeij] = 1 - G[selectedEdgeij];
@@ -632,10 +639,8 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 		rgwish_sigma( G, Ts, K, &sigma[0], bstar, &dim );
 	}
 
-	for( i = 0; i < *iter; i++ ) 
+	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		allGraphs_C[i].copy(allGraphs[i], qp, 0);
-		allGraphs[i][qp] = '\0';
 		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
 		sampleGraphs[i][qp] = '\0';
 	}
@@ -653,18 +658,20 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 // RJMCMC algoirthm with exact value of normalizing constant for D = I_p
 ////////////////////////////////////////////////////////////////////////////////
 void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
-			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 int allGraphs[], double allWeights[], double Ksum[], 
 			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double Ds[] )
 {
-	vector<string> allGraphs_C( *iter );
-	vector<string> sampleGraphs_C( *iter );
+	int iteration = *iter, burn_in = *burnin;
+	int counterallG = 0;
+	string stringG;
+	vector<string> sampleGraphs_C( iteration - burn_in );
 
 	register int col; 
 	bool thisOne;
 
-	int randomEdge, selectedEdgei, selectedEdgej, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
+	int randomEdge, selectedEdgei, selectedEdgej, sizeSampleGraph = *sizeSampleG;
 	int row, rowCol, i, j, k, ij, jj, Dsjj, Dsij, counter, nustar, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
@@ -698,7 +705,7 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 
 	double alpha_ij;
 	GetRNGstate();
-	for( int g = 0, iteration = *iter; g < iteration; g++ )
+	for( int g = 0; g < iteration; g++ )
 	{
 		if( ( g + 1 ) % 1000 == 0 )	Rprintf( " Iteration  %d                 \n", g + 1 ); 
 		
@@ -798,30 +805,34 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -----------------------------|
 		
-		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
-		allWeights[g] = 1.0;
 ////////////////////////////////////////////////////////////////////////////////	
-		
-		if( g > burn_in )
+		if( g >= burn_in )
 		{
 			for( i = 0; i < pxp ; i++ ) Ksum[i] += K[i];	
+
+			stringG = std::string( charG.begin(), charG.end() );	
 			
 			thisOne = false;
 			for( i = 0; i < sizeSampleGraph; i++ )
-				if( sampleGraphs_C[i] == allGraphs_C[g] )
+				if( sampleGraphs_C[i] == stringG )
 				{
-					graphWeights[i] += allWeights[g];
+					graphWeights[i]++; // += allWeights[counterallG];
+					allGraphs[counterallG] = i;
 					thisOne = true;
 					break;
 				} 
 			
 			if( !thisOne || sizeSampleGraph == 0 )
 			{
-				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
-				graphWeights[sizeSampleGraph] = allWeights[g];
+				sampleGraphs_C[sizeSampleGraph] = stringG;
+				graphWeights[sizeSampleGraph]   = allWeights[counterallG];
+				allGraphs[counterallG]          = sizeSampleGraph; 
 				sizeSampleGraph++;				
-			} 
+			}
+			
+			counterallG++; 
 		}
+////////////////////////////////////////////////////////////////////////////////	
   		
 		if( log( static_cast<double>( runif( 0, 1 ) ) ) < alpha_ij )
 		{
@@ -833,10 +844,8 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	}
 	PutRNGstate();
 
-	for( i = 0; i < *iter; i++ ) 
+	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		allGraphs_C[i].copy(allGraphs[i], qp, 0);
-		allGraphs[i][qp] = '\0';
 		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
 		sampleGraphs[i][qp] = '\0';
 	}
@@ -1049,15 +1058,17 @@ void getTs( double Ds[], double Ts[], int *p )
 ////////////////////////////////////////////////////////////////////////////////
 void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
-			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 int allGraphs[], double allWeights[], double Ksum[], 
 			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double D[], double Ds[] )
 {
-	vector<string> allGraphs_C( *iter );
-	vector<string> sampleGraphs_C( *iter );	
+	int iteration = *iter, burn_in = *burnin;
+	int counterallG = 0;
+	string stringG;
+	vector<string> sampleGraphs_C( iteration - burn_in );
 	
-	int randomEdge, counter, selectedEdgei, selectedEdgej, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
+	int randomEdge, counter, selectedEdgei, selectedEdgej, sizeSampleGraph = *sizeSampleG;
 	bool thisOne;
 
 	register int col; 
@@ -1095,7 +1106,7 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 
 	double alpha_ij;
 	GetRNGstate();
-	for( int g = 0, iteration = *iter; g < iteration; g++ )
+	for( int g = 0; g < iteration; g++ )
 	{
 		if( ( g + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                  \n", g + 1 );
 
@@ -1199,30 +1210,34 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -----------------------------|
 		
-		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
-		allWeights[g] = 1;
 ////////////////////////////////////////////////////////////////////////////////	
-		
-		if( g > burn_in )
+		if( g >= burn_in )
 		{
 			for( i = 0; i < pxp ; i++ ) Ksum[i] += K[i];	
+
+			stringG = std::string( charG.begin(), charG.end() );	
 			
 			thisOne = false;
 			for( i = 0; i < sizeSampleGraph; i++ )
-				if( sampleGraphs_C[i] == allGraphs_C[g] )
+				if( sampleGraphs_C[i] == stringG )
 				{
-					graphWeights[i] += allWeights[g];
+					graphWeights[i]++; // += allWeights[counterallG];
+					allGraphs[counterallG] = i;
 					thisOne = true;
 					break;
 				} 
 			
 			if( !thisOne || sizeSampleGraph == 0 )
 			{
-				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
-				graphWeights[sizeSampleGraph] = allWeights[g];
+				sampleGraphs_C[sizeSampleGraph] = stringG;
+				graphWeights[sizeSampleGraph]   = allWeights[counterallG];
+				allGraphs[counterallG]          = sizeSampleGraph; 
 				sizeSampleGraph++;				
-			} 
+			}
+			
+			counterallG++; 
 		}
+////////////////////////////////////////////////////////////////////////////////	
 
 		if( log( static_cast<double>( runif( 0, 1 ) ) ) < alpha_ij )
 		{
@@ -1234,10 +1249,8 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 	}
 	PutRNGstate();
 
-	for( i = 0; i < *iter; i++ ) 
+	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		allGraphs_C[i].copy(allGraphs[i], qp, 0);
-		allGraphs[i][qp] = '\0';
 		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
 		sampleGraphs[i][qp] = '\0';
 	}
@@ -1257,15 +1270,17 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 ////////////////////////////////////////////////////////////////////////////////
 void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
-			 char *allGraphs[], double allWeights[], double Ksum[], 
+			 int allGraphs[], double allWeights[], double Ksum[], 
 			 char *sampleGraphs[], double graphWeights[], int *sizeSampleG,
 			 int lastGraph[], double lastK[],
 			 int *b, int *bstar, double D[], double Ds[] )
 {
-	vector<string> allGraphs_C( *iter );
-	vector<string> sampleGraphs_C( *iter );
+	int iteration = *iter, burn_in = *burnin;
+	int counterallG = 0;
+	string stringG;
+	vector<string> sampleGraphs_C( iteration - burn_in );
 	
-	int selectedEdgei, selectedEdgej, selectedEdgeij, l, burn_in = *burnin, sizeSampleGraph = *sizeSampleG;
+	int selectedEdgei, selectedEdgej, selectedEdgeij, l, sizeSampleGraph = *sizeSampleG;
 	bool thisOne;
 
 	register int col; 
@@ -1302,7 +1317,7 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 
-	for( int g = 0, iteration = *iter; g < iteration; g++ )
+	for( int g = 0; g < iteration; g++ )
 	{
 		if( ( g + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                  \n", g + 1 );
 
@@ -1408,30 +1423,35 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 			}
 		}
 		
-		allGraphs_C[g]  = std::string( charG.begin(), charG.end() );	
-		allWeights[g] = 1 / sumRates;
 ////////////////////////////////////////////////////////////////////////////////	
-		
-		if( g > burn_in )
+		if( g >= burn_in )
 		{
 			for( i = 0; i < pxp ; i++ ) Ksum[i] += K[i];	
+
+			stringG = std::string( charG.begin(), charG.end() );	
+			allWeights[counterallG] = 1 / sumRates;
 			
 			thisOne = false;
 			for( i = 0; i < sizeSampleGraph; i++ )
-				if( sampleGraphs_C[i] == allGraphs_C[g] )
+				if( sampleGraphs_C[i] == stringG )
 				{
-					graphWeights[i] += allWeights[g];
+					graphWeights[i] += allWeights[counterallG];
+					allGraphs[counterallG] = i;
 					thisOne = true;
 					break;
 				} 
 			
 			if( !thisOne || sizeSampleGraph == 0 )
 			{
-				sampleGraphs_C[sizeSampleGraph] = allGraphs_C[g];
-				graphWeights[sizeSampleGraph] = allWeights[g];
+				sampleGraphs_C[sizeSampleGraph] = stringG;
+				graphWeights[sizeSampleGraph]   = allWeights[counterallG];
+				allGraphs[counterallG]          = sizeSampleGraph; 
 				sizeSampleGraph++;				
-			} 
+			}
+			
+			counterallG++; 
 		}
+////////////////////////////////////////////////////////////////////////////////	
 
 		selectedEdgeij    = selectedEdgej * dim + selectedEdgei;
 		G[selectedEdgeij] = 1 - G[selectedEdgeij];
@@ -1440,10 +1460,8 @@ void bdmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 		rgwish_sigma( G, Ts, K, &sigma[0], bstar, &dim );
 	}
 
-	for( i = 0; i < *iter; i++ ) 
+	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		allGraphs_C[i].copy(allGraphs[i], qp, 0);
-		allGraphs[i][qp] = '\0';
 		sampleGraphs_C[i].copy(sampleGraphs[i], qp, 0);
 		sampleGraphs[i][qp] = '\0';
 	}
@@ -1497,7 +1515,8 @@ void scaleFree( int *G, int *p )
     }
 	PutRNGstate();
 }
-    
+
+
 } // exturn "C"
 
 

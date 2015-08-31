@@ -1,8 +1,9 @@
 # To check the convergency of the BDMCMC algorithm
 plotcoda = function( output, thin = NULL, main = NULL, links = TRUE, ... )
 {
-	if ( is.null(thin) ) thin = ceiling( length( output $ allGraphs ) / 1000 )
+	if( is.null(thin) ) thin = ceiling( length( output $ allGraphs ) / 1000 )
 
+	sampleGraphs = output $ sampleGraphs
 	p          <- nrow( output $ lastGraph ) 
 	allWeights <- output $ allWeights
 	allGraphs  <- output $ allGraphs
@@ -19,7 +20,7 @@ plotcoda = function( output, thin = NULL, main = NULL, links = TRUE, ... )
 		cat(mes, "\r")
 		flush.console()	
 
-		inp      <- which( unlist(strsplit(as.character(allG.new[g]), "")) == 1 )
+		inp      <- which( unlist( strsplit( as.character( sampleGraphs[ allG.new[g] ] ), "" ) ) == 1 )
 		ffv[inp] <- ffv[inp] + allWeights.new[g]
 		ff[ ,g]  <- ffv / sum( allWeights.new[ c( 1 : g ) ] )    	 
 	}

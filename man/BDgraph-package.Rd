@@ -15,7 +15,7 @@ The package includes 10 main functions:
 \preformatted{
 bdgraph        birth-death MCMC sampling algorithm for graphical models
 bdgraph.sim    Synthetic graph data generator 
-bdgraph.npt    Nonparametric transfer 
+bdgraph.npn    Nonparametric transfer 
 compare        Comparing the result 
 phat           Posterior link probabilities
 plotcoda       Convergence plot

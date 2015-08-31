@@ -44,7 +44,7 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian M
 # generating multivariate normal data from a 'circle' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
 
-output <- bdgraph( data = data.sim )
+output <- bdgraph( data = data.sim, iter = 10000, burnin = 0  )
 
 plotcoda( output )
 }

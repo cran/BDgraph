@@ -1,7 +1,7 @@
 \name{traceplot}
 \alias{traceplot}
 
-\title{Trace plot of graph size}
+\title{ Trace plot of graph size }
 
 \description{
 Trace plot for graph size for the objects of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
@@ -35,7 +35,7 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian M
 # generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
 
-output   <- bdgraph( data = data.sim, iter = 10000 )
+output   <- bdgraph( data = data.sim, iter = 10000, burnin = 0 )
 
 traceplot(output)
 

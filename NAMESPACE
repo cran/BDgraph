@@ -7,6 +7,7 @@ importFrom( "graphics", "abline", "matplot", "par", "plot", "points",
 importFrom( "stats", "cor", "pnorm", "qbinom", "qexp", "qnorm", "qpois",
 		 "rbinom", "rchisq", "rnorm", "runif", "sd", "smooth.spline" )
 importFrom( "utils", "flush.console" )
+importFrom( "utils", "object.size" )
 
 useDynLib( BDgraph, .registration = TRUE )
 export( bdgraph,

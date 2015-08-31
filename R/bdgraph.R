@@ -1,8 +1,7 @@
 ## Main function: BDMCMC algorithm for graphical models 
 ################################################################################
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", 
-					iter = 5000, burnin = iter / 2, b = 3, D = NULL, 
-					Gstart = "empty" )
+					iter = 5000, burnin = iter / 2, b = 3, Gstart = "empty" )
 {
 	startTime <- Sys.time()
 	burnin = floor( burnin )
@@ -66,8 +65,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		}
 	}
 
-	if ( is.null(D) ) D = diag(p)
-
+	D     = diag(p)
 	bstar <- b + n
 	Ds    <- D + S
 	invDs <- solve(Ds)
@@ -118,10 +116,16 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		
 	qp1          = ( p * ( p - 1 ) / 2 ) + 1
 	stringG      = paste( c( rep( 0, qp1 ) ), collapse = '' )
-	allGraphs    = c( rep ( stringG, iter ) ) # vector of numbers like "10100"
-	allWeights   = c( rep ( 0, iter ) )       # waiting time for every state		
-	sampleGraphs = allGraphs                  # vector of numbers like "10100" 
-	graphWeights = allWeights                 # waiting time for every state
+	sampleGraphs = c( rep ( stringG, iter - burnin ) )  # vector of numbers like "10100" 
+	graphWeights = c( rep ( 0, iter - burnin ) )        # waiting time for every state
+	allGraphs    = c( rep ( 0, iter - burnin ) )        # vector of numbers like "10100"
+	allWeights   = c( rep ( 1, iter - burnin ) )        # waiting time for every state		
+
+	if ( p > 50 & iter > 20000 )
+	{
+		cat( "  WARNING: Memory needs to run this function is around " )
+		print( ( iter - burnin ) * object.size( stringG ), units = "auto" ) 
+	} 
 	
 	sizeSampleG = 0
 
@@ -130,66 +134,67 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 	lastGraph = rates
 	lastK     = rates
 
-	mes <- paste( c(iter," iteration is started.                    " ), collapse = "" )
+	mes <- paste( c( iter," iteration is started.                    " ), collapse = "" )
 	cat( mes, "\r" )
 
 	if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) )
 	{
 		result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p), 
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
+					allGraphs = as.integer(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+					sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+					lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+					as.integer(b), as.integer(bstar), as.double(Ds)
+					, PACKAGE = "BDgraph" )
 	}
 
 	if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
 	{
 		result = .C( "rjmcmcExact", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p), 
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
+					allGraphs = as.integer(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+					sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+					lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+					as.integer(b), as.integer(bstar), as.double(Ds)
+					, PACKAGE = "BDgraph" )
 	}
 	
 	if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) )
 	{
 		result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p),
-		            as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
+					as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+					allGraphs = as.integer(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+					sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+					lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+					as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+					, PACKAGE = "BDgraph" )
 	}
 
 	if( ( method == "gcgm" ) && ( algorithm == "rjmcmc" ) )
 	{
 		result = .C( "rjmcmcCopula", as.integer(iter), as.integer(burnin), as.integer(G), as.double(Ts), as.double(K), as.integer(p),
-		            as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
-					allGraphs = as.character(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
-				    sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
-				    lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
-				    as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
-				    , PACKAGE = "BDgraph" )
-	}
-	
+					as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+					allGraphs = as.integer(allGraphs), allWeights = as.double(allWeights), Ksum = as.double(Ksum), 
+					sampleGraphs = as.character(sampleGraphs), graphWeights = as.double(graphWeights), sizeSampleG = as.integer(sizeSampleG),
+					lastGraph = as.integer(lastGraph), lastK = as.double(lastK),
+					as.integer(b), as.integer(bstar), as.double(D), as.double(Ds)
+					, PACKAGE = "BDgraph" )
+	}	
+		
 	Ksum         = matrix( result $ Ksum, p, p )
-	allGraphs    = result $ allGraphs
-	allWeights   = result $ allWeights
 	sizeSampleG  = result $ sizeSampleG
-	sampleGraphs = result $ sampleGraphs[1:sizeSampleG]
-	graphWeights = result $ graphWeights[1:sizeSampleG]
+	sampleGraphs = result $ sampleGraphs[ 1:sizeSampleG ]
+	graphWeights = result $ graphWeights[ 1:sizeSampleG ]
 	lastGraph    = matrix( result $ lastGraph, p, p )
 	lastK        = matrix( result $ lastK, p, p )
-
+	allGraphs    = result $ allGraphs + 1
+	allWeights   = result $ allWeights	
+	
 	print( Sys.time() - startTime )  
 
 	colnames( lastGraph ) = colnames( data )
+
 	output <- list( sampleGraphs = sampleGraphs, graphWeights = graphWeights, Khat = Ksum / (iter - burnin), 
 					  allGraphs = allGraphs, allWeights = allWeights, lastGraph = lastGraph, lastK = lastK )
-
+	
 	class( output ) <- "bdgraph"
 	return( output )   
 }
@@ -232,17 +237,17 @@ summary.bdgraph = function( object, vis = TRUE, ... )
 	sampleGraphs <- object $ sampleGraphs
 	graphWeights <- object $ graphWeights
 	p            <- nrow( object $ lastGraph )
-	gv           <- c( rep( 0, p * (p - 1 ) / 2) )
+	gv           <- c( rep( 0, p * ( p - 1 ) / 2 ) )
 
 	dimlab   <- colnames( object $ lastGraph )
-	if ( is.null(dimlab) ) dimlab <- as.character(1 : p)
+	if ( is.null(dimlab) ) dimlab <- as.character( 1 : p )
 	
-	graphi <- matrix( 0, p, p, dimnames = list(dimlab, dimlab) )	
+	graphi <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
 
 	prob.G <- graphWeights / sum(graphWeights)
-	gi     <- sampleGraphs[which(prob.G == max(prob.G))]
-	gv[which(unlist(strsplit(as.character(gi), "")) == 1)] <- 1
-	graphi[upper.tri(graphi)] <- gv 
+	gi     <- sampleGraphs[ which( prob.G == max( prob.G ) ) ]
+	gv[ which( unlist( strsplit( as.character(gi), "" ) ) == 1 ) ] <- 1
+	graphi[ upper.tri( graphi ) ] <- gv 
 
 	if ( vis )
 	{
@@ -265,43 +270,44 @@ summary.bdgraph = function( object, vis = TRUE, ... )
 		xx       <- unique(suma)
 		weightsg <- vector()
 
-		for (i in 1 : length(xx))
+		for ( i in 1 : length(xx) )
 		{
 			weightsg[i] <- sum( graphWeights[which( suma == xx[i] )] )
 		}
 
-		plot( x = xx, y = weightsg / sum(graphWeights), type = "h", main = "Posterior probability of graphs size",
+		plot( x = xx, y = weightsg / sum( graphWeights ), type = "h", main = "Posterior probability of graphs size",
 			 ylab = "Pr(graph size|data)", xlab = "Graph size" )
 
 		# plot trace of graph size
-		allGraphs <- object $ allGraphs
-		yy        <- sapply( allGraphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )
+		sizeSampleGraphs = sapply( sampleGraphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )  
+		allGraphs        = object $ allGraphs
+		sizeAllGraphs    = sizeSampleGraphs[ allGraphs ]
+		  
+		plot( x = 1 : length( allGraphs ), sizeAllGraphs, type = "l", main = "Trace of graph size",
+			  ylab = "Graph size", xlab = "Iteration" )
 		
-		plot( x = 1 : length(allGraphs), yy, type = "l", main = "Trace of graph size",
-			  ylab = "Graph size", xlab = "Iteration")
-		
-		abline(h = sum(graphi), col = "red")	  
+		abline( h = sum( graphi ), col = "red" )	  
 		
 		par(op)
 	}
 	
 	# phat
 	pvec <- 0 * gv
-	for (i in 1 : length(sampleGraphs))
+	for ( i in 1 : length( sampleGraphs ) )
 	{
-		inp       <- which(unlist(strsplit(as.character(sampleGraphs[i]), "")) == 1)
+		inp       <- which( unlist( strsplit( as.character( sampleGraphs[i] ), "" ) ) == 1 )
 		pvec[inp] <- pvec[inp] + graphWeights[i]
 	}
 
 	phat                  <- 0 * graphi
-	phat[upper.tri(phat)] <- pvec / sum(graphWeights)
+	phat[upper.tri(phat)] <- pvec / sum( graphWeights ) 
 	# estimation for precision matrix 
 	Khat        <- object $ Khat
 
-	return.list <- list(selected_graph = Matrix(graphi + t(graphi), sparse = TRUE), phat = Matrix(round(phat, 2), 
-					  sparse = TRUE), Khat = round(Khat, 3))
+	return.list <- list(selected_graph = Matrix( graphi + t(graphi), sparse = TRUE ), phat = Matrix( round(phat, 2), 
+					  sparse = TRUE ), Khat = round(Khat, 3) )
 					  
-	return(return.list)
+	return( return.list )
 }  
    
 # print of the bdgraph output
