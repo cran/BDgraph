@@ -4,7 +4,7 @@
 \title{Sampling from G-Wishart distribution}
 
 \description{
-Generate random matrices, distributed according to the G-Wishart distribution with parameters b and D, \eqn{W_G(b, D)}.
+Generates random matrices, distributed according to the G-Wishart distribution with parameters b and D, \eqn{W_G(b, D)}.
 }
 
 \usage{rgwish( n = 1, G = NULL, b = 3, D = NULL )}
@@ -12,7 +12,7 @@ Generate random matrices, distributed according to the G-Wishart distribution wi
 \arguments{
   \item{n}{The number of samples required. The default value is 1.}
   \item{G}{
-    Adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which \eqn{g_{ij}=1} 
+    The adjacency matrix corresponding to the graph structure. It should be an upper triangular matrix in which \eqn{g_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{g_{ij}=0}.
     }
   \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default value is 3.}
@@ -38,9 +38,9 @@ Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119
 
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Gaussian Copula Graphical Modeling for Dupuytren Disease, \emph{arXiv:1501.04849} 
 }
 
 \author{Abdolreza Mohammadi and Ernst Wit}
@@ -48,10 +48,10 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian M
 \examples{
 \dontrun{
 G <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
-G # graph with 5 nodes and 4 links
-
+G # Graph with 5 nodes and 4 links
+   
 sample <- rgwish( n = 3, G = G, b = 3, D = diag(5) )
-sample
+round( sample, 2 )  
 }
 }
 

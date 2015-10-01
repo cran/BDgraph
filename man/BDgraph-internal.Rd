@@ -1,7 +1,6 @@
 \name{BDgraph-internal}
 \alias{BDgraph-internal}
 
-\alias{log.Exp.MC}
 \alias{roc}
 \alias{outRoc}
 

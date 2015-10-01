@@ -1,45 +1,50 @@
 # To select the graph in which the edge posterior probabilities are more than "cut" value
 # OR if cut is NULL to select the best graph (graph with the highest posterior probability) 
-select = function ( output, cut = NULL, vis = FALSE )
+select = function( x, cut = 0.5, vis = FALSE )
 {
-	p = nrow( output $ lastGraph )
-
-	if ( is.null( cut ) )
+	phat = x $ phat
+	p    = nrow( x $ lastGraph )
+  
+	if( is.null( phat ) )
 	{
-		sampleGraphs <- output $ sampleGraphs
-		graphWeights <- output $ graphWeights
-		prob.G       <- graphWeights / sum( graphWeights )
-		max.prob.G   <- which( prob.G == max( prob.G ) )
-		
-		if( length( max.prob.G ) > 1 ) max.prob.G <- max.prob.G[1] 
-		
-		gi        <- sampleGraphs[max.prob.G]
-		gv        <- c( rep( 0, p * ( p - 1 ) / 2 ) )
-		gv[ which( unlist( strsplit( as.character(gi), "" ) ) == 1 ) ] <- 1
-
-		dimlab   <- colnames( output $ lastGraph )
-		if ( is.null( dimlab ) ) dimlab <- as.character( 1 : p )
-		
-		graphi <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
-		graphi[ upper.tri(graphi) ] <- gv
-	} 
-	else 
-	{
-		if ( ( cut < 0 ) || ( cut > 1 ) )   stop( "Value of 'cut' should be between zero and one." )
-		prob  <- as.matrix( phat( output ) )
-		prob[ prob > cut ]  = 1
-		prob[ prob <= cut ] = 0
-		graphi = prob
-	}
-	
-	if ( vis )
-	{
-		G <- graph.adjacency( graphi, mode = "undirected", diag = FALSE )
-		if ( p < 20 ) sizev = 15 else sizev = 2
-
-		if ( is.null(cut) )
+		if( is.null( cut ) )
 		{
-			plot.igraph( G, layout = layout.circle, main = "Graph with highest posterior probability", sub = paste( c( "Posterior probability = ", round( max( prob.G ), 4) ), collapse = "" ),
+			sampleGraphs <- x $ sampleGraphs
+			graphWeights <- x $ graphWeights
+			
+			indG_max     <- sampleGraphs[ which( graphWeights == max( graphWeights ) )[1] ]
+			vec_G        <- c( rep( 0, p * ( p - 1 ) / 2 ) )
+			vec_G[ which( unlist( strsplit( as.character( indG_max ), "" ) ) == 1 ) ] <- 1
+
+			dimlab       <- colnames( x $ lastGraph )
+			selected_G   <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
+			selected_G[ upper.tri(selected_G) ] <- vec_G
+		} 
+		else 
+		{
+			if ( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' should be between zero and one." )
+			phat                = as.matrix( phat( x ) )
+			phat[ phat > cut ]  = 1
+			phat[ phat <= cut ] = 0
+			selected_G          = phat
+		}
+	}
+	else
+	{
+		if( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' should be between zero and one." )
+		selected_G                = 0 * phat
+		selected_G[ phat > cut ]  = 1
+		selected_G[ phat <= cut ] = 0
+	}
+		
+	if( vis )
+	{
+		G <- graph.adjacency( selected_G, mode = "undirected", diag = FALSE )
+		if( p < 20 ) sizev = 15 else sizev = 2
+
+		if( is.null(cut) )
+		{
+			plot.igraph( G, layout = layout.circle, main = "Graph with highest posterior probability", sub = paste( c( "Posterior probability = ", round( max( graphWeights ) / sum( graphWeights ), 4) ), collapse = "" ),
 			            vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black'  )
 		} 
 		else 
@@ -48,6 +53,6 @@ select = function ( output, cut = NULL, vis = FALSE )
 		}
 	}
 
-	return( Matrix( graphi + t(graphi), sparse = TRUE ) )
+	return( Matrix( selected_G, sparse = TRUE ) )
 }
        

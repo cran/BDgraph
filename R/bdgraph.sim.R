@@ -1,7 +1,8 @@
 # Data generator according to the graph structure
-bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2, 
-                        class = NULL, type = "Gaussian", cut = 4, b = 3, D = diag(p), 
-                        K = NULL, sigma = NULL, mean = 0, vis = FALSE )
+bdgraph.sim = function( n = 2, p = 10, type = "Gaussian", graph = "random", 
+						prob = 0.2, size = NULL, mean = 0, class = NULL, 
+						cut = 4, b = 3, D = diag(p), K = NULL, sigma = NULL, 
+						vis = FALSE )
 {
     if ( is.matrix(K) )  graph <- "fixed"
     
@@ -139,16 +140,16 @@ bdgraph.sim = function( n = 2, p = 10, graph = "random", size = NULL, prob = 0.2
     } 
     else 
     {
-		Ti      <- chol( solve(D) )
-		diag(G) <- 0
+		Ti        = chol( solve(D) )
+		diag(G)   = 0
+		K         = matrix( 0, p, p )
+		threshold = 1e-8
 		
-		K <- matrix( 0, p, p )
-		# rgwish ( double G[], double T[], double K[], int *b, int *p )
 		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), 
-		             as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
-		K = matrix ( result $ K, p, p ) 		
-			
-		sigma <- solve( K )
+		             as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
+		
+		K     = matrix ( result $ K, p, p ) 		
+		sigma = solve( K )
 	}
 	
 	diag(G) <- 0
@@ -240,9 +241,10 @@ print.sim = function( x, ... )
 # plot for class "sim" from bdgraph.sim function
 plot.sim = function( x, main = NULL, layout = layout.circle, ... )
 {
-    if ( is.null(main) ) main <- "Graph structure"
-  	g <- graph.adjacency( as.matrix(x $ G), mode = "undirected", diag = FALSE )
+    true_graph = as.matrix( x $ G )
+    if ( is.null( main ) ) main = "Graph structure"
+  	g_igraph <- graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
 	
-    plot.igraph( g, main = main, layout = layout, ... )
+    plot.igraph( g_igraph, main = main, layout = layout, ... )
 }		
    

@@ -4,11 +4,11 @@
 \title{ Human gene expression dataset }
 
 \description{ 
-This data set contains human gene expression of \eqn{100} transcripts 
+This dataset contains human gene expression of \eqn{100} transcripts 
 (with unique Illumina TargetID) measured on \eqn{60} unrelated individuals. 
 }
 
-\usage{ data(geneExpression) }
+\usage{ data( geneExpression ) }
 
 \format{ The format is a matrix with 60 rows (number of individuals) and 100 column (number of transcripts). }
 

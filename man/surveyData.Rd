@@ -4,7 +4,7 @@
 \title{ Labor force survey data }
 
 \description{ 
-The survey data concerns 1002 males in the U.S labor force, described by Hoff (2007). 
+The survey dataset concerns 1002 males in the U.S labor force, described by Hoff (2007). 
 The seven observed variables which have been measured on various scales are as follow: 
 the income (income), degree (degree), the number of children (children), parents income (pincome), 
 parents degree (pdegree), number of parents children (pchildren), and age (age).  
@@ -17,11 +17,7 @@ parents degree (pdegree), number of parents children (pchildren), and age (age).
 \references{
 Hoff, P. (2007). Extending the rank likelihood for semiparametric copula estimation, \emph{The Annals of Applied Statistics, 1(1)}, 265-283.
 
-%Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
-
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
-
-%Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108} 
 }
 
 %\author{Abdolreza Mohammadi and Ernst Wit}

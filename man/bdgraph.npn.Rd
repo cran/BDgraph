@@ -3,12 +3,12 @@
 
 \title{Nonparametric transfer}
 
-\description{ This function transfers non-Gaussian data to Gaussian.  }
+\description{ Transfers non-Gaussian data to Gaussian.  }
 
 \usage{ bdgraph.npn( data, npn = "shrinkage", npn.thresh = NULL ) }
 
 \arguments{
-  \item{data}{ It could be a (\eqn{n \times p}{n x p}) matrix or a data.frame corresponding to the data. }
+  \item{data}{ It could be a (\eqn{n \times p}{n x p}) matrix or a \code{data.frame} corresponding to the data. }
   \item{npn}{ 
   A character with three options \code{"shrinkage"} (default), \code{"truncation"}, and \code{"skeptic"}. Option \code{"shrinkage"} is for the 
   shrunken transformation, option \code{"truncation"} is for the truncated transformation and option \code{"skeptic"} is for the 

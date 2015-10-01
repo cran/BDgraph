@@ -3,10 +3,13 @@
 # sampling from G-Wishart distribution
 rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 {
-	if ( is.null(G) ) stop( "Adjacency matrix G should be determined" )
+	if ( b <= 2 ) stop( "In G-Wishart distribution parameter 'b' has to be more than 2" )
+	if( is.null(G) ) stop( "Adjacency matrix G should be determined" )
+
 	G <- as.matrix(G)
-	if ( sum( (G == 1) * (G == 0) ) != 0 ) stop( "Elements of matrix G should be zero or one" )	
-	if ( !isSymmetric(G) )
+	if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix G should be zero or one" )	
+
+	if( !isSymmetric(G) )
 	{
 		G[ lower.tri( G, diag(TRUE) ) ] <- 0
 		G  = G + t(G)
@@ -14,25 +17,24 @@ rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
 	
 	p <- nrow(G)  
 	
-	if ( is.null(D) ) 
+	if( is.null(D) ) 
 	{
 		D <- diag(p)
-	} else {
-		if ( dim(D)[1] != p ) stop( "Dimension of matrix G and D must to be the same." )
+	} 
+	else 
+	{
+		if( dim(D)[1] != p ) stop( "Dimension of matrix G and D must to be the same." )
 	}
 		
-	Ti = chol( solve(D) ) 
-	
-	samples <- array( 0, c( p, p, n ) )
-	K  = matrix( 0, p, p )
+	Ti        = chol( solve(D) )
+	samples   = array( 0, c( p, p, n ) )
+	K         = matrix( 0, p, p )
+	threshold = 1e-8
 	
 	for ( i in 1 : n )
 	{
-		# rgwish ( int G[], double Ti[], double K[], int *b, int *p )
-		result = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), 
-					 as.integer(b), as.integer(p)
-					 , PACKAGE = "BDgraph" )
-		samples[,,i] = matrix ( result $ K, p, p ) 		
+		result       = .C( "rgwish", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
+		samples[,,i] = matrix( result $ K, p, p ) 		
 	}	
 
 	return( samples )   

@@ -3,7 +3,7 @@
 
 \title{ Comparing the result }
 
-\description{ With this function, we can check the performance of our method and compare it with other alternative approaches. }
+\description{ With this function, we can check the performance of our methods and compare it with other alternative approaches. }
 
 \usage{ compare( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FALSE ) }
 
@@ -18,7 +18,7 @@
   
   \item{colnames}{ A character vector giving the column names for the result table. }
   
-  \item{vis}{ Logical: if TRUE you will see a plot result. The default is FALSE. } 
+  \item{vis}{ Visualize the true graph and estimated graph structures. The default is FALSE. } 
 }
 
 \value{
@@ -35,9 +35,9 @@
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Gaussian Copula Graphical Modeling for Dupuytren Disease, \emph{arXiv:1501.04849} 
 }
 \author{Abdolreza Mohammadi, Antonio Abbruzzo, Ivan Vujacic, and Ernst Wit \cr}
 
@@ -45,20 +45,18 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian M
 
 \examples{
 \dontrun{
-# generating multivariate normal data from a 'random' graph
+# Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
-
-# running sampling algorithm
-output <- bdgraph( data = data.sim, iter = 10000 )
-# comparing the result
-compare( data.sim, output, colnames = c("true", "BDgraph"), vis = TRUE )
-
-# estimate the true graph by 'huge' package
-require( huge )  
-huge.g <- huge( data.sim $ data, method = "mb" )
-huge.g <- huge.select( huge.g )    
-
-# comparing the result
-compare( data.sim, output, huge.g, colnames = c("true", "BDgraph", "huge") , vis = TRUE )
+   
+# Running sampling algorithm based on GGM method 
+output_ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+# Comparing the result
+compare( data.sim, output_ggm, colnames = c("true", "GGM"), vis = TRUE )
+   
+# Running sampling algorithm based on GCGM method 
+output_gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+# Comparing GGM and GCGM methods
+compare( data.sim, output_ggm, output_gcgm, colnames = c("true", "GGM", "GCGM"), vis = TRUE )
+   
 }
 }

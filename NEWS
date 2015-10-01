@@ -2,9 +2,12 @@ BDgraph NEWS
 ---------------
 
 - CHANGES IN VERSION 2.19
-  The Title in Description is changed
-  Function "I.g" is added
+   The Title in Description is changed
+   Function "I.g" is added
    
 - CHANGES IN VERSION 2.20
-  Reversible jump MCMC algorithm is added to "bdgraph()" fonction
+   Reversible jump MCMC algorithm is added to "bdgraph()" fonction
+
+- CHANGES IN VERSION 2.23
+   Function "I.g" is chenged to "log_Ig" and it is implemented in C++
 

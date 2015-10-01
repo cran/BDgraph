@@ -1,47 +1,49 @@
 # To check the convergency of the BDMCMC algorithm
-plotcoda = function( output, thin = NULL, main = NULL, links = TRUE, ... )
+plotcoda = function( x, thin = NULL, main = NULL, links = TRUE, ... )
 {
-	if( is.null(thin) ) thin = ceiling( length( output $ allGraphs ) / 1000 )
+	if( !is.null( x $ phat ) ) stop( "Function needs output of 'bdgraph' with option save.all = TRUE" ) 
+	
+	if( is.null( thin ) ) thin = ceiling( length( x $ allGraphs ) / 1000 )
 
-	sampleGraphs = output $ sampleGraphs
-	p          <- nrow( output $ lastGraph ) 
-	allWeights <- output $ allWeights
-	allGraphs  <- output $ allGraphs
+	sampleGraphs    = x $ sampleGraphs
+	p               = nrow( x $ lastGraph )
+	qp              = p * ( p - 1 ) / 2 
+	allWeights      = x $ allWeights
+	allGraphs       = x $ allGraphs
 
-	allG.new        <- allGraphs[ c( thin * ( 1 : floor( length( allGraphs ) / thin ) ) ) ]
-	allWeights.new  <- allWeights[ c( thin * ( 1 : floor( length( allWeights ) / thin ) ) ) ]
-	length.allG.new <- length( allG.new )
-	ff              <- matrix( 0, p * ( p - 1 ) / 2, length.allG.new )
-	ffv             <- 0 * ff[ , 1]
+	allG_new        = allGraphs[ c( thin * ( 1 : floor( length( allGraphs ) / thin ) ) ) ]
+	allWeights_new  = allWeights[ c( thin * ( 1 : floor( length( allWeights ) / thin ) ) ) ]
+	length_allG_new = length( allG_new )
+	result          = matrix( 0, qp, length_allG_new )
+	vec_result      = 0 * result[ , 1]
 
-	for ( g in 1 : length.allG.new )
+	for ( g in 1 : length_allG_new )
 	{
-		mes <- paste( c( "Calculation ... in progress : ", floor( 100 * g / length.allG.new ), "%" ), collapse = "" )
+		mes = paste( c( "Calculation ... in progress : ", floor( 100 * g / length_allG_new ), "%" ), collapse = "" )
 		cat(mes, "\r")
 		flush.console()	
 
-		inp      <- which( unlist( strsplit( as.character( sampleGraphs[ allG.new[g] ] ), "" ) ) == 1 )
-		ffv[inp] <- ffv[inp] + allWeights.new[g]
-		ff[ ,g]  <- ffv / sum( allWeights.new[ c( 1 : g ) ] )    	 
+		which_edge             = which( unlist( strsplit( as.character( sampleGraphs[ allG_new[g] ] ), "" ) ) == 1 )
+		vec_result[which_edge] = vec_result[which_edge] + allWeights_new[g]
+		result[ ,g]            = vec_result / sum( allWeights_new[ c( 1 : g ) ] )    	 
 	}
 
 	if ( links )
 		if ( p > 15 )
 		{
-			qp = p * ( p - 1 ) / 2
 			randomLinks = sample( x = 1:qp, size = ( qp - 100 ), replace = FALSE )
-			ff[ randomLinks, ] = 0
+			result[ randomLinks, ] = 0
 		}
 	
-	mes <- paste( c( "Calculation ... done.                        " ), collapse = "" )
+	mes = paste( c( "Calculation ... done.                        " ), collapse = "" )
 	cat(mes, "\r")
 	cat("\n")
 	flush.console()
 
-	matplot( x = thin * (1 : length.allG.new), y = t(ff), type = "l", lty = 1, col = 1,
+	matplot( x = thin * ( 1 : length_allG_new ), y = t( result ), type = "l", lty = 1, col = 1,
 		  xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
-	if ( is.null( main ) ) main <- "Trace of the Posterior Probabilities of the Links"
+	if ( is.null( main ) ) main = "Trace of the Posterior Probabilities of the Links"
 	title( main = main, cex.main = 1.5 )
 }
     

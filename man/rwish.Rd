@@ -4,7 +4,7 @@
 \title{Sampling from Wishart distribution}
 
 \description{
-Generate random matrices, distributed according to the Wishart distribution with parameters b and D, \eqn{W(b, D)}.
+Generates random matrices, distributed according to the Wishart distribution with parameters b and D, \eqn{W(b, D)}.
 }
 
 \usage{rwish( n = 1, p = 2, b = 3, D = diag(p) )}
@@ -33,17 +33,18 @@ definite matrix, a realization of the Wishart distribution \eqn{W(b, D)}.
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108v2} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Modeling of Dupuytren Disease Using Gaussian Copula Graphical Models, \emph{Arxiv preprint arXiv:1501.04849v2} 
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Gaussian Copula Graphical Modeling for Dupuytren Disease, \emph{arXiv:1501.04849} 
 }
 
 \author{Abdolreza Mohammadi and Ernst Wit}
 
 \examples{
 \dontrun{
-sample <- rwish( n = 3, p = 5, b = 3, D = diag(p) )
-sample
+p      <- 5
+sample <- rwish( n = 3, p = p, b = 3, D = diag(p) )
+round( sample, 2 )  
 }
 }
 
