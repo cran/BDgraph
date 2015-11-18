@@ -4,7 +4,7 @@
 \title{Print function for \code{S3} class \code{"bdgraph"} }
 
 \description{
-Prints the information about the selected graph which could be a graph with links for which their estimated posterior probabilities are more that 0.5
+Prints the information about the selected graph which could be a graph with links for which their estimated posterior probabilities are greater than 0.5
 or graph with the highest posterior probability.
 It provides adjacency matrix, size and posterior probability of the selected graph.
 }
@@ -32,11 +32,11 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 
 \examples{
 \dontrun{
-# generating multivariate normal data from a 'random' graph
+# Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, vis = TRUE )
-
-output   <- bdgraph( data = data.sim )
-
-print( output )
+  
+bdgraph.obj <- bdgraph( data = data.sim )
+   
+print( bdgraph.obj )
 }
 }

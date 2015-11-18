@@ -11,8 +11,8 @@ Based on the underling graph structure, it generates four different types of dat
 
 \usage{
 bdgraph.sim( n = 2, p = 10, type = "Gaussian", graph = "random", prob = 0.2, 
-			 size = NULL, mean = 0, class = NULL, cut = 4, b = 3, 
-			 D = diag(p), K = NULL, sigma = NULL, vis = FALSE )
+			           size = NULL, mean = 0, class = NULL, cut = 4, b = 3, 
+			           D = diag(p), K = NULL, sigma = NULL, vis = FALSE )
 }
 
 \arguments{
@@ -46,7 +46,7 @@ bdgraph.sim( n = 2, p = 10, type = "Gaussian", graph = "random", prob = 0.2,
 
 \value{
 	An object with \code{S3} class \code{"sim"} is returned:
-	\item{data}{Generated data as a (\eqn{n \times p}{n x p}) matrix.}
+	\item{data}{Generated data as an (\eqn{n \times p}{n x p}) matrix.}
 	\item{sigma}{The covariance matrix of the generated data.}
 	\item{K}{The precision matrix of the generated data.}
 	\item{G}{The adjacency matrix corresponding to the true graph structure.}
@@ -69,11 +69,11 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 10, prob = 0.3, vis = TRUE )
 print( data.sim )
-   
+     
 # Generating multivariate normal data from a 'hub' graph
 data.sim <- bdgraph.sim( n = 3, p = 6, graph = "hub", vis = FALSE )
 round( data.sim $ data, 2 )
-   
+     
 # Generating mixed data from a 'hub' graph 
 data.sim <- bdgraph.sim( n = 10, p = 8, graph = "hub", type = "mixed" )
 round( data.sim $ data, 2 )

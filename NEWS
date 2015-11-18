@@ -11,3 +11,7 @@ BDgraph NEWS
 - CHANGES IN VERSION 2.23
    Function "I.g" is chenged to "log_Ig" and it is implemented in C++
 
+- CHANGES IN VERSION 2.24
+   Function "phat" is changed to "plinks"
+   Function "prob" is changed to "pgraph"
+   Function "log_Ig" is changed to "gnorm"

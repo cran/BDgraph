@@ -30,7 +30,7 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 
 \examples{
 \dontrun{
-# generating synthetic multivariate normal data from a 'random' graph
+# Generating synthetic multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 10, p = 15 )
   
 plot( data.sim )

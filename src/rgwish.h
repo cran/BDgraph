@@ -18,8 +18,8 @@ extern "C" {
 
 	void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold );
 
-void rgwish_sigma( int G[], double Ts[], double K[], double sigma[], int *bstar, int *p, double *threshold,
-					double sigma_start[], double invC[], double beta_star[], double sigma_i[], 
+void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sigma[], int *b_star, int *p, double *threshold,
+					double sigma_start[], double inv_C[], double beta_star[], double sigma_i[], 
 					vector<double> &sigma_start_N_i, vector<double> &sigma_N_i, vector<int> &N_i );
 }
 

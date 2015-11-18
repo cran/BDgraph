@@ -1,10 +1,10 @@
 # To compute Normalizing constant of G-Wishart distribution according to ATAY-KAYIS AND MASSAM (2005)
-log_Ig = function( G, b = 3, D = diag( ncol(G) ), mc = 100 )
+gnorm = function( adj.g, b = 3, D = diag( ncol(adj.g) ), iter = 100 )
 {
 	if ( b <= 2 ) stop( "In G-Wishart distribution parameter 'b' has to be more than 2" )
-	if( is.null(G) ) stop( "Adjacency matrix G should be determined" )
+	if( is.null( adj.g ) ) stop( "Adjacency matrix should be determined" )
 
-	G <- as.matrix(G)
+	G <- as.matrix( adj.g )
 	if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix G should be zero or one" )	
 
 	G[ lower.tri( G, diag = TRUE ) ] <- 0
@@ -20,10 +20,10 @@ log_Ig = function( G, b = 3, D = diag( ncol(G) ), mc = 100 )
 	check_H = identical( H, diag(p) ) * 1
 
 	nu  = sumrowG
-	f_T = c( rep( 0, mc ) )
+	f_T = c( rep( 0, iter ) )
 
 	result = .C( "log_exp_mc", as.integer(G), as.integer(nu), as.integer(b), as.double(H), as.integer(check_H), 
-	              as.integer(mc), as.integer(p), f_T = as.double(f_T), PACKAGE = "BDgraph" )
+	              as.integer(iter), as.integer(p), f_T = as.double(f_T), PACKAGE = "BDgraph" )
 	f_T    = c( result $ f_T )
 	
 	log_Ef_T = log( mean( exp( - f_T / 2 ) ) )

@@ -1,5 +1,5 @@
-\name{phat}
-\alias{phat}
+\name{plinks}
+\alias{plinks}
 
 \title{ Estimated posterior link probabilities }
 
@@ -7,16 +7,16 @@
 Provides the estimated posterior link probabilities for all possible links in the graph.
 }
 
-\usage{ phat( x, round = 3 ) }
+\usage{ plinks( bdgraph.obj, round = 3 ) }
 
 \arguments{
-  \item{x}{An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
 
   \item{round}{A value for rounding all probabilities to the specified number of decimal places (default is 3).}
 }
 
 \value{
-\item{phat}{ An upper triangular matrix which corresponds the estimated posterior probabilities for all possible links.}
+\item{p_links}{ An upper triangular matrix which corresponds the estimated posterior probabilities for all possible links.}
 }
 
 \references{
@@ -36,9 +36,9 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 	# Generating multivariate normal data from a 'circle' graph
 	data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
    
-	output   <- bdgraph( data = data.sim, iter = 10000 )
+	bdgraph.obj   <- bdgraph( data = data.sim, iter = 10000 )
   
-	phat( output, round = 2 )
+	plinks( bdgraph.obj, round = 2 )
 	}
 }
 

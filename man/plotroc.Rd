@@ -7,21 +7,31 @@
 Draws the ROC curve according to the true graph structure for object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
 }
 
-\usage{ plotroc( G, prob, prob2 = NULL, cut = 20, smooth = FALSE ) }
+\usage{ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
+                 cut.num = 20, smooth = FALSE, label = TRUE ) }
 
 \arguments{
-  \item{G}{
-	The adjacency matrix corresponding to the true graph structure in which \eqn{g_{ij}=1} if there is a link between notes \eqn{i}{i} and
-	\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
+  \item{sim.obj}{
+	An object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
+	It also can be the adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and
+	\eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
   }
   
-  \item{prob}{ Upper triangular matrix which shows the stimated posterior probabilities for all possible links. It also can be an object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+                      It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links. }
   
-  \item{prob2}{ This option is for comparing two different estimations. Upper triangular matrix which shows the stimated posterior inclusion probabilities for all possible links. It also can be an object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj2}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
+                       It is for comparing two different approaches. }
   
-  \item{cut}{ Number of cut points. The default value is 20. }
+  \item{bdgraph.obj3}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
+                       It is for comparing three different approaches. }
+  
+  \item{cut.num}{ Number of cut points. The default value is 20. }
   
   \item{smooth}{ Logical: for smoothing the ROC curve. The default is FALSE.} 
+  \item{label}{ Logical: for adding legend to the ROC plot. The default is TRUE.} 
 }
 
 \references{
@@ -42,14 +52,14 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 data.sim <- bdgraph.sim( n = 30, p = 6, size = 7, vis = TRUE )
    
 # Runing sampling algorithm
-output <- bdgraph( data = data.sim, iter = 10000 )
-# comparing the result
-plotroc( data.sim, output )
-   
-# To compare the result based on CGGMs approach
-output2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+bdgraph.obj <- bdgraph( data = data.sim, iter = 10000 )
 # Comparing the results
-plotroc( data.sim, output, output2 )
-legend( "bottomright", c("Gaussian", "Copula"), lty = c(1,2), col = c(1, 4))   
+plotroc( data.sim, bdgraph.obj )
+   
+# To compare the results based on CGGMs approach
+bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+# Comparing the resultss
+plotroc( data.sim, bdgraph.obj, bdgraph.obj2, label = FALSE )
+legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1,2 ), col = c( 1, 4 ) )   
 }
 }

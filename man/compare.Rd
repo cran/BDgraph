@@ -1,20 +1,21 @@
 \name{compare}
 \alias{compare}
 
-\title{ Comparing the result }
+\title{ Comparing the results }
 
 \description{ With this function, we can check the performance of our methods and compare it with other alternative approaches. }
 
-\usage{ compare( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FALSE ) }
+\usage{ compare( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
+          colnames = NULL, vis = FALSE ) }
 
 \arguments{
-  \item{G}{
-	The adjacency matrix corresponding to the true graph in which \eqn{g_{ij}=1} if there is a link between notes \eqn{i}{i} and
-	\eqn{j}{j}, otherwise \eqn{g_{ij}=0}. It also can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
+  \item{sim.obj}{
+	An object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
+	It also can be the adjacency matrix corresponding to the true graph structure.
 	}
-  \item{est}{ An adjacency matrix corresponding to an estimated graph. It also can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}} or \code{"select"} (from \pkg{huge} package). }
-  \item{est2}{ An adjacency matrix corresponding to an estimated graph. It also can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}} or "select" (from \pkg{huge} package). }
-  \item{est3}{ An adjacency matrix corresponding to an estimated graph. It also can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}} or "select" (from \pkg{huge} package). }
+  \item{bdgraph.obj}{  An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. It also can be an adjacency matrix corresponding to an estimated graph. }
+  \item{bdgraph.obj2}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. It also can be an adjacency matrix corresponding to an estimated graph. It is for comparing two different approaches. }
+  \item{bdgraph.obj3}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. It also can be an adjacency matrix corresponding to an estimated graph. It is for comparing three different approaches. }
   
   \item{colnames}{ A character vector giving the column names for the result table. }
   
@@ -47,16 +48,16 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
-   
-# Running sampling algorithm based on GGM method 
-output_ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
-# Comparing the result
-compare( data.sim, output_ggm, colnames = c("true", "GGM"), vis = TRUE )
-   
-# Running sampling algorithm based on GCGM method 
-output_gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+    
+# Running sampling algorithm based on GGMs 
+sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+# Comparing the results
+compare( data.sim, sample.ggm, colnames = c( "True graph", "GGM" ), vis = TRUE )
+    
+# Running sampling algorithm based on GCGMs
+sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 # Comparing GGM and GCGM methods
-compare( data.sim, output_ggm, output_gcgm, colnames = c("true", "GGM", "GCGM"), vis = TRUE )
-   
+compare( data.sim, sample.ggm, sample.gcgm, colnames = c("True graph", "GGM", "GCGM"), vis = TRUE )
+    
 }
 }

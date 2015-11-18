@@ -1,18 +1,18 @@
 Package: BDgraph
 Type: Package
 Title: Bayesian Graph Selection Based on Birth-Death MCMC Approach
-Version: 2.23
-Date: 2015-09-30
+Version: 2.24
+Date: 2015-11-18
 Author: Abdolreza Mohammadi and Ernst Wit
 Depends: R (>= 3.0.0), Matrix, igraph
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
-Description: Provides statistical tools for Bayesian structure learning in undirected graphical models with either continuous or discrete variables. The main target is to uncover complicated patterns in multivariate data wherein either continuous or discrete variables. 
+Description: Provides statistical tools for Bayesian structure learning in undirected graphical models with either continuous or discrete variables. 
 Acknowledgements: The help of the CRAN team to integrate C++ code with
         R is gratefully acknowledged.
 License: GPL (>= 3)
 LazyLoad: yes
 URL: http://www.math.rug.nl/stat/Main/Research
-Packaged: 2015-09-30 10:10:03 UTC; p262842
+Packaged: 2015-11-18 16:11:16 UTC; p262842
 Repository: CRAN
-Date/Publication: 2015-10-01 00:25:21
+Date/Publication: 2015-11-18 18:34:23
 NeedsCompilation: yes

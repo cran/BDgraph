@@ -11,10 +11,8 @@ ROC = function ( G, est )
 	Precision <- tp / ( tp + fp ) 
 	
 	# Recall is the probability that a randomly selected relevant link 	
-	Recall <- tp / ( tp + fn ) # also called TPR
-	
-	FPR <- fp / ( fp + tn ) # False positive rate
-	
+	Recall   <- tp / ( tp + fn )               # also called TPR
+	FPR      <- fp / ( fp + tn )               # False positive rate
 	Accuracy <- ( tp + tn ) / ( tp + tn + fp + fn )
 	
 	# harmonic mean of precision and recall, called F-measure or balanced F-score
@@ -24,31 +22,36 @@ ROC = function ( G, est )
 }
    
 # To compare the result according to the true graph
-compare = function ( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FALSE ) 
+compare = function ( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, colnames = NULL, vis = FALSE ) 
 {
-	if( class(G)    == "sim" )      G    <- G $ G 
-	if( class(G)    == "bdgraph" ){ es   <- select(G); G <- est $ G ; est <- es }
-	if( class(est)  == "bdgraph" )  est  <- select( est ) 
-	if( class(est2) == "bdgraph" )  est2 <- select( est2 ) 
-	if( class(est3) == "bdgraph" )  est3 <- select( est3 ) 
-	if( class(est)  == "select"  )  est  <- est $ refit
-	if( class(est2) == "select"  )  est2 <- est2 $ refit
-	if( class(est3) == "select"  )  est3 <- est3 $ refit
-
+	if( is.matrix( sim.obj ) )      G    = sim.obj
+	if( is.matrix( bdgraph.obj ) )  est  = bdgraph.obj
+	if( is.matrix( bdgraph.obj2 ) ) est2 = bdgraph.obj2
+	if( is.matrix( bdgraph.obj3 ) ) est3 = bdgraph.obj3
+	
+	if( class(sim.obj)      == "sim" )      G    <- sim.obj $ G 
+#~ 	if( class(sim.obj)      == "bdgraph" ){ es   <- select( sim.obj ); G <- est $ G ; est <- es }
+	if( class(bdgraph.obj)  == "bdgraph" )  est  <- select( bdgraph.obj ) 
+	if( class(bdgraph.obj2) == "bdgraph" )  est2 <- select( bdgraph.obj2 ) 
+	if( class(bdgraph.obj3) == "bdgraph" )  est3 <- select( bdgraph.obj3 ) 
+	if( class(bdgraph.obj)  == "select"  )  est  <- bdgraph.obj $ refit
+	if( class(bdgraph.obj2) == "select"  )  est2 <- bdgraph.obj2 $ refit
+	if( class(bdgraph.obj3) == "select"  )  est3 <- bdgraph.obj3 $ refit
+   
 	G   = as.matrix(G)        # G is the adjacency matrix of true graph 
 	est = as.matrix(est)      # est is the adjacency matrix of estimated graph 
 	p   = nrow( G )
 	G[ lower.tri( G, diag = TRUE ) ]     = 0
 	est[ lower.tri( est, diag = TRUE ) ] = 0
    	   
-	if( is.null( est2 ) & is.null( est3 ) )
+	if( is.null( bdgraph.obj2 ) & is.null( bdgraph.obj3 ) )
 	{
 		result = matrix( 1, 9, 2 )
 		result[ , 2 ] = ROC( G = G, est = est )
 		if( is.null( colnames ) ) colnames <- c( "True graph", "estimate" )
 	}
 
-	if( !is.null( est2 ) & is.null( est3 ) )
+	if( !is.null( bdgraph.obj2 ) & is.null( bdgraph.obj3 ) )
 	{
 		est2 = as.matrix( est2 )       
 		est2[ lower.tri( est2, diag = TRUE ) ] = 0
@@ -59,7 +62,7 @@ compare = function ( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FA
 		if( is.null( colnames ) ) colnames <- c( "True graph", "estimate", "estimate2" )
 	} 
 	
-	if( !is.null( est3 ) & !is.null( est3 ) )
+	if( !is.null( bdgraph.obj2 ) & !is.null( bdgraph.obj3 ) )
 	{
 		est2 = as.matrix( est2 )       
 		est2[ lower.tri( est2, diag = TRUE ) ] = 0
@@ -79,14 +82,14 @@ compare = function ( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FA
 		est_igraph <- graph.adjacency( est, mode = "undirected", diag = FALSE )
 		if ( p < 20 ) sizev = 15 else sizev = 2
 
-		if( is.null( est2 ) )
+		if( is.null( bdgraph.obj2 ) )
 		{
 			op <- par( mfrow = c( 1, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
 			plot.igraph( G_igraph,   layout = layout.circle, main = colnames[1], vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black' )
 			plot.igraph( est_igraph, layout = layout.circle, main = colnames[2], vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black' )
 		}
 		 
-		if( !is.null( est2 ) & is.null( est3 ) )
+		if( !is.null( bdgraph.obj2 ) & is.null( bdgraph.obj3 ) )
 		{
 			op   <- par( mfrow = c( 2, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
 			est2_igraph <- graph.adjacency( as.matrix(est2), mode = "undirected", diag = FALSE )
@@ -95,7 +98,7 @@ compare = function ( G, est, est2 = NULL, est3 = NULL, colnames = NULL, vis = FA
 			plot.igraph( est2_igraph, layout = layout.circle, main = colnames[3], vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black' )			
 		}
 		
-		if( !is.null( est2 ) & !is.null( est3 ) )
+		if( !is.null( bdgraph.obj2 ) & !is.null( bdgraph.obj3 ) )
 		{
 			op   <- par( mfrow = c( 2, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
 			est2_igraph <- graph.adjacency( as.matrix(est2), mode = "undirected", diag = FALSE ) 

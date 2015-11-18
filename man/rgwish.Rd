@@ -7,13 +7,13 @@
 Generates random matrices, distributed according to the G-Wishart distribution with parameters b and D, \eqn{W_G(b, D)}.
 }
 
-\usage{rgwish( n = 1, G = NULL, b = 3, D = NULL )}
+\usage{rgwish( n = 1, adj.g = NULL, b = 3, D = NULL )}
 
 \arguments{
   \item{n}{The number of samples required. The default value is 1.}
-  \item{G}{
-    The adjacency matrix corresponding to the graph structure. It should be an upper triangular matrix in which \eqn{g_{ij}=1} 
-    if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{g_{ij}=0}.
+  \item{adj.g}{
+    The adjacency matrix corresponding to the graph structure. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
+    if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
     }
   \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default value is 3.}
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
@@ -47,10 +47,10 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 
 \examples{
 \dontrun{
-G <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
-G # Graph with 5 nodes and 4 links
+adj.g <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
+adj.g    # adjacency of graph with 5 nodes and 4 links
    
-sample <- rgwish( n = 3, G = G, b = 3, D = diag(5) )
+sample <- rgwish( n = 3, adj.g = adj.g, b = 3, D = diag(5) )
 round( sample, 2 )  
 }
 }

@@ -22,13 +22,13 @@ bdgraph.sim = function( n = 2, p = 10, type = "Gaussian", graph = "random",
 
 		if ( is.null(size) )
 		{
-			if ( prob < 0 | prob > 1 ) stop("'prob' should be between zero and one")
+			if ( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
 			
 			G[upper.tri(G)] <- rbinom( p * ( p - 1 ) / 2, 1, prob )
 		} 
 		else 
 		{
-			if ( size < 0 | size > p * ( p - 1 ) / 2 )  stop("Graph size should be between zero and p*(p-1)/2")
+			if ( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size should be between zero and p*(p-1)/2" )
 			
 			smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
 			G[upper.tri(G)][smp] <- 1
@@ -62,8 +62,6 @@ bdgraph.sim = function( n = 2, p = 10, type = "Gaussian", graph = "random",
 		 
 		if ( is.null(size) )
 		{
-			if ( is.null(prob) ) prob <- 0.2
-			if ( class > 1 ) prob <- class * prob
 			if ( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
 
 			for ( i in 1 : class )
@@ -225,6 +223,7 @@ bdgraph.sim = function( n = 2, p = 10, type = "Gaussian", graph = "random",
 	class( simulation ) <- "sim"
 	return( simulation )
 }
+    
 # Print function for simulation data
 print.sim = function( x, ... )
 {
@@ -238,6 +237,7 @@ print.sim = function( x, ... )
 	cat( paste( "  Graph size      =", sum(x $ G) / 2                       ), fill = TRUE )
 	cat( paste( "  Sparsity        =", round(sum(x $ G) / (p * (p - 1)), 4) ), fill = TRUE )
 }
+    
 # plot for class "sim" from bdgraph.sim function
 plot.sim = function( x, main = NULL, layout = layout.circle, ... )
 {
@@ -247,4 +247,4 @@ plot.sim = function( x, main = NULL, layout = layout.circle, ... )
 	
     plot.igraph( g_igraph, main = main, layout = layout, ... )
 }		
-   
+       

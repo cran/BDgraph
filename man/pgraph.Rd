@@ -1,27 +1,27 @@
-\name{prob}
-\alias{prob}
+\name{pgraph}
+\alias{pgraph}
 
 \title{ Posterior probabilities of the graphs }
 
 \description{
-Provides the estimated posterior probabilities for the most likely graphs or a specific graph, \code{'G'}.
+Provides the estimated posterior probabilities for the most likely graphs or a specific graph.
 }
 
-\usage{prob( x, number.g = 4, G = NULL )}
+\usage{ pgraph( bdgraph.obj, number.g = 4, adj_g = NULL ) }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   \item{number.g}{ The number of graphs with the highest posterior probabilities to be shown (default is 4).
-            This option is ignored if \code{'G'} is specified. }
-  \item{G}{ Adjacency matrix corresponding to a graph structure. It is an upper triangular matrix in which 
-            \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}.
+            This option is ignored if \code{'adj_g'} is specified. }
+  \item{adj_g}{ An adjacency matrix corresponding to a graph structure. It is an upper triangular matrix in which 
+            \eqn{a_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{a_{ij}=0}.
             It also can be an object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}. }
 }
 
 \value{
-\item{ selected_G }{ The graphs with the highest posterior probabilities.}
+\item{ selected_g }{ The graphs with the highest posterior probabilities.}
 
-\item{ prob_G }{ A vector of the posterior probabilities of the graphs corresponding to \code{'selected\_G'}.}
+\item{ prob_g }{ A vector of the posterior probabilities of the graphs corresponding to \code{'selected\_g'}.}
 }
 
 \references{
@@ -41,12 +41,12 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 6, vis = TRUE )
    
-output   <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
    
 # Estimated posterior probability of the true graph
-prob( output, G = data.sim )
+pgraph( bdgraph.obj, adj_g = data.sim )
    
-# Estimated posterior probability of the first and second graphs with highest probabilities
-prob( output, number.g = 2 )
+# Estimated posterior probability of first and second graphs with highest probabilities
+pgraph( bdgraph.obj, number.g = 2 )
 }
 }

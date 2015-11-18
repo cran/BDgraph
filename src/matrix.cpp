@@ -1,63 +1,62 @@
 #include "matrix.h"
    
-// Takes square matrix A (p x p) and retrieves square submatrix B (p_sub x p_sub), dictated by vector sub
-void subMatrix( double A[], double subA[], int sub[], int *p_sub, int *p  )
+// Takes square matrix A (p x p) and retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
+void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  )
 {
-	int ixp, subixp;
+	int ixp, subixp, psub = *p_sub, pdim = *p;
 	
-	for( int i = 0, psub = *p_sub, pdim = *p; i < psub; i++ )
+	for( int i = 0; i < psub; i++ )
 	{
 		ixp    = i * psub;
 		subixp = sub[i] * pdim;
 		
 		for( int j = 0; j < psub; j++ )
-			subA[ixp + j] = A[subixp + sub[j]]; 
+			sub_A[ixp + j] = A[subixp + sub[j]]; 
 	}
 }
 
-// Takes square matrix A (p x p) and retrieves vector subA which is 'sub' th row of matrix A, minus 'sub' element
+// Takes square matrix A (p x p) and retrieves vector sub_A which is 'sub' th row of matrix A, minus 'sub' element
 // Likes A[j, -j] in R
-void subRowMins( double A[], double subA[], int *sub, int *p )
+void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
-	int i, dimSub = *sub, pdim = *p;
-	int subxp = dimSub * pdim;
+	int i, subj = *sub, pdim = *p, subxp = subj * pdim;
 
-	//~ for( i = 0; i < dimSub; i++ ) subA[i] = A[subxp + i];	
-	memcpy( subA,          A + subxp,              sizeof( double ) * dimSub );	
+	//~ for( i = 0; i < subj; i++ ) sub_A[i] = A[subxp + i];	
+	memcpy( sub_A,        A + subxp,            sizeof( double ) * subj );	
 	
-	//~ for( i = dimSub + 1; i < pdim; i++ ) subA[i - 1] = A[subxp + i];	
-	memcpy( subA + dimSub, A + subxp + dimSub + 1, sizeof( double ) * ( pdim - dimSub - 1 ) );	
+	//~ for( i = subj + 1; i < pdim; i++ ) sub_A[i - 1] = A[subxp + i];	
+	memcpy( sub_A + subj, A + subxp + subj + 1, sizeof( double ) * ( pdim - subj - 1 ) );	
 }
    
-// Takes square matrix A (p x p) and retrieves submatrix subA(2 x p-2) which is sub rows of matrix A, minus two elements
+// Takes square matrix A (p x p) and retrieves sub_matrix sub_A(2 x p-2) which is sub rows of matrix A, minus two elements
 // Likes A[(i,j), -(i,j)] in R ONLY  FOR SYMMETRIC MATRICES
-void subRowsMins( double A[], double subA[], int *row, int *col, int *p )
+void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col;
 	int sub0p = sub0 * pdim, sub1p = sub1 * pdim;
 
 	for( i = 0; i < sub0; i++ )
 	{
-		subA[l++] = A[sub0p + i]; 
-		subA[l++] = A[sub1p + i]; 
+		sub_A[l++] = A[sub0p + i]; 
+		sub_A[l++] = A[sub1p + i]; 
 	}
 	
 	for( i = sub0 + 1; i < sub1; i++ )
 	{
-		subA[l++] = A[sub0p + i]; 
-		subA[l++] = A[sub1p + i]; 
+		sub_A[l++] = A[sub0p + i]; 
+		sub_A[l++] = A[sub1p + i]; 
 	}
 
 	for( i = sub1 + 1; i < pdim; i++ )
 	{
-		subA[l++] = A[sub0p + i]; 
-		subA[l++] = A[sub1p + i]; 
+		sub_A[l++] = A[sub0p + i]; 
+		sub_A[l++] = A[sub1p + i]; 
 	}
 }
 
 // Takes symmatric matrix A (p x p) and retrieves A_jj, A12(1x(p-1)), A21((p-1)x1), and A22((p-1)x(p-1))
 // Like A11=A[j, j], A12=A[j, -j], and A22=A[-j, -j] in R
-void subMatrices1( double A[], double A12[], double A22[], int *sub, int *p )
+void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
 	int i, j, ixpdim, ij, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim;
 
@@ -90,7 +89,7 @@ void subMatrices1( double A[], double A12[], double A22[], int *sub, int *p )
 
 // Takes square matrix A (p x p) and retrieves A11(2x2), A12(2x(p-2)), and A22((p-2)x(p-2))
 // Like A11=A[e, e], A12=A[e, -e], and A22=A[-e, -e] in R
-void subMatrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
+void sub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
 	int i, j, ixp, ij, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
 
@@ -158,7 +157,7 @@ void subMatrices( double A[], double A11[], double A12[], double A22[], int *row
 ////////////////////////////////////////////////////////////////////////////////
 //  Multiplies (p_i x p_k) matrix by (p_k x p_j) matrix to give (p_i x p_j) matrix
 //  C := A %*% B
-void multiplyMatrix( double A[], double B[], double C[], int *p_i, int *p_j, int *p_k )
+void multiply_matrix( double A[], double B[], double C[], int *p_i, int *p_j, int *p_k )
 {
 	double alpha = 1.0, beta  = 0.0;
 	char trans   = 'N';																	
@@ -183,7 +182,7 @@ void inverse( double A[], double A_inv[], int *p )
 }
 
 // inverse function for symmetric (2 x 2)
-void inverse2x2( double B[], double B_inv[] )
+void inverse_2x2( double B[], double B_inv[] )
 {
 	double detB = B[0] * B[3] - B[1] * B[1];
 	B_inv[0]    = B[3] / detB;
@@ -209,4 +208,117 @@ void cholesky( double A[], double U[], int *p )
 		for( j = 0; j < i; j++ )
 			U[j * dim + i] = 0.0;
 }
+  
+// To select an edge for BDMCMC algorithm  
+void select_edge( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp )
+{
+	long double random_value;
+	int qp_star = *qp;
+
+	vector<long double> sum_sort_rates( qp_star );
+	sum_sort_rates[0] = rates[0];
+	for ( int i = 1; i < qp_star; i++ )
+		sum_sort_rates[i] = sum_sort_rates[ i - 1 ] + rates[i];
+	
+	*sum_rates = sum_sort_rates[qp_star - 1];
+	random_value = *sum_rates * runif( 0, 1 );
+
+	// To start, find the subscript of the middle position.
+	int position;
+	int lower_bound = 0;
+	int upper_bound = qp_star - 1;
+	position = upper_bound / 2;      // ( lower_bound + upper_bound ) / 2;
+
+	while( upper_bound - lower_bound > 1 )
+	{
+		if ( sum_sort_rates[position] > random_value )    
+			upper_bound = position;    
+		else                                                
+			lower_bound = position;     
+		
+		position = ( lower_bound + upper_bound ) / 2;
+	}
+	
+	//~ if ( sum_sort_rates[position] < random_value ) position = position + 1;
+	*index_selected_edge = ( sum_sort_rates[position] < random_value ) ? ++position : position;
+} 
+    
+// To simultaneously select multiple edges for BDMCMC algorithm  
+void select_multi_edges( long double rates[], int index_selected_edges[], int *size_index, long double *sum_rates, int *multi_update, int *qp )
+{
+	int qp_star = *qp, lower_bound, upper_bound, position;
+	long double max_bound, random_value;
+
+	vector<long double> sum_sort_rates( qp_star );
+	sum_sort_rates[0] = rates[0];
+	for ( int i = 1; i < qp_star; i++ )
+		sum_sort_rates[i] = sum_sort_rates[ i - 1 ] + rates[i];
+	
+	max_bound = sum_sort_rates[qp_star - 1];
+	
+// ---------- for first edge ---------------------------------------
+	// To start, find the subscript of the middle position.
+	lower_bound = 0;
+	upper_bound = qp_star - 1;
+	position    = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
+
+	random_value = max_bound * runif( 0, 1 );
+
+	while( upper_bound - lower_bound > 1 )
+	{
+		if ( sum_sort_rates[position] > random_value )    
+			upper_bound = position;    
+		else                                                
+			lower_bound = position;     
+		
+		position = ( lower_bound + upper_bound ) / 2;
+	}
+	
+	if ( sum_sort_rates[position] < random_value ) ++position;
+	index_selected_edges[0] = position;
+// ---------------------------------------------------------------------
+
+	int counter = 1;
+	int same;
+	for ( int it = 0; it < 200 * *multi_update; it++ )
+	{
+		if ( counter == *multi_update ) break;
+		
+		random_value = max_bound * runif( 0, 1 );
+	
+		// To start, find the subscript of the middle position.
+		lower_bound = 0;
+		upper_bound = qp_star - 1;
+		position   = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
+
+		while( upper_bound - lower_bound > 1 )
+		{
+			if ( sum_sort_rates[position] > random_value )    
+				upper_bound = position;    
+			else                                                
+				lower_bound = position;     
+			
+			position = ( lower_bound + upper_bound ) / 2;
+		}
+		
+		if ( sum_sort_rates[position] < random_value ) ++position;
+		
+		same = 0;
+		for ( int i = 0; i < counter; i++ )
+			if( index_selected_edges[i] == position )
+				++same;
+
+		if ( same == 0 ) index_selected_edges[counter++] = position;
+	}
+	
+	*size_index = counter;
+	*sum_rates  = max_bound;
+} 
+      
+
+
+
+
+  
+  
     

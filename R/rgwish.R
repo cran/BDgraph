@@ -1,12 +1,12 @@
 # R code for sampling from G-Wishart AND Wishart distribution
 ################################################################################
 # sampling from G-Wishart distribution
-rgwish = function( n = 1, G = NULL, b = 3, D = NULL )
+rgwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 {
 	if ( b <= 2 ) stop( "In G-Wishart distribution parameter 'b' has to be more than 2" )
-	if( is.null(G) ) stop( "Adjacency matrix G should be determined" )
+	if( is.null(adj.g) ) stop( "Adjacency matrix should be determined" )
 
-	G <- as.matrix(G)
+	G <- as.matrix( adj.g )
 	if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix G should be zero or one" )	
 
 	if( !isSymmetric(G) )

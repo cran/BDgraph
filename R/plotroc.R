@@ -1,5 +1,5 @@
 # function for ROC plot
-outRoc = function( G, prob, cut )
+outRoc = function( G, prob, cut.num )
 {
 	G[ lower.tri( G, diag = TRUE ) ]       <- 0
 	prob[ lower.tri( prob, diag = TRUE ) ] <- 0
@@ -7,12 +7,12 @@ outRoc = function( G, prob, cut )
 	sumEdges   = sum(G)
 	sumNoEdges = p * ( p - 1 ) / 2 - sumEdges
 	
-	tp = c( 1, rep( 0, cut ) )
+	tp = c( 1, rep( 0, cut.num ) )
 	fp = tp
 
-	cutPoint = ( 0:cut ) / cut
+	cutPoint = ( 0:cut.num ) / cut.num
 	
-	for ( i in 2:cut )
+	for ( i in 2:cut.num )
 	{
 		# checking for cut pints
 		estG = 0 * G
@@ -28,17 +28,19 @@ outRoc = function( G, prob, cut )
 }
     
 # To plot ROC curve
-plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
+plotroc = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, cut.num = 20, smooth = FALSE, label = TRUE )
 {
-    if ( class(G)     == "sim" ) G <- as.matrix( G $ G )
-    if ( class(prob)  == "bdgraph" )
+    if ( class(sim.obj)     == "sim" ) G = as.matrix( sim.obj $ G ) else G = as.matrix( sim.obj )
+    if ( class(bdgraph.obj) == "bdgraph" )
     {
-		phat = prob $ phat
-		if( is.null( phat ) ) phat = phat( prob, round = 10 )
-		prob = as.matrix( phat )
-	} 
+		p_links = bdgraph.obj $ p_links
+		if( is.null( p_links ) ) p_links = plinks( bdgraph.obj, round = 10 )
+		prob = as.matrix( p_links )
+	}else{
+		prob = as.matrix( bdgraph.obj )
+	}
     
-    output = outRoc( G = G, prob = prob, cut = cut )
+    output = outRoc( G = G, prob = prob, cut.num = cut.num )
     x      = output $ fp
     y      = output $ tp
  	
@@ -50,19 +52,22 @@ plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
 	}
 	
 	# par( mar = c( 3.8, 4.2, 1.8, 1 ) )
-    plot( x = x, y = y, type = "l", col = "black", lty = 1, cex.lab = 1.3, cex.main = 2, cex.axis = 1.2,
-         main = "ROC Curve", xlab = "False Postive Rate", ylab = "True Postive Rate", ylim = c(0,1) )
+    plot( NA, type = "l", col = "black", cex.lab = 1.3, cex.main = 2, cex.axis = 1.2,
+         main = "ROC Curve", xlab = "False Postive Rate", ylab = "True Postive Rate", ylim = c(0,1), xlim = c(0,1) )
+    points( x = x, y = y, type = "l", col = 1, lty = 1, lw = 2 )
   
-    if( !is.null( prob2 ) )
+    if( !is.null( bdgraph.obj2 ) && is.null( bdgraph.obj3 ) )
     {
-		if ( class(prob2)  == "bdgraph" )
+		if ( class(bdgraph.obj2)  == "bdgraph" )
 		{
-			phat2 = prob2 $ phat
-			if( is.null( phat2 ) ) phat2 = phat( prob2, round = 10 )
-			prob2 = as.matrix( phat2 )
-		} 
+			p_links2 = bdgraph.obj2 $ p_links
+			if( is.null( p_links2 ) ) p_links2 = plinks( bdgraph.obj2, round = 10 )
+			prob2 = as.matrix( p_links2 )
+		}else{
+			prob2 = as.matrix( bdgraph.obj2 )
+		}
 
-        output2 = outRoc( G = G, prob = prob2, cut = cut )
+        output2 = outRoc( G = G, prob = prob2, cut.num = cut.num )
 		x2      = output2 $ fp
 		y2      = output2 $ tp
 
@@ -73,7 +78,54 @@ plotroc = function( G, prob, prob2 = NULL, cut = 20, smooth = FALSE )
 			y2   = c( 0, fit2 $ y )
 		}
 		
-        points( x = x2, y = y2, type = "l", col = "blue", lty = 2, lw = 2 )
+        points( x = x2, y = y2, type = "l", col = 2, lty = 2, lw = 2 )
+		if ( label ) 
+			legend( "bottomright", c( "bdgraph.obj", "bdgraph.obj2" ), lty = 1:2, col = 1:2, lwd = c( 2, 2 ), cex = 1.5 )
     }
+    
+    if( !is.null( bdgraph.obj2 ) && !is.null( bdgraph.obj3 ) )
+    {
+		if ( class( bdgraph.obj2 )  == "bdgraph" )
+		{
+			p_links2 = bdgraph.obj2 $ p_links
+			if( is.null( p_links2 ) ) p_links2 = plinks( bdgraph.obj2, round = 10 )
+			prob2 = as.matrix( p_links2 )
+		}else{
+			prob2 = as.matrix( bdgraph.obj2 )
+		}
+   
+		if ( class( bdgraph.obj3 )  == "bdgraph" )
+		{
+			p_links3 = bdgraph.obj3 $ p_links
+			if( is.null( p_links3 ) ) p_links3 = plinks( bdgraph.obj3, round = 10 )
+			prob3 = as.matrix( p_links3 )
+		}else{
+			prob2 = as.matrix( bdgraph.obj3 )
+		}
+   
+        output2 = outRoc( G = G, prob = prob2, cut.num = cut.num )
+		x2      = output2 $ fp
+		y2      = output2 $ tp
+   
+        output3 = outRoc( G = G, prob = prob3, cut.num = cut.num )
+		x3      = output3 $ fp
+		y3      = output3 $ tp
+   
+		if ( smooth == TRUE )
+		{
+			fit2 = smooth.spline( x = x2, y = y2 )
+			x2   = c( 0, fit2 $ x )
+			y2   = c( 0, fit2 $ y )
+			
+			fit3 = smooth.spline( x = x3, y = y3 )
+			x3   = c( 0, fit3 $ x )
+			y3   = c( 0, fit3 $ y )
+		}
+		
+        points( x = x2, y = y2, type = "l", col = 2, lty = 2, lw = 2 )
+        points( x = x3, y = y3, type = "l", col = 3, lty = 3, lw = 2 )
+        if ( label ) 
+			legend( "bottomright", c( "bdgraph.obj", "bdgraph.obj2", "bdgraph.obj3" ), lty = 1:3, col = 1:3, lwd = c( 2, 2 ), cex = 1.5 )
+    }    
 }
        

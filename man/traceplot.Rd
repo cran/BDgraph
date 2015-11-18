@@ -8,10 +8,10 @@ Trace plot for graph size for the objects of \code{S3} class \code{"bdgraph"}, f
 It is a tool for monitoring the convergence of the sampling algorithms, BDMCMC and RJMCMC.
 }
 
-\usage{ traceplot ( x, acf = FALSE, pacf = FALSE, main = NULL, ... ) }
+\usage{ traceplot ( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... ) }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   \item{acf}{ Visualize the autocorrelation functions for graph size. The default is FALSE. }
   \item{pacf}{ Visualize the partial autocorrelations for graph size. The default is FALSE. }
   \item{main}{ Graphical parameter (see plot). }
@@ -32,13 +32,13 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 
 \examples{
 \dontrun{
-# generating multivariate normal data from a 'random' graph
+# Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
-
-output <- bdgraph( data = data.sim, iter = 10000, burnin = 0, save.all = TRUE )
-
-traceplot( output )
-
-traceplot( output, acf = TRUE, pacf = TRUE )
+   
+bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0, save.all = TRUE )
+   
+traceplot( bdgraph.obj )
+   
+traceplot( bdgraph.obj, acf = TRUE, pacf = TRUE )
 }
 }

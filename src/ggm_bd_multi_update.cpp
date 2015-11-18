@@ -1,8 +1,7 @@
 #include <sstream>
 #include <string>        // std::string, std::to_string
 #include <vector>        // for using vector
-#include <math.h>        // isinf, sqrt
-#include <limits>        // for numeric_limits<long double>::max()
+#include <limits>        // for std::numeric_limits<long double>::max()
 
 #include "matrix.h"
 #include "rgwish.h"
@@ -10,25 +9,27 @@
 using namespace std;
 
 extern "C" {
-	
-// bdmcmc for GGMs with exact value of normalizing constant for D = I_p
-// it is for Bayesian model averaging
-void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+
+////////////////////////////////////////////////////////////////////////////////
+// bdmcmc algoirthm for GGMs with exact value of normalizing constant for D = I_p
+////////////////////////////////////////////////////////////////////////////////       
+void bdmcmcExactp_links_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double K_hat[], double p_links[],
-			 int *b, int *b_star, double Ds[], double *threshold )
+			 int *b, int *b_star, double Ds[], double *threshold, int *multi_update )
 {
 	int iteration = *iter, burn_in = *burnin;
+	int multi_update_C = *multi_update;
 
-	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
+	int selected_edge_i, selected_edge_j, selected_edge_ij;
 	int row, col, rowCol, i, j, k, ij, jj, Dsjj, Dsij, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	double sum_weights = 0.0, sum_diag, K022, a11, b1 = *b, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
-	
+
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 	vector<double> K_hat_Cpp( pxp, 0.0 ); 
-	
+
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
@@ -39,7 +40,7 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 	double alpha = 1.0, beta = 0.0;
 	char transT = 'T', transN = 'N';																	
 
-	// Counting size of notes
+	// Count  size of notes
 	int ip;
 	vector<int> size_node( dim, 0 );
 	for( i = 0; i < dim; i++ )
@@ -47,7 +48,7 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 		ip = i * dim;
 		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
 	}
-	
+
 	// For finding the index of rates 
 	vector<long double> rates( qp );
 	vector<int> index_rates_row( qp );
@@ -86,10 +87,13 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 	vector<int> N_i( dim );                  // For dynamic memory used
 // ----------------------------
 
+	int size_index = multi_update_C;
+	vector<int> index_selected_edges( multi_update_C );
+
 	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
 
 	GetRNGstate();
-	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
+	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
@@ -105,10 +109,10 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )       
+			for( row = 0; row < p1; row++ )
 				for( col = 0; col < p1; col++ )
 				{
-					rowCol = col * p1 + row;
+					rowCol           = col * p1 + row;
 					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
 				}
 			
@@ -121,11 +125,11 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 				sub_row_mins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
 				Kj12[ i ] = 0.0;                      // K12[1,i] = 0
 
-				// Kj12 %*% Kj22_inv
+				// K12 %*% K22_inv
 				//multiply_matrix( &Kj12[0], &Kj22_inv[0], &Kj12xK22_inv[0], &one, &p1, &p1 );															
 				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
 				
-				// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12)
+				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
 				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
 
 	// For (i,j) = 1 ---------------------------------------------------------------|
@@ -159,14 +163,9 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 
 				//	nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
+				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];
 
 				//~ rate = sqrt( 2.0 * Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
-				//~ if( G[ij] )
-					//~ rate = sqrt( Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
-				//~ else
-					//~ rate = sqrt( a11 / Dsjj ) * exp( lgamma( nu_star / 2 ) - lgamma( ( nu_star + 1 ) / 2 ) + ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
-
 				rate = ( G[ij] ) 
 					? sqrt( Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 )
 					: sqrt( a11 / Dsjj ) * exp( lgamma( nu_star / 2 ) - lgamma( ( nu_star + 1 ) / 2 ) + ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
@@ -174,25 +173,29 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 				rates[counter++] = ( isinf( rate ) ) ? max_numeric_limits_ld : rate;
 			}
 		}	
+
+		//select_multi_edges( double rates[], int index_selected_edges[], double *sum_rates, int *multi_update, int *qp )
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
+
+		for ( i = 0; i < size_index; i++ )
+		{
+			selected_edge_i = index_rates_row[ index_selected_edges[i] ];
+			selected_edge_j = index_rates_col[ index_selected_edges[i] ];
 			
-		// select_edge( double rates[], int *index_selected_edge, double *qsume_rates, int *qp )
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
-		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-		G[selected_edge_ij] = 1 - G[selected_edge_ij];
-		G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
-
-		if( G[selected_edge_ij] )
-		{ 
-			++size_node[selected_edge_i]; 
-			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
-			--size_node[selected_edge_i]; 
-			--size_node[selected_edge_j]; 
+			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
+			G[selected_edge_ij] = 1 - G[selected_edge_ij];
+			G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
+		
+			if( G[selected_edge_ij] )
+			{ 
+				++size_node[selected_edge_i]; 
+				++size_node[selected_edge_j]; 
+			}
+			else
+			{ 
+				--size_node[selected_edge_i]; 
+				--size_node[selected_edge_j]; 
+			}		
 		}
 
 // STEP 2: Sampling from G-Wishart for new graph
@@ -219,14 +222,13 @@ void bdmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 		K_hat[i]   = K_hat_Cpp[i] / sum_weights;
 	}
 }
-       
-// bdmcmc for GGMs with exact value of normalizing constant for D = I_p
-// it is for maximum a posterior probability estimation (MAP)
-void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+    
+void bdmcmcExact_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
-			 int *b, int *b_star, double Ds[], double *threshold )
+			 int *b, int *b_star, double Ds[], double *threshold, int *multi_update )
 {
+	int multi_update_C = *multi_update;
 	int iteration = *iter, burn_in = *burnin;
 	int counterallG = 0;
 	string string_g;
@@ -234,13 +236,13 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	
 	bool this_one;
 
-	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
+	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
 	int row, col, rowCol, i, j, k, ij, jj, Dsjj, Dsij, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	double sum_weights = 0.0, sum_diag, K022, a11, b1 = *b, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
-	
+
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
@@ -299,10 +301,13 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	vector<int> N_i( dim );                  // For dynamic memory used
 // ----------------------------
 
+	int size_index = multi_update_C;
+	vector<int> index_selected_edges( multi_update_C );
+
 	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
 
 	GetRNGstate();
-	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
+	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
@@ -386,24 +391,28 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			}
 		}	
 			
-		// select_edge( double rates[], int *index_selected_edge, double *qsume_rates, int *qp )
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
+		//select_multi_edges( double rates[], int index_selected_edges[], double *sum_rates, int *multi_update, int *qp )
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
-		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-		G[selected_edge_ij] = 1 - G[selected_edge_ij];
-		G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
-
-		if( G[selected_edge_ij] )
-		{ 
-			++size_node[selected_edge_i]; 
-			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
-			--size_node[selected_edge_i]; 
-			--size_node[selected_edge_j]; 
+		for ( i = 0; i < size_index; i++ )
+		{
+			selected_edge_i = index_rates_row[ index_selected_edges[i] ];
+			selected_edge_j = index_rates_col[ index_selected_edges[i] ];
+			
+			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
+			G[selected_edge_ij] = 1 - G[selected_edge_ij];
+			G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
+		
+			if( G[selected_edge_ij] )
+			{ 
+				++size_node[selected_edge_i]; 
+				++size_node[selected_edge_j]; 
+			}
+			else
+			{ 
+				--size_node[selected_edge_i]; 
+				--size_node[selected_edge_j]; 
+			}		
 		}
 
 // STEP 2: Sampling from G-Wishart for new graph
@@ -412,8 +421,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 // saving result --------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			for( i = 0; i < pxp ; i++ )
-				K_hat[i] += K[i] / sum_rates;
+			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i] / sum_rates;	
 
 			string_g = string( char_g.begin(), char_g.end() );	
 			all_weights[counterallG] = 1.0 / sum_rates;
@@ -432,7 +440,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 			{
 				sample_graphs_C[size_sample_graph] = string_g;
 				graph_weights[size_sample_graph]   = all_weights[counterallG];
-				all_graphs[counterallG]            = size_sample_graph; 
+				all_graphs[counterallG]          = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -451,8 +459,7 @@ void bdmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	
 	*size_sample_g = size_sample_graph;
 	
-	for( i = 0; i < pxp; i++ )
-		K_hat[i] /= sum_weights;
+	for( i = 0; i < pxp; i++ ) K_hat[i] /= sum_weights;		
 }
-        
+              
 } // exturn "C"

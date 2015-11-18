@@ -18,8 +18,8 @@ The package includes 10 main functions:
 bdgraph        Search algorithm in graphical models
 bdgraph.sim    Synthetic graph data generator 
 bdgraph.npn    Nonparametric transfer 
-compare        Comparing the result 
-phat           Estimated posterior link probabilities
+compare        Comparing the results 
+plinks         Estimated posterior link probabilities
 plotcoda       Convergence plot
 plotroc        ROC plot
 rgwish         Sampling from G-Wishart distribution

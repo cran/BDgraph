@@ -3,7 +3,7 @@
 
 \title{ Plot function for \code{S3} class \code{"bdgraph"} }
 
-\description{ Visualizes structure of the selected graphs which could be a graph with links for which their estimated posterior probabilities are more that 0.5
+\description{ Visualizes structure of the selected graphs which could be a graph with links for which their estimated posterior probabilities are greater than 0.5
 or graph with the highest posterior probability. }
 
 \usage{ \method{plot}{bdgraph}( x, cut = 0.5, number.g = 1, layout = layout.circle, ... ) }
@@ -37,14 +37,14 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
    
-output   <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph( data = data.sim )
    
-plot( output )
+plot( bdgraph.obj )
    
-output   <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
    
-plot( output, number.g = 4 )
+plot( bdgraph.obj, number.g = 4 )
   
-plot( output, cut = 0.4 )
+plot( bdgraph.obj, cut = 0.4 )
 }
 }

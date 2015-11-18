@@ -8,12 +8,17 @@
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-		         burnin = iter / 2, b = 3, Gstart = "empty", save.all = FALSE )
+		  burnin = iter / 2, g.start = "empty", prior.df = 3, 
+		  multi.update = NULL, save.all = FALSE )
 }
 
 \arguments{
 	\item{data}{
-	It could be a (\eqn{n \times p}) matrix or a \code{data.frame} of data or a covariance matrix as \eqn{S=X'X} which \eqn{X} is the data matrix. It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
+	There are two options: (1) an (\eqn{n \times p}) matrix or a \code{data.frame} corresponding to the data, 
+	(2) an (\eqn{p \times p}) covariance matrix as \eqn{S=X'X} which \eqn{X} is the data matrix 
+	(\eqn{n} is the sample size and \eqn{p} is the number of variables). 
+	It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
+	The input matrix is automatically identified by checking the symmetry.
 	}
 
 	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
@@ -33,15 +38,20 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{iter}{The number of iteration for the sampling algorithm.}
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
-	\item{b}{
+	\item{g.start}{
+		Corresponds to a starting point of the graph. It could be \code{"empty"} (default) and \code{"full"}. 
+		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
+		It also could be an object with \code{S3} class \code{"bdgraph"}; 
+		with this option we could run the sampling algorithm from the last objects of previous run (see examples).     
+	} 
+
+	\item{prior.df}{
 		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix. The default is 3.
 	}
-	\item{Gstart}{
-		Corresponds to a starting point of the graph. It can be \code{"full"} (default), \code{"empty"}, or an object with \code{S3} class \code{"bdgraph"}. 
-		Option \code{"full"} means the initial graph is a full graph and \code{"empty"} means an empty graph. 
-		Gstart also could be an object with \code{S3} class \code{"bdgraph"}; With this option we could run the sampling algorithm from last objects of 
-		previous run (see examples).     
-	} 
+	\item{multi.update}{
+		It is only for the BDMCMC algorithm (\code{algorithm = "bdmcmc"}).
+		It is for simultaneously updating multiple links at the same time to update graph in the BDMCMC algorithm.
+	}	
 	\item{save.all}{
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
@@ -51,19 +61,19 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 \value{
 	An object with \code{S3} class \code{"bdgraph"} is returned:
 	
-	\item{phat}{ Upper triangular matrix which corresponds the estimated posterior probabilities of all possible links. }
+	\item{p_links}{ An upper triangular matrix which corresponds the estimated posterior probabilities of all possible links. }
 	
-	\item{Khat}{ Posterior estimation of the precision matrix. }
+	\item{K_hat}{ The posterior estimation of the precision matrix. }
 	
 	For the case "save.all = TRUE" is retrurned:
 
-	\item{sampleGraphs}{ A vector of strings which includes the adjacency matrices of visited graphs after burn-in.}
-	\item{graphWeights}{ A vector which includes the waiting times of visited graphs after burn-in. }
+	\item{sample_graphs}{ A vector of strings which includes the adjacency matrices of visited graphs after burn-in.}
+	\item{graph_weights}{ A vector which includes the waiting times of visited graphs after burn-in. }
 
-	\item{allGraphs}{A vector which includes the identity of the adjacency matrices for all iterations after burn-in. 
+	\item{all_graphs}{A vector which includes the identity of the adjacency matrices for all iterations after burn-in. 
 		  It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
-	\item{allWeights}{A vector which includes the waiting times for all iterations after burn-in. It is needed for monitoring the convergence of the BD-MCMC algorithm.}
+	\item{all_weights}{A vector which includes the waiting times for all iterations after burn-in. It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 }
 
 \references{
@@ -83,26 +93,27 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 20, p = 6, size = 7, vis = TRUE )
    
-output <- bdgraph( data = data.sim, iter = 1000 )
+bdgraph.obj <- bdgraph( data = data.sim, iter = 1000 )
   
-summary(output)
+summary( bdgraph.obj )
    
 # To compare our result with true graph
-compare( data.sim, output, colnames = c("True graph", "BDgraph") )
+compare( data.sim, bdgraph.obj, colnames = c("True graph", "BDgraph") )
    
 # Running algorithm with starting points from previous run
-output2 <- bdgraph( data = data.sim, iter = 5000, Gstart = output )
-
-compare( data.sim, output, output2, colnames = c("True graph", "Frist run", "Second run") )
+bdgraph.obj2 <- bdgraph( data = data.sim, iter = 5000, g.start = bdgraph.obj )
+    
+compare( data.sim, bdgraph.obj, bdgraph.obj2, 
+         colnames = c( "True graph", "Frist run", "Second run" ) )
    
 # Generating mixed data from a 'scale-free' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, type = "mixed", graph = "scale-free", vis = TRUE )
-
-output <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
-
-summary( output )
    
-compare( data.sim, output )	  
+bdgraph.obj <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+  
+summary( bdgraph.obj )
+   
+compare( data.sim, bdgraph.obj )	  
 }
 }
 

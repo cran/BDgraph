@@ -15,7 +15,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 {
 	int iter, i, j, ij, h, r, mc_iter = *mc, dim = *p, pxp = dim * dim, b_c = *b;
 	double sumPsi, sumPsiH, sumPsiHi, sumPsiHj;
-	vector<double> psi( pxp );      //building vector
+	vector<double> psi( pxp, 0.0 );      //building vector
 	
 	GetRNGstate();
 	if( *check_H == 1 )
@@ -30,7 +30,6 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 				{
 					ij = j * dim + i;
 					if ( G[ij] == 1 ) psi[ij] = rnorm( 0, 1 );
-					psi[i * dim + j] = 0.0;
 				}
 			
 			for( i = 0; i < dim - 1; i++ ) 
@@ -71,7 +70,6 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 				{
 					ij = j * dim + i;
 					if ( G[ij] == 1 ) psi[ij] = rnorm( 0, 1 );
-					psi[i * dim + j] = 0.0;
 				}
 			
 			for( i = 0; i < dim - 1; i++ ) 

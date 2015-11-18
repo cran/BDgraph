@@ -4,15 +4,15 @@
 \title{ Graph selection }
 
 \description{
-Provides the selected graph which, based on input, could be a graph with links for which their estimated posterior probabilities are more that 0.5 (as a default)
+Provides the selected graph which, based on input, could be a graph with links for which their estimated posterior probabilities are greater than 0.5 (as a default)
 or a graph with the highest posterior probability; see examples.
 %For more specific selection of graphs consult the 'prob' function.  
 }
 
-\usage{ select( x, cut = 0.5, vis = FALSE ) }
+\usage{ select( bdgraph.obj, cut = NULL, vis = FALSE ) }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   \item{cut}{ Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; see the examples. }  
   \item{vis}{ Visualize the selected graph structure. The default value is FALSE. }
 }
@@ -36,14 +36,14 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian G
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
   
-output   <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph( data = data.sim )
    
-select( output )
+select( bdgraph.obj )
   
-output   <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
   
-select( output )
+select( bdgraph.obj )
   
-select( output, cut = 0.5, vis = TRUE )
+select( bdgraph.obj, cut = 0.5, vis = TRUE )
 }
 }

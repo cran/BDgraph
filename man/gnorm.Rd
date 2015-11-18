@@ -1,5 +1,5 @@
-\name{log_Ig}
-\alias{log_Ig}
+\name{gnorm}
+\alias{gnorm}
 
 \title{ Log of the normalizing constant of G-Wishart distribution }
 
@@ -8,14 +8,14 @@ Calculates log of the normalizing constant of G-Wishart distribution based on th
 }
 
 \usage{
-log_Ig( G, b = 3, D = diag( ncol(G) ), mc = 100 )
+gnorm( adj.g, b = 3, D = diag( ncol(adj.g) ), iter = 100 )
 }
 
 \arguments{
-  \item{G}{
+  \item{adj.g}{
 The adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which 
-\eqn{g_{ij}=1}{gij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
-otherwise \eqn{g_{ij}=0}{gij = 0}.
+\eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
+otherwise \eqn{a_{ij}=0}{aij = 0}.
 }
   \item{b}{ The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default value is 3.}
   
@@ -23,7 +23,7 @@ otherwise \eqn{g_{ij}=0}{gij = 0}.
 The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, 
 \eqn{W_G(b,D)}. The default is an identity matrix.
 }
-  \item{mc}{The number of iteration for the Monte Carlo approximation. The default value is 100.}
+  \item{iter}{The number of iteration for the Monte Carlo approximation. The default value is 100.}
 }
 
 \details{
@@ -43,11 +43,11 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 \author{ Abdolreza Mohammadi and Ernst Wit }
 
 \examples{
-G <- matrix( c(0,0,1,
-               0,0,1,
-		               0,0,0), 3, 3, byrow = TRUE )		                
-# Matrix G is an adjacency matrix of a graph with 3 nodes and 2 links
-
-log_Ig( G, b = 3, D = diag(3) )
+adj.g <- matrix( c(0,0,1,
+                   0,0,1,
+		                   0,0,0), 3, 3, byrow = TRUE )		                
+# adj.g: adjacency matrix of graph with 3 nodes and 2 links
+   
+gnorm( adj.g, b = 3, D = diag(3) )
 }
 

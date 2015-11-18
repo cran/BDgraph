@@ -36,46 +36,46 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 	char transN = 'N', uplo = 'U'; 
 	double alpha = 1.0, beta  = 0.0;
 
-	int info, i, j, l, size_i, one = 1, dim = *p, pxp = dim * dim;	
+	int info, i, j, l, size_node, one = 1, dim = *p, pxp = dim * dim;	
 	double temp, threshold_C = *threshold;
 	
 	rwish( Ts, K, b, &dim );
 	
-	vector<double> sigma( pxp ); 
-	inverse( K, &sigma[0], &dim );
+	vector<double> sigma_start( pxp ); 
+	inverse( K, &sigma_start[0], &dim );
 	
-	vector<double> W( sigma ); 
-	vector<double> W_last( pxp ); 
+	vector<double> sigma( sigma_start ); 
+	vector<double> sigma_last( pxp ); 
 	vector<double> beta_star( dim ); 
-	vector<double> sigma_i( dim ); 
+	vector<double> sigma_start_i( dim ); 
 
-	vector<double> sigma_N_i( dim );   // For dynamic memory used
+	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<int> N_i( dim );            // For dynamic memory used
-	vector<double> W_N_i( pxp );       // For dynamic memory used
+	vector<double> sigma_N_i( pxp );       // For dynamic memory used
 
 	double max_diff = 1.0;	
 	while ( max_diff > threshold_C )
 	{
-		memcpy( &W_last[0], &W[0], sizeof( double ) * pxp );
+		memcpy( &sigma_last[0], &sigma[0], sizeof( double ) * pxp );
 		
 		for( i = 0; i < dim; i++ )
 		{
 			// Count  size of note
-			size_i = 0;
-			for( j = 0; j < dim; j++ ) size_i += G[j * dim + i];
+			size_node = 0;
+			for( j = 0; j < dim; j++ ) size_node += G[j * dim + i];
 
-			if( size_i > 0 )
+			if( size_node > 0 )
 			{
 				// Record size of node and initialize zero in beta_star for next steps
-				sigma_N_i.resize( size_i );  // vector<double> sigma_N_i( size_i );
-				N_i.resize( size_i );        // vector<int> N_i( size_i );
+				sigma_start_N_i.resize( size_node );  // vector<double> sigma_start_N_i( size_node );
+				N_i.resize( size_node );        // vector<int> N_i( size_node );
 				
 				l = 0;
 				for( j = 0; j < dim; j++ )
 				{
 					if( G[j * dim + i] )
 					{
-						sigma_N_i[l] = sigma[i * dim + j]; // sigma_N_i[j] = sigma[i * dim + N_i[j]];
+						sigma_start_N_i[l] = sigma_start[i * dim + j]; // sigma_start_N_i[j] = sigma_start[i * dim + N_i[j]];
 						N_i[l++]     = j;
 					}
 					else
@@ -83,66 +83,65 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 				}
 				// -------------------------------------------------------------
 				
-				W_N_i.resize( size_i * size_i ); //vector<double> W_N_i( size_i * size_i );
-				subMatrix( &W[0], &W_N_i[0], &N_i[0], &size_i, &dim );
+				sigma_N_i.resize( size_node * size_node ); //vector<double> sigma_N_i( size_node * size_node );
+				sub_matrix( &sigma[0], &sigma_N_i[0], &N_i[0], &size_node, &dim );
 					
-				// A * X = B   for   sigma_N_i := (W_N_i)^{-1} * sigma_N_i
-				F77_NAME(dposv)( &uplo, &size_i, &one, &W_N_i[0], &size_i, &sigma_N_i[0], &size_i, &info );
+				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
+				F77_NAME(dposv)( &uplo, &size_node, &one, &sigma_N_i[0], &size_node, &sigma_start_N_i[0], &size_node, &info );
 
-				for( j = 0; j < size_i; j++ ) beta_star[N_i[j]] = sigma_N_i[j];
+				for( j = 0; j < size_node; j++ ) beta_star[N_i[j]] = sigma_start_N_i[j];
 				
-				// multiplyMatrix( W, &beta_star[0], &sigma_i[0], &dim, &one, &dim );	// sigma_i = W * beta_star
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &W[0], &dim, &beta_star[0], &dim, &beta, &sigma_i[0], &dim );
+				// multiply_matrix( sigma, &beta_star[0], &sigma_start_i[0], &dim, &one, &dim );	// sigma_start_i = sigma * beta_star
+				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &sigma[0], &dim, &beta_star[0], &dim, &beta, &sigma_start_i[0], &dim );
 				
 				for( j = 0; j < i; j++ )
 				{
-					W[j * dim + i] = sigma_i[j];
-					W[i * dim + j] = sigma_i[j];
+					sigma[j * dim + i] = sigma_start_i[j];
+					sigma[i * dim + j] = sigma_start_i[j];
 				}
 				
 				for( j = i + 1; j < dim; j++ )
 				{
-					W[j * dim + i] = sigma_i[j];
-					W[i * dim + j] = sigma_i[j];
+					sigma[j * dim + i] = sigma_start_i[j];
+					sigma[i * dim + j] = sigma_start_i[j];
 				}
 			} 
 			else 
 			{
 				for( j = 0; j < i; j++ )
 				{
-					W[j * dim + i] = 0.0;
-					W[i * dim + j] = 0.0;
+					sigma[j * dim + i] = 0.0;
+					sigma[i * dim + j] = 0.0;
 				}
 				
 				for( j = i + 1; j < dim; j++ )
 				{
-					W[j * dim + i] = 0.0;
-					W[i * dim + j] = 0.0;
+					sigma[j * dim + i] = 0.0;
+					sigma[i * dim + j] = 0.0;
 				}
 			} 
 		}
 
-		max_diff = fabs( static_cast<double>( W[0] - W_last[0] ) );
+		max_diff = fabs( static_cast<double>( sigma[0] - sigma_last[0] ) );
 		for( i = 1; i < pxp; i++ )
 		{
-			temp = fabs( static_cast<double>( W[i] - W_last[i] ) );
+			temp = fabs( static_cast<double>( sigma[i] - sigma_last[i] ) );
 			if( temp > max_diff ) max_diff = temp; 
 		}		
 	}
 
-	inverse( &W[0], K, &dim );
+	inverse( &sigma[0], K, &dim );
 }
      
 // rgwish ONLY for inside of MCMC algorithm
-void rgwish_sigma( int G[], double Ts[], double K[], double sigma[], int *bstar, int *p, double *threshold,
-					double sigma_start[], double invC[], double beta_star[], double sigma_i[], 
+void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sigma[], int *b_star, int *p, double *threshold,
+					double sigma_start[], double inv_C[], double beta_star[], double sigma_i[], 
 					vector<double> &sigma_start_N_i, vector<double> &sigma_N_i, vector<int> &N_i )
 {
 	char uplo = 'U';
-	int i, j, ij, l, size_i, info, one = 1, dim = *p, pxp = dim * dim, bK = *bstar;	
+	int i, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, bK = *b_star;	
 	double temp, threshold_C = *threshold;
 // STEP 1: sampling from wishart distributions
-	//~ vector<double> sigma_start( pxp ); 
 	// ---- Sample values in Psi matrix ---
     GetRNGstate();
 	for( i = 0; i < dim; i++ )
@@ -156,35 +155,27 @@ void rgwish_sigma( int G[], double Ts[], double K[], double sigma[], int *bstar,
 		}
 	PutRNGstate();
 	// ------------------------------------
-
+	
     // C = psi %*% Ts   I used   psi = psi %*% Ts
 	double alpha = 1.0; 
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &sigma_start[0], &dim );
 
-	//~ vector<double> invC( pxp ); 
 	side = 'L';
 	// creating an identity matrix
 	for( i = 0; i < dim; i++ )
 		for( j = 0; j < dim; j++ )
-			invC[j * dim + i] = (i == j);	
+			inv_C[j * dim + i] = ( i == j );	
 	// op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
-	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &invC[0], &dim );
+	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &inv_C[0], &dim );
 
-	// sigma_start <- invC %*% t(invC)   
+	// sigma_start <- inv_C %*% t(inv_C)   
 	double beta  = 0.0;
 	// LAPACK function to compute  C := alpha * A * B + beta * C																				
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &dim, &alpha, &invC[0], &dim, &invC[0], &dim, &beta, &sigma_start[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &dim, &alpha, &inv_C[0], &dim, &inv_C[0], &dim, &beta, &sigma_start[0], &dim );
 
 	memcpy( sigma, &sigma_start[0], sizeof( double ) * pxp ); 
-
-	//~ vector<double> beta_star( dim ); 
-	//~ vector<double> sigma_i( dim ); 
-//~ 
-	//~ vector<double> sigma_start_N_i( dim );   // For dynamic memory used
-	//~ vector<int> N_i( dim );            // For dynamic memory used
-	//~ vector<double> sigma_N_i( pxp );       // For dynamic memory used
 	
 	double max_diff = 1.0;	
 	while ( max_diff > threshold_C )
@@ -193,71 +184,74 @@ void rgwish_sigma( int G[], double Ts[], double K[], double sigma[], int *bstar,
 		
 		for( i = 0; i < dim; i++ )
 		{
-			// Count  size of note
-			size_i = 0;
-			for( j = 0; j < dim; j++ )  size_i += G[j * dim + i];
+			ip = i * dim;
 
-			if( size_i > 0 )
+			size_node_i = size_node[i];
+			if( size_node_i > 0 )
 			{
-				// Record size of node and initialize zero in beta_star for next steps
-				sigma_start_N_i.resize( size_i );  // vector<double> sigma_start_N_i( size_i );
-				N_i.resize( size_i );        // vector<int> N_i( size_i );
+				// Record node size and initialize zero in beta_star
+				sigma_start_N_i.resize( size_node_i );  // vector<double> sigma_start_N_i( size_node_i );
+				N_i.resize( size_node_i );              // vector<int> N_i( size_node_i );
 				
 				l = 0;
 				for( j = 0; j < dim; j++ )
 				{
-					ij = j * dim + i;
+					ij = ip + j;
 					if( G[ij] )
 					{
 						sigma_start_N_i[l] = sigma_start[ij]; // sigma_start_N_i[j] = sigma_start[i * dim + N_i[j]];
-						N_i[l++]     = j;
+						N_i[l++] = j;
 					}
 					else
 						beta_star[j] = 0.0; // for( j = 0; j < *p; j++ ) beta_star[j] = 0.0;
 				}
 				// -------------------------------------------------------------
 				
-				sigma_N_i.resize( size_i * size_i ); //vector<double> sigma_N_i( size_i * size_i );
-				subMatrix( sigma, &sigma_N_i[0], &N_i[0], &size_i, &dim );
+				sigma_N_i.resize( size_node_i * size_node_i ); //vector<double> sigma_N_i( size_node_i * size_node_i );
+				sub_matrix( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
-				F77_NAME(dposv)( &uplo, &size_i, &one, &sigma_N_i[0], &size_i, &sigma_start_N_i[0], &size_i, &info );
+				F77_NAME(dposv)( &uplo, &size_node_i, &one, &sigma_N_i[0], &size_node_i, &sigma_start_N_i[0], &size_node_i, &info );
 
-				for( j = 0; j < size_i; j++ ) beta_star[N_i[j]] = sigma_start_N_i[j];
+				for( j = 0; j < size_node_i; j++ ) beta_star[N_i[j]] = sigma_start_N_i[j];
 	
-				// multiplyMatrix( sigma, &beta_star[0], &sigma_i[0], &dim, &one, &dim );	// sigma_i = sigma * beta_star
+				// multiply_matrix( sigma, &beta_star[0], &sigma_i[0], &dim, &one, &dim );	// sigma_i = sigma * beta_star
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, sigma, &dim, &beta_star[0], &dim, &beta, &sigma_i[0], &dim );
-
+				
+				//~ for( j = 0; j < i; j++ ) sigma[ip + j] = sigma_i[j];	
+				memcpy( sigma + ip, sigma_i,  sizeof( double ) * i );	
+				
 				for( j = 0; j < i; j++ )
 				{
 					ij   = j * dim + i;
 					temp = fabs( static_cast<double>( sigma[ij] - sigma_i[j] ) );
 					if( temp > max_diff ) max_diff = temp; 					
 
-					sigma[ij]          = sigma_i[j];
-					sigma[i * dim + j] = sigma_i[j];
+					sigma[ij] = sigma_i[j];
 				}
 				
+				//~ for( j = i + 1; j < dim; j++ ) sigma[ip + j] = sigma_i[j];	
+				memcpy( sigma + ip + i + 1, sigma_i + i + 1, sizeof( double ) * ( dim - i - 1 ) );	
+
 				for( j = i + 1; j < dim; j++ )
 				{
 					ij   = j * dim + i;
 					temp = fabs( static_cast<double>( sigma[ij] - sigma_i[j] ) );
 					if( temp > max_diff ) max_diff = temp; 					
 
-					sigma[ij]          = sigma_i[j];
-					sigma[i * dim + j] = sigma_i[j];
+					sigma[ij] = sigma_i[j];
 				}
 			} 
 			else 
-			{
+			{				
 				for( j = 0; j < i; j++ )
 				{
 					ij   = j * dim + i;
 					temp = fabs( static_cast<double>( sigma[ij] ) );
 					if( temp > max_diff ) max_diff = temp; 					
 
-					sigma[ij]          = 0.0;
-					sigma[i * dim + j] = 0.0;
+					sigma[ij]     = 0.0;
+					sigma[ip + j] = 0.0;
 				}
 				
 				for( j = i + 1; j < dim; j++ )
@@ -266,8 +260,8 @@ void rgwish_sigma( int G[], double Ts[], double K[], double sigma[], int *bstar,
 					temp = fabs( static_cast<double>( sigma[ij] ) );
 					if( temp > max_diff ) max_diff = temp; 					
 
-					sigma[ij]          = 0.0;
-					sigma[i * dim + j] = 0.0;				
+					sigma[ij]     = 0.0;
+					sigma[ip + j] = 0.0;				
 				}
 			} 
 		}
