@@ -1,6 +1,6 @@
 #include "copula.h"
    
-// for copula function
+// Calculating mean for copula function
 void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int *j, int *n, int *p )
 {
 	int k, dim = *p, number = *n, row = *i, col = *j;
@@ -15,7 +15,7 @@ void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int
 	*mu_ij = - mu * *sigma;
 }
 
-// for copula function
+// Calculating bounds for copula function
 void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
 	int kj, ij, row = *i, col = *j;
@@ -62,17 +62,16 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 			// runif_value = runif( 1, pnorm( lower_bound, mu_ij, sd_j ), pnorm( upper_bound, mu_ij, sd_j ) )
 			// Z[i,j]     = qnorm( runif_value, mu_ij, sd_j )									
 			GetRNGstate();
-			pnorm_lb           = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-			pnorm_ub           = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-			runif_value        = runif( pnorm_lb, pnorm_ub );
+			pnorm_lb          = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
+			pnorm_ub          = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+			runif_value       = runif( pnorm_lb, pnorm_ub );
 			Z[j * number + i] = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
 			PutRNGstate();				
 		}
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// for copula function with missing data 
+// Calculating bounds for copula function with missing data 
 void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
 	int kj, ij, row = *i, col = *j;
@@ -98,7 +97,7 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
 	*ub = upper_b;		
 }
  
-// copula part
+// copula part for missing data
 void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 {
 	int ij, number = *n, dim = *p;
@@ -132,7 +131,7 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 	}
 }
     
-// for bdmcmcCopulaDmh function
+// Calculating Ds = D + S for the BDMCMC sampling algorithm
 void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
 {
 	int gcgm_check = *gcgm, dim = *p, pxp = dim * dim;
@@ -142,7 +141,6 @@ void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[
 	else
 		copula_NA( Z, K, R, n, &dim );
 	
-	//~ vector<double> S( pxp ); 
 	// S <- t(Z) %*% Z
 	// Here, I'm using Ds instead of S, for saving memory
 	double alpha = 1.0, beta  = 0.0;
@@ -154,14 +152,11 @@ void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[
 	for( int i = 0; i < pxp ; i++ ) Ds[i] = D[i] + S[i];		
 }
 
-// for bdmcmcCopulaDmh function
+// Calculating Ts = chol( solve( Ds ) ) for the BDMCMC sampling algorithm
 void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p )
 {
 	int dim = *p, pxp = dim * dim;
-	//~ vector<double> inv_Ds( pxp ); 
-	//~ vector<double> copy_Ds( pxp ); 
 
-	//~ for( int i = 0; i < pxp; i++ ) copy_Ds[i] = Ds[i]; 	
 	memcpy( &copy_Ds[0], Ds, sizeof( double ) * pxp );
 	
 	inverse( &copy_Ds[0], &inv_Ds[0], &dim );	
@@ -169,3 +164,6 @@ void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p
 	cholesky( &inv_Ds[0], Ts, &dim );	
 }
     
+
+
+

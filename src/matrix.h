@@ -6,7 +6,7 @@
 #include <R_ext/Lapack.h>
 #include <R_ext/BLAS.h>
 #include <R_ext/Utils.h>
-#include <vector>        // for using vector
+#include <vector>          // for using vector
 
 using namespace std;
 

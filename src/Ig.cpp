@@ -15,12 +15,12 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 {
 	int iter, i, j, ij, h, r, mc_iter = *mc, dim = *p, pxp = dim * dim, b_c = *b;
 	double sumPsi, sumPsiH, sumPsiHi, sumPsiHj;
-	vector<double> psi( pxp, 0.0 );      //building vector
+	vector<double> psi( pxp, 0.0 );      
 	
 	GetRNGstate();
 	if( *check_H == 1 )
 	{
-		for( iter = 0; iter < mc_iter; iter++ ) //for ( iter in 1 : mc )
+		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )
 				psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
@@ -41,7 +41,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 					{
 						psi[ij] = 0.0;
 
-						if ( i > 0 )  //if ( i > 1 )
+						if ( i > 0 )  
 						{
 							sumPsi = 0.0;
 							//sum( psi[ 1 : ( i - 1 ), i ] * psi[ 1 : ( i - 1 ), j ] )
@@ -60,7 +60,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 	}
 	else
 	{
-		for( iter = 0; iter < mc_iter; iter++ ) //for ( iter in 1 : mc )
+		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )
 				psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
@@ -111,4 +111,4 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 	PutRNGstate();	
 } 
      
-} // End extern "C"
+} // End of extern "C"

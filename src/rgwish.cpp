@@ -7,7 +7,7 @@ void rwish( double Ts[], double K[], int *b, int *p )
 	int i, j, dim = *p, pxp = dim * dim, bK = *b;
 	vector<double> psi( pxp, 0.0 ); 
 
-	// ---- Sample values in Psi matrix ---
+	// ---- Sample values in Psi matrix ---------------------------------------|
     GetRNGstate();
 	for( i = 0; i < dim; i++ )
 		psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
@@ -16,7 +16,7 @@ void rwish( double Ts[], double K[], int *b, int *p )
 		for( i = 0; i < j; i++ )
 			psi[j * dim + i] = rnorm( 0, 1 );
 	PutRNGstate();
-	// ------------------------------------
+	// ------------------------------------------------------------------------|
 
     // C = psi %*% Ts   I used   psi = psi %*% Ts
 	double alpha = 1.0, beta  = 0.0;
@@ -50,8 +50,8 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 	vector<double> sigma_start_i( dim ); 
 
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
-	vector<int> N_i( dim );            // For dynamic memory used
-	vector<double> sigma_N_i( pxp );       // For dynamic memory used
+	vector<int> N_i( dim );                  // For dynamic memory used
+	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 
 	double max_diff = 1.0;	
 	while ( max_diff > threshold_C )
@@ -60,26 +60,26 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 		
 		for( i = 0; i < dim; i++ )
 		{
-			// Count  size of note
+			// Count size of note
 			size_node = 0;
 			for( j = 0; j < dim; j++ ) size_node += G[j * dim + i];
 
 			if( size_node > 0 )
 			{
 				// Record size of node and initialize zero in beta_star for next steps
-				sigma_start_N_i.resize( size_node );  // vector<double> sigma_start_N_i( size_node );
-				N_i.resize( size_node );        // vector<int> N_i( size_node );
+				sigma_start_N_i.resize( size_node );  
+				N_i.resize( size_node );        
 				
 				l = 0;
 				for( j = 0; j < dim; j++ )
 				{
 					if( G[j * dim + i] )
 					{
-						sigma_start_N_i[l] = sigma_start[i * dim + j]; // sigma_start_N_i[j] = sigma_start[i * dim + N_i[j]];
+						sigma_start_N_i[l] = sigma_start[i * dim + j]; 
 						N_i[l++]     = j;
 					}
 					else
-						beta_star[j] = 0.0; // for( j = 0; j < *p; j++ ) beta_star[j] = 0.0;
+						beta_star[j] = 0.0; 
 				}
 				// -------------------------------------------------------------
 				
@@ -91,7 +91,6 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 
 				for( j = 0; j < size_node; j++ ) beta_star[N_i[j]] = sigma_start_N_i[j];
 				
-				// multiply_matrix( sigma, &beta_star[0], &sigma_start_i[0], &dim, &one, &dim );	// sigma_start_i = sigma * beta_star
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &sigma[0], &dim, &beta_star[0], &dim, &beta, &sigma_start_i[0], &dim );
 				
 				for( j = 0; j < i; j++ )
@@ -141,7 +140,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	char uplo = 'U';
 	int i, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, bK = *b_star;	
 	double temp, threshold_C = *threshold;
-// STEP 1: sampling from wishart distributions
+	// STEP 1: sampling from wishart distributions
 	// ---- Sample values in Psi matrix ---
     GetRNGstate();
 	for( i = 0; i < dim; i++ )
@@ -190,8 +189,8 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 			if( size_node_i > 0 )
 			{
 				// Record node size and initialize zero in beta_star
-				sigma_start_N_i.resize( size_node_i );  // vector<double> sigma_start_N_i( size_node_i );
-				N_i.resize( size_node_i );              // vector<int> N_i( size_node_i );
+				sigma_start_N_i.resize( size_node_i );  
+				N_i.resize( size_node_i );              
 				
 				l = 0;
 				for( j = 0; j < dim; j++ )
@@ -199,11 +198,11 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 					ij = ip + j;
 					if( G[ij] )
 					{
-						sigma_start_N_i[l] = sigma_start[ij]; // sigma_start_N_i[j] = sigma_start[i * dim + N_i[j]];
+						sigma_start_N_i[l] = sigma_start[ij]; 
 						N_i[l++] = j;
 					}
 					else
-						beta_star[j] = 0.0; // for( j = 0; j < *p; j++ ) beta_star[j] = 0.0;
+						beta_star[j] = 0.0; 
 				}
 				// -------------------------------------------------------------
 				
@@ -215,10 +214,8 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 
 				for( j = 0; j < size_node_i; j++ ) beta_star[N_i[j]] = sigma_start_N_i[j];
 	
-				// multiply_matrix( sigma, &beta_star[0], &sigma_i[0], &dim, &one, &dim );	// sigma_i = sigma * beta_star
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, sigma, &dim, &beta_star[0], &dim, &beta, &sigma_i[0], &dim );
 				
-				//~ for( j = 0; j < i; j++ ) sigma[ip + j] = sigma_i[j];	
 				memcpy( sigma + ip, sigma_i,  sizeof( double ) * i );	
 				
 				for( j = 0; j < i; j++ )
@@ -230,7 +227,6 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 					sigma[ij] = sigma_i[j];
 				}
 				
-				//~ for( j = i + 1; j < dim; j++ ) sigma[ip + j] = sigma_i[j];	
 				memcpy( sigma + ip + i + 1, sigma_i + i + 1, sizeof( double ) * ( dim - i - 1 ) );	
 
 				for( j = i + 1; j < dim; j++ )

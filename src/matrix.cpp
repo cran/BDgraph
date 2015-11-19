@@ -1,6 +1,7 @@
 #include "matrix.h"
    
-// Takes square matrix A (p x p) and retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
+// Takes square matrix A (p x p) and 
+// retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
 void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  )
 {
 	int ixp, subixp, psub = *p_sub, pdim = *p;
@@ -15,20 +16,19 @@ void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  )
 	}
 }
 
-// Takes square matrix A (p x p) and retrieves vector sub_A which is 'sub' th row of matrix A, minus 'sub' element
+// Takes square matrix A (p x p) and 
+// retrieves vector sub_A which is 'sub' th row of matrix A, minus 'sub' element
 // Likes A[j, -j] in R
 void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
 	int i, subj = *sub, pdim = *p, subxp = subj * pdim;
 
-	//~ for( i = 0; i < subj; i++ ) sub_A[i] = A[subxp + i];	
-	memcpy( sub_A,        A + subxp,            sizeof( double ) * subj );	
-	
-	//~ for( i = subj + 1; i < pdim; i++ ) sub_A[i - 1] = A[subxp + i];	
+	memcpy( sub_A,        A + subxp,            sizeof( double ) * subj );		
 	memcpy( sub_A + subj, A + subxp + subj + 1, sizeof( double ) * ( pdim - subj - 1 ) );	
 }
    
-// Takes square matrix A (p x p) and retrieves sub_matrix sub_A(2 x p-2) which is sub rows of matrix A, minus two elements
+// Takes square matrix A (p x p) and 
+// retrieves sub_matrix sub_A(2 x p-2) which is sub rows of matrix A, minus two elements
 // Likes A[(i,j), -(i,j)] in R ONLY  FOR SYMMETRIC MATRICES
 void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
@@ -54,7 +54,8 @@ void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 	}
 }
 
-// Takes symmatric matrix A (p x p) and retrieves A_jj, A12(1x(p-1)), A21((p-1)x1), and A22((p-1)x(p-1))
+// Takes symmatric matrix A (p x p) and 
+// retrieves A_jj, A12(1x(p-1)), A21((p-1)x1), and A22((p-1)x(p-1))
 // Like A11=A[j, j], A12=A[j, -j], and A22=A[-j, -j] in R
 void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
@@ -87,7 +88,8 @@ void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 	}
 }
 
-// Takes square matrix A (p x p) and retrieves A11(2x2), A12(2x(p-2)), and A22((p-2)x(p-2))
+// Takes square matrix A (p x p) and 
+// retrieves A11(2x2), A12(2x(p-2)), and A22((p-2)x(p-2))
 // Like A11=A[e, e], A12=A[e, -e], and A22=A[-e, -e] in R
 void sub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
@@ -146,7 +148,6 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 		ixp = i * pdim;
 				
 		A12[i + i - 4]     = A[ixp + sub0];
-	  //A12[(i - 2) * 2 + 1] = A[i * pdim + sub1];
 		A12[i + i - 3]       = A[ixp + sub1];
 		
 		for( j = sub1 + 1; j < pdim; j++ )
@@ -154,9 +155,8 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	}
 }
    
-////////////////////////////////////////////////////////////////////////////////
-//  Multiplies (p_i x p_k) matrix by (p_k x p_j) matrix to give (p_i x p_j) matrix
-//  C := A %*% B
+// Multiplies (p_i x p_k) matrix by (p_k x p_j) matrix to give (p_i x p_j) matrix
+// C := A %*% B
 void multiply_matrix( double A[], double B[], double C[], int *p_i, int *p_j, int *p_k )
 {
 	double alpha = 1.0, beta  = 0.0;
@@ -172,7 +172,6 @@ void inverse( double A[], double A_inv[], int *p )
 	char uplo = 'U';
 
 	// creating an identity matrix
-
 	for( int i = 0; i < dim; i++ )
 		for( int j = 0; j < dim; j++ )
 			A_inv[j * dim + i] = (i == j);
@@ -199,7 +198,6 @@ void cholesky( double A[], double U[], int *p )
 	char uplo = 'U';
 	int j, info, dim = *p, i, pxp = dim * dim;
 	
-	//~ for( i = 0; i < pxp; i++ ) U[i] = A[i]; 
 	memcpy( U, A, sizeof( double ) * pxp );	
 	
 	F77_NAME(dpotrf)( &uplo, &dim, U, &dim, &info );	
@@ -239,7 +237,6 @@ void select_edge( long double rates[], int *index_selected_edge, long double *su
 		position = ( lower_bound + upper_bound ) / 2;
 	}
 	
-	//~ if ( sum_sort_rates[position] < random_value ) position = position + 1;
 	*index_selected_edge = ( sum_sort_rates[position] < random_value ) ? ++position : position;
 } 
     
@@ -256,7 +253,7 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 	
 	max_bound = sum_sort_rates[qp_star - 1];
 	
-// ---------- for first edge ---------------------------------------
+	// ---------- for first edge ----------------------------------------------|
 	// To start, find the subscript of the middle position.
 	lower_bound = 0;
 	upper_bound = qp_star - 1;
@@ -276,7 +273,7 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 	
 	if ( sum_sort_rates[position] < random_value ) ++position;
 	index_selected_edges[0] = position;
-// ---------------------------------------------------------------------
+	// ------------------------------------------------------------------------|
 
 	int counter = 1;
 	int same;
@@ -289,7 +286,7 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 		// To start, find the subscript of the middle position.
 		lower_bound = 0;
 		upper_bound = qp_star - 1;
-		position   = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
+		position    = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
 
 		while( upper_bound - lower_bound > 1 )
 		{
