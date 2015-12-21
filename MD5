@@ -1,4 +1,4 @@
-0659a80c056b802316a7abd01ed85ef1 *DESCRIPTION
+af1996d9526b8bb3c15f0084a54d1e3f *DESCRIPTION
 1e3ae8948852f88bff166c4140274ab5 *NAMESPACE
 85523aaa94a650803d554a82be46b503 *NEWS
 a171afcb3a301b930af94de73e8b7859 *R/bdgraph.R
@@ -15,15 +15,13 @@ eebb5aea6f368f21acc559701db15f5c *R/rwish.R
 1858d288a7a92351ee6dda944906fab2 *R/select.R
 733ffbb0697a5d6d22c513ae204f9b53 *R/traceplot.R
 e171a3662e512594972ab7e46d7b00a8 *build/vignette.rds
-885abc1f6d2d2a90045e0e41cfdba34e *data/CellSignal.RData
 3b1d0087898f992dd8a92ec5ed672ce3 *data/geneExpression.RData
 4db46ea2b4302923b4d6cdf84b6e2e67 *data/surveyData.RData
-80dca3576fc16b7b7bdbbeb549d3ec95 *inst/doc/BDgraph.pdf
+22c2f4e52a17305d936530e6ebab34c2 *inst/doc/BDgraph.pdf
 fb638f485ab34690edc64509222d3b8b *inst/doc/vignette.Rnw
-80dca3576fc16b7b7bdbbeb549d3ec95 *inst/doc/vignette.pdf
+22c2f4e52a17305d936530e6ebab34c2 *inst/doc/vignette.pdf
 e32deb977830d0ebcd4e337bd98012dd *man/BDgraph-internal.Rd
 efb86db086ab08c350603c3d31c31e19 *man/BDgraph-package.Rd
-bfb2055f5d79640ae0653bb2fa173943 *man/CellSignal.Rd
 5a0e88c7b52e3a78a56e1c3097729e19 *man/bdgraph.Rd
 69037bedb6fdceac26eadcb11a9d8794 *man/bdgraph.npn.Rd
 672c60cf507127004646cd080de605de *man/bdgraph.sim.Rd
@@ -60,5 +58,5 @@ c1b8ae88032c4727cdba67b014384801 *src/matrix.h
 bdab53e608311997116af539a7e52db8 *src/rgwish.cpp
 ed84b7bf5a205c5134ef70841ab733d8 *src/rgwish.h
 3f4b45d1c7dec4758ca8f8c08d4947eb *src/scaleFree.cpp
-80dca3576fc16b7b7bdbbeb549d3ec95 *vignettes/BDgraph.pdf
+22c2f4e52a17305d936530e6ebab34c2 *vignettes/BDgraph.pdf
 fb638f485ab34690edc64509222d3b8b *vignettes/vignette.Rnw
