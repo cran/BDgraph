@@ -13,10 +13,10 @@ using namespace std;
 extern "C" {
 /*
  * Multiple birth-death MCMC for Gaussian copula Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * Based on Double Metropolis-Hastings
  * it is for Bayesian model averaging
 */
-void bdmcmcCopulap_links_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void bdmcmcCopulap_links_multi_update_DMH( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double D[], double Ds[], double *threshold, int *multi_update )
@@ -26,8 +26,8 @@ void bdmcmcCopulap_links_multi_update( int *iter, int *burnin, int G[], double T
 	
 	int selected_edge_i, selected_edge_j, selected_edge_ij, counter;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
-	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	double Dsijj, Dsjj, Dsij, K022, sigmaj11, threshold_C = *threshold;
+	int row, col, rowCol, i, j, k, ij, jj, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -96,6 +96,9 @@ void bdmcmcCopulap_links_multi_update( int *iter, int *burnin, int G[], double T
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
+	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
+	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
+	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
@@ -112,75 +115,38 @@ void bdmcmcCopulap_links_multi_update( int *iter, int *burnin, int G[], double T
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 		
-		counter = 0;	
-		// STEP 2: calculating birth and death rates --------------------------|
+		// sampling from K and sigma for double Metropolis-Hastings
+		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &threshold_C, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		
+		counter = 0;
+		// STEP 1: calculating birth and death rates --------------------------|		
 		for( j = 1; j < dim; j++ )
-		{
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
+		{			
+			jj    = j * dim + j;
+			Dsjj  = Ds[jj];
+			Djj  = D[jj];
 
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
+				ij    = j * dim + i;
+				Dsij  = Ds[ij];
+				Dsijj = - Dsij * Dsij / Dsjj;
+				Dij   = D[ij];
+				Dijj  = - Dij * Dij / Djj;
 
-				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );   // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                         // K12[1,i] = 0
+				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
+					   &dim, &p1, &p2, &p2xp2, &jj,
+					   &Dsijj, &Dsij, &Dsjj );
 
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
-				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
+				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
+					   &dim, &p1, &p2, &p2xp2, &jj,
+					   &Dijj, &Dij, &Djj );
 
-				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
-
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
-
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 															
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-				// Finished (i,j) = 1------------------------------------------|
-
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = - Dsij * ( K121[1] + K121[2] ) + Dsjj * ( K022 - K121[3] );
-
-				// nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star = b1;
-				for( k = 0; k < dim; k++ )
-					nu_star += G[i * dim + k] * G[j * dim + k];
-
-				rate = ( G[ij] ) 
-					? sqrt( Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 )
-					: sqrt( a11 / Dsjj ) * exp( lgamma( nu_star / 2 ) - lgamma( ( nu_star + 1 ) / 2 ) + ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
+				rate = ( G[ij] ) ? exp( logH_ij - logI_p ) : exp( logI_p - logH_ij );
 				
 				rates[counter++] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 			}
@@ -237,10 +203,10 @@ void bdmcmcCopulap_links_multi_update( int *iter, int *burnin, int G[], double T
     
 /*
  * Multiple birth-death MCMC for Gaussian copula Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * Based on Double Metropolis-Hastings
  * it is for maximum a posterior probability estimation (MAP)
 */
-void bdmcmcCopula_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void bdmcmcCopula_multi_update_DMH( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -255,7 +221,7 @@ void bdmcmcCopula_multi_update( int *iter, int *burnin, int G[], double Ts[], do
 	int selected_edge_i, selected_edge_j, selected_edge_ij, counter, size_sample_graph = *size_sample_g;
 	bool this_one;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
 	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
@@ -323,6 +289,10 @@ void bdmcmcCopula_multi_update( int *iter, int *burnin, int G[], double Ts[], do
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
+	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
+	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
+	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
+	// ----------------------------------------
 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
@@ -339,75 +309,38 @@ void bdmcmcCopula_multi_update( int *iter, int *burnin, int G[], double Ts[], do
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 		
+		// sampling from K and sigma for double Metropolis-Hastings
+		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &threshold_C, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		
 		counter = 0;
-		// STEP 2: calculating birth and death rates --------------------------|
+		// STEP 1: calculating birth and death rates --------------------------|		
 		for( j = 1; j < dim; j++ )
-		{
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
+		{			
+			jj    = j * dim + j;
+			Dsjj  = Ds[jj];
+			Djj  = D[jj];
 
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
+				ij    = j * dim + i;
+				Dsij  = Ds[ij];
+				Dsijj = - Dsij * Dsij / Dsjj;
+				Dij   = D[ij];
+				Dijj  = - Dij * Dij / Djj;
 
-				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                        // K12[1,i] = 0
+				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
+					   &dim, &p1, &p2, &p2xp2, &jj,
+					   &Dsijj, &Dsij, &Dsjj );
 
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
-				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
+				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
+					   &dim, &p1, &p2, &p2xp2, &jj,
+					   &Dijj, &Dij, &Djj );
 
-				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
-
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
-
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-				// Finished (i,j) = 1------------------------------------------|
-
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = - Dsij * ( K121[1] + K121[2] ) + Dsjj * ( K022 - K121[3] );
-
-				// nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star = b1;
-				for( k = 0; k < dim; k++ )
-					nu_star += G[i * dim + k] * G[j * dim + k];
-
-				rate = ( G[ij] ) 
-					? sqrt( Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 )
-					: sqrt( a11 / Dsjj ) * exp( lgamma( nu_star / 2 ) - lgamma( ( nu_star + 1 ) / 2 ) + ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
+				rate = ( G[ij] ) ? exp( logH_ij - logI_p ) : exp( logI_p - logH_ij );
 				
 				rates[counter] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 				

@@ -1,5 +1,5 @@
 #include "matrix.h"
-   
+
 // Takes square matrix A (p x p) and 
 // retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
 void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  )
@@ -29,7 +29,7 @@ void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
    
 // Takes square matrix A (p x p) and 
 // retrieves sub_matrix sub_A(2 x p-2) which is sub rows of matrix A, minus two elements
-// Likes A[(i,j), -(i,j)] in R ONLY  FOR SYMMETRIC MATRICES
+// Likes A[(i,j), -(i,j)] in R ONLY FOR SYMMETRIC MATRICES
 void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col;
@@ -311,10 +311,72 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 	*size_index = counter;
 	*sum_rates  = max_bound;
 } 
-      
+         
+// computing birth/death rate or alpha for element (i,j)
+// it is for double Metropolis-Hasting algorihtms
+void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
+               double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double *K022, double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
+               double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
+               int *dim, int *p1, int *p2, int *p2xp2, int *jj,
+               double *Dsijj, double *Dsij, double *Dsjj )
+{
+	int p1_here = *p1, p2_here = *p2, dim_here = *dim, one = 1, two = 2;
+	double alpha = 1.0, beta = 0.0;
+	char transT = 'T', transN = 'N';																	
+	
+	double sigmaj11 = sigma[*jj];        // sigma[j, j]  
+	sub_matrices1( sigma, sigmaj12, sigmaj22, selected_edge_j, &dim_here );
 
+	// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
+	for( int row = 0; row < p1_here; row++ )
+		for( int col = 0; col < p1_here; col++ )
+		{
+			int rowCol = col * p1_here + row;
+			Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
+		}
 
+	// For (i,j) = 0 ------------------------------------------------------|
+	sub_row_mins( K, Kj12, selected_edge_j, &dim_here );  // K12 = K[j, -j]  
+	Kj12[ *selected_edge_i ] = 0.0;                        // K12[1,i] = 0
 
+	// K12 %*% K22_inv
+	F77_NAME(dgemm)( &transN, &transN, &one, &p1_here, &p1_here, &alpha, Kj12, &one, Kj22_inv, &p1_here, &beta, Kj12xK22_inv, &one );
+
+	// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12) 
+	F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1_here, &alpha, Kj12xK22_inv, &one, Kj12, &one, &beta, K022, &one );			
+
+	// For (i,j) = 1 ------------------------------------------------------|
+	// K12 = K[e, -e] 
+	sub_rows_mins( K, K12, selected_edge_i, selected_edge_j, &dim_here );  
+	
+	sub_matrices( sigma, sigma11, sigma12, sigma22, selected_edge_i, selected_edge_j, &dim_here );
+
+	// solve( sigma[e, e] )
+	inverse_2x2( sigma11, sigma11_inv );
+
+	// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
+	F77_NAME(dgemm)( &transT, &transN, &p2_here, &two, &two, &alpha, sigma12, &two, sigma11_inv, &two, &beta, sigma21xsigma11_inv, &p2_here );
+
+	// sigma21xsigma11_inv %*% sigma12
+	F77_NAME(dgemm)( &transN, &transN, &p2_here, &p2_here, &two, &alpha, sigma21xsigma11_inv, &p2_here, sigma12, &two, &beta, sigma2112, &p2_here );
+
+	// solve( K[-e, -e] ) = sigma22 - sigma2112
+	for( int k = 0; k < *p2xp2 ; k++ ) 
+		K22_inv[k] = sigma22[k] - sigma2112[k];	
+	
+	// K12 %*% K22_inv
+	F77_NAME(dgemm)( &transN, &transN, &two, &p2_here, &p2_here, &alpha, K12, &two, K22_inv, &p2_here, &beta, K12xK22_inv, &two );
+
+	// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e])															
+	F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2_here, &alpha, K12xK22_inv, &two, K12, &two, &beta, K121, &two );		
+	// Finished (i,j) = 1--------------------------------------------------|
+
+	double a11      = K[*selected_edge_i * dim_here + *selected_edge_i] - K121[0];	
+	double sum_diag = *Dsjj * ( *K022 - K121[3] ) - *Dsij * ( K121[1] + K121[2] );
+
+	// Dsijj = Dsii - Dsij * Dsij / Dsjj;
+	*log_Hij = ( log( static_cast<double>(*Dsjj) ) - log( static_cast<double>(a11) ) + *Dsijj * a11 - sum_diag ) / 2;
+}    
 
   
   

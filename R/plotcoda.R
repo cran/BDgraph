@@ -5,14 +5,14 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	
 	if( is.null( thin ) ) thin = ceiling( length( bdgraph.obj $ all_graphs ) / 1000 )
 
-	sample_graphs    = bdgraph.obj $ sample_graphs
+	sample_graphs   = bdgraph.obj $ sample_graphs
 	p               = nrow( bdgraph.obj $ last_graph )
 	qp              = p * ( p - 1 ) / 2 
-	all_weights      = bdgraph.obj $ all_weights
-	all_graphs       = bdgraph.obj $ all_graphs
+	all_weights     = bdgraph.obj $ all_weights
+	all_graphs      = bdgraph.obj $ all_graphs
 
 	allG_new        = all_graphs[ c( thin * ( 1 : floor( length( all_graphs ) / thin ) ) ) ]
-	all_weights_new  = all_weights[ c( thin * ( 1 : floor( length( all_weights ) / thin ) ) ) ]
+	all_weights_new = all_weights[ c( thin * ( 1 : floor( length( all_weights ) / thin ) ) ) ]
 	length_allG_new = length( allG_new )
 	result          = matrix( 0, qp, length_allG_new )
 	vec_result      = 0 * result[ , 1]

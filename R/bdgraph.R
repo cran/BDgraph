@@ -13,13 +13,11 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 	if( is.data.frame(data) ) data <- data.matrix(data)
 	if( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
 
-	if( any( is.na(data) ) ) 
+	if( any( is.na( data ) ) ) 
 	{
-		if( method == "ggm" ) stop( "ggm method does not deal with missing value. You could choose method = gcgm" )	
+		if( method == "ggm" ) { stop( "ggm method does not deal with missing value. You could choose method = gcgm" ) }	
 		gcgm_NA = 1
-	}
-	else
-	{
+	}else{
 		gcgm_NA = 0
 	}
 		
@@ -41,9 +39,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 #~ 			data = data / sd( data[ , 1] )
 		
 			method = "ggm"
-		}
-		else
-		{	# for non-Gaussian data
+		}else{	# for non-Gaussian data
 			Z              <- qnorm( apply( data, 2, rank, ties.method = "random" ) / (n + 1) )
 			Zfill          <- matrix( rnorm( n * p ), n, p )   # for missing values
 			Z[is.na(data)] <- Zfill[is.na(data)]               # for missing values
@@ -59,18 +55,17 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 			if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
 			cat( "Input is identified as the covriance matrix. \n" )
 			S <- data
-		}
-		else
-		{
+		}else{
  			S <- t(data) %*% data
 		}
 	}
-
+   
 	D      = diag(p)
 	b      = prior.df
 	b_star = b + n
 	Ds     = D + S
 	Ts     = chol( solve( Ds ) )
+	Ti     = chol( solve( D ) )   # only for double Metropolic-Hastings algorithms 
 
 	if( class( g.start ) == "bdgraph" ) 
 	{
@@ -107,8 +102,8 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 	{
 		G       = g.start
 		diag(G) = 0
-		K       = 0 * G
 		
+		K       = 0 * G
 		result = .C( "rgwish", as.integer(G), as.double(Ts), K = as.double(K), as.integer(b_star), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
 		K      = matrix ( result $ K, p, p ) 	
 	}
@@ -122,9 +117,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		all_graphs    = c( rep ( 0, iter - burnin ) )         # vector of numbers like "10100"
 		all_weights   = c( rep ( 1, iter - burnin ) )         # waiting time for every state		
 		size_sample_g = 0
-	}
-	else
-	{
+	}else{
 		p_links = 0 * K
 	}
 
@@ -138,10 +131,12 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 	last_graph = K_hat
 	last_K     = K_hat
 
-	if( ( is.null( multi.update ) ) && ( p > 10 & iter > p ) )
+	if( ( is.null( multi.update ) ) && ( p > 10 & iter > ( 5000 / p ) ) )
 	{
 		multi.update = floor( p / 10 )
 	}
+	
+	if( is.null( multi.update ) ) multi.update = 1
 	multi_update = multi.update
 	
 	mes <- paste( c( iter, " iteration is started.                    " ), collapse = "" )
@@ -149,7 +144,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 
 	if( save.all == TRUE )
 	{
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && is.null( multi_update ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
 		{
 			result = .C( "bdmcmcExact", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
@@ -157,7 +152,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						as.integer(b), as.integer(b_star), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && !is.null( multi_update ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
 		{
 			result = .C( "bdmcmcExact_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
@@ -173,7 +168,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						as.integer(b), as.integer(b_star), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}
 		
-		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && is.null( multi_update ) )
+		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
 		{
 			result = .C( "bdmcmcCopula", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p),
 						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
@@ -182,7 +177,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && !is.null( multi_update ) )
+		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
 		{
 			result = .C( "bdmcmcCopula_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p),
 						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
@@ -190,7 +185,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
 						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
 		}
-
+   
 		if( ( method == "gcgm" ) && ( algorithm == "rjmcmc" ) )
 		{
 			result = .C( "rjmcmcCopula", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p),
@@ -199,23 +194,75 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
 						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}	
-	}
-	else
-	{
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && is.null( multi_update )  )
+
+		# for Double Metropolis-Hasting 
+		if( ( method == "ggm" ) && ( algorithm == "bd_dmh" ) && ( multi_update == 1 ) )
+		{
+			result = .C( "bdmcmc_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), 
+						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+						as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.double(threshold), PACKAGE = "BDgraph" )
+		}
+
+		if( ( method == "ggm" ) && ( algorithm == "bd_dmh" ) && ( multi_update != 1 ) )
+		{
+			result = .C( "bdmcmc_multi_update_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), 
+						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+						as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
+		}
+
+		if( ( method == "ggm" ) && ( algorithm == "rj_dmh" ) )
+		{
+			result = .C( "rjmcmc_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), 
+						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+						as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.double(threshold), PACKAGE = "BDgraph" )
+		}
+		
+		if( ( method == "gcgm" ) && ( algorithm == "bd_dmh" ) && ( multi_update == 1 ) )
+		{
+			result = .C( "bdmcmcCopula_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p),
+						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		}
+ 
+ 		if( ( method == "gcgm" ) && ( algorithm == "bd_dmh" ) && ( multi_update != 1 ) )
+		{
+			result = .C( "bdmcmcCopula_multi_update_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p),
+						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
+		}
+
+		if( ( method == "gcgm" ) && ( algorithm == "rj_dmh" ) )
+		{
+			result = .C( "rjmcmcCopula_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p),
+						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		}	
+      
+	}else{
+		
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 )  )
 		{
 			result = .C( "bdmcmcExactp_links", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
 						K_hat = as.double(K_hat), p_links = as.double(p_links),
 						as.integer(b), as.integer(b_star), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}
 		
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && !is.null( multi_update ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
 		{
 			result = .C( "bdmcmcExactp_links_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
 						K_hat = as.double(K_hat), p_links = as.double(p_links),
 						as.integer(b), as.integer(b_star), as.double(Ds), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
 		}		
-
+    
 		if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
 		{
 			result = .C( "rjmcmcExactp_links", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
@@ -223,15 +270,15 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						as.integer(b), as.integer(b_star), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}
 		
-		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && is.null( multi_update )  )
+		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 )  )
 		{
 			result = .C( "bdmcmcCopulap_links", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p),
 						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
 						K_hat = as.double(K_hat), p_links = as.double(p_links),
 						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}
-
-		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && !is.null( multi_update ) )
+    
+		if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
 		{
 			result = .C( "bdmcmcCopulap_links_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p),
 						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
@@ -246,10 +293,54 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 						K_hat = as.double(K_hat), p_links = as.integer(p_links),
 						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
 		}	
+
+		# for Double Metropolis-Hasting 
+		if( ( method == "ggm" ) && ( algorithm == "bd_dmh" ) && ( multi_update == 1 )  )
+		{
+			result = .C( "bdmcmcExactp_links_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), 
+						K_hat = as.double(K_hat), p_links = as.double(p_links),
+						as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.double(threshold), PACKAGE = "BDgraph" )
+		}
+
+		if( ( method == "ggm" ) && ( algorithm == "bd_dmh" ) && ( multi_update != 1 ) )
+		{
+			result = .C( "bdmcmcExactp_links_multi_update_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), 
+						K_hat = as.double(K_hat), p_links = as.double(p_links),
+						as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
+		}		
+    
+		if( ( method == "ggm" ) && ( algorithm == "rj_dmh" ) )
+		{
+			result = .C( "rjmcmcExactp_links_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), 
+						K_hat = as.double(K_hat), p_links = as.integer(p_links),
+						as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.double(threshold), PACKAGE = "BDgraph" )
+		}
+		
+		if( ( method == "gcgm" ) && ( algorithm == "bd_dmh" ) && ( multi_update == 1 )  )
+		{
+			result = .C( "bdmcmcCopulap_links_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p),
+						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+						K_hat = as.double(K_hat), p_links = as.double(p_links),
+						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		}
+
+		if( ( method == "gcgm" ) && ( algorithm == "bd_dmh" ) && ( multi_update != 1 ) )
+		{
+			result = .C( "bdmcmcCopulap_links_multi_update_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p),
+						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+						K_hat = as.double(K_hat), p_links = as.double(p_links),
+						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
+		}
+
+		if( ( method == "gcgm" ) && ( algorithm == "rj_dmh" ) )
+		{
+			result = .C( "rjmcmcCopulap_links_DMH", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p),
+						as.double(Z), as.integer(R), as.integer(n), as.integer(gcgm_NA),
+						K_hat = as.double(K_hat), p_links = as.integer(p_links),
+						as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.double(threshold), PACKAGE = "BDgraph" )
+		}	
 	}
 
-#~ 	system( 'clear' )  # To clear the console in R
-	
 	K_hat      = matrix( result $ K_hat, p, p ) 
 	last_graph = matrix( result $ G, p, p )
 	last_K     = matrix( result $ K, p, p )
@@ -267,14 +358,12 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 
 		output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = K_hat, 
 					all_graphs = all_graphs, all_weights = all_weights, last_graph = last_graph, last_K = last_K )
-	}
-	else
-	{
+	}else{
 		p_links   = matrix( result $ p_links, p, p ) 
-		if( algorithm == "rjmcmc" )
+		if( ( algorithm == "rjmcmc" ) | ( algorithm == "rj_dmh" ) )
 		{
 			p_links = p_links / ( iter - burnin )
-			K_hat = K_hat / ( iter - burnin )
+			K_hat   = K_hat / ( iter - burnin )
 		}
 		p_links[ lower.tri( p_links ) ] = 0
 		colnames( p_links ) = colnames( data )
@@ -306,9 +395,7 @@ summary.bdgraph = function( object, vis = TRUE, ... )
 		indG_max <- sample_graphs[ which( graph_weights == max_gWeights ) ]
 		vec_G[ which( unlist( strsplit( as.character( indG_max ), "" ) ) == 1 ) ] = 1
 		selected_g[ upper.tri( selected_g ) ] <- vec_G 
-	}
-	else
-	{
+	}else{
 		selected_g[ p_links > 0.5 ]  = 1
 		selected_g[ p_links <= 0.5 ] = 0
 	}

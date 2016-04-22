@@ -11,6 +11,8 @@
 using namespace std;
 
 extern "C" {
+	void get_permutation( int permutation[], int *u, int *v, int *p );
+	
 	void copyMatrix( double A[], double copyA[], int *pxp );
 
 	void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  );
@@ -34,6 +36,12 @@ extern "C" {
 	void select_edge( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp );
 	
 	void select_multi_edges( long double rates[], int index_selected_edges[], int *size_index, long double *sum_rates, int *multi_update, int *qp );
+
+	void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
+				   double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double *K022, double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
+				   double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
+				   int *dim, int *p1, int *p2, int *p2xp2, int *jj,
+				   double *Dsijj, double *Dsij, double *Dsjj );
 }
 
 #endif

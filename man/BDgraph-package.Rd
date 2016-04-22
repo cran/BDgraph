@@ -8,8 +8,8 @@
 \description{
 The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models. %based on birth-death MCMC method.      
 The package is implemented the recent improvements in the Bayesian literature, including Mohammadi and Wit (2015) and Mohammadi et al. (2015).
-The computationally intensive tasks of the package is implemented in C++ and interfaced with R, to speed up the computations. 
-Besides, the package contains several functions for simulation and visualization, as well as three multivariate datasets taken from the literature.
+The computationally intensive tasks of the package is implemented in \code{C++} and interfaced with \code{R}, to speed up the computations. 
+Besides, the package contains several functions for simulation and visualization, as well as two multivariate datasets taken from the literature.
 }
 \details{
 The package includes 10 main functions: 
