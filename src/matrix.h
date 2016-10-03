@@ -6,7 +6,7 @@
 #include <R_ext/Lapack.h>
 #include <R_ext/BLAS.h>
 #include <R_ext/Utils.h>
-#include <vector>          // for using vector
+#include <vector>            // for using vector
 
 using namespace std;
 
@@ -42,6 +42,19 @@ extern "C" {
 				   double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
 				   int *dim, int *p1, int *p2, int *p2xp2, int *jj,
 				   double *Dsijj, double *Dsij, double *Dsjj );
+
+	// -------------- NEW for Lang codes ---------------------------------------
+	// For Hermitian matrix
+	void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p );
+		  
+	void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p );
+
+		   
+	void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p );
+
+	void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p );
+	
+	void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] );
 }
 
 #endif

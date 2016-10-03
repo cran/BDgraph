@@ -20,13 +20,13 @@ Hoff, P. (2007). Extending the rank likelihood for semiparametric copula estimat
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Arxiv preprint arXiv:1501.05108} 
 }
 
-%\author{Abdolreza Mohammadi and Ernst Wit}
-
 \examples{
+\dontrun{
 data( surveyData )
 dim( surveyData )
 head( surveyData )
 boxplot( surveyData )
+}
 }
 
 \keyword{ datasets }

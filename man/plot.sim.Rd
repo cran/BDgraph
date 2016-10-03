@@ -24,7 +24,8 @@ Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian
 
 Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Gaussian Copula Graphical Modeling for Dupuytren Disease, \emph{arXiv:1501.04849v2} 
 }
-\author{Abdolreza Mohammadi and Ernst Wit}
+
+\author{ Abdolreza Mohammadi and Ernst Wit }
 
 \seealso{\code{\link{bdgraph}}}
 

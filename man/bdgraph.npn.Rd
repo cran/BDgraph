@@ -14,8 +14,8 @@
   shrunken transformation, option \code{"truncation"} is for the truncated transformation and option \code{"skeptic"} is for the 
   non-paranormal skeptic transformation. For more details see references.
   }
-  \item{npn.thresh}{ The truncation threshold; it is only for the truncated transformation (when
-  \code{npn = } \code{"truncation"}). The default value is \eqn{1/(4n^{1/4} \sqrt{\pi \log(n)})}. }
+  \item{npn.thresh}{ The truncation threshold; it is only for the truncated transformation (\code{npn=} \code{"truncation"}). 
+  The default value is \eqn{1/(4n^{1/4} \sqrt{\pi \log(n)})}. }
 }
 
 \value{
@@ -30,7 +30,7 @@ Liu, H., F. Han, M. Yuan, J. Lafferty, and L. Wasserman (2012). High Dimensional
 Zhao, T. and H. Liu (2012). The \pkg{huge} Package for High-dimensional Undirected Graph Estimation in \code{R}, \emph{Journal of Machine Learning Research}, 13:1059-1062
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit \cr }
+\author{ Abdolreza Mohammadi and Ernst Wit }
 
 \seealso{ \code{\link{bdgraph.sim}} and \code{\link{bdgraph}} }
 

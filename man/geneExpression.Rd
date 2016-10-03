@@ -16,13 +16,13 @@ This dataset contains human gene expression of \eqn{100} transcripts
           website at ftp://ftp.sanger.ac.uk/pub/genevar
        }
 
-%\author{Abdolreza Mohammadi and Ernst Wit}
-
 \examples{
+\dontrun{
   data( geneExpression )
   dim( geneExpression )
   head( geneExpression )
   boxplot( geneExpression )
+}
 }
 
 \keyword{ datasets }

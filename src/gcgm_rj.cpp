@@ -10,10 +10,10 @@ using namespace std;
 extern "C" {
 /*
  * Reversible Jump MCMC for Gaussian copula Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * for D = I_p 
  * it is for Bayesian model averaging
 */
-void rjmcmcCopulap_links( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 double K_hat[], int p_links[], 
 			 int *b, int *b_star, double D[], double Ds[], double *threshold )
@@ -164,9 +164,10 @@ void rjmcmcCopulap_links( int *iter, int *burnin, int G[], double Ts[], double K
 		nu_star = b1;
 		for( k = 0; k < dim; k++ )
 			nu_star += G[selected_edge_i * dim + k] * G[selected_edge_j * dim + k];
+		nu_star = 0.5 * nu_star;
 
-		alpha_ij = ( log_2 + log( static_cast<double>(Dsjj) ) - log( static_cast<double>(a11) ) ) / 2 + 
-		           lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2;
+		alpha_ij = 0.5 * ( log_2 + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+		          lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -------------------------------------|
@@ -206,10 +207,10 @@ void rjmcmcCopulap_links( int *iter, int *burnin, int G[], double Ts[], double K
     
 /*
  * Reversible Jump MCMC for Gaussian copula Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * for D = I_p 
  * it is for maximum a posterior probability estimation (MAP)
 */
-void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -277,7 +278,8 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
 
-	double alpha_ij;
+	double alpha_ij, log_2 = log( static_cast<double>( 2.0 ) );
+
 	GetRNGstate();
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -365,9 +367,10 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 		nu_star = b1;
 		for( k = 0; k < dim; k++ )
 			nu_star += G[selected_edge_i * dim + k] * G[selected_edge_j * dim + k];
+		nu_star = 0.5 * nu_star;
 
-		alpha_ij = ( log( static_cast<double>(2.0) ) + log( static_cast<double>(Dsjj) ) - log( static_cast<double>(a11) ) ) / 2 + 
-		           lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2;
+		alpha_ij = 0.5 * ( log_2 + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+		          lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -------------------------------------|
@@ -433,5 +436,3 @@ void rjmcmcCopula( int *iter, int *burnin, int G[], double Ts[], double K[], int
 }
     
 } // End of exturn "C"
-
-

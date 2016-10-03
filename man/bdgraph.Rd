@@ -8,8 +8,8 @@
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-		  burnin = iter / 2, g.start = "empty", prior.df = 3, 
-		  multi.update = NULL, save.all = FALSE )
+				burnin = iter / 2, g.start = "empty", prior.df = 3, 
+				multi.update = NULL, save.all = FALSE )
 }
 
 \arguments{
@@ -65,7 +65,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	
 	\item{K_hat}{ The posterior estimation of the precision matrix. }
 	
-	For the case "save.all = TRUE" is retrurned:
+	For the case "save.all = TRUE" is returned:
 
 	\item{sample_graphs}{ A vector of strings which includes the adjacency matrices of visited graphs after burn-in.}
 	\item{graph_weights}{ A vector which includes the waiting times of visited graphs after burn-in. }
@@ -81,7 +81,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2015). Bayesian Gaussian Copula Graphical Modeling for Dupuytren Disease, \emph{arXiv:1501.04849} 
+Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }
@@ -116,4 +116,3 @@ summary( bdgraph.obj )
 compare( data.sim, bdgraph.obj )	  
 }
 }
-

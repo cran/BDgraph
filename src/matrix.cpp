@@ -2,7 +2,7 @@
 
 // Takes square matrix A (p x p) and 
 // retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
-void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  )
+void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 {
 	int ixp, subixp, psub = *p_sub, pdim = *p;
 	
@@ -378,6 +378,131 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	*log_Hij = ( log( static_cast<double>(*Dsjj) ) - log( static_cast<double>(a11) ) + *Dsijj * a11 - sum_diag ) / 2;
 }    
 
-  
-  
-    
+// -------------- NEW for Lang codes -------------------------------------------
+// For Hermitian matrix
+void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
+{
+	int i, l = 0, subj = *sub, pdim = *p, subxp = subj * pdim;
+
+	for( i = 0; i < subj; i++ )
+		sub_A[l++] = -A[subxp + i];
+	
+	for( i = subj + 1; i < pdim; i++ )
+		sub_A[l++] = -A[subxp + i];
+}
+      
+// For Hermitian matrix
+void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
+{	
+	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col;
+	int sub0p = sub0 * pdim, sub1p = sub1 * pdim;
+
+	for( i = 0; i < sub0; i++ )
+	{
+		sub_A[l++] = -A[sub0p + i]; 
+		sub_A[l++] = -A[sub1p + i]; 
+	}
+	
+	for( i = sub0 + 1; i < sub1; i++ )
+	{
+		sub_A[l++] = -A[sub0p + i]; 
+		sub_A[l++] = -A[sub1p + i]; 
+	}
+
+	for( i = sub1 + 1; i < pdim; i++ )
+	{
+		sub_A[l++] = -A[sub0p + i]; 
+		sub_A[l++] = -A[sub1p + i]; 
+	}
+}
+       
+// sub_matrices1 for Hermitian matrix
+void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
+{
+	int i, j, ixpdim, ij, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim, mpsub = pdim - psub - 1;
+
+	for( i = 0; i < psub; i++ )
+		A12[i] = -A[subxp + i];
+	for( i = psub; i < pdim - 1; i++ )
+		A12[i] = -A[subxp + i + 1];
+
+	for( i = 0; i < psub; i++ )
+	{	
+		ixpdim = i * pdim;
+		memcpy( A22 + i * p1, A + ixpdim, sizeof( double ) * psub );
+		memcpy( A22 + i * p1 + psub, A + ixpdim + psub + 1, sizeof( double ) * mpsub );
+	}
+
+	for( i = psub + 1; i < pdim; i++ )
+	{
+		ixpdim = i * pdim;
+		memcpy( A22 + ( i - 1 ) * p1, A + ixpdim, sizeof( double ) * psub);
+                memcpy( A22 + ( i - 1 ) * p1 + psub, A + ixpdim + psub + 1, sizeof( double ) * mpsub );
+	}
+}
+        
+// sub_matrices for Hermitian matrix
+void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
+{
+	int i, i1, i2, j, ixp, ij, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
+
+	A11[0] = A[sub0 * pdim + sub0];
+	A11[1] = A[sub0 * pdim + sub1];
+	A11[2] = -A11[1];                   // for symmetric matrices
+	A11[3] = A[sub1 * pdim + sub1];
+ 
+	for( i = 0; i < sub0; i++ )
+	{	
+		ixp = i * pdim;
+		
+		A12[i + i]     = A[ixp + sub0];
+		A12[i + i + 1] = A[ixp + sub1];
+
+		memcpy( A22 + i * p2, A + ixp, sizeof( double ) * sub0 );
+		memcpy( A22 + i * p2 + sub0, A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );
+		memcpy( A22 + i * p2 + sub1 - 1, A + ixp + sub1 + 1, sizeof( double ) * ( pdim - sub1 - 1 ) );	
+	}
+ 
+	for( i = sub0 + 1; i < sub1; i++ )
+	{
+		ixp = i * pdim;
+		i1 = i - 1;
+
+		A12[i + i - 2] = A[ixp + sub0];
+		A12[i + i - 1] = A[ixp + sub1];
+
+		memcpy( A22 + i1 * p2, A + ixp, sizeof( double ) * sub0 );
+		memcpy( A22 + i1 * p2 + sub0, A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );
+		memcpy( A22 + i1 * p2 + sub1 - 1, A + ixp + sub1 + 1, sizeof( double ) * ( pdim - sub1 - 1 ) );	
+	}
+	
+	for( i = sub1 + 1; i < pdim; i++ )
+	{
+		ixp = i * pdim;
+		i2 = i - 2;
+				
+		A12[i + i - 4]     = A[ixp + sub0];
+		A12[i + i - 3]     = A[ixp + sub1];
+
+		memcpy( A22 + i2 * p2, A + ixp, sizeof( double ) * sub0 );
+		memcpy( A22 + i2 * p2 + sub0, A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );
+		memcpy( A22 + i2 * p2 + sub1 - 1, A + ixp + sub1 + 1, sizeof( double ) * ( pdim - sub1 - 1 ) );		
+	}
+}
+   
+// inverse function for Hermitian (2 x 2)
+void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] )
+{
+	double r_det = r_B[0] * r_B[3] - i_B[0] * i_B[3] - ( r_B[1] * r_B[1] + i_B[1] * i_B[1] );
+	double i_det = r_B[0] * i_B[3] + i_B[0] * r_B[3];
+	double mod   = r_det * r_det + i_det * i_det;
+	
+	r_B_inv[0] =  ( r_B[3] * r_det + i_B[3] * i_det ) / mod;
+	i_B_inv[0] =  ( r_det * i_B[3] - r_B[3] * i_det ) / mod;
+	r_B_inv[1] = -( r_B[1] * r_det + i_B[1] * i_det ) / mod;
+	i_B_inv[1] = -( r_det * i_B[1] - r_B[1] * i_det ) / mod;
+	r_B_inv[2] = -( r_B[1] * r_det - i_B[1] * i_det ) / mod;
+	i_B_inv[2] =  ( r_det * i_B[1] + r_B[1] * i_det ) / mod;
+	r_B_inv[3] =  ( r_B[0] * r_det + i_B[0] * i_det ) / mod;
+	i_B_inv[3] =  ( r_det * i_B[0] - r_B[0] * i_det ) / mod;
+}

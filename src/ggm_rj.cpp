@@ -3,16 +3,15 @@
 #include <vector>        // for using vector
 #include "matrix.h"
 #include "rgwish.h"
-
 using namespace std;
 
 extern "C" {
 /*
  * Reversible Jump MCMC for Gaussian Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * for D = I_p 
  * it is for Bayesian model averaging
 */
-void rjmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double K_hat[], int p_links[],
 			 int *b, int *b_star, double Ds[], double *threshold )
 {
@@ -153,9 +152,10 @@ void rjmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
 		nu_star = b1;
 		for( k = 0; k < dim; k++ )
 			nu_star += G[selected_edge_i * dim + k] * G[selected_edge_j * dim + k];
+		nu_star = 0.5 * nu_star;
 
-		alpha_ij = ( log_2 + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) / 2 + 
-		          lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2;
+		alpha_ij = 0.5 * ( log_2 + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+		          lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End of calculating alpha ----------------------------------|
@@ -195,10 +195,10 @@ void rjmcmcExactp_links( int *iter, int *burnin, int G[], double Ts[], double K[
     
 /*
  * Reversible Jump MCMC for Gaussian Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * for D = I_p 
  * it is for maximum a posterior probability estimation (MAP)
 */
-void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], double *threshold )
@@ -261,7 +261,8 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 	vector<int> N_i( dim );                  // For dynamic memory used
 	// ----------------------------
 
-	double alpha_ij;
+	double alpha_ij, log_2 = log( static_cast<double>( 2.0 ) );
+
 	GetRNGstate();
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -345,9 +346,10 @@ void rjmcmcExact( int *iter, int *burnin, int G[], double Ts[], double K[], int 
 		nu_star = b1;
 		for( k = 0; k < dim; k++ )
 			nu_star += G[selected_edge_i * dim + k] * G[selected_edge_j * dim + k];
+		nu_star = 0.5 * nu_star;
 
-		alpha_ij = ( log( static_cast<double>(2.0) ) + log( static_cast<double>(Dsjj) ) - log( static_cast<double>(a11) ) ) / 2 + 
-		          lgamma( (nu_star + 1) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2;
+		alpha_ij = 0.5 * ( log_2 + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+		          lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
 		if( G[ij] == 0 ) alpha_ij = - alpha_ij;	
 		// -------- End calculating alpha -------------------------------------|

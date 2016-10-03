@@ -1,7 +1,6 @@
 #include "rgwish.h"
 
-// sampling from Wishart distribution
-// Ts = chol( solve( Ds ) )
+// sampling from Wishart distribution // Ts = chol( solve( Ds ) )
 void rwish( double Ts[], double K[], int *b, int *p )
 {
 	int i, j, dim = *p, pxp = dim * dim, bK = *b;
@@ -18,7 +17,7 @@ void rwish( double Ts[], double K[], int *b, int *p )
 	PutRNGstate();
 	// ------------------------------------------------------------------------|
 
-    // C = psi %*% Ts   I used   psi = psi %*% Ts
+    	// C = psi %*% Ts   I used   psi = psi %*% Ts
 	double alpha = 1.0, beta  = 0.0;
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
@@ -29,8 +28,7 @@ void rwish( double Ts[], double K[], int *b, int *p )
 	F77_NAME(dgemm)( &transT, &transN, &dim, &dim, &dim, &alpha, &psi[0], &dim, &psi[0], &dim, &beta, K, &dim );
 }
 
-// G is adjacency matrix which has zero in its diagonal
-// threshold = 1e-8
+// G is adjacency matrix which has zero in its diagonal // threshold = 1e-8
 void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold )
 {
 	char transN = 'N', uplo = 'U'; 
@@ -66,10 +64,6 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 
 			if( size_node > 0 )
 			{
-				// Record size of node and initialize zero in beta_star for next steps
-				sigma_start_N_i.resize( size_node );  
-				N_i.resize( size_node );        
-				
 				l = 0;
 				for( j = 0; j < dim; j++ )
 				{
@@ -83,7 +77,6 @@ void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold
 				}
 				// -------------------------------------------------------------
 				
-				sigma_N_i.resize( size_node * size_node ); //vector<double> sigma_N_i( size_node * size_node );
 				sub_matrix( &sigma[0], &sigma_N_i[0], &N_i[0], &size_node, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
@@ -142,7 +135,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	double temp, threshold_C = *threshold;
 	// STEP 1: sampling from wishart distributions
 	// ---- Sample values in Psi matrix ---
-    GetRNGstate();
+    	GetRNGstate();
 	for( i = 0; i < dim; i++ )
 		sigma_start[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
 
@@ -188,10 +181,6 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 			size_node_i = size_node[i];
 			if( size_node_i > 0 )
 			{
-				// Record node size and initialize zero in beta_star
-				sigma_start_N_i.resize( size_node_i );  
-				N_i.resize( size_node_i );              
-				
 				l = 0;
 				for( j = 0; j < dim; j++ )
 				{
@@ -206,7 +195,6 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 				}
 				// -------------------------------------------------------------
 				
-				sigma_N_i.resize( size_node_i * size_node_i ); //vector<double> sigma_N_i( size_node_i * size_node_i );
 				sub_matrix( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
@@ -267,4 +255,3 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	inverse( &sigma_start[0], K, &dim );
 }
-        

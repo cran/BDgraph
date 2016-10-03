@@ -5,11 +5,9 @@
 #include <R_ext/Utils.h>
 #include <vector>        // for using vector
 #include <sstream>
-
 using namespace std;
 
 extern "C" {
-
 // Part of function for calculating I.g = function( G, b = 3, D = diag( ncol(G) ), mc = 100 ) out logIg
 void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, int *p, double f_T[] )
 {

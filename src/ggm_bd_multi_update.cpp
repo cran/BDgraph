@@ -10,13 +10,12 @@
 using namespace std;
 
 extern "C" {
-
 /*
  * Multiple birth-death MCMC for Gaussian Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * for D = I_p 
  * it is for Bayesian model averaging
 */
-void bdmcmcExactp_links_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], double *threshold, int *multi_update )
 {
@@ -164,11 +163,13 @@ void bdmcmcExactp_links_multi_update( int *iter, int *burnin, int G[], double Ts
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];
+				for( k = 0; k < dim; k++ ) 
+					nu_star += G[i * dim + k] * G[j * dim + k];
+				nu_star = 0.5 * nu_star;
 
-				rate = ( G[ij] ) 
-					? sqrt( Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 )
-					: sqrt( a11 / Dsjj ) * exp( lgamma( nu_star / 2 ) - lgamma( ( nu_star + 1 ) / 2 ) + ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
+				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
+					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 )
+					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 );
 				
 				rates[counter++] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 			}
@@ -225,10 +226,10 @@ void bdmcmcExactp_links_multi_update( int *iter, int *burnin, int G[], double Ts
     
 /*
  * Multiple birth-death MCMC for Gaussian Graphical models  
- * with exact value of normalizing constant for D = I_p 
+ * for D = I_p 
  * it is for maximum a posterior probability estimation (MAP)
 */
-void bdmcmcExact_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], double *threshold, int *multi_update )
@@ -381,11 +382,13 @@ void bdmcmcExact_multi_update( int *iter, int *burnin, int G[], double Ts[], dou
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
+				for( k = 0; k < dim; k++ ) 
+					nu_star += G[i * dim + k] * G[j * dim + k];   
+				nu_star = 0.5 * nu_star;
 
-				rate = ( G[ij] ) 
-					? sqrt( Dsjj / a11 ) * exp( lgamma( ( nu_star + 1 ) / 2 ) - lgamma( nu_star / 2 ) - ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 )
-					: sqrt( a11 / Dsjj ) * exp( lgamma( nu_star / 2 ) - lgamma( ( nu_star + 1 ) / 2 ) + ( Dsij * Dsij * a11 / Dsjj  + sum_diag ) / 2 );
+				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
+					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 )
+					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 );
 				
 				rates[counter] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 				

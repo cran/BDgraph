@@ -43,5 +43,3 @@ extern "C" {
 		PutRNGstate();
 	}
 } // End of exturn "C"
-
-
