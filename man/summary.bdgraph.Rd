@@ -7,9 +7,7 @@
 Provides a summary of the results for function \code{\link{bdgraph}}.  
 }
 
-\usage{
-\method{summary}{bdgraph}( object, vis = TRUE, ... )
-}
+\usage{ \method{summary}{bdgraph}( object, vis = TRUE, ... ) }
 
 \arguments{
   \item{object}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }

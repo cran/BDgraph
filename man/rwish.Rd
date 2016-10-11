@@ -7,7 +7,7 @@
 Generates random matrices, distributed according to the Wishart distribution with parameters b and D, \eqn{W(b, D)}.
 }
 
-\usage{rwish( n = 1, p = 2, b = 3, D = diag(p) )}
+\usage{ rwish( n = 1, p = 2, b = 3, D = diag(p) ) }
 
 \arguments{
   \item{n}{ The number of samples required. The default value is 1. }

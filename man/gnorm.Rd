@@ -7,9 +7,7 @@
 Calculates log of the normalizing constant of G-Wishart distribution based on the Monte Carlo method, developed by Atay-Kayis and Massam (2005).
 }
 
-\usage{
-gnorm( adj.g, b = 3, D = diag( ncol(adj.g) ), iter = 100 )
-}
+\usage{ gnorm( adj.g, b = 3, D = diag( ncol(adj.g) ), iter = 100 ) }
 
 \arguments{
   \item{adj.g}{

@@ -11,8 +11,8 @@ Based on the underling graph structure, it generates four different types of dat
 
 \usage{
 bdgraph.sim( n = 2, p = 10, type = "Gaussian", graph = "random", prob = 0.2, 
-				size = NULL, mean = 0, class = NULL, cut = 4, b = 3, 
-				D = diag(p), K = NULL, sigma = NULL, vis = FALSE )
+             size = NULL, mean = 0, class = NULL, cut = 4, b = 3, 
+             D = diag(p), K = NULL, sigma = NULL, vis = FALSE )
 }
 
 \arguments{

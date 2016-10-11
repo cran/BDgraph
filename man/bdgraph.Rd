@@ -8,8 +8,8 @@
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-				burnin = iter / 2, g.start = "empty", prior.df = 3, 
-				multi.update = NULL, save.all = FALSE )
+         burnin = iter / 2, g.start = "empty", prior.df = 3, 
+         multi.update = NULL, save.all = FALSE )
 }
 
 \arguments{

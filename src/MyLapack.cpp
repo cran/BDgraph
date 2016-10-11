@@ -1,19 +1,14 @@
 #include "MyLapack.h"
 
-/* Subroutine */ 
-int zpotrs( char *uplo, int *n, int *nrhs, 
-	        Rcomplex *a, int *lda, 
-	        Rcomplex *b, int *ldb, int *info )
+int zpotrs( char *uplo, int *n, int *nrhs, Rcomplex *a, int *lda, Rcomplex *b, int *ldb, int *info )
 {
 /*  -- LAPACK routine (version 3.0) --   
        Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,   
        Courant Institute, Argonne National Lab, and Rice University   
        September 30, 1994   
 
-
     Purpose   
     =======   
-
     ZPOTRS solves a system of linear equations A*X = B with a Hermitian   
     positive definite matrix A using the Cholesky factorization   
     A = U**H*U or A = L*L**H computed by ZPOTRF.   
@@ -49,10 +44,7 @@ int zpotrs( char *uplo, int *n, int *nrhs,
     INFO    (output) INTEGER   
             = 0:  successful exit   
             < 0:  if INFO = -i, the i-th argument had an illegal value   
-
     =====================================================================   
-
-
        Test the input parameters.   
 
        Parameter adjustments */
@@ -60,80 +52,67 @@ int zpotrs( char *uplo, int *n, int *nrhs,
     static Rcomplex c_b1 = {1.,0.};
     
     /* System generated locals */
-    int a_dim1, a_offset, b_dim1, b_offset, i__1;
+    int a_dim1, a_offset, b_dim1, b_offset;
     /* Local variables */
-    //~ extern logical lsame_(char *, char *);
     static int upper;
-    //~ extern /* Subroutine */ int ztrsm_(char *, char *, char *, char *, 
-	    //~ integer *, integer *, doublecomplex *, doublecomplex *, integer *,
-	     //~ doublecomplex *, integer *), 
-	    //~ xerbla_(char *, integer *);
 
-
-    a_dim1 = *lda;
+    a_dim1   = *lda;
     a_offset = 1 + a_dim1 * 1;
-    a -= a_offset;
-    b_dim1 = *ldb;
+    a       -= a_offset;
+    b_dim1   = *ldb;
     b_offset = 1 + b_dim1 * 1;
-    b -= b_offset;
+    b       -= b_offset;
 
     /* Function Body */
-    *info = 0;
-    //~ uplo = 'U';
-    upper = F77_NAME(lsame)(uplo, "U");
-    if (! upper && ! F77_NAME(lsame)(uplo, "L")) {
-	*info = -1;
-    } else if (*n < 0) {
-	*info = -2;
-    } else if (*nrhs < 0) {
-	*info = -3;
-    } else if (*lda < std::max(1,*n)) {
-	*info = -5;
-    } else if (*ldb < std::max(1,*n)) {
-	*info = -7;
+    *info    = 0;
+    char up  = 'U';
+    upper    = F77_NAME(lsame)( uplo, &up );
+    char low = 'L';
+    
+    if( ! upper && ! F77_NAME(lsame)( uplo, &low ) ) 
+    {
+		*info = -1;
+    } 
+    else if( *n < 0 ) 
+    {
+		*info = -2;
+    } 
+    else if( *nrhs < 0 ) 
+    {
+		*info = -3;
+    } 
+    else if( *lda < std::max( 1, *n ) ) 
+    {
+		*info = -5;
+    } 
+    else if( *ldb < std::max( 1, *n ) ) 
+    {
+		*info = -7;
     }
-    if (*info != 0) {
-	i__1 = -(*info);
-	//~ F77_NAME(xerbla)("ZPOTRS", &i__1);
-	return 0;
-    }
+    
+    if( *info != 0 )            return 0;
+    if( *n == 0 || *nrhs == 0 ) return 0;
 
-/*     Quick return if possible */
+	char left_m = 'L', ct = 'C', nt = 'N', nu = 'N';
+	
+    if( upper ) 
+    {
+		// Solve A*X = B where A = U'*U.   
+		// Solve U'*X = B, overwriting B with X. 
+		F77_NAME(ztrsm)( &left_m, &up, &ct, &nu, n, nrhs, &c_b1, &a[a_offset], lda, &b[b_offset], ldb );
 
-    if (*n == 0 || *nrhs == 0) {
-	return 0;
-    }
+		// Solve U*X = B, overwriting B with X.
+		F77_NAME(ztrsm)( &left_m, &up, &nt, &nu, n, nrhs, &c_b1, &a[a_offset], lda, &b[b_offset], ldb );
+    } 
+    else 
+    {
+		// Solve A*X = B where A = L*L'.   
+		// Solve L*X = B, overwriting B with X.
+		F77_NAME(ztrsm)( &left_m, &low, &nt, &nu, n, nrhs, &c_b1, &a[a_offset], lda, &b[b_offset], ldb );
 
-    if (upper) {
-
-/*        Solve A*X = B where A = U'*U.   
-
-          Solve U'*X = B, overwriting B with X. */
-
-	F77_NAME(ztrsm)("Left", "Upper", "Conjugate transpose", "Non-unit", n, nrhs, &
-		c_b1, &a[a_offset], lda, &b[b_offset], ldb);
-
-/*        Solve U*X = B, overwriting B with X. */
-
-	F77_NAME(ztrsm)("Left", "Upper", "No transpose", "Non-unit", n, nrhs, &c_b1, &
-		a[a_offset], lda, &b[b_offset], ldb);
-    } else {
-
-/*        Solve A*X = B where A = L*L'.   
-
-          Solve L*X = B, overwriting B with X. */
-
-	F77_NAME(ztrsm)("Left", "Lower", "No transpose", "Non-unit", n, nrhs, &c_b1, &
-		a[a_offset], lda, &b[b_offset], ldb);
-
-/*        Solve L'*X = B, overwriting B with X. */
-
-	F77_NAME(ztrsm)("Left", "Lower", "Conjugate transpose", "Non-unit", n, nrhs, &
-		c_b1, &a[a_offset], lda, &b[b_offset], ldb);
+		// Solve L'*X = B, overwriting B with X.
+		F77_NAME(ztrsm)( &left_m, &low, &ct, &nu, n, nrhs, &c_b1, &a[a_offset], lda, &b[b_offset], ldb );
     }
 
     return 0;
-
-/*     End of ZPOTRS */
-
 } /* zpotrs_ */

@@ -55,6 +55,8 @@ extern "C" {
 	void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p );
 	
 	void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] );
+	
+	void scale_free( int *G, int *p );
 }
 
 #endif

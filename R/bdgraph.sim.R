@@ -124,8 +124,8 @@ bdgraph.sim = function( n = 2, p = 10, type = "Gaussian", graph = "random",
 	{
 #		data_sim <- huge.generator( n = 2, d = 5, graph = "scale-free" )
 		G = matrix( 0, p, p )
-		# scaleFree( int *G, int *p )
-		resultGraph = .C( "scaleFree", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
+		# scale_free( int *G, int *p )
+		resultGraph = .C( "scale_free", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
 		G           = matrix( resultGraph $ G, p, p ) 
 	}
 	

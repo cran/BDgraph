@@ -7,7 +7,7 @@
 Generates random matrices, distributed according to the G-Wishart distribution with parameters b and D, \eqn{W_G(b, D)}.
 }
 
-\usage{rgwish( n = 1, adj.g = NULL, b = 3, D = NULL )}
+\usage{ rgwish( n = 1, adj.g = NULL, b = 3, D = NULL ) }
 
 \arguments{
   \item{n}{The number of samples required. The default value is 1.}

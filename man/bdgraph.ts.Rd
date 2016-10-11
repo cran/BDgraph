@@ -7,7 +7,7 @@
 }
 \usage{
 bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
-	g.start = "empty", prior.df = rep( 3, Nlength ), save.all = FALSE )
+            g.start = "empty", prior.df = rep(3, Nlength), save.all = FALSE )
 }
 
 \arguments{
