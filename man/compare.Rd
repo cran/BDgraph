@@ -5,10 +5,8 @@
 
 \description{ With this function, we can check the performance of our methods and compare it with other alternative approaches. }
 
-\usage{ 
-compare( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
-         colnames = NULL, vis = FALSE )
-}
+\usage{ compare( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
+          colnames = NULL, vis = FALSE ) }
 
 \arguments{
   \item{sim.obj}{

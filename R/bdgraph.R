@@ -260,7 +260,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		
 		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
 		{
-			result = .C( "ggm_bdmcmc_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
+			result = .C( "ggm_bdmcmc_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ts), K = as.double(K), as.integer(p), 
 						K_hat = as.double(K_hat), p_links = as.double(p_links),
 						as.integer(b), as.integer(b_star), as.double(Ds), as.double(threshold), as.integer(multi_update), PACKAGE = "BDgraph" )
 		}		

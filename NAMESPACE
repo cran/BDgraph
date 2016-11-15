@@ -1,7 +1,8 @@
 useDynLib( "BDgraph" )
-import( "Matrix", "igraph" )
+import( "Matrix" )
 
 importFrom( "grDevices", "dev.new" )
+importFrom( "igraph", "graph.adjacency", "plot.igraph", "layout.circle" )
 
 importFrom( "graphics", "abline", "matplot", "par", "plot", "points",
 		    "text", "title", "legend" )

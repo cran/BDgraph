@@ -6,8 +6,8 @@
 	This function is for Bayesian model determination in time series graphical models, based on birth-death MCMC method. 
 }
 \usage{
-bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
-            g.start = "empty", prior.df = rep(3, Nlength), save.all = FALSE )
+bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
+            g.start = "empty", prior.df = rep( 3, Nlength ), save.all = FALSE )
 }
 
 \arguments{
