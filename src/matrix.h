@@ -49,7 +49,6 @@ extern "C" {
 		  
 	void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p );
 
-		   
 	void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p );
 
 	void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p );

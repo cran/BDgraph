@@ -18,7 +18,7 @@ void rwish( double Ts[], double K[], int *b, int *p )
 	// ------------------------------------------------------------------------|
 
     	// C = psi %*% Ts   I used   psi = psi %*% Ts
-	double alpha = 1.0, beta  = 0.0;
+	double alpha = 1.0, beta   = 0.0;
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &psi[0], &dim );
@@ -31,7 +31,7 @@ void rwish( double Ts[], double K[], int *b, int *p )
 // G is adjacency matrix which has zero in its diagonal // threshold = 1e-8
 void rgwish( int G[], double Ts[], double K[], int *b, int *p, double *threshold )
 {
-	char transN = 'N', uplo = 'U'; 
+	char transN  = 'N', uplo  = 'U'; 
 	double alpha = 1.0, beta  = 0.0;
 
 	int info, i, j, l, size_node, one = 1, dim = *p, pxp = dim * dim;	
@@ -130,14 +130,15 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 					double sigma_start[], double inv_C[], double beta_star[], double sigma_i[], 
 					vector<double> &sigma_start_N_i, vector<double> &sigma_N_i, vector<int> &N_i )
 {
-	char uplo = 'U';
-	int i, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, bK = *b_star;	
-	double temp, threshold_C = *threshold;
+	int i, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, dim1 = dim + 1, bKdim = *b_star + dim - 1;	
+	double temp, threshold_C = *threshold, alpha = 1.0, beta  = 0.0;
+	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
+	
 	// STEP 1: sampling from wishart distributions
 	// ---- Sample values in Psi matrix ---
-    	GetRNGstate();
+	GetRNGstate();
 	for( i = 0; i < dim; i++ )
-		sigma_start[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
+		sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
 
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
@@ -148,10 +149,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	PutRNGstate();
 	// ------------------------------------
 	
-    // C = psi %*% Ts   I used   psi = psi %*% Ts
-	double alpha = 1.0; 
-	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
-	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
+	// C = psi %*% Ts   I used psi = psi %*% Ts   Now is  sigma_start = sigma_start %*% Ts
 	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &sigma_start[0], &dim );
 
 	side = 'L';
@@ -161,10 +159,8 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 			inv_C[j * dim + i] = ( i == j );	
 	// op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
 	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &inv_C[0], &dim );
-
-	// sigma_start <- inv_C %*% t(inv_C)   
-	double beta  = 0.0;
-	// LAPACK function to compute  C := alpha * A * B + beta * C																				
+ 
+	// sigma_start = inv_C %*% t( inv_C )  																				
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &dim, &alpha, &inv_C[0], &dim, &inv_C[0], &dim, &beta, &sigma_start[0], &dim );
 
 	memcpy( sigma, &sigma_start[0], sizeof( double ) * pxp ); 
@@ -188,7 +184,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 					if( G[ij] )
 					{
 						sigma_start_N_i[l] = sigma_start[ij]; 
-						N_i[l++] = j;
+						N_i[l++]           = j;
 					}
 					else
 						beta_star[j] = 0.0; 
@@ -198,11 +194,12 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 				sub_matrix( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
-				F77_NAME(dposv)( &uplo, &size_node_i, &one, &sigma_N_i[0], &size_node_i, &sigma_start_N_i[0], &size_node_i, &info );
+				F77_NAME(dposv)( &upper, &size_node_i, &one, &sigma_N_i[0], &size_node_i, &sigma_start_N_i[0], &size_node_i, &info );
 
 				for( j = 0; j < size_node_i; j++ ) beta_star[N_i[j]] = sigma_start_N_i[j];
 	
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, sigma, &dim, &beta_star[0], &dim, &beta, &sigma_i[0], &dim );
+				// sigma_i = sigma %*% beta_star
+				F77_NAME(dsymv)( &side, &dim, &alpha, sigma, &dim, &beta_star[0], &one, &beta, &sigma_i[0], &one );
 				
 				memcpy( sigma + ip, sigma_i,  sizeof( double ) * i );	
 				
@@ -253,7 +250,14 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	memcpy( &sigma_start[0], sigma, sizeof( double ) * pxp );	 	
 	
-	inverse( &sigma_start[0], K, &dim );
+	//inverse( &sigma_start[0], K, &dim );
+	// creating an identity matrix
+	for( i = 0; i < dim; i++ )
+		for( j = 0; j < dim; j++ )
+			K[j * dim + i] = (i == j);
+	
+	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
+	F77_NAME(dposv)( &upper, &dim, &dim, &sigma_start[0], &dim, K, &dim, &info );
 }
 
 // Part of function for calculating I.g = function( G, b = 3, D = diag( ncol(G) ), mc = 100 ) out logIg

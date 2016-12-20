@@ -5,6 +5,8 @@
 #include <limits>        // for numeric_limits<long double>::max()
 #include <R.h>
 #include <Rmath.h>
+#include <algorithm>     // for transform function
+#include <functional>    // for transform function
 #include "matrix.h"
 #include "rgwish.h"
 
@@ -24,7 +26,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
@@ -39,8 +41,8 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 
 	int qp = dim * ( dim - 1 ) / 2;
 
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N', sideR = 'R', sideL = 'L', up = 'U';																	
 
 	// Counting size of notes
 	int ip;
@@ -56,12 +58,18 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
 	counter = 0;
+	vector<double> Dsijj( pxp ); 
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
 			index_rates_row[counter] = i;
 			index_rates_col[counter] = j;
 			counter++;
+			
+			// for calculating the birth/death rates
+			ij        = j * dim + i;
+			Dsij      = Ds[ij];
+			Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 		}
 
 	vector<double> K121( 4 ); 
@@ -70,14 +78,13 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
 	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
+
 	vector<double> K12( p2x2 );             // K[e, -e]
 	vector<double> sigma11( 4 );            // sigma[e, e]
 	vector<double> sigma12( p2x2 );         // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -101,34 +108,33 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 		// STEP 1: calculating birth and death rates --------------------------|		
 		for( j = 1; j < dim; j++ )
 		{		
-			jj   = j * dim + j;
+			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
 			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )       
-				for( col = 0; col < p1; col++ )
+			for( row = 0; row < p1; row++ )      
+				for( col = 0; col <= row; col++ )
 				{
 					rowCol = col * p1 + row;
 					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}		
+				}	
 
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
+				ij = j * dim + i;
 				
 				// For (i,j) = 0 ----------------------------------------------|	
-				sub_row_mins( K, &Kj12[0], &j, &dim );   // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                         // K12[1,i] = 0
+				sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
+				Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
 
-				// Kj12 %*% Kj22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
+				// Kj12xK22_inv = Kj12 %*% Kj22_inv
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
-				// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
+				// K022 = Kj12xK22_inv %*% t(Kj12)
+				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 
 				// For (i,j) = 1 ----------------------------------------------|
 				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
@@ -141,22 +147,18 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
 				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
+				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
 
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
+				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
+				// K121 = K12xK22_inv %*% t( K12 )													
 				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = Dsjj * ( K022 - K121[3] ) - Dsij * ( K121[1] + K121[2] );
+				a11      = K[i * dim1] - K121[0];	
+				sum_diag = Dsjj * ( K022 - K121[3] ) - Ds[ij] * ( K121[1] + K121[2] );
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
@@ -165,8 +167,8 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 				nu_star = 0.5 * nu_star;
 
 				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
-					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 )
-					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 );
+					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 )
+					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 );
 												
 				rates[counter++] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 			}
@@ -236,7 +238,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
@@ -249,8 +251,8 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<char> char_g( qp );              // char string_g[pp];
 
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N', sideL = 'L';																	
 
 	// Counting size of notes
 	int ip;
@@ -266,12 +268,18 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
 	counter = 0;
+	vector<double> Dsijj( pxp ); 
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
 			index_rates_row[counter] = i;
 			index_rates_col[counter] = j;
 			counter++;
+			
+			// for calculating the birth/death rates
+			ij        = j * dim + i;
+			Dsij      = Ds[ij];
+			Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 		}
 
 	vector<double> K121( 4 ); 
@@ -280,14 +288,13 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
 	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
+
 	vector<double> K12( p2x2 );             // K[e, -e]
 	vector<double> sigma11( 4 );            // sigma[e, e]
 	vector<double> sigma12( p2x2 );         // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -311,35 +318,34 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		// STEP 1: calculating birth and death rates --------------------------|
 		for( j = 1; j < dim; j++ )
 		{
-			jj   = j * dim + j;
+			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
 			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )       
-				for( col = 0; col < p1; col++ )
+			for( row = 0; row < p1; row++ )      
+				for( col = 0; col <= row; col++ )
 				{
 					rowCol = col * p1 + row;
 					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
+				}	
+									
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
+				ij = j * dim + i;
 
 				// For (i,j) = 0 ----------------------------------------------|	
-				sub_row_mins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                      // K12[1,i] = 0
+				sub_row_mins( K, &Kj12[0], &j, &dim );  // Kj12 = K[j, -j]  
+				Kj12[ i ] = 0.0;                        // Kj12[1,i] = 0
 
-				// Kj12 %*% Kj22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
+				// Kj12xK22_inv = Kj12 %*% Kj22_inv
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
-				// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
+				// K022 = Kj12xK22_inv %*% t(Kj12)
+				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
+				
 				// For (i,j) = 1 ----------------------------------------------|
 				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
 				
@@ -351,22 +357,18 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
 				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
+				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
 
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
+				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
 				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
 				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = Dsjj * ( K022 - K121[3] ) - Dsij * ( K121[1] + K121[2] );
+				a11      = K[i * dim1] - K121[0];	
+				sum_diag = Dsjj * ( K022 - K121[3] ) - Ds[ij] * ( K121[1] + K121[2] );
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
@@ -375,8 +377,8 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 				nu_star = 0.5 * nu_star;   
 
 				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
-					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 )
-					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 );
+					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 )
+					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 );
 							
 				rates[counter] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 				
@@ -412,7 +414,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			for( i = 0; i < pxp ; i++ )
+			for( i = 0; i < pxp; i++ )
 				K_hat[i] += K[i] / sum_rates;
 
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -468,7 +470,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
@@ -483,8 +485,8 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 
 	int qp = dim * ( dim - 1 ) / 2;
 
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N', sideL = 'L';																	
 
 	// Count size of notes
 	int ip;
@@ -500,12 +502,18 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
 	counter = 0;
+	vector<double> Dsijj( pxp ); 
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
 			index_rates_row[counter] = i;
 			index_rates_col[counter] = j;
 			counter++;
+			
+			// for calculating the birth/death rates
+			ij        = j * dim + i;
+			Dsij      = Ds[ij];
+			Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 		}
 
 	vector<double> K121( 4 ); 
@@ -514,14 +522,13 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
 	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
+
 	vector<double> K12( p2x2 );             // K[e, -e]
 	vector<double> sigma11( 4 );            // sigma[e, e]
 	vector<double> sigma12( p2x2 );         // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -548,35 +555,34 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 		// STEP 1: calculating birth and death rates --------------------------|			
 		for( j = 1; j < dim; j++ )
 		{
-			jj   = j * dim + j;
+			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
 			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
+			for( row = 0; row < p1; row++ )      
+				for( col = 0; col <= row; col++ )
 				{
-					rowCol           = col * p1 + row;
+					rowCol = col * p1 + row;
 					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
+				}	
+									
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
+				ij = j * dim + i;
 
 				// For (i,j) = 0 ----------------------------------------------|	
-				sub_row_mins( K, &Kj12[0], &j, &dim );    // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                          // K12[1,i] = 0
+				sub_row_mins( K, &Kj12[0], &j, &dim );    // Kj12 = K[j, -j]  
+				Kj12[ i ] = 0.0;                          // Kj12[1,i] = 0
 
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
+				// Kj12xK22_inv = Kj12 %*% Kj22_inv
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
+				// K022 = Kj12xK22_inv %*% t(Kj12)
+				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
+				
 				// For (i,j) = 1 ----------------------------------------------|
 				sub_rows_mins( K, &K12[0], &i, &j, &dim );   // K12 = K[e, -e]  
 				
@@ -588,22 +594,18 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
 				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
+				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
 
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
+				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
 				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
 				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = Dsjj * ( K022 - K121[3] ) - Dsij * ( K121[1] + K121[2] );
+				a11      = K[i * dim1] - K121[0];	
+				sum_diag = Dsjj * ( K022 - K121[3] ) - Ds[ij] * ( K121[1] + K121[2] );
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
@@ -612,8 +614,8 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 				nu_star = 0.5 * nu_star;
 
 				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
-					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 )
-					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 );
+					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 )
+					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 );
 				
 				rates[counter++] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 			}
@@ -688,7 +690,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 
 	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
@@ -701,8 +703,8 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<char> char_g( qp );              // char string_g[pp];
 
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N', sideL = 'L';																	
 
 	// Counting size of notes
 	int ip;
@@ -718,12 +720,18 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
 	counter = 0;
+	vector<double> Dsijj( pxp ); 
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
 			index_rates_row[counter] = i;
 			index_rates_col[counter] = j;
 			counter++;
+			
+			// for calculating the birth/death rates
+			ij        = j * dim + i;
+			Dsij      = Ds[ij];
+			Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 		}
 
 	vector<double> K121( 4 ); 
@@ -732,14 +740,13 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
 	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
+
 	vector<double> K12( p2x2 );             // K[e, -e]
 	vector<double> sigma11( 4 );            // sigma[e, e]
 	vector<double> sigma12( p2x2 );         // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -766,35 +773,34 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 		// STEP 1: calculating birth and death rates
 		for( j = 1; j < dim; j++ )
 		{
-			jj   = j * dim + j;
+			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
 			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )       
-				for( col = 0; col < p1; col++ )
+			for( row = 0; row < p1; row++ )      
+				for( col = 0; col <= row; col++ )
 				{
 					rowCol = col * p1 + row;
 					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
+				}	
+									
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
+				ij = j * dim + i;
 
 				// For (i,j) = 0 ----------------------------------------------|	
-				sub_row_mins( K, &Kj12[0], &j, &dim );   // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                         // K12[1,i] = 0
+				sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
+				Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
 
-				// Kj12 %*% Kj22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
+				// Kj12xK22_inv = Kj12 %*% Kj22_inv
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
-				// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
+				// K022 = Kj12xK22_inv %*% t(Kj12)
+				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
+				
 				// For (i,j) = 1 ----------------------------------------------|
 				sub_rows_mins( K, &K12[0], &i, &j, &dim );   // K12 = K[e, -e]  
 				
@@ -806,23 +812,18 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
 				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
+				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
 
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
+				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
 				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
 				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = Dsjj * ( K022 - K121[3] ) - Dsij * ( K121[1] + K121[2] );
-
+				a11      = K[i * dim1] - K121[0];	
+				sum_diag = Dsjj * ( K022 - K121[3] ) - Ds[ij] * ( K121[1] + K121[2] );
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
@@ -831,8 +832,8 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 				nu_star = 0.5 * nu_star;
 
 				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
-					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 )
-					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag ) - 1e+2 );
+					? sqrt( 2.0 * Dsjj / a11 ) * exp( lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 )
+					: sqrt( 0.5 * a11 / Dsjj ) * exp( lgammafn( nu_star ) - lgammafn( nu_star + 0.5 ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag ) - 1e+2 );
 				
 				rates[counter] = ( R_FINITE( rate ) ) ? rate : max_numeric_limits_ld;
 				

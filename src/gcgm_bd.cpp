@@ -25,7 +25,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, counter;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold, dummy;
 	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
@@ -71,7 +71,6 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
 	vector<double> Kj22_inv( p1xp1 ); 
-	vector<double> Kj12xK22_inv( p1 ); 
 
 	vector<double> K12( p2x2 );             // K[e, -e]
 	vector<double> sigma11( 4 );            // sigma[e, e]
@@ -125,22 +124,27 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 					rowCol = col * p1 + row;
 					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
 				}
-			
+						
 			for( i = 0; i < j; i++ )
 			{
 				ij   = j * dim + i;
 				Dsij = Ds[ij];
 
 				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );   // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                         // K12[1,i] = 0
+				sub_row_mins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
+				Kj12[ i ] = 0.0;                        // K12[1,i] = 0
 
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
-				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
+				// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12)
+				K022 = 0.0;
+				for( row = 0; row < p1; row++ )
+				{
+					dummy = 0.0;
+					for( col = 0; col < row; col++ )
+						dummy += Kj12[col] * Kj22_inv[row * p1 + col];
+					
+					K022 += 2.0 * Kj12[row] * dummy + Kj12[row] * Kj12[row] * Kj22_inv[row * dim];
+				}	
+								
 				// For (i,j) = 1 ----------------------------------------------|
 				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
 				

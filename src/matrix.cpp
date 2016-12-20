@@ -4,14 +4,14 @@
 // retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
 void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 {
-	int ixp, subixp, psub = *p_sub, pdim = *p;
+	int i, j, ixp, subixp, psub = *p_sub, pdim = *p;
 	
-	for( int i = 0; i < psub; i++ )
+	for( i = 0; i < psub; i++ )
 	{
 		ixp    = i * psub;
 		subixp = sub[i] * pdim;
 		
-		for( int j = 0; j < psub; j++ )
+		for( j = 0; j < psub; j++ )
 			sub_A[ixp + j] = A[subixp + sub[j]]; 
 	}
 }
@@ -21,7 +21,7 @@ void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 // Likes A[j, -j] in R
 void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
-	int i, subj = *sub, pdim = *p, subxp = subj * pdim;
+	int subj = *sub, pdim = *p, subxp = subj * pdim;
 
 	memcpy( sub_A,        A + subxp,            sizeof( double ) * subj );		
 	memcpy( sub_A + subj, A + subxp + subj + 1, sizeof( double ) * ( pdim - subj - 1 ) );	
@@ -147,33 +147,24 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	{
 		ixp = i * pdim;
 				
-		A12[i + i - 4]     = A[ixp + sub0];
-		A12[i + i - 3]       = A[ixp + sub1];
+		A12[i + i - 4] = A[ixp + sub0];
+		A12[i + i - 3] = A[ixp + sub1];
 		
 		for( j = sub1 + 1; j < pdim; j++ )
 			A22[(j - 2) * p2 + i - 2] = A[ixp + j];
 	}
 }
    
-// Multiplies (p_i x p_k) matrix by (p_k x p_j) matrix to give (p_i x p_j) matrix
-// C := A %*% B
-void multiply_matrix( double A[], double B[], double C[], int *p_i, int *p_j, int *p_k )
-{
-	double alpha = 1.0, beta  = 0.0;
-	char trans   = 'N';																	
-	F77_NAME(dgemm)( &trans, &trans, p_i, p_j, p_k, &alpha, A, p_i, B, p_k, &beta, C, p_i );
-}
-
 // inverse function for symmetric positive-definite matrices (p x p)
 // WARNING: Matrix you pass is overwritten with the result
 void inverse( double A[], double A_inv[], int *p )
 {
-	int info, dim = *p;
+	int i, j, info, dim = *p;
 	char uplo = 'U';
 
 	// creating an identity matrix
-	for( int i = 0; i < dim; i++ )
-		for( int j = 0; j < dim; j++ )
+	for( i = 0; i < dim; i++ )
+		for( j = 0; j < dim; j++ )
 			A_inv[j * dim + i] = (i == j);
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
@@ -210,26 +201,23 @@ void cholesky( double A[], double U[], int *p )
 // To select an edge for BDMCMC algorithm  
 void select_edge( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp )
 {
-	long double random_value;
 	int qp_star = *qp;
 
-	vector<long double> sum_sort_rates( qp_star );
-	sum_sort_rates[0] = rates[0];
+	// rates = sum_sort_rates
 	for ( int i = 1; i < qp_star; i++ )
-		sum_sort_rates[i] = sum_sort_rates[ i - 1 ] + rates[i];
+		rates[i] += rates[ i - 1 ];
 	
-	*sum_rates = sum_sort_rates[qp_star - 1];
-	random_value = *sum_rates * runif( 0, 1 );
+	*sum_rates   = rates[qp_star - 1];
+	long double random_value = *sum_rates * runif( 0, 1 );
 
 	// To start, find the subscript of the middle position.
-	int position;
 	int lower_bound = 0;
 	int upper_bound = qp_star - 1;
-	position = upper_bound / 2;      // ( lower_bound + upper_bound ) / 2;
+	int position    = upper_bound / 2;  // ( lower_bound + upper_bound ) / 2;
 
 	while( upper_bound - lower_bound > 1 )
 	{
-		if ( sum_sort_rates[position] > random_value )    
+		if ( rates[position] > random_value )    
 			upper_bound = position;    
 		else                                                
 			lower_bound = position;     
@@ -237,33 +225,31 @@ void select_edge( long double rates[], int *index_selected_edge, long double *su
 		position = ( lower_bound + upper_bound ) / 2;
 	}
 	
-	*index_selected_edge = ( sum_sort_rates[position] < random_value ) ? ++position : position;
+	*index_selected_edge = ( rates[position] < random_value ) ? ++position : position;
 } 
     
 // To simultaneously select multiple edges for BDMCMC algorithm  
 void select_multi_edges( long double rates[], int index_selected_edges[], int *size_index, long double *sum_rates, int *multi_update, int *qp )
 {
-	int qp_star = *qp, lower_bound, upper_bound, position;
-	long double max_bound, random_value;
+	int i, qp_star = *qp, qp_star_1 = qp_star - 1;
 
-	vector<long double> sum_sort_rates( qp_star );
-	sum_sort_rates[0] = rates[0];
-	for ( int i = 1; i < qp_star; i++ )
-		sum_sort_rates[i] = sum_sort_rates[ i - 1 ] + rates[i];
+	// rates = sum_sort_rates
+	for ( i = 1; i < qp_star; i++ )
+		rates[i] += rates[ i - 1 ];
 	
-	max_bound = sum_sort_rates[qp_star - 1];
+	long double max_bound = rates[qp_star_1];
 	
 	// ---------- for first edge ----------------------------------------------|
 	// To start, find the subscript of the middle position.
-	lower_bound = 0;
-	upper_bound = qp_star - 1;
-	position    = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
+	int lower_bound = 0;
+	int upper_bound = qp_star_1;
+	int position    = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
 
-	random_value = max_bound * runif( 0, 1 );
+	long double random_value = max_bound * runif( 0, 1 );
 
 	while( upper_bound - lower_bound > 1 )
 	{
-		if ( sum_sort_rates[position] > random_value )    
+		if ( rates[position] > random_value )    
 			upper_bound = position;    
 		else                                                
 			lower_bound = position;     
@@ -271,12 +257,11 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 		position = ( lower_bound + upper_bound ) / 2;
 	}
 	
-	if ( sum_sort_rates[position] < random_value ) ++position;
+	if ( rates[position] < random_value ) ++position;
 	index_selected_edges[0] = position;
 	// ------------------------------------------------------------------------|
 
-	int counter = 1;
-	int same;
+	int counter = 1, same;
 	for ( int it = 0; it < 200 * *multi_update; it++ )
 	{
 		if ( counter == *multi_update ) break;
@@ -285,12 +270,12 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 	
 		// To start, find the subscript of the middle position.
 		lower_bound = 0;
-		upper_bound = qp_star - 1;
+		upper_bound = qp_star_1;
 		position    = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
 
 		while( upper_bound - lower_bound > 1 )
 		{
-			if ( sum_sort_rates[position] > random_value )    
+			if ( rates[position] > random_value )    
 				upper_bound = position;    
 			else                                                
 				lower_bound = position;     
@@ -298,10 +283,10 @@ void select_multi_edges( long double rates[], int index_selected_edges[], int *s
 			position = ( lower_bound + upper_bound ) / 2;
 		}
 		
-		if ( sum_sort_rates[position] < random_value ) ++position;
+		if ( rates[position] < random_value ) ++position;
 		
 		same = 0;
-		for ( int i = 0; i < counter; i++ )
+		for ( i = 0; i < counter; i++ )
 			if( index_selected_edges[i] == position )
 				++same;
 
