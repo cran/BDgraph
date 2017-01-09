@@ -28,7 +28,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
-	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
 	long double rate, sum_rates;
 	
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
@@ -42,7 +42,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	int qp = dim * ( dim - 1 ) / 2;
 
 	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
-	char transT = 'T', transN = 'N', sideR = 'R', sideL = 'L', up = 'U';																	
+	char transT = 'T', transN = 'N', sideR = 'R', sideL = 'L';																	
 
 	// Counting size of notes
 	int ip;
@@ -76,14 +76,12 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
+	vector<double> K21( p2x2 );             // K[-e, e]
+	vector<double> sigma21( p2x2 );         // sigma[-e, e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
+	vector<double> sigma11_inv( 4 );         // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
@@ -96,7 +94,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	vector<int> N_i( dim );                  // For dynamic memory used
 	// ----------------------------
 
-	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
+	long double max_numeric_limits_ld = numeric_limits<long double>::max() / 10000;
 
 	GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm ----------------------| 
@@ -111,16 +109,12 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )      
-				for( col = 0; col <= row; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}	
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			sigmajj_inv = - 1.0 / sigma[jj];
+			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
 
 			for( i = 0; i < j; i++ )
 			{
@@ -130,31 +124,28 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 				sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
 				Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
 
-				// Kj12xK22_inv = Kj12 %*% Kj22_inv
-				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+				// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
 				// K022 = Kj12xK22_inv %*% t(Kj12)
 				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 
 				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
+				sub_cols_mins( K, &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
 				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
+				sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
 
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
+				// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
+				F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
+				F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
 
-				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
-
-				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+				// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
-				// K121 = K12xK22_inv %*% t( K12 )													
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
+				// K121 = K12xK22_inv %*% K21													
+				F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
 				a11      = K[i * dim1] - K121[0];	
@@ -162,8 +153,8 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 
 				// nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star = b1;
-				for( k = 0; k < dim; k++ ) 
-					nu_star += G[i * dim + k] * G[j * dim + k];   
+				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
+				//nu_star = F77_NAME(ddot)( &dim, &G[0] + ixdim, &one, &G[0] + jxdim, &one );
 				nu_star = 0.5 * nu_star;
 
 				rate = ( G[ij] )   // "- 1e+2" is only for dealing infinite values
@@ -201,13 +192,15 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			for( i = 0; i < pxp ; i++ )
-			{
-				K_hat_Cpp[i] += K[i] / sum_rates;
-				if( G[i] ) p_links_Cpp[i] += 1.0 / sum_rates;
-			}
+			weight_C = 1.0 / sum_rates;
 			
-			sum_weights += 1.0 / sum_rates;
+			// K_hat_Cpp[i] += K[i] / sum_rates;
+			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat_Cpp[0], &one );
+			
+			for( i = 0; i < pxp ; i++ )
+				if( G[i] ) p_links_Cpp[i] += weight_C;
+			
+			sum_weights += weight_C;
 		} // End of saving result ---------------------------------------------|	
 	} // End of MCMC sampling algorithm ---------------------------------------| 
 	PutRNGstate();
@@ -240,7 +233,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
-	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
 	long double rate, sum_rates;
 	
 	vector<double> sigma( pxp ); 
@@ -286,14 +279,12 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
+	vector<double> K21( p2x2 );             // K[e, -e]
+	vector<double> sigma21( p2x2 );         // sigma[-e, e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
+	vector<double> sigma11_inv( 4 );        // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
@@ -306,7 +297,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<int> N_i( dim );                  // For dynamic memory used
 	// ----------------------------
 
-	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
+	long double max_numeric_limits_ld = numeric_limits<long double>::max() / 10000;
 
 	GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm ----------------------| 
@@ -321,50 +312,43 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )      
-				for( col = 0; col <= row; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}	
-									
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			sigmajj_inv = - 1.0 / sigma[jj];
+			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
+
 			for( i = 0; i < j; i++ )
 			{
 				ij = j * dim + i;
 
 				// For (i,j) = 0 ----------------------------------------------|	
-				sub_row_mins( K, &Kj12[0], &j, &dim );  // Kj12 = K[j, -j]  
+				sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
 				Kj12[ i ] = 0.0;                        // Kj12[1,i] = 0
 
 				// Kj12xK22_inv = Kj12 %*% Kj22_inv
-				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
 				// K022 = Kj12xK22_inv %*% t(Kj12)
 				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 				
 				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
+				sub_cols_mins( K, &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
 				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
+				sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
 
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
+				// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
+				F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
+				F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
 
-				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
-
-				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+				// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
+				// K121 = K12xK22_inv %*% K21													
+				F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
 				a11      = K[i * dim1] - K121[0];	
@@ -414,11 +398,13 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			for( i = 0; i < pxp; i++ )
-				K_hat[i] += K[i] / sum_rates;
+			weight_C = 1.0 / sum_rates;
+			
+			//for( i = 0; i < pxp; i++ ) K_hat[i] += K[i] / sum_rates;
+			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat[0], &one );			
 
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[counterallG] = 1.0 / sum_rates;
+			all_weights[counterallG] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
@@ -439,7 +425,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 			}
 			
 			counterallG++; 
-			sum_weights += 1.0 / sum_rates;
+			sum_weights += weight_C;
 		} // End of saving result ---------------------------------------------|	
 	} // End of MCMC sampling algorithm ---------------------------------------| 
 	PutRNGstate();
@@ -472,7 +458,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
-	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
 	long double rate, sum_rates;
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
@@ -520,14 +506,12 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
+	vector<double> K21( p2x2 );             // K[e, -e]
+	vector<double> sigma21( p2x2 );         // sigma[-e, e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
+	vector<double> sigma11_inv( 4 );        // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
@@ -543,7 +527,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
-	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
+	long double max_numeric_limits_ld = numeric_limits<long double>::max() / 10000;
 
 	GetRNGstate();
 	// main loop for multiple birth-death MCMC sampling algorithm -------------| 
@@ -558,50 +542,43 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )      
-				for( col = 0; col <= row; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}	
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			sigmajj_inv = - 1.0 / sigma[jj];
+			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
 									
 			for( i = 0; i < j; i++ )
 			{
 				ij = j * dim + i;
 
 				// For (i,j) = 0 ----------------------------------------------|	
-				sub_row_mins( K, &Kj12[0], &j, &dim );    // Kj12 = K[j, -j]  
+				sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
 				Kj12[ i ] = 0.0;                          // Kj12[1,i] = 0
 
 				// Kj12xK22_inv = Kj12 %*% Kj22_inv
-				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
 				// K022 = Kj12xK22_inv %*% t(Kj12)
 				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 				
 				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );   // K12 = K[e, -e]  
+				sub_cols_mins( K, &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
 				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
+				sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
 
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
+				// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
+				F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
+				F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
 
-				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
-
-				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+				// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
+				// K121 = K12xK22_inv %*% K21													
+				F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
 				a11      = K[i * dim1] - K121[0];	
@@ -652,13 +629,15 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			for( i = 0; i < pxp ; i++ )
-			{
-				K_hat_Cpp[i]   += K[i] / sum_rates;
-				if( G[i] ) p_links_Cpp[i] += 1.0 / sum_rates;
-			}
+			weight_C = 1.0 / sum_rates;
 			
-			sum_weights += 1.0 / sum_rates;
+			// K_hat_Cpp[i] += K[i] / sum_rates;
+			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat_Cpp[0], &one );
+			
+			for( i = 0; i < pxp ; i++ )
+				if( G[i] ) p_links_Cpp[i] += weight_C;
+			
+			sum_weights += weight_C;
 		} // End of saving result ---------------------------------------------|	
 	} // End of MCMC sampling algorithm ---------------------------------------|
 	PutRNGstate();
@@ -692,7 +671,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
-	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
 	long double rate, sum_rates;
 
 	vector<double> sigma( pxp ); 
@@ -738,14 +717,12 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
+	vector<double> K21( p2x2 );             // K[e, -e]
+	vector<double> sigma21( p2x2 );         // sigma[-e, e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
+	vector<double> sigma11_inv( 4 );        // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
@@ -761,7 +738,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
-	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
+	long double max_numeric_limits_ld = numeric_limits<long double>::max() / 10000;
 
 	GetRNGstate();
 	// main loop for multiple birth-death MCMC sampling algorithm -------------| 
@@ -776,16 +753,12 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 			jj   = j * dim1;
 			Dsjj = Ds[jj];
 			
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )      
-				for( col = 0; col <= row; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}	
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			sigmajj_inv = - 1.0 / sigma[jj];
+			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
 									
 			for( i = 0; i < j; i++ )
 			{
@@ -796,30 +769,27 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 				Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
 
 				// Kj12xK22_inv = Kj12 %*% Kj22_inv
-				F77_NAME(dsymv)( &sideL, &p1, &alpha, &Kj22_inv[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+				F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
 				
 				// K022 = Kj12xK22_inv %*% t(Kj12)
 				K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 				
 				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );   // K12 = K[e, -e]  
+				sub_cols_mins( K, &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
 				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
+				sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
 
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
+				// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
+				F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
 
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+				// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
+				F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
 
-				// sigma22 = sigma22 - sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta1, &sigma22[0], &p2 );
-
-				// K12xK22_inv = K12 %*% K22_inv  here sigam12 = K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+				// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
+				F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
 				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
+				// K121 = K12xK22_inv %*% K21													
+				F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
 				// Finished (i,j) = 1------------------------------------------|
 
 				a11      = K[i * dim1] - K121[0];	
@@ -873,10 +843,13 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i] / sum_rates;	
+			weight_C = 1.0 / sum_rates;
+			
+			//for( i = 0; i < pxp; i++ ) K_hat[i] += K[i] / sum_rates;
+			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat[0], &one );			
 
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[counterallG] = 1.0 / sum_rates;
+			all_weights[counterallG] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
@@ -897,7 +870,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 			}
 			
 			counterallG++; 
-			sum_weights += 1.0 / sum_rates;
+			sum_weights += weight_C;
 		} // End of saving result ---------------------------------------------|	
 	} // End of MCMC sampling algorithm ---------------------------------------| 
 	PutRNGstate();

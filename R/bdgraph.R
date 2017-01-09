@@ -536,7 +536,7 @@ print.bdgraph = function( x, round = 3, ... )
 	}
 	else
 	{
-		selected_g                 = 0 * p_links
+		selected_g                   = 0 * p_links
 		selected_g[ p_links > 0.5 ]  = 1
 		selected_g[ p_links <= 0.5 ] = 0	
 	}

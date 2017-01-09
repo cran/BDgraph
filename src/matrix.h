@@ -11,22 +11,22 @@
 using namespace std;
 
 extern "C" {
-	void get_permutation( int permutation[], int *u, int *v, int *p );
-	
-	void copyMatrix( double A[], double copyA[], int *pxp );
-
 	void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  );
+
+	void sub_matrix_upper( double A[], double sub_A[], int sub[], int *p_sub, int *p  );
 
 	void sub_row_mins( double A[], double sub_A[], int *sub, int *p );
 
 	void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p );
 
+	void sub_cols_mins( double A[], double sub_A[], int *row, int *col, int *p );
+
 	void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p );
 
-	void sub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p );
+	void sub_matrices( double A[], double A11[], double A21[], double A22[], int *row, int *col, int *p );
 
-	void multiply_matrix( double A[], double B[], double C[], int *p_i, int *p_j, int *p_k );
-
+	void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[], int *row, int *col, int *p );
+	
 	void inverse( double A[], double A_inv[], int *p );
 
 	void inverse_2x2( double B[], double B_inv[] );

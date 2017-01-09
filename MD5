@@ -1,7 +1,7 @@
-1fa7febfa0e6adc367f9c653d1908e07 *DESCRIPTION
+8daba69c807c056e73499076ef31b553 *DESCRIPTION
 7a00910a8cfb2b2a8564ec167fa247c4 *NAMESPACE
 11d56e555240d0963a38addf033b8934 *NEWS
-9494862948da80f90bf8a661e54514f3 *R/bdgraph.R
+b302bd489f43a8325eb8cd3a99b2aede *R/bdgraph.R
 5d2e34eb3fcbc5f28fbc4f30d7f5dbd5 *R/bdgraph.npn.R
 5a1c9114b608ab4f2f90dddf1dd520bb *R/bdgraph.sim.R
 d081874aba8e34f8cbcd4605d0703ab8 *R/bdgraph.ts.R
@@ -54,9 +54,9 @@ a104159cedb0df4ad0f7beb2bdd56979 *src/copula.h
 9e0951ab3af9cb3c2a764533c0b04382 *src/gcgm_DMH.cpp
 c7ad3bd76b5bd3c12366c0413912f4de *src/gcgm_bd.cpp
 a916cf6a2ebfd3d1f79dc621269b0800 *src/ggm_DMH.cpp
-a69a1490f7c17e881cb87eb2b9bdb8a8 *src/ggm_bd.cpp
+2d9f260a13c55a1eb64f2117ba5e569f *src/ggm_bd.cpp
 a1ae0d0762621831bd8ec72102a248c4 *src/gm_rj.cpp
-d0796244dd6f006fdd6453606f5bd959 *src/matrix.cpp
-a1029638425625c2ca0c5d2304a72602 *src/matrix.h
-b3be210f51fc504923350702399c54d8 *src/rgwish.cpp
+65e11711546389a85c2aeaf8fe2aca7a *src/matrix.cpp
+fa6e3287eda5b41cb395d0f68090a719 *src/matrix.h
+64ba44afad0e0f3b8189259eea63d78b *src/rgwish.cpp
 34930d2e31c9a69d2be221a244247816 *src/rgwish.h

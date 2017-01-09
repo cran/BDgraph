@@ -130,7 +130,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 					double sigma_start[], double inv_C[], double beta_star[], double sigma_i[], 
 					vector<double> &sigma_start_N_i, vector<double> &sigma_N_i, vector<int> &N_i )
 {
-	int i, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, dim1 = dim + 1, bKdim = *b_star + dim - 1;	
+	int i, i1, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, dim1 = dim + 1, bKdim = *b_star + dim - 1;	
 	double temp, threshold_C = *threshold, alpha = 1.0, beta  = 0.0;
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	
@@ -191,7 +191,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 				}
 				// -------------------------------------------------------------
 				
-				sub_matrix( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
+				sub_matrix_upper( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
 				F77_NAME(dposv)( &upper, &size_node_i, &one, &sigma_N_i[0], &size_node_i, &sigma_start_N_i[0], &size_node_i, &info );
@@ -201,35 +201,36 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 				// sigma_i = sigma %*% beta_star
 				F77_NAME(dsymv)( &side, &dim, &alpha, sigma, &dim, &beta_star[0], &one, &beta, &sigma_i[0], &one );
 				
-				memcpy( sigma + ip, sigma_i,  sizeof( double ) * i );	
+				memcpy( sigma + ip, sigma_i, sizeof( double ) * i );	
 				
 				for( j = 0; j < i; j++ )
 				{
-					ij   = j * dim + i;
-					temp = fabs( static_cast<double>( sigma[ij] - sigma_i[j] ) );
-					if( temp > max_diff ) max_diff = temp; 					
+					ij        = j * dim + i;
+					temp      = fabs( static_cast<double>( sigma[ij] - sigma_i[j] ) );
+					max_diff  = ( temp > max_diff ) ? temp : max_diff; 					
 
 					sigma[ij] = sigma_i[j];
 				}
 				
-				memcpy( sigma + ip + i + 1, sigma_i + i + 1, sizeof( double ) * ( dim - i - 1 ) );	
+				i1 = i + 1;
+				memcpy( sigma + ip + i1, sigma_i + i1, sizeof( double ) * ( dim - i1 ) );	
 
-				for( j = i + 1; j < dim; j++ )
+				for( j = i1; j < dim; j++ )
 				{
-					ij   = j * dim + i;
-					temp = fabs( static_cast<double>( sigma[ij] - sigma_i[j] ) );
-					if( temp > max_diff ) max_diff = temp; 					
+					ij        = j * dim + i;
+					temp      = fabs( static_cast<double>( sigma[ij] - sigma_i[j] ) );
+					max_diff  = ( temp > max_diff ) ? temp : max_diff; 					
 
 					sigma[ij] = sigma_i[j];
 				}
 			} 
 			else 
-			{				
+			{					
 				for( j = 0; j < i; j++ )
 				{
-					ij   = j * dim + i;
-					temp = fabs( static_cast<double>( sigma[ij] ) );
-					if( temp > max_diff ) max_diff = temp; 					
+					ij       = j * dim + i;
+					temp     = fabs( static_cast<double>( sigma[ij] ) );
+					max_diff = ( temp > max_diff ) ? temp : max_diff; 					
 
 					sigma[ij]     = 0.0;
 					sigma[ip + j] = 0.0;
@@ -237,9 +238,9 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 				
 				for( j = i + 1; j < dim; j++ )
 				{
-					ij = j * dim + i;
-					temp = fabs( static_cast<double>( sigma[ij] ) );
-					if( temp > max_diff ) max_diff = temp; 					
+					ij       = j * dim + i;
+					temp     = fabs( static_cast<double>( sigma[ij] ) );
+					max_diff = ( temp > max_diff ) ? temp : max_diff; 					
 
 					sigma[ij]     = 0.0;
 					sigma[ip + j] = 0.0;				
@@ -254,7 +255,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	// creating an identity matrix
 	for( i = 0; i < dim; i++ )
 		for( j = 0; j < dim; j++ )
-			K[j * dim + i] = (i == j);
+			K[j * dim + i] = ( i == j );
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
 	F77_NAME(dposv)( &upper, &dim, &dim, &sigma_start[0], &dim, K, &dim, &info );
