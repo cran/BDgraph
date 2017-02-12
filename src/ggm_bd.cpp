@@ -7,6 +7,7 @@
 #include <Rmath.h>
 #include <algorithm>     // for transform function
 #include <functional>    // for transform function
+
 #include "matrix.h"
 #include "rgwish.h"
 
@@ -25,7 +26,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
 
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
@@ -42,7 +43,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	int qp = dim * ( dim - 1 ) / 2;
 
 	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
-	char transT = 'T', transN = 'N', sideR = 'R', sideL = 'L';																	
+	char transT = 'T', transN = 'N', sideL = 'L';																	
 
 	// Counting size of notes
 	int ip;
@@ -230,7 +231,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	bool this_one;
 
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
@@ -455,7 +456,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 	int multi_update_C = *multi_update;
 
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;
@@ -668,7 +669,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	bool this_one;
 
 	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, dim1 = dim + 1;
 
 	double Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmajj_inv, threshold_C = *threshold, weight_C;

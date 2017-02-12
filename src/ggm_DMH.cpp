@@ -23,10 +23,10 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
 
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
-	int row, col, rowCol, i, j, k, ij, jj, counter, one = 1, two = 2;
+	int i, j, ij, jj, counter;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, K022, threshold_C = *threshold;
 	long double rate, sum_rates;
 	
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
@@ -37,10 +37,7 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	int qp = dim * ( dim - 1 ) / 2;															
 
 	// Counting size of notes
 	int ip;
@@ -200,10 +197,10 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 	bool this_one;
 
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, ij, jj, counter, nu_star;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, K022, threshold_C = *threshold;
 	long double rate, sum_rates;
 	
 	vector<double> sigma( pxp ); 
@@ -212,10 +209,7 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 	inverse( &copyK[0], &sigma[0], &dim );			
 
 	int qp = dim * ( dim - 1 ) / 2;
-	vector<char> char_g( qp );              // char string_g[pp];
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	vector<char> char_g( qp );              // char string_g[pp];																
 
 	// Counting size of notes
 	int ip;
@@ -398,10 +392,10 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 	int multi_update_C = *multi_update;
 
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, ij, jj, counter;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, K022, a11, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
@@ -412,10 +406,7 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	int qp = dim * ( dim - 1 ) / 2;																	
 
 	// Count size of notes
 	int ip;
@@ -584,10 +575,10 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts
 	bool this_one;
 
 	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, ij, jj, counter;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, K022, a11, sigmaj11, threshold_C = *threshold;
 	long double rate, sum_rates;
 
 	vector<double> sigma( pxp ); 
@@ -596,10 +587,7 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts
 	inverse( &copyK[0], &sigma[0], &dim );			
 
 	int qp = dim * ( dim - 1 ) / 2;
-	vector<char> char_g( qp );              // char string_g[pp];
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	vector<char> char_g( qp );              // char string_g[pp];																
 
 	// Counting size of notes
 	int ip;
@@ -786,20 +774,17 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
 
 	int randomEdge, selected_edge_i, selected_edge_j;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, ij, jj, counter;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsijj, Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, K022, threshold_C = *threshold;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	int qp = dim * ( dim - 1 ) / 2;																	
 
 	// Count size of notes
 	int ip;
@@ -838,7 +823,7 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
 	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 
-	double alpha_ij, log_2 = log( static_cast<double>( 2.0 ) );
+	double alpha_ij;
 
 	GetRNGstate();
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
@@ -941,10 +926,10 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 	bool this_one;
 
 	int randomEdge, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
-	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
+	int i, j, ij, jj, counter;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsijj, Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsijj, Dsjj, Dsij, K022, threshold_C = *threshold;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -952,10 +937,7 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 	inverse( &copyK[0], &sigma[0], &dim );			
 
 	int qp = dim * ( dim - 1 ) / 2;
-	vector<char> char_g( qp );              // char string_g[pp];
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	vector<char> char_g( qp );              // char string_g[pp];																
 
 	// Count size of notes
 	int ip;

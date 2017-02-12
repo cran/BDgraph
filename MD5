@@ -1,4 +1,4 @@
-8daba69c807c056e73499076ef31b553 *DESCRIPTION
+bea232270a290e8fa001f4d8a6767803 *DESCRIPTION
 7a00910a8cfb2b2a8564ec167fa247c4 *NAMESPACE
 11d56e555240d0963a38addf033b8934 *NEWS
 b302bd489f43a8325eb8cd3a99b2aede *R/bdgraph.R
@@ -19,6 +19,7 @@ eebb5aea6f368f21acc559701db15f5c *R/rwish.R
 733ffbb0697a5d6d22c513ae204f9b53 *R/traceplot.R
 3b1d0087898f992dd8a92ec5ed672ce3 *data/geneExpression.RData
 4db46ea2b4302923b4d6cdf84b6e2e67 *data/surveyData.RData
+3925c591eab5e703c5f3dbb6b95156d9 *inst/CITATION
 e32deb977830d0ebcd4e337bd98012dd *man/BDgraph-internal.Rd
 1536528bc1d1c8976abd2cfa6b978796 *man/BDgraph-package.Rd
 e38412cb4aa4ec290c7da8a4ea76f814 *man/bdgraph.Rd
@@ -51,10 +52,10 @@ a665867e9743ba216ba5450570fe9441 *src/MyLapack.h
 e2e90761432271e45841670df0869336 *src/bd_for_ts.cpp
 103641f7833578055ee32caa526d8550 *src/copula.cpp
 a104159cedb0df4ad0f7beb2bdd56979 *src/copula.h
-9e0951ab3af9cb3c2a764533c0b04382 *src/gcgm_DMH.cpp
-c7ad3bd76b5bd3c12366c0413912f4de *src/gcgm_bd.cpp
-a916cf6a2ebfd3d1f79dc621269b0800 *src/ggm_DMH.cpp
-2d9f260a13c55a1eb64f2117ba5e569f *src/ggm_bd.cpp
+b2c02fd75869fdaa7d5102b890d0d074 *src/gcgm_DMH.cpp
+26eefd05aef965b2b561b870f4767618 *src/gcgm_bd.cpp
+fc873c439cf71118ec00327e719970eb *src/ggm_DMH.cpp
+686d68993a033814eec0dddec90ff445 *src/ggm_bd.cpp
 a1ae0d0762621831bd8ec72102a248c4 *src/gm_rj.cpp
 65e11711546389a85c2aeaf8fe2aca7a *src/matrix.cpp
 fa6e3287eda5b41cb395d0f68090a719 *src/matrix.h

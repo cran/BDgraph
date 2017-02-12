@@ -1,0 +1,35 @@
+citHeader("To cite package 'BDgraph' in publications use:")
+
+     ## R >= 2.8.0 passes package metadata to citation().
+     if(!exists("meta") || is.null(meta)) meta <- packageDescription("pgmm")
+     year <- sub(".*(2[[:digit:]]{3})-.*", "\\1", meta$Date)
+     vers <- paste("R package version", meta$Version)
+
+citEntry(entry="Manual",
+              title = "BDgraph: Bayesian Structure Learning in Graphical Models using Birth-Death MCMC",
+              author = personList(as.person("Abdolreza Mohammadi"),as.person("Ernst C. Wit")),
+              year = year,
+              note = vers,
+              textVersion = paste("Abdolreza Mohammadi and Ernst C. Wit (", year, "). BDgraph: Bayesian Structure Learning in Graphical Models using Birth-Death MCMC. ", vers, ".", sep="")
+)
+
+citEntry(entry = "Article",
+     title = "BDgraph: An R Package for Bayesian Structure Learning in Graphical Models",
+     author = personList(as.person("Abdolreza Mohammadi"),as.person("Ernst C. Wit")),
+textVersion = paste("Abdolreza Mohammadi and Ernst C. Wit (2016). BDgraph: An R Package for Bayesian Structure Learning in Graphical Models, accepted."),
+     year = "2016",
+     note   = "accepted",
+journal = "Journal of Statistical Software",
+)
+
+citEntry(entry = "Article",
+     title = "Bayesian Structure Learning in Sparse Gaussian Graphical Models",
+     author = personList(as.person("Abdolreza Mohammadi"),as.person("Ernst C. Wit")),
+textVersion = paste("Abdolreza Mohammadi and Ernst C. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models. Bayesian Analysis 10(1), 109-138."),
+     year = "2015",
+     journal = "Bayesian Analysis",
+     volume = "10",
+     number = "1",
+     pages  = "109-138",
+)
+

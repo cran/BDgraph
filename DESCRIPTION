@@ -2,18 +2,18 @@ Package: BDgraph
 Type: Package
 Title: Bayesian Structure Learning in Graphical Models using
         Birth-Death MCMC
-Version: 2.32
-Date: 2017-01-20
+Version: 2.33
+Date: 2017-02-11
 Author: Abdolreza Mohammadi and Ernst Wit
 Depends: R (>= 3.0.0), Matrix, igraph
 Maintainer: Abdolreza Mohammadi <a.mohammadi@rug.nl>
 Description: Provides statistical tools for Bayesian structure learning in undirected graphical models with both continuous and discrete variables. 
 Acknowledgements: The help of the CRAN team to integrate C++ code with
         R is gratefully acknowledged.
-License: GPL (>= 3)
+License: GPL (>= 2)
 LazyLoad: yes
 URL: https://www.tilburguniversity.edu/webwijs/show/a.mohammadi.htm
-Packaged: 2017-01-09 18:13:34 UTC; p262842
+Packaged: 2017-02-12 07:21:19 UTC; mohammad
 Repository: CRAN
-Date/Publication: 2017-01-09 21:45:49
+Date/Publication: 2017-02-12 12:03:48
 NeedsCompilation: yes

@@ -26,7 +26,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, counter;
 
 	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold, dummy;
-	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int row, col, rowCol, i, j, k, ij, jj, nu_star, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
