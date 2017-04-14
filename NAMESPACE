@@ -1,4 +1,4 @@
-useDynLib( "BDgraph" )
+useDynLib( BDgraph, .registration = TRUE )
 import( "Matrix" )
 
 importFrom( "grDevices", "dev.new" )
@@ -17,9 +17,8 @@ importFrom( "utils", "flush.console" )
 
 importFrom( "utils", "object.size" )
 
-useDynLib( BDgraph, .registration = TRUE )
-
 export( bdgraph,
+		bdgraph.mpl,
 		bdgraph.ts,
 
 		plinks,

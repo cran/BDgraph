@@ -24,7 +24,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }
@@ -33,8 +33,8 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian m
 
 \examples{
 	\dontrun{
-	# Generating multivariate normal data from a 'circle' graph
-	data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
+	# Generating multivariate normal data from a 'cycle' graph
+	data.sim <- bdgraph.sim( n = 70, p = 6, graph = "cycle", vis = TRUE )
    
 	bdgraph.obj   <- bdgraph( data = data.sim, iter = 10000 )
   

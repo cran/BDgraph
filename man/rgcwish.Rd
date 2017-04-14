@@ -10,12 +10,12 @@ Generates random matrices, distributed according to the complex G-Wishart distri
 \usage{ rgcwish( n = 1, adj.g = NULL, b = 3, D = NULL ) }
 
 \arguments{
-  \item{n}{The number of samples required. The default value is 1.}
+  \item{n}{The number of samples required. }
   \item{adj.g}{
     The adjacency matrix corresponding to the graph structure. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
     }
-  \item{b}{The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b, D)}. The default value is 3.}
+  \item{b}{The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b, D)}. }
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for complex G-Wishart distribution, \eqn{CW_G(b, D)}. 
            The default is an identity matrix.}
 }

@@ -1,5 +1,6 @@
-# R code for sampling from COMPLEX G-Wishart
-################################################################################
+## ----------------------------------------------------------------------------|
+# Sampling from COMPLEX G-Wishart
+## ----------------------------------------------------------------------------|
 # sampling from COMPLEX G-Wishart distribution
 rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 {
@@ -21,18 +22,17 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 	
 	if( dim( D )[1] != p ) stop( "Dimension of matrix G and D must to be the same." )
 		
-	inv_D     = solve( D )
-	row1      = cbind( Re(inv_D), -Im(inv_D) )
-	row2      = cbind( Im(inv_D), Re(inv_D) )
-	sig       = rbind( row1, row2 ) / 2
-	Ls        = t( chol(sig) )
-	samples   = array( 0, c( p, p, n ) )
-	K         = matrix( 0, p, p )
-	threshold = 1e-8
+	inv_D   = solve( D )
+	row1    = cbind( Re(inv_D), -Im(inv_D) )
+	row2    = cbind( Im(inv_D), Re(inv_D) )
+	sig     = rbind( row1, row2 ) / 2
+	Ls      = t( chol(sig) )
+	samples = array( 0, c( p, p, n ) )
+	K       = matrix( 0, p, p )
 	
 	for( i in 1 : n )
 	{
-		result       = .C( "rgcwish", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
+		result       = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
 		samples[,,i] = matrix( result $ K, p, p ) 		
 	}	
 

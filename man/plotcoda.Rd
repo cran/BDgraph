@@ -42,8 +42,8 @@ Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian m
 
 \examples{
 \dontrun{
-# Generating multivariate normal data from a 'circle' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
+# Generating multivariate normal data from a 'cycle' graph
+data.sim <- bdgraph.sim( n = 50, p = 6, graph = "cycle", vis = TRUE )
   
 bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0 , save.all = TRUE )
    

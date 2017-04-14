@@ -11,7 +11,7 @@ rcwish = function( n = 1, p = 2, b = 3, D = diag(p) )
 	
 	for ( i in 1 : n )
 	{
-		result       = .C( "rcwish", as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
+		result       = .C( "rcwish_c", as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
 		samples[,,i] = matrix( result $ K, p, p ) 		
 	}	
 

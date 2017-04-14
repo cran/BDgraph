@@ -1,3 +1,15 @@
+// ----------------------------------------------------------------------------|
+//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//
+//     This file is part of BDgraph package.
+//
+//     BDgraph is free software: you can redistribute it and/or modify it under 
+//     the terms of the GNU General Public License as published by the Free 
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
+//
+//     Maintainer:
+//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+// ----------------------------------------------------------------------------|
 #include <sstream>
 #include <string>        // std::string, std::to_string
 #include <vector>        // for using vector
@@ -15,15 +27,16 @@ extern "C" {
 */
 void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double K_hat[], int p_links[],
-			 int *b, int *b_star, double Ds[], double *threshold )
+			 int *b, int *b_star, double Ds[], int *print )
 {
+	int print_c = *print;
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
 
 	int randomEdge, selected_edge_i, selected_edge_j;
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -75,7 +88,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
+		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
 		// STEP 1: selecting edge and calculating alpha -----------------------| 
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
@@ -181,7 +194,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 		}
 
 		// STEP 2: Sampling from G-Wishart for new graph ----------------------|	
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &threshold_C, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -203,10 +216,11 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
-			 int *b, int *b_star, double Ds[], double *threshold )
+			 int *b, int *b_star, double Ds[], int *print )
 {
+	int print_c = *print;
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int counterallG = 0;
+	int count_all_g = 0;
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
 
@@ -216,7 +230,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	int row, col, rowCol, i, j, k, ij, jj, counter, nu_star, one = 1, two = 2;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -269,7 +283,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
+		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
 		// STEP 1: selecting edge and calculating alpha
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
@@ -375,7 +389,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		}
 
 		// STEP 2: Sampling from G-Wishart for new graph ----------------------|	
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &threshold_C, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -388,8 +402,8 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 			for( i = 0; i < size_sample_graph; i++ )
 				if( sample_graphs_C[i] == string_g )
 				{
-					graph_weights[i]++;           // += all_weights[counterallG];
-					all_graphs[counterallG] = i;
+					graph_weights[i]++;           // += all_weights[count_all_g];
+					all_graphs[count_all_g] = i;
 					this_one = true;
 					break;
 				} 
@@ -397,12 +411,12 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 			if( !this_one || size_sample_graph == 0 )
 			{
 				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[counterallG];
-				all_graphs[counterallG]          = size_sample_graph; 
+				graph_weights[size_sample_graph]   = all_weights[count_all_g];
+				all_graphs[count_all_g]          = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
-			counterallG++; 
+			count_all_g++; 
 		} // End of saving result ---------------------------------------------|	
 	} // End of MCMC sampling algorithm ---------------------------------------| 
 	PutRNGstate();
@@ -424,13 +438,14 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 double K_hat[], int p_links[], 
-			 int *b, int *b_star, double D[], double Ds[], double *threshold )
+			 int *b, int *b_star, double D[], double Ds[], int *print )
 {
+	int print_c = *print;
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
 	
 	int randomEdge, counter, selected_edge_i, selected_edge_j;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11;
 	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
@@ -489,7 +504,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
+		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
 		// STEP 1: copula -----------------------------------------------------| 
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
@@ -599,7 +614,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		}
 
 		// STEP 3: Sampling from G-Wishart for new graph ----------------------|	
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &threshold_C, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -622,17 +637,18 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 			 double Z[], int R[], int *n, int *gcgm,
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
-			 int *b, int *b_star, double D[], double Ds[], double *threshold )
+			 int *b, int *b_star, double D[], double Ds[], int *print )
 {
+	int print_c = *print;
 	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int counterallG = 0;
+	int count_all_g = 0;
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
 	
 	int randomEdge, counter, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
 	bool this_one;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, threshold_C = *threshold;
+	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11;
 	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
@@ -692,7 +708,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
+		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
 		// STEP 1: copula -----------------------------------------------------| 
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
@@ -802,7 +818,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 		}
 
 		// STEP 3: Sampling from G-Wishart for new graph ----------------------|	
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &threshold_C, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		// saving result ------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -815,8 +831,8 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 			for( i = 0; i < size_sample_graph; i++ )
 				if( sample_graphs_C[i] == string_g )
 				{
-					graph_weights[i]++;     // += all_weights[counterallG];
-					all_graphs[counterallG] = i;
+					graph_weights[i]++;     // += all_weights[count_all_g];
+					all_graphs[count_all_g] = i;
 					this_one = true;
 					break;
 				} 
@@ -824,12 +840,12 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 			if( !this_one || size_sample_graph == 0 )
 			{
 				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[counterallG];
-				all_graphs[counterallG]            = size_sample_graph; 
+				graph_weights[size_sample_graph]   = all_weights[count_all_g];
+				all_graphs[count_all_g]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
-			counterallG++; 
+			count_all_g++; 
 		} // End of saving result ---------------------------------------------|	
 	} // End of MCMC sampling algorithm ---------------------------------------| 
 	PutRNGstate();

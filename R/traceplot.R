@@ -8,8 +8,8 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 	graph_weights     = bdgraph.obj $ graph_weights
 	sizesample_graphs = sapply( sample_graphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )  
 	sizeall_graphs    = sizesample_graphs[ all_graphs ]
-	which_G_max      = which( max( graph_weights ) == graph_weights )
-	size_selected_g  = sizeall_graphs[ which_G_max ] 
+	which_G_max       = which( max( graph_weights ) == graph_weights )
+	size_selected_g   = sizeall_graphs[ which_G_max ] 
 
 	if( is.null( main ) ) main = "Trace of graph size"
 	

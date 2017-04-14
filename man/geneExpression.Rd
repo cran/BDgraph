@@ -4,7 +4,7 @@
 \title{ Human gene expression dataset }
 
 \description{ 
-This dataset contains human gene expression of \eqn{100} transcripts 
+The dataset contains human gene expression of \eqn{100} transcripts 
 (with unique Illumina TargetID) measured on \eqn{60} unrelated individuals. 
 }
 

@@ -4,7 +4,7 @@
 \title{ Graph selection }
 
 \description{
-Provides the selected graph which, based on input, could be a graph with links for which their estimated posterior probabilities are greater than 0.5 (as a default)
+Provides the selected graph which, based on input, could be a graph with links for which their estimated posterior probabilities are greater than 0.5 (default)
 or a graph with the highest posterior probability; see examples.
 %For more specific selection of graphs consult the 'prob' function.  
 }
@@ -14,7 +14,7 @@ or a graph with the highest posterior probability; see examples.
 \arguments{
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   \item{cut}{ Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; see the examples. }  
-  \item{vis}{ Visualize the selected graph structure. The default value is FALSE. }
+  \item{vis}{ Visualize the selected graph structure. }
 }
 
 \value{	\item{G}{ An adjacency matrix corresponding to the selected graph.} }
@@ -24,7 +24,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

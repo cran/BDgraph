@@ -10,9 +10,9 @@ Generates random matrices, distributed according to the complex Wishart distribu
 \usage{ rcwish( n = 1, p = 2, b = 3, D = diag(p) ) }
 
 \arguments{
-  \item{n}{ The number of samples required. The default value is 1. }
-  \item{p}{ The number of variables (nodes). The default value is 2. }
-  \item{b}{ The degree of freedom for complex Wishart distribution, \eqn{CW(b, D)}. The default value is 3. }
+  \item{n}{ The number of samples required. }
+  \item{p}{ The number of variables (nodes). }
+  \item{b}{ The degree of freedom for complex Wishart distribution, \eqn{CW(b, D)}. }
   \item{D}{ The positive definite \eqn{(p \times p)} "scale" matrix for complex Wishart distribution, \eqn{CW(b, D)}. 
             The default is an identity matrix. }
 }

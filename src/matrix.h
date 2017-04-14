@@ -1,3 +1,15 @@
+// ----------------------------------------------------------------------------|
+//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//
+//     This file is part of BDgraph package.
+//
+//     BDgraph is free software: you can redistribute it and/or modify it under 
+//     the terms of the GNU General Public License as published by the Free 
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
+//
+//     Maintainer:
+//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+// ----------------------------------------------------------------------------|
 #ifndef matrix_H
 #define matrix_H
 
@@ -32,10 +44,12 @@ extern "C" {
 	void inverse_2x2( double B[], double B_inv[] );
 
 	void cholesky( double A[], double U[], int *p );
+
+	void determinant( double A[], double *det_A, int *p );
 	
-	void select_edge( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp );
+	void select_edge( double rates[], int *index_selected_edge, double *sum_rates, int *qp );
 	
-	void select_multi_edges( long double rates[], int index_selected_edges[], int *size_index, long double *sum_rates, int *multi_update, int *qp );
+	void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp );
 
 	void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
 				   double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double *K022, double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 

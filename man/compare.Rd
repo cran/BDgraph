@@ -19,7 +19,7 @@
   
   \item{colnames}{ A character vector giving the column names for the result table. }
   
-  \item{vis}{ Visualize the true graph and estimated graph structures. The default is FALSE. } 
+  \item{vis}{ Visualize the true graph and estimated graph structures. } 
 }
 
 \value{
@@ -38,7 +38,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 \author{Abdolreza Mohammadi, Antonio Abbruzzo, and Ivan Vujacic}
 \seealso{ \code{\link{bdgraph}} and \code{\link{select}} }
@@ -57,6 +57,5 @@ compare( data.sim, sample.ggm, colnames = c( "True graph", "GGM" ), vis = TRUE )
 sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 # Comparing GGM and GCGM methods
 compare( data.sim, sample.ggm, sample.gcgm, colnames = c("True graph", "GGM", "GCGM"), vis = TRUE )
-    
 }
 }

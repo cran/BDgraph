@@ -10,9 +10,9 @@ Generates random matrices, distributed according to the Wishart distribution wit
 \usage{rwish( n = 1, p = 2, b = 3, D = diag(p) )}
 
 \arguments{
-  \item{n}{ The number of samples required. The default value is 1. }
-  \item{p}{ The number of variables (nodes). The default value is 2. }
-  \item{b}{ The degree of freedom for Wishart distribution, \eqn{W(b, D)}. The default value is 3. }
+  \item{n}{ The number of samples required. }
+  \item{p}{ The number of variables (nodes). }
+  \item{b}{ The degree of freedom for Wishart distribution, \eqn{W(b, D)}. }
   \item{D}{ The positive definite \eqn{(p \times p)} "scale" matrix for Wishart distribution, \eqn{W(b, D)}. 
             The default is an identity matrix. }
 }
@@ -35,7 +35,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

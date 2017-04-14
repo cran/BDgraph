@@ -9,7 +9,7 @@
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
          burnin = iter / 2, g.start = "empty", prior.df = 3, 
-         multi.update = NULL, save.all = FALSE )
+         multi.update = NULL, save.all = FALSE, print = 1000 )
 }
 
 \arguments{
@@ -46,7 +46,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	} 
 
 	\item{prior.df}{
-		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix. The default is 3.
+		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix.
 	}
 	\item{multi.update}{
 		It is only for the BDMCMC algorithm (\code{algorithm = "bdmcmc"}).
@@ -56,6 +56,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}
+	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }	
 }
 
 \value{
@@ -73,7 +74,8 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{all_graphs}{A vector which includes the identity of the adjacency matrices for all iterations after burn-in. 
 		  It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
-	\item{all_weights}{A vector which includes the waiting times for all iterations after burn-in. It is needed for monitoring the convergence of the BD-MCMC algorithm.}
+	\item{all_weights}{A vector which includes the waiting times for all iterations after burn-in. 
+	                   It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 }
 
 \references{
@@ -81,7 +83,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

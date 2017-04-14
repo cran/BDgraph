@@ -7,9 +7,9 @@
 
 \description{
 The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models. %based on birth-death MCMC method.      
-The package is implemented the recent improvements in the Bayesian literature, including Mohammadi and Wit (2015) and Mohammadi et al. (2015).
+The package is implemented the recent improvements in the Bayesian graphical models literature, including Mohammadi and Wit (2015) and Mohammadi et al. (2015).
 The computationally intensive tasks of the package is implemented in \code{C++} and interfaced with \code{R}, to speed up the computations. 
-Besides, the package contains several functions for simulation and visualization, as well as two multivariate datasets taken from the literature.
+Besides, the package contains several functions for simulation and visualization, as well as three multivariate datasets taken from the literature.
 }
 \details{
 The package includes 10 main functions: 
@@ -28,6 +28,15 @@ traceplot      Trace plot of graph size
 }
 }
 
+\section{How to cite this package}{
+Whenever using this package, please cite as
+\preformatted{
+Mohammadi A. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
+Graphical Models using Birth-Death MCMC, R package version 3.34, 
+https://CRAN.R-project.org/package=BDgraph
+}
+}
+
 \author{Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit}
 
 \references{
@@ -35,9 +44,9 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128
 }
 
-\keyword{ package }
+\keyword{ Package, BDgraph, Bayesian model selection, Gaussian graphical models, Gaussian copula graphical models, G-Wishart }

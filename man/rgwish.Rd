@@ -10,12 +10,12 @@ Generates random matrices, distributed according to the G-Wishart distribution w
 \usage{rgwish( n = 1, adj.g = NULL, b = 3, D = NULL )}
 
 \arguments{
-  \item{n}{The number of samples required. The default value is 1.}
+  \item{n}{The number of samples required. }
   \item{adj.g}{
     The adjacency matrix corresponding to the graph structure. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
     }
-  \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. The default value is 3.}
+  \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. }
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
            The default is an identity matrix.}
 }
@@ -40,14 +40,15 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }
 
 \examples{
 \dontrun{
-adj.g <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
+graph.sim <- bdgraph.sim( p = 5, graph = "cycle" )
+adj.g     <- graph.sim $ G
 adj.g    # adjacency of graph with 5 nodes and 4 links
    
 sample <- rgwish( n = 3, adj.g = adj.g, b = 3, D = diag(5) )

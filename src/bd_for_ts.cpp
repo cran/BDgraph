@@ -1,3 +1,16 @@
+// ----------------------------------------------------------------------------|
+//     This file is part of BDgraph package.
+//
+//     BDgraph is free software: you can redistribute it and/or modify it under 
+//     the terms of the GNU General Public License as published by the Free 
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
+//
+//     Authors contact information:
+//     Lang Liu:            liulang13@mails.tsinghua.edu.cn
+//     Nicholas Foti:       nfoti@uw.edu
+//     Alex Tank:           atank18@gmail.com
+//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+// ----------------------------------------------------------------------------|
 #include <R.h>
 #include <Rmath.h>
 #include <R_ext/Lapack.h>
@@ -9,7 +22,6 @@
 #include <string>        // std::string, std::to_string
 #include <vector>        // for using vector
 #include <math.h>        // isinf, sqrt
-#include <limits>        // for numeric_limits<long double>::max()
 #include "matrix.h"
 
 using namespace std;
@@ -18,30 +30,28 @@ extern "C" {
 
 // sampling from COMPLEX Wishart distribution
 // Ls = t( chol( solve( Ds ) ) )
-void rcwish( double Ls[], Rcomplex *K, int *b, int *p )
+void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 {
-	int i, j, dim = *p, bK = *b, n = bK + dim, p2 = 2 * dim, pxn = dim * n, p2xn = 2 * pxn, pxp = dim * dim, info;
+	int i, j, dim = *p, bK = *b, n = bK + dim, p2 = 2 * dim, pxn = dim * n, p2xn = 2 * pxn, pxp = dim * dim;
 	int i2p, ip;
 	double *joint = new double[p2xn];
-	double *X = new double[pxn];
-	double *Y = new double[pxn];
+	double *X     = new double[pxn];
+	double *Y     = new double[pxn];
 	vector<double> r_K( pxp );
 	vector<double> i_K( pxp );
 	Rcomplex *csigma = new Rcomplex[pxp];
-	Rcomplex *Ind = new Rcomplex[pxp];
+	Rcomplex *Ind    = new Rcomplex[pxp];
 
 	// ---- Sample values in Joint matrix ---
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
-		{
 			joint[j * p2 + i] = rnorm( 0, 1 );
-		}
 	PutRNGstate();
 	// ------------------------------------
 
 	double alpha = 1.0, malpha = -1.0; 
-	char transT  = 'T', transN = 'N', side = 'L', upper = 'U', lower = 'L';																	
+	char transT  = 'T', transN = 'N', side = 'L', lower = 'L';																	
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	// C = Ls %*% joint   I used   joint = Ls %*% joint
 	F77_NAME(dtrmm)( &side, &lower, &transN, &transN, &p2, &n, &alpha, Ls, &p2, &joint[0], &p2 );
@@ -70,29 +80,27 @@ void rcwish( double Ls[], Rcomplex *K, int *b, int *p )
 }
 
 // sampling from COMPLEX G-Wishart distribution
-void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *threshold )
+void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 {
 	int i, j, ij, ji, i2p, ip, l, size_node_i, info, one = 1, dim = *p, p2 = 2*dim, pxp = dim * dim, bK = *b, n = bK + dim, pxn = dim * n, p2xn = 2 * pxn;	
-	double temp, threshold_C = *threshold, done = 1.0, dmone = -1.0;
+	double temp, threshold = 1e-8, done = 1.0, dmone = -1.0;
 	double alpha = 1.0, malpha = -1.0, beta  = 0.0; 
 	char transT  = 'T', transN = 'N', side = 'L', upper = 'U', lower = 'L';	
 	// STEP 1: sampling from complex wishart distributions
 	double *joint = new double[p2xn];
-	double *X = new double[pxn];
-	double *Y = new double[pxn];
+	double *X     = new double[pxn];
+	double *Y     = new double[pxn];
 
 	vector<double> r_sigma_start(pxp);
 	vector<double> i_sigma_start(pxp);
 	Rcomplex *csigma = new Rcomplex[pxp];
-	Rcomplex *Ind = new Rcomplex[pxp];
+	Rcomplex *Ind    = new Rcomplex[pxp];
 
 	// ---- Sample values in Joint matrix ---
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
-		{
 			joint[j * p2 + i] = rnorm( 0, 1 );
-		}
 	PutRNGstate();
 	// ------------------------------------
 																
@@ -102,9 +110,9 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 	for ( i = 0; i < n; i++ )
 	{
 		i2p = i * p2;
-		ip = i * dim;
-		memcpy(X + ip, &joint[i2p], sizeof(double) * dim);
-		memcpy(Y + ip, &joint[i2p + dim], sizeof(double) * dim);
+		ip  = i * dim;
+		memcpy( X + ip, &joint[i2p], sizeof( double ) * dim );
+		memcpy( Y + ip, &joint[i2p + dim], sizeof( double ) * dim );
 	}
 	// The real part of K_start = X %*% t(X) + Y %*% t(Y)
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta, &r_sigma_start[0], &dim );
@@ -115,19 +123,22 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &malpha, &X[0], &dim, &Y[0], &dim, &alpha, &i_sigma_start[0], &dim );
 
 	for ( j = 0; j < dim; j++ )
-	  for ( int k = 0; k < dim; k++ ){
+	  for ( int k = 0; k < dim; k++ )
+	  {
 	    csigma[j*dim+k].r = r_sigma_start[j*dim+k];
 	    csigma[j*dim+k].i = i_sigma_start[j*dim+k];
   	  }
 	for ( j = 0; j < dim; j++ )
-          for ( int k = 0; k < dim; k++ ){
-            Ind[j*dim+k].i = 0;
-            Ind[j*dim+k].r = (j == k);
+          for ( int k = 0; k < dim; k++ )
+          {
+            Ind[ j * dim + k ].i = 0;
+            Ind[ j * dim + k ].r = ( j == k );
           }
 	F77_NAME(zpotrf)( &upper, &dim, csigma, &dim, &info ); // Remark: csigma will be changed
 	zpotrs( &upper, &dim, &dim, csigma, &dim, Ind, &dim, &info ); //sigma = inv(K)
 	
-	for ( j = 0; j < pxp; j++ ){
+	for ( j = 0; j < pxp; j++ )
+	{
 	  r_sigma_start[j] = Ind[j].r;
 	  i_sigma_start[j] = Ind[j].i;
 	}
@@ -152,7 +163,7 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 
 	
 	double max_diff = 1.0, r_diff, i_diff;	
-	while ( max_diff > threshold_C )
+	while ( max_diff > threshold )
 	{
 		max_diff = 0.0; // The maximum difference between two adjacent sigma
 
@@ -237,7 +248,6 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 					i_sigma[ji] = i_sigma_i[j];
 				}
 				
-
 				for( j = i + 1; j < dim; j++ )
 				{
 					ij = j * dim + i;
@@ -270,7 +280,7 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 				
 				for( j = i + 1; j < dim; j++ )
 				{
-					ij = j * dim + i;
+					ij   = j * dim + i;
 					temp = sqrt( r_sigma[ij] * r_sigma[ij] + i_sigma[ij] * i_sigma[ij] );
 					if( temp > max_diff ) max_diff = temp; 					
 
@@ -287,14 +297,16 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 	memcpy( &i_sigma_start[0], &i_sigma[0], sizeof( double ) * pxp );	 	
 	
 	// K = solve(sigma)
-	for (int j = 0; j < pxp; j++){
-	  csigma[j].r = r_sigma_start[j];
-	  csigma[j].i = i_sigma_start[j];
+	for (int j = 0; j < pxp; j++)
+	{
+		csigma[j].r = r_sigma_start[j];
+		csigma[j].i = i_sigma_start[j];
 	}
 	for (int j = 0; j < dim; j++)
-		for (int k = 0; k < dim; k++){
-		K[j*dim+k].i = 0;
-		K[j*dim+k].r = (j == k);
+		for (int k = 0; k < dim; k++)
+		{
+			K[j*dim+k].i = 0;
+			K[j*dim+k].r = (j == k);
 		}
 
 	F77_NAME(zpotrf)(&upper, &dim, csigma, &dim, &info);
@@ -304,23 +316,21 @@ void rgcwish( int G[], double Ls[], Rcomplex *K, int *b, int *p, double *thresho
 
 // rgwish ONLY for inside of MCMC algorithm
 // Ls is the cholesky of the covariance matrix of (X;Y) -- sigma = Ls %*% Ls*
-// Input (value matters) -- G, size_node, Ls, b_star, p, threshold
+// Input (value matters) -- G, size_node, Ls, b_star, p
 // Output -- K, r_sigma, i_sigma
-void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r_sigma[], double i_sigma[], Rcomplex *csigma, Rcomplex *Ind, int *b_star, int *p, double *threshold,
+void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r_sigma[], double i_sigma[], Rcomplex *csigma, Rcomplex *Ind, int *b_star, int *p,
 					double r_sigma_start[], double i_sigma_start[], double X[], double Y[], double r_beta_star[], double i_beta_star[], double joint[], double r_sigma_i[], 
 					double i_sigma_i[], vector<double> &r_sigma_start_N_i, vector<double> &r_sigma_start_N_i_2, vector<double> &i_sigma_start_N_i, vector<double> &r_sigma_N_i, vector<double> &r_sigma_N_i_2,
 					vector<double> &i_sigma_N_i, vector<int> &N_i, vector<double> &IR, vector<double> &Inv_R )
 {
-	int i, j, ij, ji, i2p, ip, l, size_node_i, info, one = 1, dim = *p, p2 = 2*dim, pxp = dim * dim, bK = *b_star, n = bK + dim, p2xn = 2*dim*n;	
-	double temp, threshold_C = *threshold, done = 1.0, dmone = -1.0;
+	int i, j, ij, ji, i2p, ip, l, size_node_i, info, one = 1, dim = *p, p2 = 2*dim, pxp = dim * dim, bK = *b_star, n = bK + dim;	
+	double temp, threshold = 1e-8, done = 1.0, dmone = -1.0;
 	// STEP 1: sampling from complex wishart distributions
 	// ---- Sample values in Joint matrix ---
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
-		{
 			joint[j * p2 + i] = rnorm( 0, 1 );
-		}
 	PutRNGstate();
 	// ------------------------------------
 
@@ -346,28 +356,31 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &malpha, &X[0], &dim, &Y[0], &dim, &alpha, &i_sigma_start[0], &dim );
 
 	for (j = 0; j < dim; j++)
-	  for (int k = 0; k < dim; k++){
+	  for (int k = 0; k < dim; k++)
+	  {
 	    csigma[j*dim+k].r = r_sigma_start[j*dim+k];
 	    csigma[j*dim+k].i = i_sigma_start[j*dim+k];
   	  }
 	for (j = 0; j < dim; j++)
-          for (int k = 0; k < dim; k++){
-            Ind[j*dim+k].i = 0;
-            Ind[j*dim+k].r = (j == k);
+          for (int k = 0; k < dim; k++)
+          {
+            Ind[ j * dim + k ].i = 0;
+            Ind[ j * dim + k ].r = ( j == k );
           }
 	F77_NAME(zpotrf)(&upper, &dim, csigma, &dim, &info); // Remark: csigma will be changed
 	zpotrs(&upper, &dim, &dim, csigma, &dim, Ind, &dim, &info ); //sigma = inv(K)
 	
-	for (j = 0; j < pxp; j++){
-	  r_sigma_start[j] = Ind[j].r;
-	  i_sigma_start[j] = Ind[j].i;
+	for (j = 0; j < pxp; j++)
+	{
+		r_sigma_start[j] = Ind[j].r;
+		i_sigma_start[j] = Ind[j].i;
 	}
 	
 	memcpy( r_sigma, &r_sigma_start[0], sizeof( double ) * pxp );
 	memcpy( i_sigma, &i_sigma_start[0], sizeof( double ) * pxp );	 
 	
 	double max_diff = 1.0, r_diff, i_diff;	
-	while ( max_diff > threshold_C )
+	while ( max_diff > threshold )
 	{
 		max_diff = 0.0; // The maximum difference between two adjacent sigma
 		
@@ -401,8 +414,9 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 				sub_matrix( i_sigma, &i_sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 				
 				// Inv_R = solve(r_sigma_N_i)
-				for (int s = 0; s < size_node_i*size_node_i; s++)
-				  r_sigma_N_i_2[s] = r_sigma_N_i[s];
+				for( int s = 0; s < size_node_i * size_node_i; s++ )
+					r_sigma_N_i_2[s] = r_sigma_N_i[s];
+					
 				inverse( &r_sigma_N_i_2[0], &Inv_R[0], &size_node_i );			
 				// IR = i_sigma_N_i %*% Inv_R
 				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &i_sigma_N_i[0], &size_node_i, &Inv_R[0], &size_node_i, &beta, &IR[0], &size_node_i);
@@ -439,7 +453,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 				// Update the first i elements of sigma[i,-i]
 				for( j = 0; j < i; j++ )
 				{
-					ij   = j * dim + i;
+					ij     = j * dim + i;
 					r_diff = r_sigma[ij] - r_sigma_i[j];
 					i_diff = i_sigma[ij] + i_sigma_i[j];
 
@@ -499,18 +513,20 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	memcpy( &i_sigma_start[0], i_sigma, sizeof( double ) * pxp );	 	
 	
 	// K = solve(sigma)
-	for (int j = 0; j < pxp; j++){
-	  csigma[j].r = r_sigma_start[j];
-	  csigma[j].i = i_sigma_start[j];
+	for (int j = 0; j < pxp; j++)
+	{
+		csigma[j].r = r_sigma_start[j];
+		csigma[j].i = i_sigma_start[j];
 	}
-	for (int j = 0; j < dim; j++)
-		for (int k = 0; k < dim; k++){
-		K[j*dim+k].i = 0;
-		K[j*dim+k].r = (j == k);
+	for( int j = 0; j < dim; j++ )
+		for( int k = 0; k < dim; k++ )
+		{
+			K[ j * dim + k ].i = 0;
+			K[ j * dim + k ].r = ( j == k );
 		}
 
-	F77_NAME(zpotrf)(&upper, &dim, csigma, &dim, &info);
-	zpotrs(&upper, &dim, &dim, csigma, &dim, K, &dim, &info );
+	F77_NAME(zpotrf)( &upper, &dim, csigma, &dim, &info );
+	zpotrs( &upper, &dim, &dim, csigma, &dim, K, &dim, &info );
 } 
    
 /*
@@ -520,7 +536,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 */
 void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double r_K[], double i_K[], int *p, 
 			   int *freq, double r_sigma[], double i_sigma[], double r_K_hat[], double i_K_hat[], double p_links[],
-			   int *b, int *b_star, double r_Ds[], double i_Ds[], double *threshold )
+			   int *b, int *b_star, double r_Ds[], double i_Ds[] )
 {
 	int iteration = *iter, burn_in = *burnin, b1 = 0, T = *freq;
 
@@ -530,8 +546,8 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 	int pxpxT = pxp * T, txpxp, n = dim, max_b_star = 0;
 	bool useful;
 
-	double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, i_a11, r_sigmaj11, i_sigmaj11, threshold_C = *threshold;
-	long double mod_Dsjj, mod_a11, coef, r_temp, nu_star, rate, sum_rates, G_prior, common_factor = 1.0;
+	double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, i_a11, r_sigmaj11, i_sigmaj11;
+	double mod_Dsjj, mod_a11, coef, r_temp, nu_star, log_rate, sum_rates, G_prior, common_factor = 1.0;
 	
 	for( i = 0; i < T; i++ )
 	{
@@ -562,8 +578,8 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 	}
 	
 	// For finding the index of rates 
-	vector<long double> log_rates( qp );
-	vector<long double> rates( qp );      // the rates of all edges
+	vector<double> log_rates( qp );
+	vector<double> rates( qp );      // the rates of all edges
 	vector<int> index_rates_row( qp );    // 0,0,1,0,1,2,...
 	vector<int> index_rates_col( qp );    // 1,2,2,3,3,3,...
 	vector<bool> is_infinite(qp, 0);
@@ -632,8 +648,6 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 	vector<int> N_i( dim );                      // For dynamic memory used
 	// ----------------------------
 
-	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
-
 	GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm ----------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -659,7 +673,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 
 		for( t = 0; t < T; t++ ) // The loop for the frequencies
 		{
-			txpxp   = t*pxp;
+			txpxp   = t * pxp;
 			counter = 0;		
 			
 			for( j = 1; j < dim; j++ )
@@ -760,29 +774,14 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 					mod_a11  = sqrt( r_a11 * r_a11 + i_a11 * i_a11 );
 					coef     = ( r_Dsij * r_Dsij + i_Dsij * i_Dsij ) / ( r_Dsjj * r_Dsjj + i_Dsjj * i_Dsjj );
 					r_temp   = coef * ( r_a11 * r_Dsjj + i_a11 * i_Dsjj ) + r_sum_diag;
-					rate     = ( G[ij - txpxp] ) ? mod_Dsjj / mod_a11 * exp( -r_temp ) : mod_a11 / mod_Dsjj * exp( r_temp );
 					
-					if( R_FINITE( rate ) )   // Computer the rate in log space
-						log_rates[counter++] += log( static_cast<double>( rate ) );
-					else
-					{
-						rates[counter] = max_numeric_limits_ld;
-						is_infinite[counter++] = true;
-					}
+					log_rate = ( G[ij - txpxp] ) ? log_rates[counter] + log( mod_Dsjj ) - log( mod_a11 ) - r_temp : log_rates[counter] + log( mod_a11 ) - log( mod_Dsjj ) + r_temp;
+					
+					rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 				}
 			}
 		}// end of frequency loop	
 		
-		// Selecting an edge based on birth and death rates
-		for( t = 0; t < qp; t++ ) // Exponentialize the log rate
-		{
-			rate = exp( log_rates[t] );
-			if( !is_infinite[t] && R_FINITE( rate ) )
-				rates[t] = rate;
-			else
-				rates[t] = max_numeric_limits_ld;
-		}
-
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
 		selected_edge_i = index_rates_row[ index_selected_edge ];
 		selected_edge_j = index_rates_col[ index_selected_edge ];
@@ -846,7 +845,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 		{
 			txpxp = t*pxp;
 			rgcwish_sigma(G, &size_node[0], &Ls[4*txpxp], K, &r_sigma[txpxp], 
-			&i_sigma[txpxp], csigma, Ind, &b_star[t], &dim, &threshold_C, 
+			&i_sigma[txpxp], csigma, Ind, &b_star[t], &dim, 
 			&r_sigma_start[0], &i_sigma_start[0], &X[0], &Y[0],
 			&r_beta_star[0], &i_beta_star[0], &joint[0], &r_sigma_i[0],
 			&i_sigma_i[0], r_sigma_start_N_i, r_sigma_start_N_i_2,
@@ -883,7 +882,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double r_K[], double i_K[], int *p, 
 			   int *freq, double r_sigma[], double i_sigma[], int all_graphs[], double all_weights[], double r_K_hat[], 
 			   double i_K_hat[], char *sample_graphs[], double graph_weights[], int *size_sample_g, int *exit,
-			   int *b, int *b_star, double r_Ds[], double i_Ds[], double *threshold )
+			   int *b, int *b_star, double r_Ds[], double i_Ds[] )
 {
 	int iteration = *iter, burn_in = *burnin, b1 = 0, T = *freq;
 	int counterallG = 0;
@@ -898,8 +897,8 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	int pxpxT = pxp * T, txpxp, n = dim, max_b_star = 0;
 	bool useful;
 
-	double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, i_a11, r_sigmaj11, i_sigmaj11, threshold_C = *threshold;
-	long double mod_Dsjj, mod_a11, coef, r_temp, nu_star, rate, sum_rates, G_prior, common_factor = 1.0;
+	double r_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, r_sigmaj11, i_sigmaj11;
+	double mod_Dsjj, mod_a11, coef, r_temp, nu_star, log_rate, sum_rates, G_prior, common_factor = 1.0;
 	
 	for ( i = 0; i < T; i++ )
 	{
@@ -926,8 +925,8 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	}
 	
 	// For finding the index of rates 
-	vector<long double> log_rates( qp );
-	vector<long double> rates( qp );      // the rates of all edges
+	vector<double> log_rates( qp );
+	vector<double> rates( qp );      // the rates of all edges
 	vector<int> index_rates_row( qp );    // 0,0,1,0,1,2,...
 	vector<int> index_rates_col( qp );    // 1,2,2,3,3,3,...
 	vector<bool> is_infinite(qp, 0);
@@ -996,7 +995,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	vector<int> N_i( dim );                      // For dynamic memory used
 	// ----------------------------
 
-	long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
+	double max_numeric_limits_ld = std::numeric_limits<double>::max() / 10000;
 
 	GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm for time series ----------------------| 
@@ -1029,7 +1028,6 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 			{		
 				jj     = j * dim + j + txpxp;
 				r_Dsjj = r_Ds[jj];
-				i_Dsjj = i_Ds[jj];
 				
 				r_sigmaj11 = r_sigma[jj];        // sigma[j, j]  
 				i_sigmaj11 = i_sigma[jj]; 
@@ -1123,15 +1121,10 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					mod_a11  = fabs( r_a11 );
 					coef     = ( r_Dsij * r_Dsij + i_Dsij * i_Dsij ) / ( r_Dsjj * r_Dsjj );
 					r_temp   = coef * ( r_a11 * r_Dsjj ) + r_sum_diag;
-					rate     = ( G[ij - txpxp] ) ? mod_Dsjj / mod_a11 * exp( -r_temp ) : mod_a11 / mod_Dsjj * exp( r_temp );
+
+					log_rate = ( G[ij - txpxp] ) ? log_rates[counter] + log( mod_Dsjj ) - log( mod_a11 ) - r_temp : log_rates[counter] + log( mod_a11 ) - log( mod_Dsjj ) + r_temp;
 					
-					if( R_FINITE( rate ) )   // Computer the rate in log space
-						log_rates[counter++] += log( static_cast<double>( rate ) );
-					else
-					{
-						rates[counter] = max_numeric_limits_ld;
-						is_infinite[counter++] = true;
-					} 
+					rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 				}
 			}
 		}// end of frequency loop	
@@ -1141,14 +1134,6 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		for( j = 1; j < dim; j++ )
 			for( i = 0; i < j; i++ )
 				char_g[counter++] = G[j * dim + i] + '0'; 
-		for( t = 0; t < qp; t++ ) // Exponentialize the log rate
-		{
-			rate = exp( log_rates[t] );
-			if( !is_infinite[t] && R_FINITE( rate ) )
-				rates[t] = rate;
-			else
-				rates[t] = max_numeric_limits_ld;
-		}
 
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
 		selected_edge_i = index_rates_row[ index_selected_edge ];
@@ -1270,7 +1255,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		{
 			txpxp = t*pxp;
 			rgcwish_sigma(G, &size_node[0], &Ls[4*txpxp], K, &r_sigma[txpxp], 
-			&i_sigma[txpxp], csigma, Ind, &b_star[t], &dim, &threshold_C, 
+			&i_sigma[txpxp], csigma, Ind, &b_star[t], &dim, 
 			&r_sigma_start[0], &i_sigma_start[0], &X[0], &Y[0],
 			&r_beta_star[0], &i_beta_star[0], &joint[0], &r_sigma_i[0],
 			&i_sigma_i[0], r_sigma_start_N_i, r_sigma_start_N_i_2,

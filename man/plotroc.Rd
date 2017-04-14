@@ -8,7 +8,8 @@ Draws the ROC curve according to the true graph structure for object of \code{S3
 }
 
 \usage{ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
-                 cut.num = 20, smooth = FALSE, label = TRUE ) }
+                 bdgraph.obj4 = NULL, cut = 20, smooth = FALSE, label = TRUE, 
+                 main = "ROC Curve" ) }
 
 \arguments{
   \item{sim.obj}{
@@ -28,10 +29,15 @@ Draws the ROC curve according to the true graph structure for object of \code{S3
                        It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
                        It is for comparing three different approaches. }
   
-  \item{cut.num}{ Number of cut points. The default value is 20. }
+  \item{bdgraph.obj4}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
+                       It is for comparing four different approaches. }
   
-  \item{smooth}{ Logical: for smoothing the ROC curve. The default is FALSE.} 
-  \item{label}{ Logical: for adding legend to the ROC plot. The default is TRUE.} 
+  \item{cut}{ Number of cut points.}
+  
+  \item{smooth}{ Logical: for smoothing the ROC curve.} 
+  \item{label}{ Logical: for adding legend to the ROC plot.} 
+  \item{main}{ An overall title for the plot.} 
 }
 
 \references{
@@ -60,6 +66,6 @@ plotroc( data.sim, bdgraph.obj )
 bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 # Comparing the resultss
 plotroc( data.sim, bdgraph.obj, bdgraph.obj2, label = FALSE )
-legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1,2 ), col = c( 1, 4 ) )   
+legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1,2 ), col = c( "black", "red" ) )   
 }
 }

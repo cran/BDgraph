@@ -6,7 +6,7 @@
 \description{ Visualizes structure of the selected graphs which could be a graph with links for which their estimated posterior probabilities are greater than 0.5
 or graph with the highest posterior probability. }
 
-\usage{ \method{plot}{bdgraph}( x, cut = 0.5, number.g = 1, layout = layout.circle, ... ) }
+\usage{ \method{plot}{bdgraph}( x, cut = NULL, number.g = 1, layout = layout.circle, ... ) }
 
 \arguments{
   \item{x}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
@@ -15,7 +15,7 @@ or graph with the highest posterior probability. }
 
   \item{number.g}{ The number of graphs with the highest probabilities (default is 1).}
   
-  \item{layout}{The vertex placement algorithm which is according to \pkg{igraph} package. The default is \code{"layout.circle"}.}
+  \item{layout}{The vertex placement algorithm which is according to \pkg{igraph} package. }
   
   \item{\dots}{System reserved (no specific usage).}
 }
@@ -25,7 +25,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

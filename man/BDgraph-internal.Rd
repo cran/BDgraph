@@ -1,8 +1,14 @@
-\name{BDgraph-internal}
-\alias{BDgraph-internal}
+\name{  BDgraph-internal }
+\alias{ BDgraph-internal }
 
-\alias{roc}
-\alias{outRoc}
+\alias{ compute_tp_fp }
+\alias{ compute_measures }
+
+\alias{ hill_climb_mpl }
+\alias{ local_mb_hc }
+\alias{ global_hc }
+\alias{ log_mpl_dis }
+\alias{ data_transform }
 
 \docType{data}
 

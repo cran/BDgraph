@@ -6,7 +6,6 @@
 bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
 					   g.start = "empty", prior.df = rep( 3, Nlength ), save.all = FALSE )
 {
-	threshold = 1e-8  # for sampling from complex g-wishart distribution
 	burnin    = floor( burnin )
 
 	if( !is.matrix(data) & !is.data.frame(data) ) stop( "Data should be a matrix or dataframe" )
@@ -62,7 +61,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		
 		for( t in 1:Nlength )
 		{
-		  result = .C( "rgcwish", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
+		  result = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), PACKAGE = "BDgraph" )
 		  K[, ( t * p - p + 1 ):( t * p )] = matrix ( result $ K, p, p )
 		  sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p )] )
 		}
@@ -75,7 +74,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		
 		for( t in 1:Nlength )
 		{
-		  result = .C( "rcwish", as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), PACKAGE = "BDgraph" )
+		  result = .C( "rcwish_c", as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), PACKAGE = "BDgraph" )
 		  K[, ( t * p - p + 1 ):( t * p )] = matrix ( result $ K, p, p ) 
 		  sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p ) ] )
 		}	
@@ -88,7 +87,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		
 		for( t in 1:Nlength )
 		{
-		  result = .C( "rgcwish", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
+		  result = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), PACKAGE = "BDgraph" )
 		  K[, ( t * p - p + 1 ):( t * p )] = matrix ( result $ K, p, p )
 		  sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p )] )
 		}	
@@ -131,14 +130,14 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 					i_K = as.double(i_K), as.integer(p), as.integer(Nlength), r_sigma = as.double(r_sigma), i_sigma = as.double(i_sigma), 
 					all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), r_K_hat = as.double(r_K_hat), i_K_hat = as.double(i_K_hat), 
 					sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), 
-					exit = as.integer(exit), as.integer(b), as.integer(b_star), r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), as.double(threshold), PACKAGE = "BDgraph" )
+					exit = as.integer(exit), as.integer(b), as.integer(b_star), r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), PACKAGE = "BDgraph" )
 	}
 	else
 	{
 		result = .C( "bdmcmc_for_multi_dim", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ls), r_K = as.double(r_K), 
 					i_K = as.double(i_K), as.integer(p), as.integer(Nlength), r_sigma = as.double(r_sigma), i_sigma = as.double(i_sigma), 
 					r_K_hat = as.double(r_K_hat), i_K_hat = as.double(i_K_hat), p_links = as.double(p_links), as.integer(b), as.integer(b_star), 
-					r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), as.double(threshold), PACKAGE = "BDgraph" )
+					r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), PACKAGE = "BDgraph" )
 	}
 	
 	r_K_hat      = result $ r_K_hat

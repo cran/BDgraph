@@ -1,3 +1,16 @@
+// ----------------------------------------------------------------------------|
+//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//
+//     This file is part of BDgraph package.
+//
+//     BDgraph is free software: you can redistribute it and/or modify it under 
+//     the terms of the GNU General Public License as published by the Free 
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
+//
+//     Maintainer:
+//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+// ----------------------------------------------------------------------------|
+  
 #include "copula.h"
    
 // Calculating mean for copula function
@@ -61,12 +74,12 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 			
 			// runif_value = runif( 1, pnorm( lower_bound, mu_ij, sd_j ), pnorm( upper_bound, mu_ij, sd_j ) )
 			// Z[i,j]     = qnorm( runif_value, mu_ij, sd_j )									
-			GetRNGstate();
+			//GetRNGstate();
 			pnorm_lb          = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
 			pnorm_ub          = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
 			runif_value       = runif( pnorm_lb, pnorm_ub );
 			Z[j * number + i] = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
-			PutRNGstate();				
+			//PutRNGstate();				
 		}
 	}
 }
@@ -114,7 +127,7 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
 			
 			ij = j * number + i;
-			GetRNGstate();
+			//GetRNGstate();
 			if( R[ij] != 0 )
 			{
 				get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
@@ -126,7 +139,7 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 			} 
 			else 
 				Z[ij] = rnorm( mu_ij, sd_j );
-			PutRNGstate();				
+			//PutRNGstate();				
 		}
 	}
 }
