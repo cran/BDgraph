@@ -175,7 +175,12 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 
 				rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
-		}	
+		}
+		
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
+		selected_edge_i = index_rates_row[ index_selected_edge ];
+		selected_edge_j = index_rates_col[ index_selected_edge ];
 
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -192,11 +197,6 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 		} 
 //----- End of saving result --------------------------------------------------|	
 			
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -382,6 +382,11 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 				counter++; 
 			}
 		}	
+		
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
+		selected_edge_i = index_rates_row[ index_selected_edge ];
+		selected_edge_j = index_rates_col[ index_selected_edge ];
 
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -417,11 +422,6 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		} 
 //----- End of saving result --------------------------------------------------|	
     			
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -610,6 +610,9 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 				rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
 		}	
+		
+		// Selecting multiple edges based on birth and death rates
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 //----- Saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -625,9 +628,6 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], d
 			sum_weights += weight_C;
 		} 
 //----- End of saving result --------------------------------------------------|	
-
-		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
@@ -824,6 +824,9 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 				counter++; 
 			}
 		}	
+		
+		// Selecting multiple edges based on birth and death rates
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 //----- Saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -859,9 +862,6 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 		} 
 //----- End of saving result --------------------------------------------------|	
 			
-		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
-
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{

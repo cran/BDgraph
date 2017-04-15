@@ -39,8 +39,8 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	double *Y     = new double[pxn];
 	vector<double> r_K( pxp );
 	vector<double> i_K( pxp );
-	Rcomplex *csigma = new Rcomplex[pxp];
-	Rcomplex *Ind    = new Rcomplex[pxp];
+	//Rcomplex *csigma = new Rcomplex[pxp];
+	//Rcomplex *Ind    = new Rcomplex[pxp];
 
 	// ---- Sample values in Joint matrix ---
 	GetRNGstate();
@@ -59,8 +59,8 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	{
 		i2p = i * p2;
 		ip = i * dim;
-		memcpy(X + ip, &joint[i2p], sizeof(double) * dim);
-		memcpy(Y + ip, &joint[i2p + dim], sizeof(double) * dim);
+		memcpy( X + ip, &joint[i2p], sizeof(double) * dim );
+		memcpy( Y + ip, &joint[i2p + dim], sizeof(double) * dim );
 	}
 	double beta  = 0.0;
 	// The real part of K_start = X %*% t(X) + Y %*% t(Y)
@@ -76,7 +76,12 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 		K[j].r = r_K[j];
 		K[j].i = i_K[j];
 	}
-	delete[] csigma, Ind, joint, X, Y;
+	
+	//delete[] csigma;
+	//delete[] Ind;
+	delete[] joint;
+	delete[] X;
+	delete[] Y;
 }
 
 // sampling from COMPLEX G-Wishart distribution
@@ -125,8 +130,8 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 	for ( j = 0; j < dim; j++ )
 	  for ( int k = 0; k < dim; k++ )
 	  {
-	    csigma[j*dim+k].r = r_sigma_start[j*dim+k];
-	    csigma[j*dim+k].i = i_sigma_start[j*dim+k];
+	    csigma[ j * dim + k ].r = r_sigma_start[ j * dim + k ];
+	    csigma[ j * dim + k ].i = i_sigma_start[ j * dim + k ];
   	  }
 	for ( j = 0; j < dim; j++ )
           for ( int k = 0; k < dim; k++ )
@@ -199,8 +204,8 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 				sub_matrix( &i_sigma[0], &i_sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 				
 				// Inv_R = solve(r_sigma_N_i)
-				for (int s = 0; s < size_node_i*size_node_i; s++)
-				  r_sigma_N_i_2[s] = r_sigma_N_i[s];
+				for( int s = 0; s < size_node_i*size_node_i; s++ )
+					r_sigma_N_i_2[s] = r_sigma_N_i[s];
 				inverse( &r_sigma_N_i_2[0], &Inv_R[0], &size_node_i );			
 				// IR = i_sigma_N_i %*% Inv_R
 				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &i_sigma_N_i[0], &size_node_i, &Inv_R[0], &size_node_i, &beta, &IR[0], &size_node_i);
@@ -212,8 +217,8 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &one, &size_node_i, &alpha, &IR[0], &size_node_i, &r_sigma_start_N_i_2[0], &size_node_i, &dmone, &i_sigma_start_N_i[0], &size_node_i);			
 				
 				// r_sigma_start_N_i = solve(A) %*% B; i_sigma_start_N_i = solve(A) %*% C
-				for (int s = 0; s < size_node_i*size_node_i; s++)
-				  r_sigma_N_i_2[s] = r_sigma_N_i[s];
+				for( int s = 0; s < size_node_i*size_node_i; s++ )
+					r_sigma_N_i_2[s] = r_sigma_N_i[s];
 				F77_NAME(dposv)( &upper, &size_node_i, &one, &r_sigma_N_i[0], &size_node_i, &r_sigma_start_N_i[0], &size_node_i, &info );
 				F77_NAME(dposv)( &upper, &size_node_i, &one, &r_sigma_N_i_2[0], &size_node_i, &i_sigma_start_N_i[0], &size_node_i, &info );	
 
@@ -250,8 +255,8 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 				
 				for( j = i + 1; j < dim; j++ )
 				{
-					ij = j * dim + i;
-					ji = i * dim + j;					
+					ij     = j * dim + i;
+					ji     = i * dim + j;					
 					r_diff = r_sigma[ij] - r_sigma_i[j];
 					i_diff = i_sigma[ij] + i_sigma_i[j];
 
@@ -311,7 +316,12 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 
 	F77_NAME(zpotrf)(&upper, &dim, csigma, &dim, &info);
 	zpotrs(&upper, &dim, &dim, csigma, &dim, K, &dim, &info );
-	delete[] csigma, Ind, joint, X, Y;
+	
+	delete[] csigma;
+	delete[] Ind;
+	delete[] joint;
+	delete[] X;
+	delete[] Y;
 }
 
 // rgwish ONLY for inside of MCMC algorithm
@@ -358,11 +368,11 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	for (j = 0; j < dim; j++)
 	  for (int k = 0; k < dim; k++)
 	  {
-	    csigma[j*dim+k].r = r_sigma_start[j*dim+k];
-	    csigma[j*dim+k].i = i_sigma_start[j*dim+k];
+	    csigma[ j * dim + k ].r = r_sigma_start[ j * dim + k ];
+	    csigma[ j * dim + k ].i = i_sigma_start[ j * dim + k ];
   	  }
-	for (j = 0; j < dim; j++)
-          for (int k = 0; k < dim; k++)
+	for( j = 0; j < dim; j++ )
+          for( int k = 0; k < dim; k++ )
           {
             Ind[ j * dim + k ].i = 0;
             Ind[ j * dim + k ].r = ( j == k );
@@ -370,7 +380,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	F77_NAME(zpotrf)(&upper, &dim, csigma, &dim, &info); // Remark: csigma will be changed
 	zpotrs(&upper, &dim, &dim, csigma, &dim, Ind, &dim, &info ); //sigma = inv(K)
 	
-	for (j = 0; j < pxp; j++)
+	for( j = 0; j < pxp; j++ )
 	{
 		r_sigma_start[j] = Ind[j].r;
 		i_sigma_start[j] = Ind[j].i;
@@ -797,7 +807,11 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 			
 			for( i = 0; i < pxp; i++ )
 				if( G[i] ) p_links[i] = 1.0;
-			delete[] csigma, Ind, K;
+			
+			//delete[] csigma;
+			//delete[] Ind;
+			//delete[] K;
+			
 			return;
 		}		
 		
@@ -869,7 +883,9 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double 
 	for( i = 0; i < pxp; i++ )
 		p_links[i] = p_links_Cpp[i] / sum_weights;
 		
-	delete[] csigma, Ind, K;
+	delete[] csigma;
+	delete[] Ind;
+	delete[] K;
 }
  
 // ----------------------------------------------------------------------------|
@@ -1178,7 +1194,11 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
 					sample_graphs[i][qp] = '\0';
 				}	
-				delete[] csigma, Ind, K;					
+
+				//delete[] csigma;
+				//delete[] Ind;
+				//delete[] K;
+
 				return;				
 			}
 			else
@@ -1230,7 +1250,11 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 				r_K_hat[t] = r_K[t];
 				i_K_hat[t] = i_K[t];
 			}
-			delete[] csigma, Ind, K;
+		
+			//delete[] csigma;
+			//delete[] Ind;
+			//delete[] K;
+		
 			return;
 		}	
 
@@ -1282,7 +1306,10 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		r_K_hat[i] /= sum_weights;
 		i_K_hat[i] /= sum_weights;
 	}
-	delete[] csigma, Ind, K;
+	
+	delete[] csigma;
+	delete[] Ind;
+	delete[] K;
 }
    
 } // End of exturn "C"

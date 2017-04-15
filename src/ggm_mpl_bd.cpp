@@ -55,7 +55,7 @@ void log_mpl( int *node, int mb_node[], int *size_node, double *log_mpl_node, do
 
 		//*log_mpl_node = lgammafn( 0.5 * ( *n + *size_node ) ) - lgammafn( 0.5 * size_node_fa ) - ( 2 * *size_node + 1 ) * log( *n ) * 0.5 - ( *n - 1 ) * ( log( det_S_fa_node ) - log( det_S_mb_node ) ) * 0.5;
 		*log_mpl_node = lgammafn( 0.5 * ( *n + *size_node ) ) - lgammafn( 0.5 * size_node_fa ) - 
-					 *size_node * log( *n ) - ( *n - 1 ) * ( log( det_S_fa_node ) - log( det_S_mb_node ) ) * 0.5;
+					  *size_node * log( static_cast<double>( *n ) ) - ( *n - 1 ) * ( log( det_S_fa_node ) - log( det_S_mb_node ) ) * 0.5;
 	}
 	else
 	{
@@ -197,6 +197,11 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double S[], int *n, int
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
 		rates_ggm_mpl( &rates[0], &curr_log_mpl[0], G, &size_node[0], &copyS[0], &copy_n, &dim );
+		
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
+		selected_edge_i = index_rates_row[ index_selected_edge ];
+		selected_edge_j = index_rates_col[ index_selected_edge ];
 
 //----- Saving result----------------------------------------------------------|
 		if( i_mcmc >= burn_in )
@@ -209,11 +214,6 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double S[], int *n, int
 			sum_weights += weight_C;
 		} 
 //----- End of saving result --------------------------------------------------|	
-
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
 
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
@@ -341,7 +341,12 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double S[], int *n, in
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
 		rates_ggm_mpl( &rates[0], &curr_log_mpl[0], G, &size_node[0], &copyS[0], &copy_n, &dim );
-				
+		
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
+		selected_edge_i = index_rates_row[ index_selected_edge ];
+		selected_edge_j = index_rates_col[ index_selected_edge ];
+
 //----- Saving result ------------------------ --------------------------------|
 		counter = 0;	
 		for( j = 1; j < dim; j++ )
@@ -378,11 +383,6 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double S[], int *n, in
 		} 
 //----- End of saving result --------------------------------------------------|	
 			
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -510,6 +510,9 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double S[]
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
 		rates_ggm_mpl( &rates[0], &curr_log_mpl[0], G, &size_node[0], &copyS[0], &copy_n, &dim );
+		
+		// Selecting multiple edges based on birth and death rates
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 //----- Saving result---------------------------- -----------------------------|
 		if( i_mcmc >= burn_in )
@@ -522,9 +525,6 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double S[]
 			sum_weights += weight_C;
 		} 
 //----- End of saving result --------------------------------------------------|	
-
-		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
@@ -662,7 +662,10 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double S[
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
 		rates_ggm_mpl( &rates[0], &curr_log_mpl[0], G, &size_node[0], &copyS[0], &copy_n, &dim );
-				
+		
+		// Selecting multiple edges based on birth and death rates
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
+
 //----- Saving result ------------------------ --------------------------------|
 		counter = 0;	
 		for( j = 1; j < dim; j++ )
@@ -698,9 +701,6 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double S[
 			sum_weights += weight_C;
 		} 
 //----- End of saving result --------------------------------------------------|	
-
-		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )

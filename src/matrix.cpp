@@ -329,14 +329,13 @@ void determinant( double A[], double *det_A, int *p )
 // To select an edge for BDMCMC algorithm  
 void select_edge( double rates[], int *index_selected_edge, double *sum_rates, int *qp )
 {
-	//GetRNGstate();
 	int qp_star = *qp;
 
 	// rates = sum_sort_rates
 	for ( int i = 1; i < qp_star; i++ )
 		rates[i] += rates[ i - 1 ];
 	
-	*sum_rates   = rates[qp_star - 1];
+	*sum_rates   = rates[ qp_star - 1 ];
 	double random_value = *sum_rates * runif( 0, 1 );
 
 	// To start, find the subscript of the middle position.
@@ -353,7 +352,6 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 	}
 	
 	*index_selected_edge = ( rates[position] < random_value ) ? ++position : position;
-	//GetRNGstate();
 } 
     
 // ----------------------------------------------------------------------------|
