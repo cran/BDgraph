@@ -1,9 +1,9 @@
 \name{compare}
 \alias{compare}
 
-\title{ Comparing the results }
+\title{ Compares graph structures }
 
-\description{ With this function, we can check the performance of our methods and compare it with other alternative approaches. }
+\description{ This function provides several measures to assess the performance of the graphical structure learning. }
 
 \usage{ compare( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
           colnames = NULL, vis = FALSE ) }
@@ -23,15 +23,14 @@
 }
 
 \value{
-	\item{True positive}{ The number of correctly estimated links.}
-	\item{True negative}{ The number of true non-existing links which is correctly estimated.}
+	\item{True positive}{  The number of correctly estimated links.}
+	\item{True negative}{  The number of true non-existing links which is correctly estimated.}
 	\item{False positive}{ The number of links which they are not in the true graph, but are incorrectly estimated.}
 	\item{False negative}{ The number of links which they are in the true graph, but are not estimated.}
-	\item{Accuracy}{ the number of true results (both true positives and true negatives) divided by the total number of true and false results.}
-	\item{Balanced F-score}{ A weighted average of the \code{"positive predictive"} and \code{"true positive rate"}. F-score value reaches its best value at 1 and worst score at 0.}
-	\item{Positive predictive}{ The number of correctly estimated links divided by the total number of links in the estimated graph.}
-	\item{True positive rate}{ The number of correctly estimated links divided by the total number of links in the true graph.}
-	\item{False positive rate}{ The false positive value divided by the total number of links in the true graph.}
+	\item{F1-score}{       A weighted average of the \code{"positive predictive"} and \code{"true positive rate"}. The F1-score value reaches its best value at 1 and worst score at 0.}
+	\item{Specificity}{    The Specificity value reaches its best value at 1 and worst score at 0.}
+	\item{Sensitivity}{    The Sensitivity value reaches its best value at 1 and worst score at 0.}
+	\item{MCC}{            The Matthews Correlation Coefficients (MCC) value reaches its best value at 1 and worst score at 0.}
 }
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
@@ -51,11 +50,11 @@ data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
 # Running sampling algorithm based on GGMs 
 sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
 # Comparing the results
-compare( data.sim, sample.ggm, colnames = c( "True graph", "GGM" ), vis = TRUE )
+compare( data.sim, sample.ggm, colnames = c( "True", "GGM" ), vis = TRUE )
     
 # Running sampling algorithm based on GCGMs
 sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 # Comparing GGM and GCGM methods
-compare( data.sim, sample.ggm, sample.gcgm, colnames = c("True graph", "GGM", "GCGM"), vis = TRUE )
+compare( data.sim, sample.ggm, sample.gcgm, colnames = c("True", "GGM", "GCGM"), vis = TRUE )
 }
 }

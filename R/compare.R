@@ -14,10 +14,9 @@ compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 	G[ lower.tri( G, diag = TRUE ) ]     = 0
 	est[ lower.tri( est, diag = TRUE ) ] = 0
    	   
-	result = matrix( 0, 9, 2 )
+	result = matrix( 1, 8, 2 )
 	result[ , 2 ] = compute_measures( G = G, est_G = est )
-	if( is.null( colnames ) ) colnames <- c( "True graph", "estimate" )
-
+   
     if( !is.null( bdgraph.obj2 ) )
     {
 		if( is.matrix( bdgraph.obj2 ) ) est2 = bdgraph.obj2
@@ -28,7 +27,6 @@ compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 		est2[ lower.tri( est2, diag = TRUE ) ] = 0
 
 		result = cbind( result, compute_measures( G = G, est_G = est2 ) )
-		if( is.null( colnames ) ) colnames <- c( "True graph", "estimate", "estimate2" )
 	} 
 	
     if( !is.null( bdgraph.obj3 ) )
@@ -41,18 +39,25 @@ compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 		est3[ lower.tri( est3, diag = TRUE ) ] = 0
 
 		result = cbind( result, compute_measures( G = G, est_G = est3 ) )
-		if( is.null( colnames ) ) colnames <- c( "True graph", "estimate", "estimate2", "estimate3" )
 	} 
 	
-	result[ c( 3, 4, 6 ), 1 ] = 0
+	result[ c( 3, 4 ), 1 ] = 0
 	result[ 1, 1 ] = sum( G )
 	result[ 2, 1 ] = p * ( p - 1 ) / 2 - result[ 1, 1 ]  
 
 	result[ is.na( result ) ] = 0
 
+	if( is.null( colnames ) ) 
+	{
+		colnames = c( "True", "estimate" )
+		if( !is.null( bdgraph.obj2 ) ) colnames = c( colnames, "estimate2" )
+		if( !is.null( bdgraph.obj3 ) ) colnames = c( colnames, "estimate3" )
+	}
+		
 	colnames( result ) <- colnames
-	rownames( result ) <- c("true positive", "true negative", "false positive", "false negative", 
-                "true positive rate", "false positive rate", "accuracy", "balanced F-score", "positive predictive")
+
+	rownames( result ) <- c( "true positive", "true negative", "false positive", "false negative", 
+                             "F1-score", "specificity", "sensitivity", "MCC" )
 				
    if( vis )
    {
@@ -93,17 +98,14 @@ compute_measures = function( G, est_G )
 	tn_M = ( G == 0 ) * ( est_G == 0 )
 	tn   = sum( tn_M[ upper.tri( tn_M == 1 ) ] )
 	
-	# Precision is the probability that a randomly selected link is relevant 
-	Precision <- tp / ( tp + fp ) 
-	
-	# Recall is the probability that a randomly selected relevant link 	
-	Recall   <- tp / ( tp + fn )               # also called TPR
-	FPR      <- fp / ( fp + tn )               # False positive rate
-	Accuracy <- ( tp + tn ) / ( tp + tn + fp + fn )
-	
 	# harmonic mean of precision and recall, called F-measure or balanced F-score
-	F1score <- ( 2 * tp ) / ( 2 * tp + fp + fn )
+	F1score = ( 2 * tp ) / ( 2 * tp + fp + fn )
+
+	specificity  = tn / ( tn + fp )
+	sensitivity  = tp / ( tp + fn )
+	# Matthews Correlation Coefficients (MCC)
+	mcc          = ( ( tp * tn ) - ( fp * fn ) ) / ( sqrt( ( tp + fp ) * ( tp + fn ) ) * sqrt( ( tn + fp ) * ( tn + fn ) ) )
 	
-	return( c( tp, tn, fp, fn, Recall, FPR, Accuracy, F1score, Precision ) )
+	return( c( tp, tn, fp, fn, F1score, specificity, sensitivity, mcc ) )
 }
    

@@ -37,7 +37,7 @@ void gcgm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti
 	
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, counter;
 
-	double Dsijj, Dsjj, Dsij, K022, weight_C;
+	double Dsijj, Dsjj, Dsij, weight_C;
 	int i, j, ij, jj, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
 
 	vector<double> sigma( pxp ); 
@@ -138,13 +138,13 @@ void gcgm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti
 				Dijj  = - Dij * Dij / Djj;
 
 				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dsijj, &Dsij, &Dsjj );
 
 				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dijj, &Dij, &Djj );
@@ -222,7 +222,7 @@ void gcgm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double T
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, counter, size_sample_graph = *size_sample_g;
 	bool this_one;
 
-	double Dsijj, Dsjj, Dsij, K022, weight_C;
+	double Dsijj, Dsjj, Dsij, weight_C;
 	int i, j, ij, jj, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
 
 	vector<double> sigma( pxp ); 
@@ -322,13 +322,13 @@ void gcgm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double T
 				Dijj  = - Dij * Dij / Djj;
 
 				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dsijj, &Dsij, &Dsjj );
 
 				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dijj, &Dij, &Djj );
@@ -429,7 +429,7 @@ void gcgm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts
 	
 	int selected_edge_i, selected_edge_j, selected_edge_ij, counter;
 
-	double Dsijj, Dsjj, Dsij, K022, weight_C;
+	double Dsijj, Dsjj, Dsij, weight_C;
 	int i, j, ij, jj, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
 
 	vector<double> sigma( pxp ); 
@@ -533,13 +533,13 @@ void gcgm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts
 				Dijj  = - Dij * Dij / Djj;
 
 				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dsijj, &Dsij, &Dsjj );
 
 				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dijj, &Dij, &Djj );
@@ -622,7 +622,7 @@ void gcgm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double T
 	int selected_edge_i, selected_edge_j, selected_edge_ij, counter, size_sample_graph = *size_sample_g;
 	bool this_one;
 
-	double Dsijj, Dsjj, Dsij, K022, weight_C;
+	double Dsijj, Dsjj, Dsij, weight_C;
 	int i, j, ij, jj, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
 
 	vector<double> sigma( pxp ); 
@@ -725,13 +725,13 @@ void gcgm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double T
 				Dijj  = - Dij * Dij / Djj;
 
 				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dsijj, &Dsij, &Dsjj );
 
 				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
 					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
 					   &dim, &p1, &p2, &p2xp2, &jj,
 					   &Dijj, &Dij, &Djj );
@@ -835,7 +835,7 @@ void gcgm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti
 	
 	int randomEdge, counter, selected_edge_i, selected_edge_j;
 
-	double Dsijj, Dsjj, Dsij, K022;
+	double Dsijj, Dsjj, Dsij;
 	int i, j, ij, jj, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
@@ -931,13 +931,13 @@ void gcgm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		log_H_ij( &K[0], &sigma[0], &logH_ij, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
                &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
                &dim, &p1, &p2, &p2xp2, &jj,
                &Dsijj, &Dsij, &Dsjj );
 
 		log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
                &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
                &dim, &p1, &p2, &p2xp2, &jj,
                &Dijj, &Dij, &Djj );
@@ -999,7 +999,7 @@ void gcgm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double T
 	int randomEdge, counter, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
 	bool this_one;
 
-	double Dsijj, Dsjj, Dsij, K022;
+	double Dsijj, Dsjj, Dsij;
 	int i, j, ij, jj, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
@@ -1096,13 +1096,13 @@ void gcgm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double T
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		log_H_ij( &K[0], &sigma[0], &logH_ij, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
                &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
                &dim, &p1, &p2, &p2xp2, &jj,
                &Dsijj, &Dsij, &Dsjj );
 
 		log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K022, &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
+               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
                &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
                &dim, &p1, &p2, &p2xp2, &jj,
                &Dijj, &Dij, &Djj );

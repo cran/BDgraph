@@ -137,10 +137,15 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 				sigma[i, j] = ( 0.7 ) ^ abs( i - j )
 	
 		sigma = sigma + t( sigma ) + diag( p )
+		K     = solve( sigma )
+		G     = 1 * ( abs(K) > 0.2 ) 
 	}
 
 	if( graph == "AR2" )
+	{
 		K = toeplitz( c( 1, 0.5, 0.25, rep( 0, p - 3 ) ) )
+		G     = 1 * ( abs(K) > 0.2 ) 
+	}
 
 	if( graph == "star" )
 	{

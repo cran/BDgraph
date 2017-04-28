@@ -65,8 +65,7 @@ void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 // Likes A[(i,j), -(i,j)] in R ONLY FOR SYMMETRIC MATRICES
 void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
-	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col;
-	int sub0p = sub0 * pdim, sub1p = sub1 * pdim;
+	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col, sub0p = sub0 * pdim, sub1p = sub1 * pdim;
 
 	for( i = 0; i < sub0; i++ )
 	{
@@ -211,9 +210,9 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 	int i, ixp, ixp2, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
 	int sub0xp = sub0 * pdim, sub1xp = sub1 * pdim, sub0_plus = sub0 + 1, sub1_plus = sub1 + 1;
 	
-	double a11 = A[sub0 * pdim + sub0];
-	double a12 = A[sub0 * pdim + sub1];
-	double a22 = A[sub1 * pdim + sub1];
+	double a11 = A[ sub0 * pdim + sub0 ];
+	double a12 = A[ sub0 * pdim + sub1 ];
+	double a22 = A[ sub1 * pdim + sub1 ];
 
 	double det_A11 = a11 * a22 - a12 * a12;
 	A11_inv[0]     = a22 / det_A11;
@@ -421,67 +420,133 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 } 
          
 // ----------------------------------------------------------------------------|
+// Computing birth-death rates for BD-MCMC algorithm
+// ----------------------------------------------------------------------------|
+void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
+				   double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
+				   double K[], double K21[], double K121[], double Kj12[], 
+				   double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], double sigma21xsigma11_inv[],  
+				   int *b, int *p )
+{
+	int counter = 0, b1 = *b, i, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1;
+	double Dsjj, sum_diag, K022, a11, sigmajj_inv, log_rate;
+	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N', sideL = 'L';																	
+
+	for( int j = 1; j < dim; j++ )
+	{
+		jj   = j * dim1;
+		Dsjj = Ds[jj];
+		
+		sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
+
+		// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
+		// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+		sigmajj_inv = - 1.0 / sigma[jj];
+		F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
+
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			
+			// For (i,j) = 0 ----------------------------------------------|	
+			sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
+			Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
+
+			// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
+			F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+			
+			// K022 = Kj12xK22_inv %*% t(Kj12)
+			K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
+
+			// For (i,j) = 1 ----------------------------------------------|
+			sub_cols_mins( K, &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
+			
+			sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
+
+			// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
+			F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+
+			// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
+			F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
+
+			// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
+			F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+			
+			// K121 = K12xK22_inv %*% K21													
+			F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
+			// Finished (i,j) = 1------------------------------------------|
+
+			a11      = K[i * dim1] - K121[0];	
+			sum_diag = Dsjj * ( K022 - K121[3] ) - Ds[ij] * ( K121[1] + K121[2] );
+
+			// nu_star = b + sum( Gf[,i] * Gf[,j] )
+			nu_star = b1;
+			//for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k];   
+			for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
+			//nu_star = F77_NAME(ddot)( &dim, &G[0] + ixdim, &one, &G[0] + jxdim, &one );
+			nu_star = 0.5 * nu_star;
+
+			log_rate = ( G[ij] )   
+				? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag )
+				: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag );
+
+			rates[ counter++ ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
+		}
+	}
+}
+     
+// ----------------------------------------------------------------------------|
 // computing birth/death rate or alpha for element (i,j)
 // it is for double Metropolis-Hasting algorihtms
 void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
-               double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double *K022, double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
+               double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
                double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
                int *dim, int *p1, int *p2, int *p2xp2, int *jj,
                double *Dsijj, double *Dsij, double *Dsjj )
 {
-	int p1_here = *p1, p2_here = *p2, dim_here = *dim, one = 1, two = 2;
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
+	int one = 1, two = 2;
+	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N', sideL = 'L';																	
 	
-	double sigmaj11 = sigma[*jj];        // sigma[j, j]  
-	sub_matrices1( sigma, sigmaj12, sigmaj22, selected_edge_j, &dim_here );
+	//double sigmaj11 = sigma[*jj];        // sigma[j, j]  
+	sub_matrices1( sigma, sigmaj12, sigmaj22, selected_edge_j, dim );
 
 	// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-	for( int row = 0; row < p1_here; row++ )
-		for( int col = 0; col < p1_here; col++ )
-		{
-			int rowCol = col * p1_here + row;
-			Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-		}
+	// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+	double sigmajj_inv = - 1.0 / sigma[ *selected_edge_j * ( *dim + 1 ) ];
+	F77_NAME(dsyr)( &sideL, p1, &sigmajj_inv, sigmaj12, &one, sigmaj22, p1 );
 
-	// For (i,j) = 0 ------------------------------------------------------|
-	sub_row_mins( K, Kj12, selected_edge_j, &dim_here );  // K12 = K[j, -j]  
-	Kj12[ *selected_edge_i ] = 0.0;                        // K12[1,i] = 0
+	// For (i,j) = 0 ----------------------------------------------|	
+	sub_row_mins( K, Kj12, selected_edge_j, dim );  // K12 = K[j, -j]  
+	Kj12[ *selected_edge_i ] = 0.0;                       // K12[1,i] = 0
 
-	// K12 %*% K22_inv
-	F77_NAME(dgemm)( &transN, &transN, &one, &p1_here, &p1_here, &alpha, Kj12, &one, Kj22_inv, &p1_here, &beta, Kj12xK22_inv, &one );
-
-	// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12) 
-	F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1_here, &alpha, Kj12xK22_inv, &one, Kj12, &one, &beta, K022, &one );			
-
-	// For (i,j) = 1 ------------------------------------------------------|
-	// K12 = K[e, -e] 
-	sub_rows_mins( K, K12, selected_edge_i, selected_edge_j, &dim_here );  
+	// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
+	F77_NAME(dsymv)( &sideL, p1, &alpha, &sigmaj22[0], p1, Kj12, &one, &beta, Kj12xK22_inv, &one );
 	
-	sub_matrices( sigma, sigma11, sigma12, sigma22, selected_edge_i, selected_edge_j, &dim_here );
+	// K022 = Kj12xK22_inv %*% t(Kj12)
+	double K022 = F77_NAME(ddot)( p1, Kj12xK22_inv, &one, Kj12, &one );			
 
-	// solve( sigma[e, e] )
-	inverse_2x2( sigma11, sigma11_inv );
-
-	// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-	F77_NAME(dgemm)( &transT, &transN, &p2_here, &two, &two, &alpha, sigma12, &two, sigma11_inv, &two, &beta, sigma21xsigma11_inv, &p2_here );
-
-	// sigma21xsigma11_inv %*% sigma12
-	F77_NAME(dgemm)( &transN, &transN, &p2_here, &p2_here, &two, &alpha, sigma21xsigma11_inv, &p2_here, sigma12, &two, &beta, sigma2112, &p2_here );
-
-	// solve( K[-e, -e] ) = sigma22 - sigma2112
-	for( int k = 0; k < *p2xp2 ; k++ ) 
-		K22_inv[k] = sigma22[k] - sigma2112[k];	
+	// For (i,j) = 1 ----------------------------------------------|
+	sub_cols_mins( K, K12, selected_edge_i, selected_edge_j, dim );   // K21 = K[-e, e] 
 	
-	// K12 %*% K22_inv
-	F77_NAME(dgemm)( &transN, &transN, &two, &p2_here, &p2_here, &alpha, K12, &two, K22_inv, &p2_here, &beta, K12xK22_inv, &two );
+	sub_matrices_inv( sigma, sigma11_inv, sigma12, sigma22, selected_edge_i, selected_edge_j, dim );
 
-	// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e])															
-	F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2_here, &alpha, K12xK22_inv, &two, K12, &two, &beta, K121, &two );		
-	// Finished (i,j) = 1--------------------------------------------------|
+	// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
+	F77_NAME(dgemm)( &transN, &transN, p2, &two, &two, &alpha, sigma12, p2, sigma11_inv, &two, &beta, sigma21xsigma11_inv, p2 );
 
-	double a11      = K[*selected_edge_i * dim_here + *selected_edge_i] - K121[0];	
-	double sum_diag = *Dsjj * ( *K022 - K121[3] ) - *Dsij * ( K121[1] + K121[2] );
+	// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
+	F77_NAME(dgemm)( &transN, &transT, p2, p2, &two, &alpha1, sigma21xsigma11_inv, p2, sigma12, p2, &beta1, sigma22, p2 );
+
+	// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
+	F77_NAME(dgemm)( &transT, &transN, &two, p2, p2, &alpha, K12, p2, sigma22, p2, &beta, K12xK22_inv, &two );  
+	
+	// K121 = K12xK22_inv %*% K21													
+	F77_NAME(dgemm)( &transN, &transN, &two, &two, p2, &alpha, K12xK22_inv, &two, K12, p2, &beta, K121, &two );		
+	// Finished (i,j) = 1------------------------------------------|
+
+	double a11      = K[*selected_edge_i * *dim + *selected_edge_i] - K121[0];	
+	double sum_diag = *Dsjj * ( K022 - K121[3] ) - *Dsij * ( K121[1] + K121[2] );
 
 	// Dsijj = Dsii - Dsij * Dsij / Dsjj;
 	*log_Hij = ( log( static_cast<double>(*Dsjj) ) - log( static_cast<double>(a11) ) + *Dsijj * a11 - sum_diag ) / 2;
@@ -504,8 +569,7 @@ void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
 // For Hermitian matrix
 void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
-	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col;
-	int sub0p = sub0 * pdim, sub1p = sub1 * pdim;
+	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col, sub0p = sub0 * pdim, sub1p = sub1 * pdim;
 
 	for( i = 0; i < sub0; i++ )
 	{

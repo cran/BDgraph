@@ -51,8 +51,14 @@ extern "C" {
 	
 	void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp );
 
+	void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
+						   double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
+						   double K[], double K21[], double K121[], double Kj12[], 
+						   double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], double sigma21xsigma11_inv[],  
+						   int *b, int *p );
+
 	void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
-				   double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double *K022, double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
+				   double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
 				   double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
 				   int *dim, int *p1, int *p2, int *p2xp2, int *jj,
 				   double *Dsijj, double *Dsij, double *Dsjj );

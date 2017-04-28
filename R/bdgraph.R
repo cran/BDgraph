@@ -11,7 +11,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 
 	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data should be a matrix or dataframe" )
 	if( is.data.frame( data ) ) data <- data.matrix( data )
-	if( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
+	if( iter < burnin )   stop( "Number of iteration must be more than number of burn-in" )
 
 	if( any( is.na( data ) ) ) 
 	{

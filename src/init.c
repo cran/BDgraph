@@ -13,6 +13,8 @@ extern void dgm_bdmcmc_mpl_ma_multi_update(void *, void *, void *, void *, void 
 extern void dgm_bdmcmc_mpl_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_global_mpl_hc(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void dgm_rjmcmc_mpl_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void dgm_rjmcmc_mpl_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -41,6 +43,8 @@ extern void ggm_DMH_rjmcmc_ma(void *, void *, void *, void *, void *, void *, vo
 extern void ggm_DMH_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void ggm_rjmcmc_mpl_ma(void *, void *, void *, void *, void *, void *, void *, void *);
+extern void ggm_rjmcmc_mpl_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void log_exp_mc(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void log_mpl_dis(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void rcwish_c(void *, void *, void *, void *);
@@ -57,6 +61,8 @@ static const R_CMethodDef CEntries[] = {
     {"dgm_bdmcmc_mpl_map",               (DL_FUNC) &dgm_bdmcmc_mpl_map,               16},
     {"dgm_bdmcmc_mpl_map_multi_update",  (DL_FUNC) &dgm_bdmcmc_mpl_map_multi_update,  18},
     {"dgm_global_mpl_hc",                (DL_FUNC) &dgm_global_mpl_hc,                10},
+    {"dgm_rjmcmc_mpl_ma",                (DL_FUNC) &dgm_rjmcmc_mpl_ma,                12},
+    {"dgm_rjmcmc_mpl_map",               (DL_FUNC) &dgm_rjmcmc_mpl_map,               16},
     {"gcgm_bdmcmc_ma",                   (DL_FUNC) &gcgm_bdmcmc_ma,                   17},
     {"gcgm_bdmcmc_ma_multi_update",      (DL_FUNC) &gcgm_bdmcmc_ma_multi_update,      18},
     {"gcgm_bdmcmc_map",                  (DL_FUNC) &gcgm_bdmcmc_map,                  21},
@@ -85,6 +91,8 @@ static const R_CMethodDef CEntries[] = {
     {"ggm_DMH_rjmcmc_map",               (DL_FUNC) &ggm_DMH_rjmcmc_map,               18},
     {"ggm_rjmcmc_ma",                    (DL_FUNC) &ggm_rjmcmc_ma,                    12},
     {"ggm_rjmcmc_map",                   (DL_FUNC) &ggm_rjmcmc_map,                   16},
+    {"ggm_rjmcmc_mpl_ma",                (DL_FUNC) &ggm_rjmcmc_mpl_ma,                 8},
+    {"ggm_rjmcmc_mpl_map",               (DL_FUNC) &ggm_rjmcmc_mpl_map,               12},
     {"log_exp_mc",                       (DL_FUNC) &log_exp_mc,                        8},
     {"log_mpl_dis",                      (DL_FUNC) &log_mpl_dis,                      11},
     {"rcwish_c",                         (DL_FUNC) &rcwish_c,                          4},

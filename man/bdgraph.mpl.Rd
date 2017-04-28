@@ -1,6 +1,6 @@
 \name{bdgraph.mpl}
 \alias{bdgraph.mpl}
-
+        
 \title{	Search algorithm in graphical models based on marginal pseudo-likehlihood }
 \description{
 	As the main function of the \pkg{BDgraph} package, 

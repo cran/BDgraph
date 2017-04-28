@@ -33,30 +33,19 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double D[], double Ds[], int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	
-	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, counter;
+	int print_c = *print, iteration = *iter, burn_in = *burnin;
+	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
+	int i, j, ij, one = 1, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, dummy, weight_C;
-	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	double Dsij, weight_C, sum_weights = 0.0, sum_rates; 
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-	double sum_weights = 0.0;
-	double log_rate, sum_rates; 
-
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 	vector<double> K_hat_Cpp( pxp, 0.0 ); 
-	
-	vector<double> K121( 4 ); 
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
 
 	// Count size of notes
 	int ip;
@@ -68,10 +57,11 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	}
 
 	// For finding the index of rates 
+	int qp = dim * ( dim - 1 ) / 2;
 	vector<double> rates( qp );
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
-	counter = 0;
+	int counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
@@ -83,16 +73,15 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
+	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );             // K[e, -e]
+	vector<double> K121( 4 ); 
+	vector<double> K21( p2x2 );             // K[e, -e]
 	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
+	vector<double> sigma21( p2x2 );         // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -107,6 +96,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
+	vector<double> Dsijj( pxp ); 
 
 	GetRNGstate();
 //-- Main loop for birth-death MCMC sampling algorithm ------------------------| 
@@ -117,86 +107,27 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		// STEP 1: copula -----------------------------------------------------|
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
-		
-		counter = 0;
-		// STEP 2: calculating birth and death rates --------------------------|	
+
 		for( j = 1; j < dim; j++ )
-		{
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
-
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-						
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
-
-				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                        // K12[1,i] = 0
-
-				// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12)
-				K022 = 0.0;
-				for( row = 0; row < p1; row++ )
-				{
-					dummy = 0.0;
-					for( col = 0; col < row; col++ )
-						dummy += Kj12[col] * Kj22_inv[row * p1 + col];
-					
-					K022 += 2.0 * Kj12[row] * dummy + Kj12[row] * Kj12[row] * Kj22_inv[row * dim];
-				}	
-								
-				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
-
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
-
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 															
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-				// Finished (i,j) = 1------------------------------------------|
-
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = Dsjj * ( K022 - K121[3] ) - Dsij * ( K121[1] + K121[2] );
-
-				// nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star = b1;
-				//for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k];   
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
-				nu_star = 0.5 * nu_star;   
-				
-				log_rate = ( G[ij] )  
-					? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag )
-					: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag );	
-
-				rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
+				ij        = j * dim + i;
+				Dsij      = Ds[ij];
+				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 			}
-		}
+				
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
+		rates_bdmcmc( &rates[0], G, Ds, &Dsijj[0],
+                      &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
+                      &K[0], &K21[0], &K121[0], &Kj12[0], 
+                      &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
+                      b, &dim );
+
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
+		selected_edge_i = index_rates_row[ index_selected_edge ];
+		selected_edge_j = index_rates_col[ index_selected_edge ];
 
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -213,11 +144,6 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		} 
 //----- End of saving result --------------------------------------------------|	
 		
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -257,17 +183,14 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double D[], double Ds[], int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int count_all_g = 0;
+	int print_c = *print, iteration = *iter, burn_in = *burnin, count_all_g = 0;
+	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
+	int i, j, ij, one = 1, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	bool this_one;
+	double Dsij, weight_C, sum_weights = 0.0, sum_rates; 
+
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
-	
-	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, counter, size_sample_graph = *size_sample_g;
-	bool this_one;
-
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, weight_C;
-	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -276,14 +199,7 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<char> char_g( qp );              // char string_g[pp];
-	double sum_weights = 0.0;
-	double log_rate, sum_rates; 
 	
-	vector<double> K121( 4 ); 
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
-
 	// Count size of notes
 	int ip;
 	vector<int> size_node( dim, 0 );
@@ -297,7 +213,7 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 	vector<double> rates( qp );
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
-	counter = 0;
+	int counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
@@ -309,17 +225,15 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 	vector<double> Kj12( p1 );               // K[j, -j]
 	vector<double> sigmaj12( p1 );           // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );        // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );              // K[e, -e]
+	vector<double> K121( 4 ); 
+	vector<double> K21( p2x2 );              // K[e, -e]
 	vector<double> sigma11( 4 );             // sigma[e, e]
-	vector<double> sigma12( p2x2 );          // sigma[e, -e]
+	vector<double> sigma21( p2x2 );          // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );         // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -334,6 +248,7 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
+	vector<double> Dsijj( pxp ); 
 
 	GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm ----------------------| 
@@ -344,86 +259,34 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 		// STEP 1: copula -----------------------------------------------------|
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
-		
-		counter = 0;
-		// STEP 2: calculating birth and death rates --------------------------|
+
 		for( j = 1; j < dim; j++ )
-		{
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
-
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
-
-				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );    // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                          // K12[1,i] = 0
-
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
-				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
-				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
-
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
-
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-				// Finished (i,j) = 1------------------------------------------|
-
-				a11     = K[i * dim + i] - K121[0];	
-				sum_diag = Dsjj * ( K022 - K121[3] ) - Dsij * ( K121[1] + K121[2] );
-
-				// nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star = b1;
-				//for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k];   
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
-				nu_star = 0.5 * nu_star;   
-
-				log_rate = ( G[ij] )  
-					? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag )
-					: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag );	
-
-				rates[counter] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
-				
-				char_g[counter] = G[ij] + '0'; 
-				counter++; 
+				ij        = j * dim + i;
+				Dsij      = Ds[ij];
+				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 			}
-		}
+		
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
+		rates_bdmcmc( &rates[0], G, Ds, &Dsijj[0],
+                      &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
+                      &K[0], &K21[0], &K121[0], &Kj12[0], 
+                      &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
+                      b, &dim );
+
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
+		selected_edge_i = index_rates_row[ index_selected_edge ];
+		selected_edge_j = index_rates_col[ index_selected_edge ];
 
 //----- Saving result ---------------------------------------------------------|	
+		counter = 0;	
+		for( j = 1; j < dim; j++ )
+			for( i = 0; i < j; i++ )
+				char_g[counter++] = G[ j * dim + i ] + '0'; 
+
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -457,11 +320,6 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 		} 
 //----- End of saving result --------------------------------------------------|	
 		
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -505,14 +363,11 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int multi_update_C = *multi_update;
+	int print_c = *print, iteration = *iter, burn_in = *burnin, multi_update_C = *multi_update;
+	int selected_edge_i, selected_edge_j, selected_edge_ij;
+	int i, j, ij, one = 1, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 	
-	int selected_edge_i, selected_edge_j, selected_edge_ij, counter;
-
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, weight_C;
-	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	double Dsij, weight_C, sum_weights = 0.0, sum_rates; 
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -520,17 +375,10 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	inverse( &copyK[0], &sigma[0], &dim );			
 
 	int qp = dim * ( dim - 1 ) / 2;
-	double sum_weights = 0.0;
-	double log_rate, sum_rates; 
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 	vector<double> K_hat_Cpp( pxp, 0.0 ); 
 	
-	vector<double> K121( 4 ); 
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
-
 	// Count size of notes
 	int ip;
 	vector<int> size_node( dim, 0 );
@@ -544,7 +392,7 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	vector<double> rates( qp );
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
-	counter = 0;
+	int counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
@@ -556,17 +404,15 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	vector<double> Kj12( p1 );               // K[j, -j]
 	vector<double> sigmaj12( p1 );           // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );        // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );              // K[e, -e]
+	vector<double> K121( 4 ); 
+	vector<double> K21( p2x2 );              // K[e, -e]
 	vector<double> sigma11( 4 );             // sigma[e, e]
-	vector<double> sigma12( p2x2 );          // sigma[e, -e]
+	vector<double> sigma21( p2x2 );          // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );         // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -581,6 +427,7 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
+	vector<double> Dsijj( pxp ); 
 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
@@ -594,81 +441,25 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 		// STEP 1: copula -----------------------------------------------------|
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
-		
-		counter = 0;	
-		// STEP 2: calculating birth and death rates --------------------------|
+
 		for( j = 1; j < dim; j++ )
-		{
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
-
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
-
-				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );   // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                         // K12[1,i] = 0
-
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
-				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
-				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
-
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
-
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 															
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-				// Finished (i,j) = 1------------------------------------------|
-
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = - Dsij * ( K121[1] + K121[2] ) + Dsjj * ( K022 - K121[3] );
-
-				// nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star = b1;
-				//for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k];   
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
-				nu_star = 0.5 * nu_star;   
-
-				log_rate = ( G[ij] )  
-					? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag )
-					: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag );	
-
-				rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
+				ij        = j * dim + i;
+				Dsij      = Ds[ij];
+				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 			}
-		}
+				
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
+		rates_bdmcmc( &rates[0], G, Ds, &Dsijj[0],
+                      &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
+                      &K[0], &K21[0], &K121[0], &Kj12[0], 
+                      &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
+                      b, &dim );
+
+		// Selecting multiple edges based on birth and death rates
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -685,9 +476,6 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], 
 		} 
 //----- End of saving result --------------------------------------------------|	
 		
-		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
-
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
@@ -735,16 +523,16 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 {
 	int print_c = *print;
 	int multi_update_C = *multi_update;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
+	int iteration = *iter, burn_in = *burnin;
 	int count_all_g = *counter_all_g;
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
 	
-	int selected_edge_i, selected_edge_j, selected_edge_ij, counter, size_sample_graph = *size_sample_g;
+	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
 	bool this_one;
 
-	double Dsjj, Dsij, sum_diag, K022, a11, sigmaj11, weight_C;
-	int row, col, rowCol, i, j, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	double Dsij, weight_C;
+	int i, j, ij, one = 1, dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -754,12 +542,9 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<char> char_g( qp );              // char string_g[pp];
 	double sum_weights = 0.0;
-	double log_rate, sum_rates; 
+	double sum_rates; 
 	
 	vector<double> K121( 4 ); 
-
-	double alpha = 1.0, beta = 0.0;
-	char transT = 'T', transN = 'N';																	
 
 	// Count size of notes
 	int ip;
@@ -774,7 +559,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 	vector<double> rates( qp );
 	vector<int> index_rates_row( qp );
 	vector<int> index_rates_col( qp );
-	counter = 0;
+	int counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
@@ -786,17 +571,14 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 	vector<double> Kj12( p1 );               // K[j, -j]
 	vector<double> sigmaj12( p1 );           // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );        // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 
-	vector<double> K12( p2x2 );              // K[e, -e]
+	vector<double> K21( p2x2 );              // K[e, -e]
 	vector<double> sigma11( 4 );             // sigma[e, e]
-	vector<double> sigma12( p2x2 );          // sigma[e, -e]
+	vector<double> sigma21( p2x2 );          // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );         // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -811,6 +593,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
 	// ----------------------------------------
+	vector<double> Dsijj( pxp ); 
 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
@@ -824,86 +607,32 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 		// STEP 1: copula -----------------------------------------------------|
 		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
-		
-		counter = 0;
-		// STEP 2: calculating birth and death rates --------------------------|
+
 		for( j = 1; j < dim; j++ )
-		{
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
-
-			sigmaj11 = sigma[jj];        // sigma[j, j]  
-			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
-
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			for( row = 0; row < p1; row++ )
-				for( col = 0; col < p1; col++ )
-				{
-					rowCol = col * p1 + row;
-					Kj22_inv[rowCol] = sigmaj22[rowCol] - sigmaj12[row] * sigmaj12[col] / sigmaj11;
-				}
-			
 			for( i = 0; i < j; i++ )
 			{
-				ij   = j * dim + i;
-				Dsij = Ds[ij];
-
-				// For (i,j) = 0 ----------------------------------------------|
-				sub_row_mins( K, &Kj12[0], &j, &dim );  // K12 = K[j, -j]  
-				Kj12[ i ] = 0.0;                        // K12[1,i] = 0
-
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &Kj12[0], &one, &Kj22_inv[0], &p1, &beta, &Kj12xK22_inv[0], &one );
-				
-				// K022  <- K_12 %*% solve( K0[-j, -j] ) %*% t(K_12)
-				F77_NAME(dgemm)( &transN, &transT, &one, &one, &p1, &alpha, &Kj12xK22_inv[0], &one, &Kj12[0], &one, &beta, &K022, &one );			
-
-				// For (i,j) = 1 ----------------------------------------------|
-				sub_rows_mins( K, &K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
-				
-				sub_matrices( &sigma[0], &sigma11[0], &sigma12[0], &sigma22[0], &i, &j, &dim );
-
-				// solve( sigma[e, e] )
-				inverse_2x2( &sigma11[0], &sigma11_inv[0] );
-
-				// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-				F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &sigma12[0], &two, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
-
-				// sigma21xsigma11_inv %*% sigma12
-				F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &sigma21xsigma11_inv[0], &p2, &sigma12[0], &two, &beta, &sigma2112[0], &p2 );
-
-				// solve( K[-e, -e] ) = sigma22 - sigma2112
-				for( k = 0; k < p2xp2 ; k++ ) 
-					K22_inv[k] = sigma22[k] - sigma2112[k];	
-				
-				// K12 %*% K22_inv
-				F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &K12[0], &two, &K22_inv[0], &p2, &beta, &K12xK22_inv[0], &two );
-				
-				// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 														
-				F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K12[0], &two, &beta, &K121[0], &two );		
-				// Finished (i,j) = 1------------------------------------------|
-
-				a11      = K[i * dim + i] - K121[0];	
-				sum_diag = - Dsij * ( K121[1] + K121[2] ) + Dsjj * ( K022 - K121[3] );
-
-				// nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star = b1;
-				//for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k];   
-				for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
-				nu_star = 0.5 * nu_star;   
-
-				log_rate = ( G[ij] )  
-					? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag )
-					: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsij * Dsij * a11 / Dsjj + sum_diag );	
-
-				rates[counter] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
-				
-				char_g[counter] = G[ij] + '0'; 
-				counter++; 
+				ij        = j * dim + i;
+				Dsij      = Ds[ij];
+				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
 			}
-		}
+				
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
+		rates_bdmcmc( &rates[0], G, Ds, &Dsijj[0],
+                      &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
+                      &K[0], &K21[0], &K121[0], &Kj12[0], 
+                      &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
+                      b, &dim );
+
+		// Selecting multiple edges based on birth and death rates
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
 
 //----- Saving result ---------------------------------------------------------|	
+		counter = 0;	
+		for( j = 1; j < dim; j++ )
+			for( i = 0; i < j; i++ )
+				char_g[counter++] = G[ j * dim + i ] + '0'; 
+
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -937,9 +666,6 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[],
 		} 
 //----- End of saving result --------------------------------------------------|	
 		
-		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
-
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{

@@ -32,7 +32,7 @@ traceplot      Trace plot of graph size
 Whenever using this package, please cite as
 \preformatted{
 Mohammadi A. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 3.34, 
+Graphical Models using Birth-Death MCMC, R package version 3.36, 
 https://CRAN.R-project.org/package=BDgraph
 }
 }
