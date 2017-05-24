@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------|
-//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
 //
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
   
 #include "copula.h"
@@ -39,8 +39,8 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
 		kj = col * number + k;
 		ij = col * number + row;
 		
-     // if( R[k, j] < R[i, j] ) lb = max( Z[ k, j], lb )
-	 // if( R[k, j] > R[i, j] ) ub = min( Z[ k, j], ub )										
+		// if( R[k, j] < R[i, j] ) lb = max( Z[ k, j], lb )
+		// if( R[k, j] > R[i, j] ) ub = min( Z[ k, j], ub )										
 		if( R[kj] < R[ij] ) 
 			low_b = max( Z[kj], low_b );	
 		else if( R[kj] > R[ij] ) 
@@ -55,31 +55,33 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
 void copula( double Z[], double K[], int R[], int *n, int *p )
 {
 	int number = *n, dim = *p;
-	double sigma, sd_j, mu_ij;
 	
-	double lb, ub;
-	double runif_value, pnorm_lb, pnorm_ub;
-	
-	for( int j = 0; j < dim; j++ )
-	{   
-		sigma = 1 / K[j * dim + j];
-		sd_j   = sqrt( sigma );
+	#pragma omp parallel
+	{	
+		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
 		
-		// interval and sampling
-		for( int i = 0; i < number; i++ )
-		{
-			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+		#pragma omp for
+		for( int j = 0; j < dim; j++ )
+		{   
+			sigma = 1 / K[j * dim + j];
+			sd_j  = sqrt( sigma );
 			
-			get_bounds( Z, R, &lb, &ub, &i, &j, &number );
-			
-			// runif_value = runif( 1, pnorm( lower_bound, mu_ij, sd_j ), pnorm( upper_bound, mu_ij, sd_j ) )
-			// Z[i,j]     = qnorm( runif_value, mu_ij, sd_j )									
-			//GetRNGstate();
-			pnorm_lb          = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-			pnorm_ub          = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-			runif_value       = runif( pnorm_lb, pnorm_ub );
-			Z[j * number + i] = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
-			//PutRNGstate();				
+			// interval and sampling
+			for( int i = 0; i < number; i++ )
+			{
+				get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+				
+				get_bounds( Z, R, &lb, &ub, &i, &j, &number );
+				
+				// runif_value = runif( 1, pnorm( lower_bound, mu_ij, sd_j ), pnorm( upper_bound, mu_ij, sd_j ) )
+				// Z[i,j]     = qnorm( runif_value, mu_ij, sd_j )									
+				//GetRNGstate();
+				pnorm_lb          = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
+				pnorm_ub          = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+				runif_value       = runif( pnorm_lb, pnorm_ub );
+				Z[j * number + i] = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
+				//PutRNGstate();				
+			}
 		}
 	}
 }
@@ -114,32 +116,37 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
 void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 {
 	int ij, number = *n, dim = *p;
-	double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
+
+	#pragma omp parallel
+	{	
+		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
 	
-	for( int j = 0; j < dim; j++ )
-	{   
-		sigma = 1 / K[j * dim + j];
-		sd_j   = sqrt( sigma );
-		
-		// interval and sampling
-		for( int i = 0; i < number; i++ )
-		{
-			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+		#pragma omp for
+		for( int j = 0; j < dim; j++ )
+		{   
+			sigma = 1 / K[j * dim + j];
+			sd_j  = sqrt( sigma );
 			
-			ij = j * number + i;
-			//GetRNGstate();
-			if( R[ij] != 0 )
+			// interval and sampling
+			for( int i = 0; i < number; i++ )
 			{
-				get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
+				get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
 				
-				pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-				pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-				runif_value = runif( pnorm_lb, pnorm_ub );
-				Z[ij]       = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
-			} 
-			else 
-				Z[ij] = rnorm( mu_ij, sd_j );
-			//PutRNGstate();				
+				ij = j * number + i;
+				//GetRNGstate();
+				if( R[ij] != 0 )
+				{
+					get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
+					
+					pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
+					pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+					runif_value = runif( pnorm_lb, pnorm_ub );
+					Z[ij]       = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
+				} 
+				else 
+					Z[ij] = rnorm( mu_ij, sd_j );
+				//PutRNGstate();				
+			}
 		}
 	}
 }
@@ -149,10 +156,8 @@ void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[
 {
 	int gcgm_check = *gcgm, dim = *p, pxp = dim * dim;
 
-	if( gcgm_check == 0 )
-		copula( Z, K, R, n, &dim );
-	else
-		copula_NA( Z, K, R, n, &dim );
+	//if( gcgm_check == 0 ) copula( Z, K, R, n, &dim ); else	copula_NA( Z, K, R, n, &dim );
+	( gcgm_check == 0 ) ? copula( Z, K, R, n, &dim ) : copula_NA( Z, K, R, n, &dim );
 	
 	// S <- t(Z) %*% Z
 	// Here, I'm using Ds instead of S, for saving memory

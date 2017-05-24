@@ -5,10 +5,11 @@
 \description{
 	As the main function of the \pkg{BDgraph} package, 
 	this function consists of several sampling algorithms for Bayesian model determination in undirected graphical models. % based on birth-death MCMC method. 
+	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-         burnin = iter / 2, g.start = "empty", prior.df = 3, 
+         burnin = iter / 2, g.start = "empty", g.space = NULL, prior.df = 3, 
          multi.update = NULL, save.all = FALSE, print = 1000 )
 }
 
@@ -43,6 +44,12 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
 		It also could be an object with \code{S3} class \code{"bdgraph"}; 
 		with this option we could run the sampling algorithm from the last objects of previous run (see examples).     
+	} 
+	\item{g.space}{
+		Corresponds to the sub-space of the graph. 
+		For the case \code{ g.start = "NULL"} (defult), algorithm search in the hole graph space. 
+		With this option, one could run the search algorithm only to the restricted subspace of the graph.
+		Subspace should determine as an adjacency matrix.
 	} 
 
 	\item{prior.df}{

@@ -1,12 +1,13 @@
 \name{bdgraph.sim}
 \alias{bdgraph.sim}
 
-\title{ Synthetic graph data generator }
+\title{ Graph data simulation }
 
 \description{
-Implements a synthetic graph data generation for multivariate distributions with different types of underlying graph structures, including 
+Simulating multivariate distributions with different types of underlying graph structures, including 
 \code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"hub"}, \code{"fixed"}, \code{"circle"}, \code{"AR(1)"}, \code{"AR(2)"}, and \code{"star"}. 
-Based on the underling graph structure, it generates four different types of datasets, including \emph{multivariate Gaussian}, \emph{non-Gaussian}, \emph{discrete}, or \emph{mixed} data.  
+Based on the underling graph structure, it generates four different types of datasets, including \emph{multivariate Gaussian}, \emph{non-Gaussian}, \emph{discrete}, or \emph{mixed} data. 
+This function can be used also for only simulating graphs by option \code{n=0}, as a default. 
 }
 
 \usage{

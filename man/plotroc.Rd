@@ -7,9 +7,11 @@
 Draws the ROC curve according to the true graph structure for object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
 }
 
-\usage{ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
-                 bdgraph.obj4 = NULL, cut = 20, smooth = FALSE, label = TRUE, 
-                 main = "ROC Curve" ) }
+\usage{ 
+plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
+         bdgraph.obj4 = NULL, cut = 20, smooth = FALSE, label = TRUE, 
+         main = "ROC Curve" ) 
+}
 
 \arguments{
   \item{sim.obj}{

@@ -9,7 +9,7 @@
 //     Lang Liu:            liulang13@mails.tsinghua.edu.cn
 //     Nicholas Foti:       nfoti@uw.edu
 //     Alex Tank:           atank18@gmail.com
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
 #include <R.h>
 #include <Rmath.h>

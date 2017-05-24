@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------|
-//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
 //
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
   
 #include "matrix.h"
@@ -420,37 +420,53 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 } 
          
 // ----------------------------------------------------------------------------|
-// Computing birth-death rates for BD-MCMC algorithm
+// Parallel Computation for birth-death rates for BD-MCMC algorithm
 // ----------------------------------------------------------------------------|
-void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
-				   double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
-				   double K[], double K21[], double K121[], double Kj12[], 
-				   double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], double sigma21xsigma11_inv[],  
-				   int *b, int *p )
+void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
+				            double sigma[], double K[], int *b, int *p )
 {
-	int counter = 0, b1 = *b, i, k, ij, jj, nu_star, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1;
-	double Dsjj, sum_diag, K022, a11, sigmajj_inv, log_rate;
+	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = ( dim - 2 ) * 2;
 	double alpha = 1.0, beta = 0.0, alpha1 = -1.0, beta1 = 1.0;
 	char transT = 'T', transN = 'N', sideL = 'L';																	
 
-	for( int j = 1; j < dim; j++ )
+	#pragma omp parallel
 	{
-		jj   = j * dim1;
-		Dsjj = Ds[jj];
+		int i, j, k, ij, jj, nu_star;
+		double Dsjj, sum_diag, K022, a11, sigmajj_inv, log_rate;
+
+		double *K121         = new double[ 4 ];  
+		double *Kj12         = new double[ p1 ];  
+		double *sigmaj12     = new double[ p1 ];  
+		double *sigmaj22     = new double[ p1 * p1 ];  
+		double *Kj12xK22_inv = new double[ p1 ];  
 		
-		sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
+		double *K21                 = new double[ p2x2 ];  
+		double *sigma21             = new double[ p2x2 ];  
+		double *sigma22             = new double[ p2 * p2 ];  
+		double *sigma11_inv         = new double[ 4 ];  
+		double *sigma21xsigma11_inv = new double[ p2x2 ];  
+		double *K12xK22_inv         = new double[ p2x2 ];  
 
-		// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-		// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
-		sigmajj_inv = - 1.0 / sigma[jj];
-		F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
-
-		for( i = 0; i < j; i++ )
+		#pragma omp for
+		for( int counter = 0; counter < *sub_qp; counter++ )
 		{
+			i = index_row[ counter ];
+			j = index_col[ counter ];
+
+			jj   = j * dim1;
+			Dsjj = Ds[jj];
+			
+			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
+
+			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			sigmajj_inv = - 1.0 / sigma[jj];
+			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
+
 			ij = j * dim + i;
 			
 			// For (i,j) = 0 ----------------------------------------------|	
-			sub_row_mins( K, &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
+			sub_row_mins( &K[0], &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
 			Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
 
 			// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
@@ -460,7 +476,7 @@ void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
 			K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 
 			// For (i,j) = 1 ----------------------------------------------|
-			sub_cols_mins( K, &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
+			sub_cols_mins( &K[0], &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
 			
 			sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
 
@@ -491,8 +507,21 @@ void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
 				? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag )
 				: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag );
 
-			rates[ counter++ ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
+			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 		}
+		delete[] K121;  
+		delete[] Kj12;  
+		delete[] sigmaj12;  
+		delete[] sigmaj22;  
+		delete[] Kj12xK22_inv;  
+		
+		delete[] K21;  
+		delete[] sigma21;  
+		delete[] sigma22;  
+		delete[] sigma11_inv;  
+		delete[] sigma21xsigma11_inv;  
+		delete[] K12xK22_inv;  
+
 	}
 }
      
@@ -500,9 +529,9 @@ void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
 // computing birth/death rate or alpha for element (i,j)
 // it is for double Metropolis-Hasting algorihtms
 void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
-               double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
-               double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
-               int *dim, int *p1, int *p2, int *p2xp2, int *jj,
+               double Kj12[], double Kj12xK22_inv[], double K12[], double K12xK22_inv[], double K121[], 
+               double sigmaj12[], double sigmaj22[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[],
+               int *dim, int *p1, int *p2, int *jj,
                double *Dsijj, double *Dsij, double *Dsjj )
 {
 	int one = 1, two = 2;
@@ -551,7 +580,87 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	// Dsijj = Dsii - Dsij * Dsij / Dsjj;
 	*log_Hij = ( log( static_cast<double>(*Dsjj) ) - log( static_cast<double>(a11) ) + *Dsijj * a11 - sum_diag ) / 2;
 }    
+     
+// ----------------------------------------------------------------------------|
+// Parallel Computation for birth-death rates for double BD-MCMC algorithm
+// ----------------------------------------------------------------------------|
+void rates_bdmcmc_dmh_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
+				            double sigma[], double K[], double sigma_dmh[], 
+				            double K_dmh[], int *b, int *p )
+{
+	int dim = *p, p1 = dim - 1, p2 = dim - 2, p2x2 = ( dim - 2 ) * 2;
 
+	#pragma omp parallel
+	{
+		int index_rate_j, i, j, ij, jj;
+		double Dsjj, Dsij, Dsijj, Dij, Dijj, Djj, log_rate;
+
+		double *K121         = new double[ 4 ];  
+		double *Kj12         = new double[ p1 ];  
+		double *sigmaj12     = new double[ p1 ];  
+		double *sigmaj22     = new double[ p1 * p1 ];  
+		double *Kj12xK22_inv = new double[ p1 ];  
+		double *K21                 = new double[ p2x2 ];  
+		double *sigma12             = new double[ p2x2 ];  
+		double *sigma22             = new double[ p2 * p2 ];  
+		double *sigma11_inv         = new double[ 4 ];  
+		double *sigma21xsigma11_inv = new double[ p2x2 ];  
+		double *K12xK22_inv         = new double[ p2x2 ];
+		
+		double *K12                 = new double[ p2x2 ];
+  
+		#pragma omp for
+		for( j = 1; j < dim; j++ )
+		{			
+			index_rate_j = ( j * ( j - 1 ) ) / 2;
+
+			jj   = j * dim + j;
+			Dsjj = Ds[jj];
+			Djj  = D[jj];
+
+			for( i = 0; i < j; i++ )
+			{
+				ij    = j * dim + i;
+				Dsij  = Ds[ij];
+				Dsijj = - Dsij * Dsij / Dsjj;
+				Dij   = D[ij];
+				Dijj  = - Dij * Dij / Djj;
+
+				double logH_ij, logI_p;
+				
+				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
+					   &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K12xK22_inv[0], &K121[0], 
+					   &sigmaj12[0], &sigmaj22[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],
+					   &dim, &p1, &p2, &jj,
+					   &Dsijj, &Dsij, &Dsjj );
+
+				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
+					   &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K12xK22_inv[0], &K121[0], 
+					   &sigmaj12[0], &sigmaj22[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],
+					   &dim, &p1, &p2, &jj,
+					   &Dijj, &Dij, &Djj );
+				
+				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
+				rates[ index_rate_j + i ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
+			}
+		}	
+		
+		delete[] K121;  
+		delete[] Kj12;  
+		delete[] sigmaj12;  
+		delete[] sigmaj22;  
+		delete[] Kj12xK22_inv;  		
+		delete[] K21;  
+		delete[] sigma12;  
+		delete[] sigma22;  
+		delete[] sigma11_inv;  
+		delete[] sigma21xsigma11_inv;  
+		delete[] K12xK22_inv;  
+		delete[] K12;  
+
+	}
+}
+     	
 // -------------- NEW for Lang codes ------------------------------------------|
 // For Hermitian matrix
 void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )

@@ -1,7 +1,7 @@
 \name{compare}
 \alias{compare}
 
-\title{ Compares graph structures }
+\title{ Graph structure comparison }
 
 \description{ This function provides several measures to assess the performance of the graphical structure learning. }
 

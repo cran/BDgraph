@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------|
-//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
 //
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
 #include <sstream>
 #include <string>        // std::string, std::to_string
@@ -23,71 +23,29 @@
 using namespace std;
 
 extern "C" {
+
 // ----------------------------------------------------------------------------|
 // birth-death MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
+void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double Ti[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], double D[], int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-
+	int print_c = *print, iteration = *iter, burn_in = *burnin, b1 = *b;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
-	int i, j, ij, jj, counter;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
-
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, weight_C;
-	double log_rate, sum_rates;
-	
-	vector<double> p_links_Cpp( pxp, 0.0 ); 
-	vector<double> K_hat_Cpp( pxp, 0.0 ); 
-	
+	int ip, i, j, counter, dim = *p, pxp = dim * dim, one = 1;
+	int qp = dim * ( dim - 1 ) / 2;															
+	double sum_weights = 0.0, weight_C, sum_rates;
+		
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
-
-	// Counting size of notes
-	int ip;
-	vector<int> size_node( dim, 0 );
-	for( i = 0; i < dim; i++ )
-	{
-		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
-	}
 	
-	// For finding the index of rates 
-	int qp = dim * ( dim - 1 ) / 2;															
-	vector<double> rates( qp );
-	vector<int> index_rates_row( qp );
-	vector<int> index_rates_col( qp );
-	counter = 0;
-	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-		{
-			index_rates_row[counter] = i;
-			index_rates_col[counter] = j;
-			counter++;
-		}
-
-	vector<double> K121( 4 ); 
-	vector<double> Kj12( p1 );              // K[j, -j]
-	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
-	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
-	vector<double> Kj12xK22_inv( p1 ); 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
-	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
-	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
-	vector<double> K12xK22_inv( p2x2 );   
+	vector<double> p_links_Cpp( pxp, 0.0 ); 
+	vector<double> K_hat_Cpp( pxp, 0.0 ); 
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
@@ -99,49 +57,47 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 	// ----------------------------------------
 	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
-	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 
+	// Counting size of notes
+	vector<int> size_node( dim, 0 );
+	for( i = 0; i < dim; i++ )
+	{
+		ip = i * dim;
+		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+	}
+	
+	// For finding the index of rates 
+	vector<double> rates( qp );
+	vector<int> index_row( qp );
+	vector<int> index_col( qp );
+	counter = 0;
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
+
+//-- Main loop for birth-death MCMC -------------------------------------------| 
 	GetRNGstate();
-	// main loop for birth-death MCMC sampling algorithm ----------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 		
-		counter = 0;
-		// STEP 1: calculating birth and death rates --------------------------|		
-		for( j = 1; j < dim; j++ )
-		{			
-			jj   = j * dim + j;
-			Dsjj = Ds[jj];
-			Djj  = D[jj];
+		rates_bdmcmc_dmh_parallel( &rates[0], &G[0], &index_row[0], &index_col[0], &sub_qp, &Ds[0], &D[0], &sigma[0], &K[0], &sigma_dmh[0], &K_dmh[0], b, &dim );
 
-			for( i = 0; i < j; i++ )
-			{
-				ij    = j * dim + i;
-				Dsij  = Ds[ij];
-				Dsijj = - Dsij * Dsij / Dsjj;
-				Dij   = D[ij];
-				Dijj  = - Dij * Dij / Djj;
-
-				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dsijj, &Dsij, &Dsjj );
-
-				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dijj, &Dij, &Djj );
-				
-				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
-				rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
-			}
-		}	
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
+		selected_edge_i = index_row[ index_selected_edge ];
+		selected_edge_j = index_col[ index_selected_edge ];
 
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -158,11 +114,6 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 		} 
 //----- End of saving result --------------------------------------------------|	
 			
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -179,10 +130,11 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 			--size_node[selected_edge_j]; 
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|
+//------ STEP 2: Sampling from G-Wishart for new graph ------------------------|
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
-	} // End of MCMC sampling algorithm ---------------------------------------| 
+	}  
 	PutRNGstate();
+//-- End of main loop for birth-death MCMC ------------------------------------| 
 
 	for( i = 0; i < pxp; i++ )
 	{	
@@ -196,71 +148,27 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 // Based on Double Metropolis-Hastings
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
+void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double Ti[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], double D[], int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int count_all_g = 0;
+	int print_c = *print, iteration = *iter, burn_in = *burnin, b1 = *b, count_all_g = 0;
+	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
+	int ip, i, j, ij, counter, dim = *p, pxp = dim * dim, one = 1;
+	int qp = dim * ( dim - 1 ) / 2;
+	double sum_weights = 0.0, weight_C, sum_rates;
+	bool this_one;
+	
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
-	
-	bool this_one;
-
-	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int i, j, ij, jj, counter;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
-
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, weight_C;
-	double log_rate, sum_rates;
+	vector<char> char_g( qp );              // char string_g[pp];																
 	
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-	vector<char> char_g( qp );              // char string_g[pp];																
-
-	// Counting size of notes
-	int ip;
-	vector<int> size_node( dim, 0 );
-	for( i = 0; i < dim; i++ )
-	{
-		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
-	}
-	
-	// For finding the index of rates 
-	vector<double> rates( qp );
-	vector<int> index_rates_row( qp );
-	vector<int> index_rates_col( qp );
-	counter = 0;
-	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-		{
-			index_rates_row[counter] = i;
-			index_rates_col[counter] = j;
-			counter++;
-		}
-
-	vector<double> K121( 4 ); 
-	vector<double> Kj12( p1 );              // K[j, -j]
-	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
-	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
-	vector<double> Kj12xK22_inv( p1 ); 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
-	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
-	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
-	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
@@ -272,55 +180,54 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 	// ----------------------------------------
 	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
-	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 	// ----------------------------
 
+	// Counting size of notes
+	vector<int> size_node( dim, 0 );
+	for( i = 0; i < dim; i++ )
+	{
+		ip = i * dim;
+		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+	}
+	
+	// For finding the index of rates 
+	vector<double> rates( qp );
+	vector<int> index_row( qp );
+	vector<int> index_col( qp );
+	counter = 0;
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
+
+//-- Main loop for birth-death MCMC -------------------------------------------| 
 	GetRNGstate();
-	// main loop for birth-death MCMC sampling algorithm ----------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 		
-		counter = 0;
-		// STEP 1: calculating birth and death rates --------------------------|		
-		for( j = 1; j < dim; j++ )
-		{			
-			jj    = j * dim + j;
-			Dsjj  = Ds[jj];
-			Djj  = D[jj];
+		rates_bdmcmc_dmh_parallel( &rates[0], &G[0], &index_row[0], &index_col[0], &sub_qp, &Ds[0], &D[0], &sigma[0], &K[0], &sigma_dmh[0], &K_dmh[0], b, &dim );
 
-			for( i = 0; i < j; i++ )
-			{
-				ij    = j * dim + i;
-				Dsij  = Ds[ij];
-				Dsijj = - Dsij * Dsij / Dsjj;
-				Dij   = D[ij];
-				Dijj  = - Dij * Dij / Djj;
-
-				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dsijj, &Dsij, &Dsjj );
-
-				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dijj, &Dij, &Djj );
-
-				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
-				rates[counter] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
-				
-				char_g[counter] = G[ij] + '0'; 
-				counter++; 
-			}
-		}	
+		// Selecting an edge based on birth and death rates
+		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
+		selected_edge_i = index_row[ index_selected_edge ];
+		selected_edge_j = index_col[ index_selected_edge ];
 
 //----- saving result ---------------------------------------------------------|	
+		counter = 0;
+		for( j = 1; j < dim; j++ )
+			for( i = 0; i < j; i++ )
+				char_g[counter++] = G[ij] + '0'; 
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -354,11 +261,6 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 		} 
 //----- End of saving result --------------------------------------------------|	
 			
-		// Selecting an edge based on birth and death rates
-		select_edge( &rates[0], &index_selected_edge, &sum_rates, &qp );
-		selected_edge_i = index_rates_row[ index_selected_edge ];
-		selected_edge_j = index_rates_col[ index_selected_edge ];
-
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 		G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -375,10 +277,11 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 			--size_node[selected_edge_j]; 
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|
+//------ STEP 2: Sampling from G-Wishart for new graph ------------------------|
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
-	} // End of MCMC sampling algorithm ---------------------------------------| 
+	}  
 	PutRNGstate();
+//-- End of main loop for birth-death MCMC ------------------------------------| 
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
@@ -397,20 +300,15 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 // Based on Double Metropolis-Hastings
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
+void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], double Ts[], double Ti[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], double D[], int *multi_update, int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int multi_update_C = *multi_update;
-
+	int print_c = *print, iteration = *iter, burn_in = *burnin, b1 = *b, multi_update_C = *multi_update;
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
-	int i, j, ij, jj, counter;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
-
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, weight_C;
-	double log_rate, sum_rates;
+	int ip, i, j, counter = 0, dim = *p, pxp = dim * dim, one = 1;
+	int qp = dim * ( dim - 1 ) / 2;																	
+	double sum_weights = 0.0, weight_C, sum_rates;
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 	vector<double> K_hat_Cpp( pxp, 0.0 ); 
@@ -420,45 +318,6 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;																	
-
-	// Count size of notes
-	int ip;
-	vector<int> size_node( dim, 0 );
-	for( i = 0; i < dim; i++ )
-	{
-		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
-	}
-
-	// For finding the index of rates 
-	vector<double> rates( qp );
-	vector<int> index_rates_row( qp );
-	vector<int> index_rates_col( qp );
-	counter = 0;
-	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-		{
-			index_rates_row[counter] = i;
-			index_rates_col[counter] = j;
-			counter++;
-		}
-
-	vector<double> K121( 4 ); 
-	vector<double> Kj12( p1 );              // K[j, -j]
-	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
-	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
-	vector<double> Kj12xK22_inv( p1 ); 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
-	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
-	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
-	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
@@ -470,56 +329,48 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 	// ----------------------------------------
 	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
-	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 	// ----------------------------
 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
+	// Count size of notes
+	vector<int> size_node( dim, 0 );
+	for( i = 0; i < dim; i++ )
+	{
+		ip = i * dim;
+		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+	}
+
+	// For finding the index of rates 
+	vector<double> rates( qp );
+	vector<int> index_row( qp );
+	vector<int> index_col( qp );
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
+
+//-- Main loop for birth-death MCMC -------------------------------------------| 
 	GetRNGstate();
-	// main loop for multiple birth-death MCMC sampling algorithm -------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 		
-		counter = 0;
-		// STEP 1: calculating birth and death rates --------------------------|			
-		for( j = 1; j < dim; j++ )
-		{			
-			jj    = j * dim + j;
-			Dsjj  = Ds[jj];
-			Djj  = D[jj];
+		rates_bdmcmc_dmh_parallel( &rates[0], &G[0], &index_row[0], &index_col[0], &sub_qp, &Ds[0], &D[0], &sigma[0], &K[0], &sigma_dmh[0], &K_dmh[0], b, &dim );
 
-			for( i = 0; i < j; i++ )
-			{
-				ij    = j * dim + i;
-				Dsij  = Ds[ij];
-				Dsijj = - Dsij * Dsij / Dsjj;
-				Dij   = D[ij];
-				Dijj  = - Dij * Dij / Djj;
-
-				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dsijj, &Dsij, &Dsjj );
-
-				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dijj, &Dij, &Djj );
-
-				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
-				rates[counter++] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
-			}
-		}	
-		
 		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -539,8 +390,8 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_rates_row[ index_selected_edges[i] ];
-			selected_edge_j = index_rates_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[i] ];
+			selected_edge_j = index_col[ index_selected_edges[i] ];
 			
 			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 			G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -558,10 +409,11 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 			}		
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|	
+//------ STEP 2: Sampling from G-Wishart for new graph ------------------------|
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
-	} // End of MCMC sampling algorithm ---------------------------------------|
+	}  
 	PutRNGstate();
+//-- End of main loop for birth-death MCMC ------------------------------------| 
 
 	for( i = 0; i < pxp; i++ )
 	{	
@@ -575,72 +427,27 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double Ts[
 // Based on Double Metropolis-Hastings
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
+void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[], double Ts[], double Ti[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
 			 int *b, int *b_star, double Ds[], double D[], int *multi_update, int *print )
 {
-	int print_c = *print;
-	int multi_update_C = *multi_update;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int count_all_g = *counter_all_g;
-	string string_g;
-	vector<string> sample_graphs_C( iteration - burn_in );
-	
+	int print_c = *print, multi_update_C = *multi_update, iteration = *iter, burn_in = *burnin, b1 = *b;
+	int count_all_g = *counter_all_g, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
+	int ip, i, j, ij, counter = 0, dim = *p, pxp = dim * dim, one = 1;
+	int qp = dim * ( dim - 1 ) / 2;
+	double sum_weights = 0.0, weight_C, sum_rates;
 	bool this_one;
 
-	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int i, j, ij, jj, counter;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2, one = 1;
-
-	double Dsijj, Dsjj, Dsij, sum_weights = 0.0, weight_C;
-	double log_rate, sum_rates;
+	string string_g;
+	vector<string> sample_graphs_C( iteration - burn_in );
+	vector<char> char_g( qp );              // char string_g[pp];																
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-	vector<char> char_g( qp );              // char string_g[pp];																
-
-	// Counting size of notes
-	int ip;
-	vector<int> size_node( dim, 0 );
-	for( i = 0; i < dim; i++ )
-	{
-		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
-	}
-	
-	// For finding the index of rates 
-	vector<double> rates( qp );
-	vector<int> index_rates_row( qp );
-	vector<int> index_rates_col( qp );
-	counter = 0;
-	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-		{
-			index_rates_row[counter] = i;
-			index_rates_col[counter] = j;
-			counter++;
-		}
-
-	vector<double> K121( 4 ); 
-	vector<double> Kj12( p1 );              // K[j, -j]
-	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
-	vector<double> sigmaj22( p1xp1 );       // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
-	vector<double> Kj12xK22_inv( p1 ); 
-	vector<double> K12( p2x2 );             // K[e, -e]
-	vector<double> sigma11( 4 );            // sigma[e, e]
-	vector<double> sigma12( p2x2 );         // sigma[e, -e]
-	vector<double> sigma22( p2xp2 );        // sigma[-e, -e]
-	vector<double> sigma11_inv( 4 ); 
-	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
-	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
@@ -652,61 +459,54 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts
 	// ----------------------------------------
 	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
-	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 	// ----------------------------
 
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
+	// Counting size of notes
+	vector<int> size_node( dim, 0 );
+	for( i = 0; i < dim; i++ )
+	{
+		ip = i * dim;
+		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+	}
+	
+	// For finding the index of rates 
+	vector<double> rates( qp );
+	vector<int> index_row( qp );
+	vector<int> index_col( qp );
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
+
+//-- Main loop for birth-death MCMC -------------------------------------------| 
 	GetRNGstate();
-	// main loop for multiple birth-death MCMC sampling algorithm -------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
+//----- STEP 1: calculating birth and death rates -----------------------------|		
+
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 		
-		counter = 0;
-		// STEP 1: calculating birth and death rates --------------------------|			
-		for( j = 1; j < dim; j++ )
-		{			
-			jj    = j * dim + j;
-			Dsjj  = Ds[jj];
-			Djj  = D[jj];
-
-			for( i = 0; i < j; i++ )
-			{
-				ij    = j * dim + i;
-				Dsij  = Ds[ij];
-				Dsijj = - Dsij * Dsij / Dsjj;
-				Dij   = D[ij];
-				Dijj  = - Dij * Dij / Djj;
-
-				log_H_ij( &K[0], &sigma[0], &logH_ij, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dsijj, &Dsij, &Dsjj );
-
-				log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &i, &j,
-					   &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-					   &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-					   &dim, &p1, &p2, &p2xp2, &jj,
-					   &Dijj, &Dij, &Djj );
-
-				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
-				rates[counter] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
-				
-				char_g[counter] = G[ij] + '0'; 
-				counter++; 
-			}
-		}	
+		rates_bdmcmc_dmh_parallel( &rates[0], &G[0], &index_row[0], &index_col[0], &sub_qp, &Ds[0], &D[0], &sigma[0], &K[0], &sigma_dmh[0], &K_dmh[0], b, &dim );
 		
 		// Selecting multiple edges based on birth and death rates
-		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &qp );
+		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
 //----- saving result ---------------------------------------------------------|	
+		counter = 0;
+		for( j = 1; j < dim; j++ )
+			for( i = 0; i < j; i++ )
+				char_g[counter++] = G[ij] + '0'; 
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -743,8 +543,8 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_rates_row[ index_selected_edges[i] ];
-			selected_edge_j = index_rates_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[i] ];
+			selected_edge_j = index_col[ index_selected_edges[i] ];
 			
 			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
 			G[selected_edge_ij] = 1 - G[selected_edge_ij];
@@ -762,10 +562,11 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts
 			}		
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|
+//------ STEP 2: Sampling from G-Wishart for new graph ------------------------|
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
-	} // End of MCMC sampling algorithm ---------------------------------------| 
+	}  
 	PutRNGstate();
+//-- End of main loop for birth-death MCMC ------------------------------------| 
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
@@ -784,49 +585,31 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double Ts
 // Based on Double Metropolis-Hastings
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
+void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double Ti[], double K[], int *p, 
 			 double K_hat[], int p_links[],
 			 int *b, int *b_star, double Ds[], double D[], int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-
-	int randomEdge, selected_edge_i, selected_edge_j;
-	int i, j, ij, jj, counter;
+	int print_c = *print, iteration = *iter, burn_in = *burnin, b1 = *b;
+	int randomEdge, selected_edge_i, selected_edge_j, ip, i, j, ij, jj, counter;
 	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
-
-	double Dsijj, Dsjj, Dsij;
+	int qp = dim * ( dim - 1 ) / 2;																	
+	double Dsijj, Dsjj, Dsij, logH_ij, logI_p, Dij, Djj, Dijj, alpha_ij;
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;																	
-
-	// Count size of notes
-	int ip;
-	vector<int> size_node( dim, 0 );
-	for( i = 0; i < dim; i++ )
-	{
-		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
-	}
-
 	vector<double> K121( 4 ); 
 	vector<double> Kj12( p1 );               // K[j, -j]
 	vector<double> sigmaj12( p1 );           // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );        // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 	vector<double> K12( p2x2 );              // K[e, -e]
-	vector<double> sigma11( 4 );             // sigma[e, e]
 	vector<double> sigma12( p2x2 );          // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );         // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -839,12 +622,17 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 	// ----------------------------------------
 	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
-	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
 
-	double alpha_ij;
+	// Count size of notes
+	vector<int> size_node( dim, 0 );
+	for( i = 0; i < dim; i++ )
+	{
+		ip = i * dim;
+		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+	}
 
+//-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
-	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
@@ -879,15 +667,15 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		log_H_ij( &K[0], &sigma[0], &logH_ij, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-               &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-               &dim, &p1, &p2, &p2xp2, &jj,
+               &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K12xK22_inv[0], &K121[0], 
+               &sigmaj12[0], &sigmaj22[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],
+               &dim, &p1, &p2, &jj,
                &Dsijj, &Dsij, &Dsjj );
 
 		log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-               &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-               &dim, &p1, &p2, &p2xp2, &jj,
+               &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K12xK22_inv[0], &K121[0], 
+               &sigmaj12[0], &sigmaj22[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],
+               &dim, &p1, &p2, &jj,
                &Dijj, &Dij, &Djj );
 
 		alpha_ij = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );
@@ -911,19 +699,20 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 			}
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|	
+//------ STEP 2: Sampling from G-Wishart for new graph ------------------------|
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
-		// saving result ------------------------------------------------------|	
+//----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 			for( i = 0; i < pxp ; i++ )
 			{
 				K_hat[i] += K[i];
 				p_links[i] += G[i];
 			}	
-		// End of saving result -----------------------------------------------|	
-	} // End of MCMC sampling algorithm ---------------------------------------| 
+//----- End of saving result --------------------------------------------------|	
+	}  
 	PutRNGstate();
+//-- End of main MCMC loop ----------------------------------------------------| 
 }
                    
 // ----------------------------------------------------------------------------|
@@ -931,56 +720,38 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double Ti[
 // Based on Double Metropolis-Hastings
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti[], double K[], int *p, 
+void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double Ti[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], double D[], int *print )
 {
-	int print_c = *print;
-	int iteration = *iter, burn_in = *burnin, b1 = *b;
-	int count_all_g = 0;
+	int print_c = *print, iteration = *iter, burn_in = *burnin, b1 = *b, count_all_g = 0;
+	int randomEdge, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
+	int ip, i, j, ij, jj, counter;
+	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
+	int qp = dim * ( dim - 1 ) / 2;
+	double Dsijj, Dsjj, Dsij, logH_ij, logI_p, Dij, Djj, Dijj,  alpha_ij;
+	bool this_one;
+	
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
-
-	bool this_one;
-
-	int randomEdge, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
-	int i, j, ij, jj, counter;
-	int dim = *p, pxp = dim * dim, p1 = dim - 1, p1xp1 = p1 * p1, p2 = dim - 2, p2xp2 = p2 * p2, p2x2 = p2 * 2;
-
-	double Dsijj, Dsjj, Dsij;
+	vector<char> char_g( qp );              // char string_g[pp];																
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
 	memcpy( &copyK[0], K, sizeof( double ) * pxp );
 	inverse( &copyK[0], &sigma[0], &dim );			
 
-	int qp = dim * ( dim - 1 ) / 2;
-	vector<char> char_g( qp );              // char string_g[pp];																
-
-	// Count size of notes
-	int ip;
-	vector<int> size_node( dim, 0 );
-	for( i = 0; i < dim; i++ )
-	{
-		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
-	}
-
 	vector<double> K121( 4 ); 
 	vector<double> Kj12( p1 );               // K[j, -j]
 	vector<double> sigmaj12( p1 );           // sigma[-j, j]  
 	vector<double> sigmaj22( p1xp1 );        // sigma[-j, -j]
-	vector<double> Kj22_inv( p1xp1 ); 
 	vector<double> Kj12xK22_inv( p1 ); 
 	vector<double> K12( p2x2 );              // K[e, -e]
-	vector<double> sigma11( 4 );             // sigma[e, e]
 	vector<double> sigma12( p2x2 );          // sigma[e, -e]
 	vector<double> sigma22( p2xp2 );         // sigma[-e, -e]
 	vector<double> sigma11_inv( 4 ); 
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
-	vector<double> sigma2112( p2xp2 ); 
-	vector<double> K22_inv( p2xp2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
 	// ---- for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
@@ -993,12 +764,17 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 	// ----------------------------------------
 	vector<double> sigma_dmh( pxp );          // for double Metropolis-Hastings
 	vector<double> K_dmh( pxp );              // for double Metropolis-Hastings
-	double logH_ij, logI_p, Dij, Djj, Dijj;   // for double Metropolis-Hastings
-	// ----------------------------
-
-	double alpha_ij;
+	
+	// Count size of notes
+	vector<int> size_node( dim, 0 );
+	for( i = 0; i < dim; i++ )
+	{
+		ip = i * dim;
+		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+	}
+	
+//-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
-	// main loop for Reversible Jump MCMC sampling algorithm ------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
@@ -1034,15 +810,15 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 		log_H_ij( &K[0], &sigma[0], &logH_ij, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-               &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-               &dim, &p1, &p2, &p2xp2, &jj,
+               &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K12xK22_inv[0], &K121[0], 
+               &sigmaj12[0], &sigmaj22[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],
+               &dim, &p1, &p2, &jj,
                &Dsijj, &Dsij, &Dsjj );
 
 		log_H_ij( &K_dmh[0], &sigma_dmh[0], &logI_p, &selected_edge_i, &selected_edge_j,
-               &Kj22_inv[0], &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K22_inv[0], &K12xK22_inv[0], &K121[0], 
-               &sigmaj12[0], &sigmaj22[0], &sigma11[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0], &sigma2112[0],
-               &dim, &p1, &p2, &p2xp2, &jj,
+               &Kj12[0], &Kj12xK22_inv[0], &K12[0], &K12xK22_inv[0], &K121[0], 
+               &sigmaj12[0], &sigmaj22[0], &sigma12[0], &sigma22[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],
+               &dim, &p1, &p2, &jj,
                &Dijj, &Dij, &Djj );
 
 		alpha_ij = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );
@@ -1066,10 +842,10 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 			}
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|	
+//------ STEP 2: Sampling from G-Wishart for new graph ------------------------|
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
-		// saving result ------------------------------------------------------|	
+//----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
 			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
@@ -1095,9 +871,11 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double Ti
 			}
 			
 			count_all_g++; 
-		} // End of saving result ---------------------------------------------|	
-	} // End of MCMC sampling algorithm ---------------------------------------| 
+		} 
+//----- End of saving result --------------------------------------------------|	
+	}  
 	PutRNGstate();
+//-- End of main MCMC loop ----------------------------------------------------| 
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{

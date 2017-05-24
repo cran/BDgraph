@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------|
-//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
 //
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
 #include <sstream>
 #include <string>        // std::string, std::to_string
@@ -94,7 +94,7 @@ void log_alpha_rjmcmc( double *log_alpha_ij, int *selected_edge_i, int *selected
 // for D = I_p 
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
 			 double K_hat[], int p_links[],
 			 int *b, int *b_star, double Ds[], int *print )
 {
@@ -146,11 +146,13 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 	counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
-		{
-			index_row[counter] = i;
-			index_col[counter] = j;
-			counter++;
-		}
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
 
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
@@ -160,7 +162,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 		
 //----- STEP 1: selecting edge and calculating alpha --------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * qp );
+		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
@@ -214,7 +216,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], in
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], int *print )
@@ -272,11 +274,13 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
-		{
-			index_row[counter] = i;
-			index_col[counter] = j;
-			counter++;
-		}
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
 
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
@@ -286,7 +290,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		
 		// STEP 1: selecting edge and calculating alpha
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * qp );
+		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
@@ -373,7 +377,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], i
 // for D = I_p 
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 double K_hat[], int p_links[], 
 			 int *b, int *b_star, double D[], double Ds[], int *print )
@@ -431,11 +435,13 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 	counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
-		{
-			index_row[counter] = i;
-			index_col[counter] = j;
-			counter++;
-		}
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
 	
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
@@ -450,7 +456,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 		
 //----- STEP 2: calculating log_alpha_ij --------------------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * qp );
+		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 		
@@ -504,7 +510,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double Ts[], double K[], i
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], int *p, 
+void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -567,11 +573,13 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 	counter = 0;
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
-		{
-			index_row[counter] = i;
-			index_col[counter] = j;
-			counter++;
-		}
+			if( g_space[ j * dim + i ] )
+			{
+				index_row[counter] = i;
+				index_col[counter] = j;
+				counter++;
+			}
+	int sub_qp = counter;
 
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
@@ -586,7 +594,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double Ts[], double K[], 
 		
 //----- STEP 2: calculating log_alpha_ij --------------------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * qp );
+		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 

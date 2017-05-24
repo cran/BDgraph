@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------|
-//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
 //
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
 #ifndef matrix_H
 #define matrix_H
@@ -51,18 +51,19 @@ extern "C" {
 	
 	void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp );
 
-	void rates_bdmcmc( double rates[], int G[], double Ds[], double Dsijj[],
-						   double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
-						   double K[], double K21[], double K121[], double Kj12[], 
-						   double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], double sigma21xsigma11_inv[],  
-						   int *b, int *p );
+	void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
+					            double sigma[], double K[], int *b, int *p );
 
 	void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
-				   double Kj22_inv[], double Kj12[], double Kj12xK22_inv[], double K12[], double K22_inv[], double K12xK22_inv[], double K121[], 
-				   double sigmaj12[], double sigmaj22[], double sigma11[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[], double sigma2112[],
-				   int *dim, int *p1, int *p2, int *p2xp2, int *jj,
+				   double Kj12[], double Kj12xK22_inv[], double K12[], double K12xK22_inv[], double K121[], 
+				   double sigmaj12[], double sigmaj22[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[],
+				   int *dim, int *p1, int *p2, int *jj,
 				   double *Dsijj, double *Dsij, double *Dsjj );
 
+	void rates_bdmcmc_dmh_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
+								double sigma[], double K[], double sigma_dmh[], 
+								double K_dmh[], int *b, int *p );
+				            
 	// -------------- NEW for Lang codes ---------------------------------------
 	// For Hermitian matrix
 	void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p );

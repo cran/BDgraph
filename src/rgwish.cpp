@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------|
-//     Copyright (C) 2012-2016 Mohammadi A. and Wit C. E.
+//     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
 //
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Abdolreza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
   
 #include "rgwish.h"
@@ -16,10 +16,13 @@
 // sampling from Wishart distribution // Ts = chol( solve( Ds ) )
 void rwish_c( double Ts[], double K[], int *b, int *p )
 {
-    GetRNGstate();
 	int i, j, dim = *p, pxp = dim * dim, bK = *b;
+	double alpha = 1.0, beta   = 0.0;
+	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
+
 	vector<double> psi( pxp, 0.0 ); 
 
+    GetRNGstate();
 	// ---- Sample values in Psi matrix ---------------------------------------|
 	for( i = 0; i < dim; i++ )
 		psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
@@ -30,8 +33,6 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 	// ------------------------------------------------------------------------|
 
     	// C = psi %*% Ts   I used   psi = psi %*% Ts
-	double alpha = 1.0, beta   = 0.0;
-	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &psi[0], &dim );
 
@@ -44,11 +45,9 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 // G is adjacency matrix which has zero in its diagonal // threshold = 1e-8
 void rgwish_c( int G[], double Ts[], double K[], int *b, int *p )
 {
-	char transN  = 'N', uplo  = 'U'; 
-	double alpha = 1.0, beta  = 0.0;
-
 	int info, i, j, l, size_node, one = 1, dim = *p, pxp = dim * dim;	
-	double temp, threshold = 1e-8;
+	double alpha = 1.0, beta  = 0.0, temp, threshold = 1e-8;
+	char transN  = 'N', uplo  = 'U'; 
 	
 	rwish_c( Ts, K, b, &dim );
 	
@@ -65,7 +64,7 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p )
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 
 	double max_diff = 1.0;	
-	while ( max_diff > threshold )
+	while( max_diff > threshold )
 	{
 		memcpy( &sigma_last[0], &sigma[0], sizeof( double ) * pxp );
 		
@@ -144,22 +143,20 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 					vector<double> &sigma_start_N_i, vector<double> &sigma_N_i, vector<int> &N_i )
 {
 	int i, i1, j, ij, ip, l, size_node_i, info, one = 1, dim = *p, pxp = dim * dim, dim1 = dim + 1, bKdim = *b_star + dim - 1;	
-	double temp, threshold = 1e-8, alpha = 1.0, beta  = 0.0;
+	double temp, threshold = 1e-8, alpha = 1.0, beta  = 0.0, max_diff = 1.0;	
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	
 	// STEP 1: sampling from wishart distributions
 	// ---- Sample values in Psi matrix ---
-	//GetRNGstate();
 	for( i = 0; i < dim; i++ )
 		sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
 
 	for( j = 1; j < dim; j++ )
 		for( i = 0; i < j; i++ )
 		{
-			sigma_start[j * dim + i] = rnorm( 0, 1 );
-			sigma_start[i * dim + j] = 0.0;
+			sigma_start[ j * dim + i ] = rnorm( 0, 1 );
+			sigma_start[ i * dim + j ] = 0.0;
 		}
-	//PutRNGstate();
 	// ------------------------------------
 	
 	// C = psi %*% Ts   I used psi = psi %*% Ts   Now is  sigma_start = sigma_start %*% Ts
@@ -178,7 +175,6 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 
 	memcpy( sigma, &sigma_start[0], sizeof( double ) * pxp ); 
 	
-	double max_diff = 1.0;	
 	while ( max_diff > threshold )
 	{
 		max_diff = 0.0;
@@ -279,14 +275,14 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 // based on Monto Carlo algorithm
 void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, int *p, double f_T[] )
 {
-	GetRNGstate();
 	int iter, i, j, ij, h, r, mc_iter = *mc, dim = *p, pxp = dim * dim, b_c = *b;
 	double sumPsi, sumPsiH, sumPsiHi, sumPsiHj;
-	vector<double> psi( pxp, 0.0 );      
-
 	double max_numeric_limits_ld = numeric_limits<double>::max() / 1000;
 	double min_numeric_limits_ld = numeric_limits<double>::min() * 1000;
 	
+	vector<double> psi( pxp, 0.0 );      
+
+	GetRNGstate();
 	if( *check_H == 1 )
 	{ 
 		for( iter = 0; iter < mc_iter; iter++ ) 

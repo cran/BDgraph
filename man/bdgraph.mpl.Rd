@@ -1,16 +1,17 @@
 \name{bdgraph.mpl}
 \alias{bdgraph.mpl}
         
-\title{	Search algorithm in graphical models based on marginal pseudo-likehlihood }
+\title{	Search algorithm in graphical models using marginal pseudo-likehlihood }
 \description{
-	As the main function of the \pkg{BDgraph} package, 
-	this function consists of several sampling algorithms for Bayesian model determination in undirected graphical models. % based on birth-death MCMC method. 
+	This function consists of several sampling algorithms for Bayesian model determination in undirected graphical models based on mariginal pseudo-likelihood. % based on birth-death MCMC method. 
+	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
 bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE, 
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
-             g.start = "empty", multi.update = NULL, alpha = 0.5, 
-             save.all = FALSE, print = 1000 )
+             g.start = "empty", g.space = NULL, g.prior = 0.5, 
+             multi.update = NULL, alpha = 0.5, save.all = FALSE, 
+             print = 1000 )
 }
 
 \arguments{
@@ -28,9 +29,10 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		A character with two options \code{"ggm"} (defult) and \code{"gcgm"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
 		Option \code{"dgm"} is for discrete graphical models for the data that are discrete.
+		Option \code{"dgm-binary"} is for discrete graphical models for the data that are binary.
 	}
 
-	\item{transfer}{ For only discrete data which \code{method = "dgm"}. T}
+	\item{transfer}{ For only discrete data which \code{method = "dgm"} or \code{method = "dgm-binary"}. }
 
 	\item{algorithm}{
 		A character with two options \code{"bdmcmc"} (defult) and \code{"rjmcmc"}. 
@@ -45,8 +47,15 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		Corresponds to a starting point of the graph. It could be \code{"empty"} (default) and \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
 		It also could be an object with \code{S3} class \code{"bdgraph"}; 
-		with this option we could run the sampling algorithm from the last objects of previous run (see examples).     
+		with this option one could run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
+	\item{g.space}{
+		Corresponds to the sub-space of the graph. 
+		For the case \code{ g.start = "NULL"} (defult), algorithm search in the hole graph space. 
+		With this option, one could run the search algorithm only to the restricted subspace of the graph.
+		Subspace should determine as an adjacency matrix.
+	} 
+	\item{g.prior}{ Value for the parameter of the prior distributions of the graph. } 
 	\item{multi.update}{
 		It is only for the BDMCMC algorithm (\code{algorithm = "bdmcmc"}).
 		It is for simultaneously updating multiple links at the same time to update graph in the BDMCMC algorithm.
