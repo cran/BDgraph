@@ -24,11 +24,13 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
     GetRNGstate();
 	// ---- Sample values in Psi matrix ---------------------------------------|
+	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
 		psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
 
+	#pragma omp parallel for
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
+		for( int i = 0; i < j; i++ )
 			psi[j * dim + i] = rnorm( 0, 1 );
 	// ------------------------------------------------------------------------|
 
@@ -82,7 +84,7 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p )
 					if( G[j * dim + i] )
 					{
 						sigma_start_N_i[l] = sigma_start[i * dim + j]; 
-						N_i[l++]     = j;
+						N_i[l++]           = j;
 					}
 					else
 						beta_star[j] = 0.0; 
@@ -148,11 +150,13 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	// STEP 1: sampling from wishart distributions
 	// ---- Sample values in Psi matrix ---
+	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
 		sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
 
+	#pragma omp parallel for
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
+		for( int i = 0; i < j; i++ )
 		{
 			sigma_start[ j * dim + i ] = rnorm( 0, 1 );
 			sigma_start[ i * dim + j ] = 0.0;
@@ -164,8 +168,9 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 
 	side = 'L';
 	// creating an identity matrix
+	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		for( j = 0; j < dim; j++ )
+		for( int j = 0; j < dim; j++ )
 			inv_C[j * dim + i] = ( i == j );	
 	// op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
 	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &inv_C[0], &dim );
@@ -262,8 +267,9 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	//inverse( &sigma_start[0], K, &dim );
 	// creating an identity matrix
+	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		for( j = 0; j < dim; j++ )
+		for( int j = 0; j < dim; j++ )
 			K[j * dim + i] = ( i == j );
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
@@ -294,10 +300,8 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 				for( j = i + 1; j < dim; j++ ) 
 				{
 					ij = j * dim + i;
-					if ( G[ij] == 1 ) 
-						psi[ij] = rnorm( 0, 1 );
-					else
-						psi[ij] = 0.0;
+					//if( G[ij] == 1 ) psi[ij] = rnorm( 0, 1 ); else psi[ij] = 0.0;
+					psi[ij] = ( G[ij] == 1 ) ? rnorm( 0, 1 ) : 0.0;
 				}
 			
 			for( i = 0; i < dim - 1; i++ ) 
@@ -305,10 +309,10 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 				{
 					ij = j * dim + i;
 					
-					if ( G[ij] == 0 )
+					if( G[ij] == 0 )
 					{
 						psi[ij] = 0.0; // it's not necessary
-						if ( i > 0 )  
+						if( i > 0 )  
 						{
 							sumPsi = 0.0;
 							//sum( psi[ 1 : ( i - 1 ), i ] * psi[ 1 : ( i - 1 ), j ] )
@@ -346,10 +350,8 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 				for( j = i + 1; j < dim; j++ ) 
 				{
 					ij = j * dim + i;
-					if ( G[ij] == 1 ) 
-						psi[ij] = rnorm( 0, 1 );
-					else
-						psi[ij] = 0.0;
+					//if( G[ij] == 1 ) psi[ij] = rnorm( 0, 1 ); elsepsi[ij] = 0.0;
+					psi[ij] = ( G[ij] == 1 ) ? rnorm( 0, 1 ) : 0.0;
 				}
 			
 			for( i = 0; i < dim - 1; i++ ) 
@@ -357,7 +359,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 				{
 					ij = j * dim + i;
 					
-					if ( G[ij] == 0 )
+					if( G[ij] == 0 )
 					{
 						//psi[i, j] = - sum( psi[ i, i : ( j - 1 ) ] * H[ i : ( j - 1 ), j ] )
 						sumPsiH = 0.0;
@@ -369,8 +371,8 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 						}
 						psi[ij] = - sumPsiH;
 						
-						if ( i > 0 )  //if ( i > 1 )
-							for ( r = 0; r < i; r++ ) //for ( r in 1 : ( i - 1 ) )
+						if( i > 0 )  //if( i > 1 )
+							for( r = 0; r < i; r++ ) //for( r in 1 : ( i - 1 ) )
 							{
 								//sum( psi[ r, r : i ] * H[ r : i, i ] )
 								sumPsiHi = 0.0;

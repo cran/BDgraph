@@ -54,34 +54,30 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
 // copula part
 void copula( double Z[], double K[], int R[], int *n, int *p )
 {
-	int number = *n, dim = *p;
+	int number = *n, dim = *p, nxp = number * dim;
 	
 	#pragma omp parallel
 	{	
 		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
+		int i, j;
 		
 		#pragma omp for
-		for( int j = 0; j < dim; j++ )
+		for( int counter = 0; counter < nxp; counter++ )
 		{   
+			j = counter / number;
+			i = counter % number;
+			
 			sigma = 1 / K[j * dim + j];
 			sd_j  = sqrt( sigma );
 			
-			// interval and sampling
-			for( int i = 0; i < number; i++ )
-			{
-				get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
-				
-				get_bounds( Z, R, &lb, &ub, &i, &j, &number );
-				
-				// runif_value = runif( 1, pnorm( lower_bound, mu_ij, sd_j ), pnorm( upper_bound, mu_ij, sd_j ) )
-				// Z[i,j]     = qnorm( runif_value, mu_ij, sd_j )									
-				//GetRNGstate();
-				pnorm_lb          = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-				pnorm_ub          = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-				runif_value       = runif( pnorm_lb, pnorm_ub );
-				Z[j * number + i] = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
-				//PutRNGstate();				
-			}
+			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+			
+			get_bounds( Z, R, &lb, &ub, &i, &j, &number );
+			
+			pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
+			pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+			runif_value = runif( pnorm_lb, pnorm_ub );
+			Z[counter]  = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
 		}
 	}
 }
@@ -115,42 +111,39 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
 // copula part for missing data
 void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 {
-	int ij, number = *n, dim = *p;
+	int number = *n, dim = *p, nxp = number * dim;
 
 	#pragma omp parallel
 	{	
 		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
+		int i, j;
 	
 		#pragma omp for
-		for( int j = 0; j < dim; j++ )
+		for( int counter = 0; counter < nxp; counter++ )
 		{   
+			j = counter / number;
+			i = counter % number;
+
 			sigma = 1 / K[j * dim + j];
 			sd_j  = sqrt( sigma );
 			
-			// interval and sampling
-			for( int i = 0; i < number; i++ )
+			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+			
+			if( R[counter] != 0 )
 			{
-				get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+				get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
 				
-				ij = j * number + i;
-				//GetRNGstate();
-				if( R[ij] != 0 )
-				{
-					get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
-					
-					pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-					pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-					runif_value = runif( pnorm_lb, pnorm_ub );
-					Z[ij]       = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
-				} 
-				else 
-					Z[ij] = rnorm( mu_ij, sd_j );
-				//PutRNGstate();				
-			}
+				pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
+				pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+				runif_value = runif( pnorm_lb, pnorm_ub );
+				Z[counter]  = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
+			} 
+			else 
+				Z[counter] = rnorm( mu_ij, sd_j );
 		}
 	}
 }
-    
+     
 // Calculating Ds = D + S for the BDMCMC sampling algorithm
 void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
 {

@@ -6,8 +6,9 @@
 	This function is for Bayesian model determination in time series graphical models, based on birth-death MCMC method. 
 }
 \usage{
-bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
-            g.start = "empty", prior.df = rep( 3, Nlength ), save.all = FALSE )
+bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
+            g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), 
+            save.all = FALSE )
 }
 
 \arguments{
@@ -27,7 +28,14 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		It also could be an object with \code{S3} class \code{"bdgraph"}; 
 		with this option we could run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
-
+	
+	\item{g.space}{
+		Corresponds to the sub-space of the graph. 
+		For the case \code{ g.start = "NULL"} (defult), algorithm search in the hole graph space. 
+		With this option, one could run the search algorithm only to the restricted subspace of the graph.
+		Subspace should determine as an adjacency matrix.
+	} 
+	
 	\item{prior.df}{
 		The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b,D)}, which is a prior distribution of the precision matrix in each frequency. The default is 3.
 	}
@@ -65,7 +73,9 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
-Mohammadi, A., F. Abegaz Yazew, E. van den Heuvel, and E. Wit (2016). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+
+Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv:1706.04416} 
 }
 
 \author{ Lang Liu, Nicholas Foti, Alex Tank and  Abdolreza Mohammadi }

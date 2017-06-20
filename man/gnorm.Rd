@@ -38,6 +38,8 @@ Log of the normalizing constant approximation using Monte Carlo method for a G-W
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the marginal likelihood in nondecomposable Gaussian graphical models, \emph{Biometrika}, 92(2):317-335
 
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+
+Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv:1706.04416} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

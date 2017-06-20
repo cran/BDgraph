@@ -6,7 +6,7 @@
 */
 
 /* .C calls */
-extern void bdmcmc_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void bdmcmc_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void bdmcmc_map_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_binary_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_binary_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -58,7 +58,7 @@ extern void rwish_c(void *, void *, void *, void *);
 extern void scale_free(void *, void *);
 
 static const R_CMethodDef CEntries[] = {
-    {"bdmcmc_for_multi_dim",                   (DL_FUNC) &bdmcmc_for_multi_dim,                   17},
+    {"bdmcmc_for_multi_dim",                   (DL_FUNC) &bdmcmc_for_multi_dim,                   18},
     {"bdmcmc_map_for_multi_dim",               (DL_FUNC) &bdmcmc_map_for_multi_dim,               22},
     {"dgm_bdmcmc_mpl_binary_ma",               (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma,               13},
     {"dgm_bdmcmc_mpl_binary_ma_multi_update",  (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma_multi_update,  14},

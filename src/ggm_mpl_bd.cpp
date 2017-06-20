@@ -211,6 +211,7 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], double S
 		{
 			weight_C = 1.0 / sum_rates;
 						
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -262,6 +263,7 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], double S
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 		p_links[i] = p_links_Cpp[i] / sum_weights;
 }
@@ -423,6 +425,7 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
@@ -510,6 +513,7 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 		{
 			weight_C = 1.0 / sum_rates;
 						
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -566,6 +570,7 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ ) p_links[i] = p_links_Cpp[i] / sum_weights;
 }
     
@@ -737,6 +742,7 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
@@ -1087,6 +1093,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );

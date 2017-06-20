@@ -22,3 +22,8 @@ BDgraph NEWS
 	
 - CHANGES IN VERSION 2.36
 	* The BDMCMC algorithms are implimented in parallel using OpenMP in C++. 
+
+- CHANGES IN VERSION 2.38
+	* In algorithm "gcgm", step "copula" are implimented in parallel using OpenMP in C++. 
+	* Function "bdgraph.ts" is implimented in parallel using OpenMP in C++.
+	* New reference related to the ratio of normalizing constant is added to manual.	

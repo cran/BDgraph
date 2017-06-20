@@ -4,7 +4,7 @@
 # data is the aggregate periodogram Pk, which is arranged as a large p x (Nlength*p) matrix [P1, P2, ... ,PNlength]
 
 bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
-					   g.start = "empty", prior.df = rep( 3, Nlength ), save.all = FALSE )
+					   g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), save.all = FALSE )
 {
 	burnin    = floor( burnin )
 
@@ -92,6 +92,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		  sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p )] )
 		}	
 	}
+	
 
 	if( save.all == TRUE )
 	{
@@ -124,6 +125,14 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	mes <- paste( c( iter, " iteration is started.                    " ), collapse = "" )
 	cat( mes, "\r" )
 
+	if( is.null( g.space ) )
+	{
+	  g_space = matrix( 1, p, p )
+	}else{
+	  if( !is.matrix( g.space ) ) stop( "g.space must be a matrix (p x p)" )
+	  g_space = as.matrix( g.space )
+	}	
+	
 	if ( save.all == TRUE )
 	{
 		result = .C( "bdmcmc_map_for_multi_dim", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ls), r_K = as.double(r_K), 
@@ -134,7 +143,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	}
 	else
 	{
-		result = .C( "bdmcmc_for_multi_dim", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ls), r_K = as.double(r_K), 
+		result = .C( "bdmcmc_for_multi_dim", as.integer(iter), as.integer(burnin), G = as.integer(G), g_space = as.integer(g_space), as.double(Ls), r_K = as.double(r_K), 
 					i_K = as.double(i_K), as.integer(p), as.integer(Nlength), r_sigma = as.double(r_sigma), i_sigma = as.double(i_sigma), 
 					r_K_hat = as.double(r_K_hat), i_K_hat = as.double(i_K_hat), p_links = as.double(p_links), as.integer(b), as.integer(b_star), 
 					r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), PACKAGE = "BDgraph" )

@@ -120,6 +120,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 			// K_hat_Cpp[i] += K[i] / sum_rates;
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat_Cpp[0], &one );
 			
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -149,6 +150,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 	PutRNGstate();
 //-- End of main loop for birth-death MCMC ------------------------------------| 
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 	{	
 		p_links[i] = p_links_Cpp[i] / sum_weights;
@@ -309,14 +311,16 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[
 	PutRNGstate();
 //-- End of main loop for birth-death MCMC ------------------------------------| 
 
+	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy(sample_graphs[i], qp, 0);
+		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
 		sample_graphs[i][qp] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ ) 
 		K_hat[i] /= sum_weights;
 }
@@ -419,6 +423,7 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 			// K_hat_Cpp[i] += K[i] / sum_rates;
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat_Cpp[0], &one );
 			
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -454,6 +459,7 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 	PutRNGstate();
 //-- End of main loop for birth-death MCMC ------------------------------------| 
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 	{	
 		p_links[i] = p_links_Cpp[i] / sum_weights;
@@ -623,6 +629,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 	PutRNGstate();
 //-- End of main loop for birth-death MCMC ------------------------------------| 
 
+	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
 		sample_graphs_C[i].copy(sample_graphs[i], qp, 0);
@@ -632,6 +639,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 	*size_sample_g = size_sample_graph;
 	*counter_all_g = count_all_g;
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ ) K_hat[i] /= sum_weights;
 }
        

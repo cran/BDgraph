@@ -213,6 +213,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -262,6 +263,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 		{
 			weight_C = 1.0 / sum_rates;
 						
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -309,6 +311,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 		p_links[i] = p_links_Cpp[i] / sum_weights;
 }
@@ -327,9 +330,9 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 	int nodexdim, count_mb, t, i, j, counter, dim = *p;
 	int qp = dim * ( dim - 1 ) / 2;
 	double sum_weights = 0.0, weight_C, sum_rates;
-    double alpha_jl = 2 * *alpha_ijl;   
+    double alpha_jl      = 2 * *alpha_ijl;   
 	double log_alpha_ijl = lgammafn( *alpha_ijl );
-	double log_alpha_jl = lgammafn( alpha_jl );
+	double log_alpha_jl  = lgammafn( alpha_jl );
 	double ratio_g_prior = *g_prior / ( 1 - *g_prior );
 	bool this_one;
 
@@ -355,6 +358,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+	
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -473,6 +477,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
@@ -569,6 +574,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 		{
 			weight_C = 1.0 / sum_rates;
 						
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -621,7 +627,9 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
-	for( i = 0; i < pxp; i++ ) p_links[i] = p_links_Cpp[i] / sum_weights;
+	#pragma omp parallel for
+	for( i = 0; i < pxp; i++ ) 
+		p_links[i] = p_links_Cpp[i] / sum_weights;
 }
     
 // ----------------------------------------------------------------------------|
@@ -667,6 +675,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+	
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -792,6 +801,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
@@ -1000,6 +1010,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -1049,6 +1060,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 		{
 			weight_C = 1.0 / sum_rates;
 						
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -1096,6 +1108,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 		p_links[i] = p_links_Cpp[i] / sum_weights;
 }
@@ -1249,6 +1262,7 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
@@ -1284,6 +1298,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -1334,6 +1349,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 		{
 			weight_C = 1.0 / sum_rates;
 						
+			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
 				if( G[i] ) p_links_Cpp[i] += weight_C;
 			
@@ -1386,7 +1402,9 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
-	for( i = 0; i < pxp; i++ ) p_links[i] = p_links_Cpp[i] / sum_weights;
+	#pragma omp parallel for
+	for( i = 0; i < pxp; i++ ) 
+		p_links[i] = p_links_Cpp[i] / sum_weights;
 }
     
 // ----------------------------------------------------------------------------|
@@ -1421,6 +1439,7 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -1546,6 +1565,7 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
@@ -1763,6 +1783,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -1881,6 +1902,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	PutRNGstate();
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
+	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
 	{
 		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );

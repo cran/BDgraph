@@ -193,8 +193,8 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	{
 		ixp = i * pdim;
 				
-		A12[i + i - 4]     = A[ixp + sub0];
-		A12[i + i - 3]       = A[ixp + sub1];
+		A12[i + i - 4] = A[ixp + sub0];
+		A12[i + i - 3] = A[ixp + sub1];
 		
 		for( j = sub1 + 1; j < pdim; j++ )
 			A22[(j - 2) * p2 + i - 2] = A[ixp + j];
@@ -264,12 +264,13 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 // WARNING: Matrix you pass is overwritten with the result
 void inverse( double A[], double A_inv[], int *p )
 {
-	int i, j, info, dim = *p;
+	int info, dim = *p;
 	char uplo = 'U';
 
 	// creating an identity matrix
-	for( i = 0; i < dim; i++ )
-		for( j = 0; j < dim; j++ )
+	#pragma omp parallel for
+	for( int i = 0; i < dim; i++ )
+		for( int j = 0; j < dim; j++ )
 			A_inv[j * dim + i] = (i == j);
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
@@ -293,14 +294,15 @@ void inverse_2x2( double B[], double B_inv[] )
 void cholesky( double A[], double U[], int *p )
 {
 	char uplo = 'U';
-	int j, info, dim = *p, i, pxp = dim * dim;
+	int info, dim = *p, pxp = dim * dim;
 	
 	memcpy( U, A, sizeof( double ) * pxp );	
 	
 	F77_NAME(dpotrf)( &uplo, &dim, U, &dim, &info );	
 	
-	for( i = 0; i < dim; i++ )
-		for( j = 0; j < i; j++ )
+	#pragma omp parallel for
+	for( int i = 0; i < dim; i++ )
+		for( int j = 0; j < i; j++ )
 			U[j * dim + i] = 0.0;
 }
   
@@ -331,6 +333,7 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 	int qp_star = *qp;
 
 	// rates = sum_sort_rates
+	#pragma omp parallel for
 	for ( int i = 1; i < qp_star; i++ )
 		rates[i] += rates[ i - 1 ];
 	
@@ -360,7 +363,8 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	int i, qp_star = *qp, qp_star_1 = qp_star - 1;
 
 	// rates = sum_sort_rates
-	for ( i = 1; i < qp_star; i++ )
+	#pragma omp parallel for
+	for( i = 1; i < qp_star; i++ )
 		rates[i] += rates[ i - 1 ];
 	
 	double max_bound = rates[qp_star_1];
@@ -386,9 +390,9 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	// ------------------------------------------------------------------------|
 
 	int counter = 1, same;
-	for ( int it = 0; it < 200 * *multi_update; it++ )
+	for( int it = 0; it < 200 * *multi_update; it++ )
 	{
-		if ( counter == *multi_update ) break;
+		if( counter == *multi_update ) break;
 		
 		random_value = max_bound * runif( 0, 1 );
 	
@@ -405,14 +409,14 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 			position = ( lower_bound + upper_bound ) / 2;
 		}
 		
-		if ( rates[position] < random_value ) ++position;
+		if( rates[position] < random_value ) ++position;
 		
 		same = 0;
-		for ( i = 0; i < counter; i++ )
+		for( i = 0; i < counter; i++ )
 			if( index_selected_edges[i] == position )
 				++same;
 
-		if ( same == 0 ) index_selected_edges[counter++] = position;
+		if( same == 0 ) index_selected_edges[counter++] = position;
 	}
 	
 	*size_index = counter;
@@ -450,10 +454,11 @@ void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_
 		#pragma omp for
 		for( int counter = 0; counter < *sub_qp; counter++ )
 		{
-			i = index_row[ counter ];
-			j = index_col[ counter ];
-
-			jj   = j * dim1;
+			i  = index_row[ counter ];
+			j  = index_col[ counter ];
+			ij = j * dim + i;
+			jj = j * dim1;
+			
 			Dsjj = Ds[jj];
 			
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
@@ -462,8 +467,6 @@ void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_
 			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
 			sigmajj_inv = - 1.0 / sigma[jj];
 			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
-
-			ij = j * dim + i;
 			
 			// For (i,j) = 0 ----------------------------------------------|	
 			sub_row_mins( &K[0], &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
@@ -521,10 +524,201 @@ void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_
 		delete[] sigma11_inv;  
 		delete[] sigma21xsigma11_inv;  
 		delete[] K12xK22_inv;  
-
 	}
 }
      
+// ----------------------------------------------------------------------------|
+// Parallel Computation for birth-death rates for complex BD-MCMC algorithm
+// ----------------------------------------------------------------------------|
+void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double r_Ds[], double i_Ds[],
+				            double r_sigma[], double i_sigma[], double r_K[], double i_K[], int *b, int *p )
+{
+	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = p2 * 2, p2xp2 = p2 * p2, qp = dim * ( dim - 1 ) / 2, counter = 0;
+	double alpha = 1.0, beta = 0.0, dmone = -1.0, beta1 = 1.0;
+	char transT = 'T', transN = 'N';																	
+
+	#pragma omp parallel
+	{
+		int i, j, k, ij, jj, rowCol, nu_star;
+		double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, r_sum_diag, r_K022, i_K022, r_a11, i_a11, sigmajj_inv, r_sigmaj11, i_sigmaj11;
+		double mod_Dsjj, mod_a11, coef, r_temp, G_prior, log_rate;
+
+		double *r_K121     = new double[ 4 ];  
+		double *i_K121     = new double[ 4 ];  
+		double *r_Kj12     = new double[ p1 ];        //K[j,-j]
+		double *i_Kj12     = new double[ p1 ];
+		double *r_sigmaj12 = new double[ p1 ];        //sigma[j,-j]
+		double *i_sigmaj12 = new double[ p1 ];
+		double *r_sigmaj22 = new double[ p1 * p1 ];   //sigma[-j,-j]
+		double *i_sigmaj22 = new double[ p1 * p1 ];
+		double *r_Kj22_inv = new double[ p1 * p1 ]; 
+		double *i_Kj22_inv = new double[ p1 * p1 ]; 
+		double *i12xi22_j  = new double[ p1 ];
+		double *r12xi22_j  = new double[ p1 ];
+		double *i12xi22    = new double[ p2x2 ];
+		double *r12xi22    = new double[ p2x2 ];
+		double *r21xr11    = new double[ p2x2 ];
+		double *i21xr11    = new double[ p2x2 ];
+
+		double *r_K12         = new double[ p2x2 ];  //K[e,-e]
+		double *i_K12         = new double[ p2x2 ]; 
+		double *r_sigma11     = new double[ 4 ];     //sigma[e,e]
+		double *i_sigma11     = new double[ 4 ];
+		double *r_sigma12     = new double[ p2x2 ];  //sigma[e,-e]
+		double *i_sigma12     = new double[ p2x2 ]; 
+		double *r_sigma22     = new double[ p2xp2 ]; //sigma[-e,-e]
+		double *i_sigma22     = new double[ p2xp2 ];  
+		double *r_sigma11_inv = new double[ 4 ]; 
+		double *i_sigma11_inv = new double[ 4 ]; 
+		double *r_sigma2112   = new double[ p2xp2 ];
+		double *i_sigma2112   = new double[ p2xp2 ];  
+		double *r_K22_inv     = new double[ p2xp2 ];
+		double *i_K22_inv     = new double[ p2xp2 ];
+		double *r_K12xK22_inv = new double[ p2x2 ];  
+		double *i_K12xK22_inv = new double[ p2x2 ];  
+
+		#pragma omp for
+		for( counter = 0; counter < *sub_qp; counter++ )
+		{
+			i = index_row[ counter ];
+			j = index_col[ counter ];
+
+			jj     = j * dim1;
+			r_Dsjj = r_Ds[jj];
+			i_Dsjj = i_Ds[jj];
+			
+			r_sigmaj11 = r_sigma[jj];        // sigma[j, j]  
+			i_sigmaj11 = i_sigma[jj]; 			
+			sub_matrices1( &r_sigma[0], &r_sigmaj12[0], &r_sigmaj22[0], &j, &dim );
+			Hsub_matrices1( &i_sigma[0], &i_sigmaj12[0], &i_sigmaj22[0], &j, &dim );
+
+			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			for( int row = 0; row < p1; row++ )       
+				for( int col = 0; col < p1; col++ )
+				{
+					rowCol             = col * p1 + row;
+					r_Kj22_inv[rowCol] = r_sigmaj22[rowCol] - (r_sigmaj11*(r_sigmaj12[row]*r_sigmaj12[col] + i_sigmaj12[row]*i_sigmaj12[col]) + i_sigmaj11*(r_sigmaj12[row]*i_sigmaj12[col] - i_sigmaj12[row]*r_sigmaj12[col]))/(r_sigmaj11*r_sigmaj11 + i_sigmaj11*i_sigmaj11);
+					i_Kj22_inv[rowCol] = i_sigmaj22[rowCol] - (r_sigmaj11*(r_sigmaj12[row]*i_sigmaj12[col] - i_sigmaj12[row]*r_sigmaj12[col]) - i_sigmaj11*(r_sigmaj12[row]*r_sigmaj12[col] + i_sigmaj12[row]*i_sigmaj12[col]))/(r_sigmaj11*r_sigmaj11 + i_sigmaj11*i_sigmaj11);
+				}		
+			
+			ij     = j * dim + i;
+			r_Dsij = r_Ds[ij];
+			i_Dsij = i_Ds[ij];
+
+			// For (i,j) = 0 ----------------------------------------------|	
+			sub_row_mins( &r_K[0], &r_Kj12[0], &j, &dim );   // Kj12 = K[j, -j]
+			Hsub_row_mins( &i_K[0], &i_Kj12[0], &j, &dim );  
+			r_Kj12[ i ] = 0.0;                             // Kj12[1,i] = 0
+			i_Kj12[ i ] = 0.0;
+
+			// Kj12xK22_inv = Kj12 %*% Kj22_inv
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &i12xi22_j[0], &one );
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &r_Kj22_inv[0], &p1, &dmone, &i12xi22_j[0], &one );				
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &r12xi22_j[0], &one );
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &r_Kj22_inv[0], &p1, &alpha, &r12xi22_j[0], &one );				
+			// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12) = c
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &r_K022, &one );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &r_Kj12[0], &p1, &alpha, &r_K022, &one );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &i_K022, &one );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &r_Kj12[0], &p1, &dmone, &i_K022, &one );
+
+			// For (i,j) = 1 ----------------------------------------------|
+			sub_rows_mins( &r_K[0], &r_K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
+			Hsub_rows_mins( &i_K[0], &i_K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
+			
+			sub_matrices( &r_sigma[0], &r_sigma11[0], &r_sigma12[0], &r_sigma22[0], &i, &j, &dim ); //r_sigma[e,e], r_sigma[e,-e], r_sigma[-e,-e]
+			Hsub_matrices( &i_sigma[0], &i_sigma11[0], &i_sigma12[0], &i_sigma22[0], &i, &j, &dim ); //i_sigma[e,e], i_sigma[e,-e], i_sigma[-e,-e]
+
+			// solve( sigma[e, e] )
+			cinverse_2x2( &r_sigma11[0], &i_sigma11[0], &r_sigma11_inv[0], &i_sigma11_inv[0] );
+			
+			// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &r21xr11[0], &p2 );
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &i_sigma11_inv[0], &two, &alpha, &r21xr11[0], &p2 );
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &i21xr11[0], &p2 );
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &i_sigma11_inv[0], &two, &dmone, &i21xr11[0], &p2 );				
+			// sigma2112 = sigma21xsigma11_inv %*% sigma12 = sigma[-e,e] %*% solve(sigma[e,e]) %*% sigma[e,-e]
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &i_sigma12[0], &two, &beta, &r_sigma2112[0], &p2 );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &r_sigma12[0], &two, &dmone, &r_sigma2112[0], &p2 );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &i_sigma12[0], &two, &beta, &i_sigma2112[0], &p2 );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &r_sigma12[0], &two, &alpha, &i_sigma2112[0], &p2 );
+
+			// solve( K[-e, -e] ) = sigma22 - sigma2112
+			for( k = 0; k < p2xp2 ; k++ ) 
+			{
+				r_K22_inv[k] = r_sigma22[k] - r_sigma2112[k];
+				i_K22_inv[k] = i_sigma22[k] - i_sigma2112[k];
+			}
+
+			// K12 %*% K22_inv
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &i_K22_inv[0], &p2, &beta, &i12xi22[0], &two );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &r_K22_inv[0], &p2, &dmone, &i12xi22[0], &two );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &i_K22_inv[0], &p2, &beta, &r12xi22[0], &two );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &r_K22_inv[0], &p2, &alpha, &r12xi22[0], &two );
+			// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 		
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &i_K12[0], &two, &beta, &r_K121[0], &two );
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &r_K12[0], &two, &alpha, &r_K121[0], &two );
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta, &i_K121[0], &two );
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &r_K12[0], &two, &dmone, &i_K121[0], &two );											
+			// Finished (i,j) = 1------------------------------------------|
+			nu_star = b1;
+			for( k = 0; k < dim; k++ ) // nu_star = b + sum( Gf[,i] * Gf[,j] )
+				nu_star += G[i * dim + k] * G[j * dim + k]; 
+						
+			G_prior = lgamma( 0.5 * ( nu_star + 1 ) ) - lgamma( 0.5 * nu_star );
+
+			r_a11      = r_K[i * dim1] - r_K121[0]; //k_ii - k_ii^1
+			i_a11      = i_K[i * dim1] - i_K121[0]; //k_ii - k_ii^1
+			r_sum_diag = r_Dsjj*(r_K022 - r_K121[3]) - (r_Dsij*r_K121[1] - i_Dsij*i_K121[1]) - (r_Dsij*r_K121[2] + i_Dsij*i_K121[2]); //tr(D*(K0-K1))
+
+			mod_Dsjj = sqrt( r_Dsjj * r_Dsjj + i_Dsjj * i_Dsjj );
+			mod_a11  = sqrt( r_a11 * r_a11 + i_a11 * i_a11 );
+			coef     = ( r_Dsij * r_Dsij + i_Dsij * i_Dsij ) / ( r_Dsjj * r_Dsjj + i_Dsjj * i_Dsjj );
+			r_temp   = coef * ( r_a11 * r_Dsjj + i_a11 * i_Dsjj ) + r_sum_diag;			
+			log_rate = ( G[ij] ) ? log(G_prior) + log( mod_Dsjj ) - log( mod_a11 ) - r_temp : log( mod_a11 ) - log( mod_Dsjj ) + r_temp - log(G_prior);
+			
+			log_rate += log( rates[counter] );
+			
+			//log_rates[counter] += log_rate;  // Computer the rate in log space			
+			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;		
+		}
+		delete[] r_K121;  
+		delete[] i_K121;  
+		delete[] r_Kj12;  
+		delete[] i_Kj12;  
+		delete[] r_sigmaj12;  
+		delete[] i_sigmaj12;  
+		delete[] r_sigmaj22;  
+		delete[] i_sigmaj22;  
+		delete[] r_Kj22_inv;
+		delete[] i_Kj22_inv;
+		delete[] i12xi22_j;
+		delete[] r12xi22_j;
+		delete[] i12xi22;
+		delete[] r12xi22;
+		delete[] r21xr11;
+		delete[] i21xr11;
+		
+		delete[] r_K12;  
+		delete[] i_K12;  
+		delete[] r_sigma11;  
+		delete[] i_sigma11;  
+		delete[] r_sigma12;  
+		delete[] i_sigma12;  
+		delete[] r_sigma22;  
+		delete[] i_sigma22;  
+		delete[] r_sigma11_inv;  
+		delete[] i_sigma11_inv;  
+		delete[] r_sigma2112;  
+		delete[] i_sigma2112;  
+		delete[] r_K22_inv;  
+		delete[] i_K22_inv;  
+		delete[] r_K12xK22_inv;  
+		delete[] i_K12xK22_inv;  
+	}
+}
+    
 // ----------------------------------------------------------------------------|
 // computing birth/death rate or alpha for element (i,j)
 // it is for double Metropolis-Hasting algorihtms
@@ -595,11 +789,11 @@ void rates_bdmcmc_dmh_parallel( double rates[], int G[], int index_row[], int in
 		int index_rate_j, i, j, ij, jj;
 		double Dsjj, Dsij, Dsijj, Dij, Dijj, Djj, log_rate;
 
-		double *K121         = new double[ 4 ];  
-		double *Kj12         = new double[ p1 ];  
-		double *sigmaj12     = new double[ p1 ];  
-		double *sigmaj22     = new double[ p1 * p1 ];  
-		double *Kj12xK22_inv = new double[ p1 ];  
+		double *K121                = new double[ 4 ];  
+		double *Kj12                = new double[ p1 ];  
+		double *sigmaj12            = new double[ p1 ];  
+		double *sigmaj22            = new double[ p1 * p1 ];  
+		double *Kj12xK22_inv        = new double[ p1 ];  
 		double *K21                 = new double[ p2x2 ];  
 		double *sigma12             = new double[ p2x2 ];  
 		double *sigma22             = new double[ p2 * p2 ];  
@@ -797,8 +991,7 @@ void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
 void scale_free( int *G, int *p )
 {
-	GetRNGstate();
-	int i, j, tmp, total, dim = *p, p0 = 2;
+	int i, j, tmp, dim = *p, p0 = 2;
 	double random_value;
 	std::vector<int> size_a( dim ); 
 
@@ -808,12 +1001,12 @@ void scale_free( int *G, int *p )
 		G[(i + 1) * dim + i] = 1;
 	}
 		
-	for( i = 0; i < p0; i++ ) size_a[i] = 2;
-	
+	for( i = 0 ; i < p0 ; i++ ) size_a[i] = 2;
 	for( i = p0; i < dim; i++ ) size_a[i] = 0;
 	
-	total = 2 * p0;
+	int total = 2 * p0;
 	
+	GetRNGstate();
 	for( i = p0; i < dim; i++ )
 	{
 	   random_value = (double) total * runif( 0, 1 );

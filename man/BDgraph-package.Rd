@@ -32,7 +32,7 @@ traceplot      Trace plot of graph size
 Whenever using this package, please cite as
 \preformatted{
 Mohammadi A. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 3.37, 
+Graphical Models using Birth-Death MCMC, R package version 3.38, 
 https://CRAN.R-project.org/package=BDgraph
 }
 }
@@ -45,6 +45,8 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+
+Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv:1706.04416} 
 
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128
 }
