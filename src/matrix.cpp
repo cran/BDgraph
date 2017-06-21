@@ -533,14 +533,14 @@ void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_
 void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double r_Ds[], double i_Ds[],
 				            double r_sigma[], double i_sigma[], double r_K[], double i_K[], int *b, int *p )
 {
-	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = p2 * 2, p2xp2 = p2 * p2, qp = dim * ( dim - 1 ) / 2, counter = 0;
-	double alpha = 1.0, beta = 0.0, dmone = -1.0, beta1 = 1.0;
+	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = p2 * 2, p2xp2 = p2 * p2, counter = 0;
+	double alpha = 1.0, beta = 0.0, dmone = -1.0;
 	char transT = 'T', transN = 'N';																	
 
 	#pragma omp parallel
 	{
 		int i, j, k, ij, jj, rowCol, nu_star;
-		double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, r_sum_diag, r_K022, i_K022, r_a11, i_a11, sigmajj_inv, r_sigmaj11, i_sigmaj11;
+		double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, r_sum_diag, r_K022, i_K022, r_a11, i_a11, r_sigmaj11, i_sigmaj11;
 		double mod_Dsjj, mod_a11, coef, r_temp, G_prior, log_rate;
 
 		double *r_K121     = new double[ 4 ];  
@@ -666,7 +666,7 @@ void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index
 			for( k = 0; k < dim; k++ ) // nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star += G[i * dim + k] * G[j * dim + k]; 
 						
-			G_prior = lgamma( 0.5 * ( nu_star + 1 ) ) - lgamma( 0.5 * nu_star );
+			G_prior = lgammafn( 0.5 * ( nu_star + 1 ) ) - lgammafn( 0.5 * nu_star );
 
 			r_a11      = r_K[i * dim1] - r_K121[0]; //k_ii - k_ii^1
 			i_a11      = i_K[i * dim1] - i_K121[0]; //k_ii - k_ii^1

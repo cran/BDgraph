@@ -34,7 +34,7 @@ extern "C" {
 void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 {
 	int i2p, ip, i, j, dim = *p, bK = *b, n = bK + dim, p2 = 2 * dim, pxn = dim * n, p2xn = 2 * pxn, pxp = dim * dim;
-	double alpha = 1.0, beta  = 0.0, malpha = -1.0; 
+	double alpha = 1.0, beta_0 = 0.0, malpha = -1.0; 
 	char transT  = 'T', transN = 'N', side = 'L', lower = 'L';																	
 
 	double *joint = new double[p2xn];
@@ -65,11 +65,11 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	}
 
 	// The real part of K_start = X %*% t(X) + Y %*% t(Y)
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta, &r_K[0], &dim );
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &Y[0], &dim, &alpha, &r_K[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta_0, &r_K[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &Y[0], &dim, &alpha , &r_K[0], &dim );
 
 	// The imaginary part of K_start = Y %*% t(X) - X %*% t(Y)
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &X[0], &dim, &beta, &i_K[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &X[0], &dim, &beta_0, &i_K[0], &dim );
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &malpha, &X[0], &dim, &Y[0], &dim, &alpha, &i_K[0], &dim );
 	
 	for( j = 0; j < pxp; j++ )
@@ -84,13 +84,13 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	delete[] X;
 	delete[] Y;
 }
-
+     
 // sampling from COMPLEX G-Wishart distribution
 void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 {
 	int i, j, k, s, ij, ji, i2p, ip, l, size_node_i, info, one = 1, dim = *p, p2 = 2*dim, pxp = dim * dim, bK = *b, n = bK + dim, pxn = dim * n, p2xn = 2 * pxn;	
 	double temp, threshold = 1e-8, done = 1.0, dmone = -1.0;
-	double alpha = 1.0, malpha = -1.0, beta  = 0.0; 
+	double alpha = 1.0, malpha = -1.0, beta_0 = 0.0; 
 	char transT  = 'T', transN = 'N', side = 'L', upper = 'U', lower = 'L';	
 	// STEP 1: sampling from complex wishart distributions
 	double *joint = new double[p2xn];
@@ -121,11 +121,11 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 		memcpy( Y + ip, &joint[i2p + dim], sizeof( double ) * dim );
 	}
 	// The real part of K_start = X %*% t(X) + Y %*% t(Y)
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta, &r_sigma_start[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta_0, &r_sigma_start[0], &dim );
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &Y[0], &dim, &alpha, &r_sigma_start[0], &dim );
 
 	// The imaginary part of K_start = Y %*% t(X) - X %*% t(Y)
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &X[0], &dim, &beta, &i_sigma_start[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &X[0], &dim, &beta_0, &i_sigma_start[0], &dim );
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &malpha, &X[0], &dim, &Y[0], &dim, &alpha, &i_sigma_start[0], &dim );
 
 	for( j = 0; j < dim; j++ )
@@ -210,7 +210,7 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 					r_sigma_N_i_2[s] = r_sigma_N_i[s];
 				inverse( &r_sigma_N_i_2[0], &Inv_R[0], &size_node_i );			
 				// IR = i_sigma_N_i %*% Inv_R
-				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &i_sigma_N_i[0], &size_node_i, &Inv_R[0], &size_node_i, &beta, &IR[0], &size_node_i);
+				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &i_sigma_N_i[0], &size_node_i, &Inv_R[0], &size_node_i, &beta_0, &IR[0], &size_node_i);
 				// A = IR %*% i_sigma_N_i + r_sigma_N_i = r_sigma_N_i
 				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &IR[0], &size_node_i, &i_sigma_N_i[0], &size_node_i, &alpha, &r_sigma_N_i[0], &size_node_i);
 				// B = IR %*% i_sigma_start_N_i + r_sigma_start_N_i	= r_sigma_start_N_i			
@@ -231,11 +231,11 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 				}
 				
 				// r_sigma_i = r_sigma %*% r_beta_star + i_sigma %*% i_beta_star
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &i_sigma[0], &dim, &i_beta_star[0], &dim, &beta, &r_sigma_i[0], &dim );
+				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &i_sigma[0], &dim, &i_beta_star[0], &dim, &beta_0, &r_sigma_i[0], &dim );
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &r_sigma[0], &dim, &r_beta_star[0], &dim, &done, &r_sigma_i[0], &dim );
 
 				// i_sigma_i = i_sigma %*% r_beta_star - r_sigma %*% i_beta_star
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &r_sigma[0], &dim, &i_beta_star[0], &dim, &beta, &i_sigma_i[0], &dim );
+				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &r_sigma[0], &dim, &i_beta_star[0], &dim, &beta_0, &i_sigma_i[0], &dim );
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &i_sigma[0], &dim, &r_beta_star[0], &dim, &dmone, &i_sigma_i[0], &dim );
 					
 				// Update the first i elements
@@ -338,7 +338,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 {
 	int i, j, k, s, ij, ji, i2p, ip, l, size_node_i, info, one = 1, dim = *p, p2 = 2*dim, pxp = dim * dim, bK = *b_star, n = bK + dim;	
 	double temp, threshold = 1e-8, done = 1.0, dmone = -1.0;
-	double alpha = 1.0, beta  = 0.0, malpha = -1.0; 
+	double alpha = 1.0, beta_0 = 0.0, malpha = -1.0; 
 	double max_diff = 1.0, r_diff, i_diff;	
 	char transT  = 'T', transN = 'N', side = 'L', upper = 'U', lower = 'L';																	
 
@@ -363,11 +363,11 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	}
 
 	// The real part of K_start = X %*% t(X) + Y %*% t(Y)
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta, &r_sigma_start[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta_0, &r_sigma_start[0], &dim );
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &Y[0], &dim, &alpha, &r_sigma_start[0], &dim );
 
 	// The imaginary part of K_start = Y %*% t(X) - X %*% t(Y)
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &X[0], &dim, &beta, &i_sigma_start[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &X[0], &dim, &beta_0, &i_sigma_start[0], &dim );
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &malpha, &X[0], &dim, &Y[0], &dim, &alpha, &i_sigma_start[0], &dim );
 
 	for( j = 0; j < dim; j++ )
@@ -435,7 +435,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 					
 				inverse( &r_sigma_N_i_2[0], &Inv_R[0], &size_node_i );			
 				// IR = i_sigma_N_i %*% Inv_R
-				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &i_sigma_N_i[0], &size_node_i, &Inv_R[0], &size_node_i, &beta, &IR[0], &size_node_i);
+				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &i_sigma_N_i[0], &size_node_i, &Inv_R[0], &size_node_i, &beta_0, &IR[0], &size_node_i);
 				// A = IR %*% i_sigma_N_i + r_sigma_N_i = r_sigma_N_i
 				F77_NAME(dgemm)( &transN, &transN, &size_node_i, &size_node_i, &size_node_i, &alpha, &IR[0], &size_node_i, &i_sigma_N_i[0], &size_node_i, &alpha, &r_sigma_N_i[0], &size_node_i);
 				// B = IR %*% i_sigma_start_N_i + r_sigma_start_N_i	= r_sigma_start_N_i			
@@ -457,11 +457,11 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 				}
 				
 				// r_sigma_i = r_sigma %*% r_beta_star + i_sigma %*% i_beta_star
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, i_sigma, &dim, &i_beta_star[0], &dim, &beta, &r_sigma_i[0], &dim );
+				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, i_sigma, &dim, &i_beta_star[0], &dim, &beta_0, &r_sigma_i[0], &dim );
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, r_sigma, &dim, &r_beta_star[0], &dim, &done, &r_sigma_i[0], &dim );
 
 				// i_sigma_i = i_sigma %*% r_beta_star - r_sigma %*% i_beta_star
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, r_sigma, &dim, &i_beta_star[0], &dim, &beta, &i_sigma_i[0], &dim );
+				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, r_sigma, &dim, &i_beta_star[0], &dim, &beta_0, &i_sigma_i[0], &dim );
 				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, i_sigma, &dim, &r_beta_star[0], &dim, &dmone, &i_sigma_i[0], &dim );
 				
 				// Update the first i elements of sigma[-i,i]
@@ -563,7 +563,6 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], int g_space[], doubl
 	int pxpxT = pxp * T, txpxp, n = dim, max_b_star = 0;
 	int qp = dim * ( dim - 1 ) / 2;
 	double sum_weights = 0.0, sum_rates, common_factor = 1.0;
-	double beta = 0.0;
 	bool useful;
 
 	for( i = 0; i < T; i++ )
@@ -781,8 +780,8 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	bool useful;
 
 	double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, r_sigmaj11, i_sigmaj11;
-	double mod_Dsjj, mod_a11, coef, r_temp, nu_star, rate, sum_rates, G_prior, common_factor = 1.0;
-	double alpha = 1.0, beta = 0.0, dmone = -1.0;
+	double mod_Dsjj, mod_a11, coef, r_temp, nu_star, sum_rates, G_prior, common_factor = 1.0;
+	double alpha = 1.0, beta_0 = 0.0, dmone = -1.0;
 	char transT = 'T', transN = 'N';																	
 	
 	for ( i = 0; i < T; i++ )
@@ -898,7 +897,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 				for( k = 0; k < dim; k++ ) // nu_star = b + sum( Gf[,i] * Gf[,j] )
 					nu_star += G[i * dim + k] * G[j * dim + k];   
 
-				G_prior = lgamma( 0.5 * ( nu_star + 1 ) ) - lgamma( 0.5 * nu_star );
+				G_prior = lgammafn( 0.5 * ( nu_star + 1 ) ) - lgammafn( 0.5 * nu_star );
 				//log_rates[counter++] = ( G[j * dim + i] ) ? G_prior : - G_prior;
 				rates[counter++] = ( G[j * dim + i] ) ? G_prior : -G_prior;
 			}
@@ -951,14 +950,14 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					i_Kj12[ i ] = 0.0;                         // K12[i] = 0
 
 					// Kj12xK22_inv = Kj12 %*% Kj22_inv
-					F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &i12xi22_j[0], &one );
+					F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta_0, &i12xi22_j[0], &one );
 					F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &r_Kj22_inv[0], &p1, &dmone, &i12xi22_j[0], &one );				
-					F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &r12xi22_j[0], &one );
+					F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta_0, &r12xi22_j[0], &one );
 					F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &r_Kj22_inv[0], &p1, &alpha, &r12xi22_j[0], &one );				
 					// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12) = c
-					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &r_K022, &one );
+					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &i_Kj12[0], &p1, &beta_0, &r_K022, &one );
 					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &r_Kj12[0], &p1, &alpha, &r_K022, &one );
-					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &i_K022, &one );
+					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta_0, &i_K022, &one );
 					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &r_Kj12[0], &p1, &dmone, &i_K022, &one );
 					// For (i,j) = 1 ----------------------------------------------|
 					sub_rows_mins( &r_K[txpxp], &r_K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
@@ -971,14 +970,14 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					cinverse_2x2( &r_sigma11[0], &i_sigma11[0], &r_sigma11_inv[0], &i_sigma11_inv[0] );
 
 					// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-					F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &r21xr11[0], &p2 );
+					F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta_0, &r21xr11[0], &p2 );
 					F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &i_sigma11_inv[0], &two, &alpha, &r21xr11[0], &p2 );
-					F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &i21xr11[0], &p2 );
+					F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta_0, &i21xr11[0], &p2 );
 					F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &i_sigma11_inv[0], &two, &dmone, &i21xr11[0], &p2 );				
 					// sigma2112 = sigma21xsigma11_inv %*% sigma12 = sigma[-e,e] %*% solve(sigma[e,e]) %*% sigma[e,-e]
-					F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &i_sigma12[0], &two, &beta, &r_sigma2112[0], &p2 );
+					F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &i_sigma12[0], &two, &beta_0, &r_sigma2112[0], &p2 );
 					F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &r_sigma12[0], &two, &dmone, &r_sigma2112[0], &p2 );
-					F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &i_sigma12[0], &two, &beta, &i_sigma2112[0], &p2 );
+					F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &i_sigma12[0], &two, &beta_0, &i_sigma2112[0], &p2 );
 					F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &r_sigma12[0], &two, &alpha, &i_sigma2112[0], &p2 );
 
 
@@ -990,14 +989,14 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					}
 
 					// K12 %*% K22_inv
-					F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &i_K22_inv[0], &p2, &beta, &i12xi22[0], &two );
+					F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &i_K22_inv[0], &p2, &beta_0, &i12xi22[0], &two );
 					F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &r_K22_inv[0], &p2, &dmone, &i12xi22[0], &two );
-					F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &i_K22_inv[0], &p2, &beta, &r12xi22[0], &two );
+					F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &i_K22_inv[0], &p2, &beta_0, &r12xi22[0], &two );
 					F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &r_K22_inv[0], &p2, &alpha, &r12xi22[0], &two );
 					// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 		
-					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &i_K12[0], &two, &beta, &r_K121[0], &two );
+					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &i_K12[0], &two, &beta_0, &r_K121[0], &two );
 					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &r_K12[0], &two, &alpha, &r_K121[0], &two );
-					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta, &i_K121[0], &two );
+					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta_0, &i_K121[0], &two );
 					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &r_K12[0], &two, &dmone, &i_K121[0], &two );
 																			
 					// Finished (i,j) = 1------------------------------------------|
@@ -1005,8 +1004,8 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					r_a11      = r_K[i * dim + i + txpxp] - r_K121[0]; //k_ii - k_ii^1
 					r_sum_diag = r_Dsjj * ( r_K022 - r_K121[3] ) - ( r_Dsij * r_K121[1] - i_Dsij * i_K121[1] ) - ( r_Dsij * r_K121[2] + i_Dsij * i_K121[2] ); //tr(D*(K0-K1))
 
-					mod_Dsjj = fabs( r_Dsjj );
-					mod_a11  = fabs( r_a11 );
+					mod_Dsjj = fabs( static_cast<double>( r_Dsjj ) );
+					mod_a11  = fabs( static_cast<double>( r_a11 ) );
 					coef     = ( r_Dsij * r_Dsij + i_Dsij * i_Dsij ) / ( r_Dsjj * r_Dsjj );
 					r_temp   = coef * ( r_a11 * r_Dsjj ) + r_sum_diag;
 					
@@ -1145,7 +1144,11 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 				r_K_hat[t] = r_K[t];
 				i_K_hat[t] = i_K[t];
 			}
-			delete[] csigma, Ind, K;
+			
+			delete[] csigma;
+			delete[] Ind;
+			delete[] K;
+			
 			return;
 		}	
 
@@ -1168,14 +1171,15 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		// STEP 2: Sampling from G-Wishart for new graph ----------------------|
 		for( t = 0; t < T; t++ )
 		{
-			txpxp = t*pxp;
-			rgcwish_sigma(G, &size_node[0], &Ls[4*txpxp], K, &r_sigma[txpxp], 
-			&i_sigma[txpxp], csigma, Ind, &b_star[t], &dim, 
-			&r_sigma_start[0], &i_sigma_start[0], &X[0], &Y[0],
-			&r_beta_star[0], &i_beta_star[0], &joint[0], &r_sigma_i[0],
-			&i_sigma_i[0], r_sigma_start_N_i, r_sigma_start_N_i_2,
-			i_sigma_start_N_i, r_sigma_N_i, r_sigma_N_i_2, i_sigma_N_i, N_i, IR, Inv_R);
-			for (k = 0; k < pxp; k++)
+			txpxp = t * pxp;
+			rgcwish_sigma( G, &size_node[0], &Ls[4 * txpxp], K, &r_sigma[txpxp], 
+				&i_sigma[txpxp], csigma, Ind, &b_star[t], &dim, 
+				&r_sigma_start[0], &i_sigma_start[0], &X[0], &Y[0],
+				&r_beta_star[0], &i_beta_star[0], &joint[0], &r_sigma_i[0],
+				&i_sigma_i[0], r_sigma_start_N_i, r_sigma_start_N_i_2,
+				i_sigma_start_N_i, r_sigma_N_i, r_sigma_N_i_2, i_sigma_N_i, N_i, IR, Inv_R );
+			
+			for( k = 0; k < pxp; k++ )
 			{
 				r_K[k + txpxp] = K[k].r;
 				i_K[k + txpxp] = K[k].i;
@@ -1197,7 +1201,10 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		r_K_hat[i] /= sum_weights;
 		i_K_hat[i] /= sum_weights;
 	}
-	delete[] csigma, Ind, K;
+	
+	delete[] csigma;
+	delete[] Ind;
+	delete[] K;
 }
     
 } // End of exturn "C"

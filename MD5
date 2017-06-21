@@ -1,4 +1,4 @@
-c3fec3f6292bddf0fa11b0ea696370c2 *DESCRIPTION
+98f328c9b072b42f25671cba5fa4d462 *DESCRIPTION
 333b778d084478031c8f76ccfeefa6c0 *NAMESPACE
 c93e6893c8410ab881f4ab9de5123380 *NEWS
 ea9c61846f52f865a0c6f6cb77e2af50 *R/bdgraph.R
@@ -54,7 +54,7 @@ bd1929d541b22818aa648030977391fb *man/traceplot.Rd
 a29ae08b0ab5f13ae534c3d30c95cbf7 *src/Makevars.win
 b25318fd8e6bafdd25e12ab01af29ccb *src/MyLapack.cpp
 a665867e9743ba216ba5450570fe9441 *src/MyLapack.h
-19e9b60156247d89663b46467fda875a *src/bd_for_ts.cpp
+4a98e743827f9eeca1d8fc064e7f76c0 *src/bd_for_ts.cpp
 9bf73cccd632c10de683743dc2d7e9fe *src/copula.cpp
 ff76694986adf1afd61de12f9df5dfa2 *src/copula.h
 4d58c380ab0fc8760baf2ed92fd8dd12 *src/gcgm_DMH.cpp
@@ -66,7 +66,7 @@ e6a585ceb6ec517d86d830bc3a882627 *src/gm_mpl_Hill_Climb.cpp
 3227c1bc72890c659623aab1f452325d *src/gm_mpl_bd_dis.cpp
 ec656ecbbc6f3daf912b802a6ed5f7b8 *src/gm_rj.cpp
 14041b71d728c4422ba5dc57404c234d *src/init.c
-d9d7403c1caf0fc585e2c2c2f2bd2620 *src/matrix.cpp
+1b45375981eff6f6b9aa4f03fe6e5c8c *src/matrix.cpp
 ef5edb7fe436604506daec15e01f1fbe *src/matrix.h
 ceb8bdc6eb4d589323993d2a9c0250f0 *src/rgwish.cpp
 3adaeb108391465d11bbb118ad44b686 *src/rgwish.h
