@@ -8,7 +8,8 @@
 \alias{ local_mb_hc }
 \alias{ global_hc }
 \alias{ log_mpl_dis }
-\alias{ data_transform }
+
+\alias{ detect_cores }
 
 \docType{data}
 

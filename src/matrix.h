@@ -13,6 +13,8 @@
 #ifndef matrix_H
 #define matrix_H
 
+#include <sstream>
+#include <string>        // std::string, std::to_string
 #include <R.h>
 #include <Rmath.h>
 #include <R_ext/Lapack.h>
@@ -51,7 +53,7 @@ extern "C" {
 
 	void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp );
 
-	void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
+	void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
 					            double sigma[], double K[], int *b, int *p );
 
 	void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double r_Ds[], double i_Ds[],
@@ -63,11 +65,11 @@ extern "C" {
 				   int *dim, int *p1, int *p2, int *jj,
 				   double *Dsijj, double *Dsij, double *Dsjj );
 
-	void rates_bdmcmc_dmh_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
+	void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
 								double sigma[], double K[], double sigma_dmh[], 
 								double K_dmh[], int *b, int *p );
 				            
-	// -------------- NEW for Lang codes ---------------------------------------
+// -------------- NEW for Lang codes --------------------------------------------------------------|
 	// For Hermitian matrix
 	void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p );
 		  
@@ -78,8 +80,11 @@ extern "C" {
 	void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p );
 	
 	void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] );
+// ------------------------------------------------------------------------------------------------|
 	
 	void scale_free( int *G, int *p );
+	
+	void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_data );
 }
 
 #endif

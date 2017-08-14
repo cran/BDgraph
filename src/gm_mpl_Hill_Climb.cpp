@@ -57,7 +57,7 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
         
         size_mb_conf = max_range_nodes[ mb_node[0] ];            
         // mb_conf = 1:size_mb_conf;      
-		for( j = 0; j < size_mb_conf; j++ ) mb_conf[j] = j + 1;     
+		for( j = 0; j < size_mb_conf; j++ ) mb_conf[j] = j;     
 	}
 	
 	if( *size_node > 1 ) 
@@ -92,7 +92,7 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
 			 //fam_conf_count[j] = std::count( &data[0] + node_x_n, &data[0] + node_x_n + *n, j + 1 );
 			fam_conf_count[j] = 0;
 			for( i = 0; i < *length_freq_data; i++ )
-				if( data[node_x_lf + i] == ( j + 1 ) ) fam_conf_count[j] += freq_data[i];
+				if( data[node_x_lf + i] == j ) fam_conf_count[j] += freq_data[i];
 		}
 			
 		sum_lgamma_fam = 0.0;
@@ -121,7 +121,7 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
 			{
 				fam_conf_count[j] = 0;
 				for( i = 0; i < *length_freq_data; i++ )
-					if( ( data[node_x_lf + i] == ( j + 1 ) ) && ( data_mb[i] == mb_conf_l ) ) fam_conf_count[j] += freq_data[i];
+					if( ( data[node_x_lf + i] == j ) && ( data_mb[i] == mb_conf_l ) ) fam_conf_count[j] += freq_data[i];
 			}
 
 			sum_lgamma_fam = 0.0;
@@ -143,8 +143,7 @@ void bayes_factors_mpl_dis( double bayes_factors[], double curr_log_mpl[], int G
                             int *size_G_or, int size_node[], int data[], int freq_data[], 
                             int *length_freq_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p )
 {
-	int i, j, t, nodexdim, count_mb, dim = *p;
-	int size_node_i_new, size_node_j_new;
+	int i, j, t, nodexdim, count_mb, dim = *p, size_node_i_new, size_node_j_new;
 	double log_mpl_i_new, log_mpl_j_new;
 	
 	vector<int>mb_node_i_new( dim );     
@@ -203,13 +202,10 @@ void bayes_factors_mpl_dis( double bayes_factors[], double curr_log_mpl[], int G
 void dgm_global_mpl_hc( int G_hat[], int edges_G_or[], int *size_G_or, int data[], int freq_data[], int *length_f_data, 
                         int max_range_nodes[], double *alpha_ijl, int *n, int *p )
 {
-	int length_freq_data = *length_f_data, copy_n = *n;
-
+	int length_freq_data = *length_f_data, copy_n = *n, i, dim = *p, nodexdim, count_mb, t;
 	int max_bayes_factors_loc, selected_edge_i, selected_edge_j, selected_edge_ij;
-	int i, dim = *p;
 
 	// Caclulating the log_likelihood for the current graph G
-	int nodexdim, count_mb, t;
 	vector<int>size_node( dim, 0 );
 	vector<int>mb_node( dim, 0 );     
 	vector<double>curr_log_mpl( dim );

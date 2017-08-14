@@ -4,8 +4,7 @@ import( "Matrix" )
 importFrom( "grDevices", "dev.new" )
 importFrom( "igraph", "graph.adjacency", "plot.igraph", "layout.circle" )
 
-importFrom( "graphics", "abline", "matplot", "par", "plot", "points",
-		    "text", "title", "legend" )
+importFrom( "graphics", "abline", "matplot", "par", "plot", "points", "text", "title", "legend" )
 		    
 importFrom( "stats", "cor", "sd", 
 			"rnorm", "pnorm", "qnorm", 
@@ -13,14 +12,13 @@ importFrom( "stats", "cor", "sd",
 			"qexp", "qpois",
 		    "rchisq", "runif", "smooth.spline" )
 		    
-importFrom( "utils", "flush.console" )
-
-importFrom( "utils", "object.size" )
+importFrom( "utils", "flush.console", "read.table", "object.size" )
 
 export( bdgraph,
 		bdgraph.mpl,
 		bdgraph.ts,
 
+		transfer,
 		plinks,
 		select,
 		pgraph,
@@ -47,7 +45,7 @@ export( bdgraph,
 	   )
 
 S3method( "summary", "bdgraph" )
-S3method( "plot",    "bdgraph" )
-S3method( "print",   "bdgraph" )
-S3method( "plot",    "sim" )
-S3method( "print",   "sim" )
+S3method( "plot"   , "bdgraph" )
+S3method( "print"  , "bdgraph" )
+S3method( "plot"   , "sim" )
+S3method( "print"  , "sim" )

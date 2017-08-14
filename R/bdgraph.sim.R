@@ -236,6 +236,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 				breaks <- c( min( d[, j] ) - 1, marginals[, j], max( d[, j] ) + 1 )  
 				d[, j] <- as.integer( cut( d[, j], breaks = breaks, right = FALSE ) )
 			}	
+			
+			d = d - 1
 		}
 	}
 	

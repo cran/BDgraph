@@ -12,7 +12,7 @@
 # Pensar et al. for more details.
 ## ----------------------------------------------------------------------------|
 # INPUT:  * data (n x p) matrix, as discrete data with n observations and p variables. 
-#         The outcome space of each variable must be in the form 1, 2, ..., r. 
+#         The outcome space of each variable must be in the form 0, 1, ..., r. 
 #         * alpha: The parameter of the prior distribution
 # OUTPUT: * selected_g - adjacency matrix for the selected graph 
 ## ----------------------------------------------------------------------------|

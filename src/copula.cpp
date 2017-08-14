@@ -56,6 +56,7 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 {
 	int number = *n, dim = *p, nxp = number * dim;
 	
+	//GetRNGstate();
 	#pragma omp parallel
 	{	
 		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
@@ -76,10 +77,12 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 			
 			pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
 			pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-			runif_value = runif( pnorm_lb, pnorm_ub );
+			//runif_value = runif( pnorm_lb, pnorm_ub );
+			runif_value = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
 			Z[counter]  = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
 		}
 	}
+	//PutRNGstate();
 }
 
 // Calculating bounds for copula function with missing data 
@@ -113,6 +116,7 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 {
 	int number = *n, dim = *p, nxp = number * dim;
 
+	//GetRNGstate();
 	#pragma omp parallel
 	{	
 		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
@@ -135,13 +139,16 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 				
 				pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
 				pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
-				runif_value = runif( pnorm_lb, pnorm_ub );
+				//runif_value = runif( pnorm_lb, pnorm_ub );
+				runif_value = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
 				Z[counter]  = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
 			} 
 			else 
-				Z[counter] = rnorm( mu_ij, sd_j );
+				//Z[counter] = rnorm( mu_ij, sd_j );
+				Z[counter] = mu_ij + norm_rand() * sd_j;
 		}
 	}
+	//PutRNGstate();
 }
      
 // Calculating Ds = D + S for the BDMCMC sampling algorithm

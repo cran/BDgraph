@@ -22,16 +22,18 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
 	vector<double> psi( pxp, 0.0 ); 
 
-    GetRNGstate();
 	// ---- Sample values in Psi matrix ---------------------------------------|
+	GetRNGstate();
 	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
+		psi[i * dim + i] = sqrt( rgamma( ( bK + dim - i - 1 ) / 2.0, 2.0 ) );
+		//psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
 
 	#pragma omp parallel for
 	for( j = 1; j < dim; j++ )
 		for( int i = 0; i < j; i++ )
-			psi[j * dim + i] = rnorm( 0, 1 );
+			psi[j * dim + i] = norm_rand();
+	PutRNGstate();
 	// ------------------------------------------------------------------------|
 
     	// C = psi %*% Ts   I used   psi = psi %*% Ts
@@ -41,7 +43,6 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 	// K = t(C) %*% C 
 	// LAPACK function to compute  C := alpha * A * B + beta * C																				
 	F77_NAME(dgemm)( &transT, &transN, &dim, &dim, &dim, &alpha, &psi[0], &dim, &psi[0], &dim, &beta, K, &dim );
-	PutRNGstate();
 }
 
 // G is adjacency matrix which has zero in its diagonal // threshold = 1e-8
@@ -150,17 +151,20 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	// STEP 1: sampling from wishart distributions
 	// ---- Sample values in Psi matrix ---
+	//GetRNGstate();
 	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
+		sigma_start[i * dim1] = sqrt( rgamma( ( bKdim - i ) / 2.0, 2.0 ) ); // i * dim1 = i * dim + i
+		//sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
 
 	#pragma omp parallel for
 	for( j = 1; j < dim; j++ )
 		for( int i = 0; i < j; i++ )
 		{
-			sigma_start[ j * dim + i ] = rnorm( 0, 1 );
+			sigma_start[ j * dim + i ] = norm_rand();
 			sigma_start[ i * dim + j ] = 0.0;
 		}
+	//PutRNGstate();
 	// ------------------------------------
 	
 	// C = psi %*% Ts   I used psi = psi %*% Ts   Now is  sigma_start = sigma_start %*% Ts
@@ -172,6 +176,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	for( i = 0; i < dim; i++ )
 		for( int j = 0; j < dim; j++ )
 			inv_C[j * dim + i] = ( i == j );	
+	
 	// op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
 	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &inv_C[0], &dim );
  
@@ -294,14 +299,15 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )
-				psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
+				psi[i * dim + i] = sqrt( rgamma( ( b_c + nu[i] ) / 2.0, 2.0 ) );
+				//psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
 
 			for( i = 0; i < dim - 1; i++ ) 
 				for( j = i + 1; j < dim; j++ ) 
 				{
 					ij = j * dim + i;
 					//if( G[ij] == 1 ) psi[ij] = rnorm( 0, 1 ); else psi[ij] = 0.0;
-					psi[ij] = ( G[ij] == 1 ) ? rnorm( 0, 1 ) : 0.0;
+					psi[ij] = ( G[ij] == 1 ) ? norm_rand() : 0.0;
 				}
 			
 			for( i = 0; i < dim - 1; i++ ) 
@@ -344,14 +350,15 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )
-				psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
+				psi[i * dim + i] = sqrt( rgamma( ( b_c + nu[i] ) / 2.0, 2.0 ) );
+				//psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
 
 			for( i = 0; i < dim - 1; i++ ) 
 				for( j = i + 1; j < dim; j++ ) 
 				{
 					ij = j * dim + i;
 					//if( G[ij] == 1 ) psi[ij] = rnorm( 0, 1 ); elsepsi[ij] = 0.0;
-					psi[ij] = ( G[ij] == 1 ) ? rnorm( 0, 1 ) : 0.0;
+					psi[ij] = ( G[ij] == 1 ) ? norm_rand() : 0.0;
 				}
 			
 			for( i = 0; i < dim - 1; i++ ) 

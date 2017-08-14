@@ -9,8 +9,9 @@
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-         burnin = iter / 2, g.start = "empty", g.space = NULL, prior.df = 3, 
-         multi.update = NULL, save.all = FALSE, print = 1000 )
+         burnin = iter / 2, g.start = "empty", g.space = NULL, g.prior = 0.5, 
+         prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, 
+         cores = "all" )
 }
 
 \arguments{
@@ -25,13 +26,13 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
 	  
 	\item{method}{
-		A character with two options \code{"ggm"} (defult) and \code{"gcgm"}. 
+		A character with two options \code{"ggm"} (default) and \code{"gcgm"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
 		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
 
 	\item{algorithm}{
-		A character with two options \code{"bdmcmc"} (defult) and \code{"rjmcmc"}. 
+		A character with two options \code{"bdmcmc"} (default) and \code{"rjmcmc"}. 
 		Option \code{"bdmcmc"} is based on birth-death MCMC algorithm.
 		Option \code{"rjmcmc"} is based on reverible jump MCMC algorithm.
 	}
@@ -47,11 +48,16 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	} 
 	\item{g.space}{
 		Corresponds to the sub-space of the graph. 
-		For the case \code{ g.start = "NULL"} (defult), algorithm search in the hole graph space. 
+		For the case \code{ g.start = "NULL"} (default), algorithm search in the hole graph space. 
 		With this option, one could run the search algorithm only to the restricted subspace of the graph.
 		Subspace should determine as an adjacency matrix.
 	} 
 
+	\item{g.prior}{
+		For determining the prior distribution of each edge in the graph. 
+		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
+		or an (\eqn{p \times p}) matrix with elements between \eqn{0} and \eqn{1}.
+	}
 	\item{prior.df}{
 		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix.
 	}
@@ -64,6 +70,10 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }	
+	\item{cores}{ The number of cores to use for parallel execution. 
+	   The default is to use \code{"all"} CPU cores of the computer; 
+	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
+	   }	
 }
 
 \value{
@@ -88,11 +98,11 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv:1706.04416} 
+Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
 \author{ Abdolreza Mohammadi and Ernst Wit }

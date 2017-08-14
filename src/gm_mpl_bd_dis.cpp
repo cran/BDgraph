@@ -19,6 +19,7 @@
 #include <Rmath.h>
 #include <algorithm>     // for transform function and std::sort
 #include <functional>    // for transform function
+#include <climits>
 
 #include "matrix.h"
 
@@ -30,78 +31,116 @@ extern "C" {
 // ----------------------------------------------------------------------------|
 void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
                   int data[], int freq_data[], int *length_freq_data, 
-                  int cumprod_mb[], double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n )
+                  double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, 
+                  int vec_fam_conf_count_0[], int vec_fam_conf_count_1[],
+                  vector<vector<unsigned long long int> > &mb_conf, int *size_bit )
 {
-	int counter, i, j, l, size_mb_conf, mb_node_x_lf, mb_conf_count, node_x_lf = *node * *length_freq_data;
+	int sz = *size_bit;
+	int i_hash, counter, i, j, l, size_mb_conf, mb_node_x_lf, node_x_lf = *node * *length_freq_data;
 	double sum_lgamma_fam;
 
-	vector<int>fam_conf_count( 2, 0 );
+	*log_mpl_node = 0.0;
+	int fam_conf_count_0 = 0, fam_conf_count_1 = 0;
 		   
-	if( *size_node == 0 ) 
+	switch( *size_node )
 	{
-		for( i = 0; i < *length_freq_data; i++ )
-			( data[ node_x_lf + i ] == 1 ) ? fam_conf_count[0] += freq_data[i] : fam_conf_count[1] += freq_data[i];
-			
-		sum_lgamma_fam = lgammafn( fam_conf_count[0] + *alpha_ijl ) + lgammafn( fam_conf_count[1] + *alpha_ijl );
-					   
-		*log_mpl_node = sum_lgamma_fam - lgammafn( *n + *alpha_jl ) + *log_alpha_jl - 2 * *log_alpha_ijl;      
-	}else{
-		
-		vector<int>data_mb( *length_freq_data, 0 ); 
-		//vector<int>mb_conf( *length_freq_data );	
-		int *mb_conf = new int[ *length_freq_data ];           // For dynamic memory used
-				
-		if( *size_node == 1 ) 
-		{
-			// data_mb = data[ , mb_node ]          
-			mb_node_x_lf = mb_node[0] * *length_freq_data; 
-			memcpy( &data_mb[0], &data[0] + mb_node_x_lf, sizeof( int ) * *length_freq_data );    
-			
-			size_mb_conf = 2;            
-			mb_conf[0]   = 1;     
-			mb_conf[1]   = 2;     
-		}else{
-				
-			//data_mb = c( data[ , mb_node ] %*% cumprod_mb ) 
+		case 0:
 			for( i = 0; i < *length_freq_data; i++ )
-				for( j = 0; j < *size_node; j++ )
-					data_mb[i] += cumprod_mb[j] * data[ mb_node[j] * *length_freq_data + i ];
-							
-			mb_conf[0] = data_mb[0];
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				
+			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
+						   
+			*log_mpl_node = sum_lgamma_fam - lgammafn_sign( *n + *alpha_jl, NULL ) + *log_alpha_jl - 2 * *log_alpha_ijl;      
+			break;
+				
+		case 1:
+			mb_node_x_lf = mb_node[0] * *length_freq_data; 		
+
+			for( l = 0; l < 2; l++ )  // collects the necessary statistics from the data and calculates the score
+			{
+				fam_conf_count_0 = 0;
+				fam_conf_count_1 = 0;
+				for( i = 0; i < *length_freq_data; i++ )
+					if( data[ mb_node_x_lf + i ] == l ) 
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+								
+				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
+		   
+				//mb_conf_count = fam_conf_count[0] + fam_conf_count[1];
+				*log_mpl_node += sum_lgamma_fam - lgammafn_sign( fam_conf_count_0 + fam_conf_count_1 + *alpha_jl, NULL );     
+			}		
+
+			// adding remaining terms 
+			*log_mpl_node += 2 * *log_alpha_jl - 4 * *log_alpha_ijl;   
+			break;
+	
+		default:			
+			int size_hash = *size_node / sz + 1;
+			vector<unsigned long long int> hash_mb( size_hash, 0 );			
+
+			// for case i = 0
+			for( j = 0; j < *size_node; j++ )
+			{
+				i_hash = j / sz;
+				hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
+			}
+			mb_conf[0] = hash_mb;
 			size_mb_conf = 1;
+
+			if( data[ node_x_lf ] == 0 ) 
+			{
+				vec_fam_conf_count_0[0] = freq_data[0];
+				vec_fam_conf_count_1[0] = 0;
+			}else{
+				vec_fam_conf_count_1[0] = freq_data[0];
+				vec_fam_conf_count_0[0] = 0;
+			}
+
+			int sizeof_hash = size_hash * sizeof hash_mb[0];
 			for( i = 1; i < *length_freq_data; i++ )
 			{
-				counter = 0;
-				//for( j = 0; j < size_mb_conf; j++ )
-					//( data_mb[i] == mb_conf[j] ) ? j = size_mb_conf : ++counter;					
-				while( ( counter < size_mb_conf ) and ( data_mb[i] != mb_conf[counter] ) )
-					++counter;
+				//vector<unsigned long long int> hash_mb( size_hash, 0 );
+				memset( &hash_mb[0], 0, sizeof_hash );
 				
-				if( counter == size_mb_conf )
-					mb_conf[size_mb_conf++] = data_mb[i];
+				for( j = 0; j < *size_node; j++ )
+				{
+					i_hash = j / sz;
+					hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+				}
+				
+				//data_mb[i] = hash_mb;
+				counter = 1;
+				for( j = 0; j < size_mb_conf; j++ )
+					if( hash_mb == mb_conf[j] ) 
+					{
+						( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[j] += freq_data[i] : vec_fam_conf_count_1[j] += freq_data[i];
+						counter = 0;  
+						break;
+					}					
+				
+				if( counter )
+				{
+					//( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i] : vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+					if( data[ node_x_lf + i ] == 0 ) 
+					{
+						vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_1[ size_mb_conf ] = 0;
+					}else{
+						vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_0[ size_mb_conf ] = 0;
+					}
+					
+					mb_conf[ size_mb_conf++ ] = hash_mb;
+				}
 			}
-		}
-	
-		*log_mpl_node = 0.0;
-		for( l = 0; l < size_mb_conf; l++ )  // collects the necessary statistics from the data and calculates the score
-		{
-			fam_conf_count[0] = 0;
-			fam_conf_count[1] = 0;
-			for( i = 0; i < *length_freq_data; i++ )
-				if( data_mb[i] == mb_conf[ l ] ) 
-					( data[ node_x_lf + i ] ==  1 ) ? fam_conf_count[0] += freq_data[i] : fam_conf_count[1] += freq_data[i];
-			
-			mb_conf_count = fam_conf_count[0] + fam_conf_count[1];
-			
-			sum_lgamma_fam = lgammafn( fam_conf_count[0] + *alpha_ijl ) + lgammafn( fam_conf_count[1] + *alpha_ijl );
-	   
-			*log_mpl_node += sum_lgamma_fam - lgammafn( mb_conf_count + *alpha_jl );     
-		}		
+						
+			for( l = 0; l < size_mb_conf; l++ )  // collects the necessary statistics from the data and calculates the score
+				*log_mpl_node += lgammafn_sign( vec_fam_conf_count_0[l] + *alpha_ijl, NULL ) + lgammafn_sign( vec_fam_conf_count_1[l] + *alpha_ijl, NULL ) - lgammafn_sign( vec_fam_conf_count_0[l] + vec_fam_conf_count_1[l] + *alpha_jl, NULL );     
 
-		// adding remaining terms 
-		*log_mpl_node += size_mb_conf * ( *log_alpha_jl - 2 * *log_alpha_ijl );   
-		
-		delete[] mb_conf;  
+			// adding remaining terms 
+			*log_mpl_node += size_mb_conf * ( *log_alpha_jl - 2 * *log_alpha_ijl );   
+
+			break;
 	}
 }
     	
@@ -109,26 +148,31 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 // Computing birth-death rates for dgm_mpl_binary method
 // ----------------------------------------------------------------------------|
 void rates_gm_mpl_binary( double rates[], double curr_log_mpl[], int G[], int index_row[], int index_col[], int *sub_qp, int size_node[], int data[], int freq_data[], 
-                       int *length_freq_data, int cumprod_mb[], double *ratio_g_prior,
-                       double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, int *p )
+                       int *length_freq_data, double *log_ratio_g_prior,
+                       double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, int *p, int *size_bit )
 {
 	int dim = *p;
 	
 	#pragma omp parallel
 	{
-		int i, j, t, nodexdim, count_mb, size_node_i_new, size_node_j_new;
+		int i, j, t, G_ij, nodexdim, count_mb, size_node_i_new, size_node_j_new;
 		double log_mpl_i_new, log_mpl_j_new, log_rate;
 		
 		int *mb_node_i_new = new int[ dim ];          // For dynamic memory used
 		int *mb_node_j_new = new int[ dim ];          // For dynamic memory used
+
+		vector<vector<unsigned long long int> > mb_conf( *length_freq_data );		
+		vector<int>vec_fam_conf_count_0( *length_freq_data );	
+		vector<int>vec_fam_conf_count_1( *length_freq_data );	
 
 		#pragma omp for
 		for( int counter = 0; counter < *sub_qp; counter++ )
 		{
 			i = index_row[ counter ];
 			j = index_col[ counter ];
-
-			if( G[ j * dim + i ] )
+			G_ij = G[ j * dim + i ];
+			
+			if( G_ij )
 			{ 
 				size_node_i_new = size_node[i] - 1; 
 				size_node_j_new = size_node[j] - 1; 
@@ -163,11 +207,11 @@ void rates_gm_mpl_binary( double rates[], double curr_log_mpl[], int G[], int in
 					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
 			}
 			
-			log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_i_new, data, freq_data, length_freq_data, cumprod_mb, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n );		
-			log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_j_new, data, freq_data, length_freq_data, cumprod_mb, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n );		
+			log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_i_new, data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, size_bit );		
+			log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_j_new, data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, size_bit );		
 																		
 			log_rate = log_mpl_i_new + log_mpl_j_new - curr_log_mpl[i] - curr_log_mpl[j];
-			log_rate = ( G[ j * dim + i ] == 1 ) ? log_rate - log( static_cast<double>( *ratio_g_prior ) ) : log_rate + log( static_cast<double>( *ratio_g_prior ) );
+			log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
 			
 			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
 		}
@@ -189,9 +233,10 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 	int nodexdim, count_mb, t, i, j, counter, dim = *p, pxp = dim * dim;
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl = 2 * *alpha_ijl;   
-	double log_alpha_ijl = lgammafn( *alpha_ijl );
-	double log_alpha_jl = lgammafn( alpha_jl );
-	double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
+	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
+	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 	
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 	
@@ -203,16 +248,14 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
 	}
 
-	vector<int>cumprod_mb( dim - 1 );
-	//cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ];
-	cumprod_mb[0] = 2;
-	//cumprod_mb   = t( t( c( 1, cumprod( max_range_nodes[ mb_node[ 2:length( mb_node ) ] ] ) ) ) )
-	for( j = 1; j < dim - 1; j++ )
-		cumprod_mb[j] = cumprod_mb[ j - 1 ] * 2;
-
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
+	int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
+	vector<vector<unsigned long long int> > mb_conf( length_freq_data );		
+	vector<int>vec_fam_conf_count_0( length_freq_data );	
+	vector<int>vec_fam_conf_count_1( length_freq_data );	
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
@@ -224,7 +267,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}
 				
-		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 	}
 	
 	// For finding the index of rates 
@@ -251,7 +294,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
-		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &cumprod_mb[0], &ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim, &size_bit );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -280,9 +323,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 		{ 
 			++size_node[selected_edge_i]; 
 			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
+		}else{ 
 			--size_node[selected_edge_i]; 
 			--size_node[selected_edge_j]; 
 		}
@@ -295,7 +336,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}				
-		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 		if( size_node[ selected_edge_j ] > 0 )
 		{	
@@ -304,7 +345,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}	
-		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 // ----------------------------------------------------------------------------|
 	} 
@@ -331,9 +372,10 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 	int qp = dim * ( dim - 1 ) / 2;
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl      = 2 * *alpha_ijl;   
-	double log_alpha_ijl = lgammafn( *alpha_ijl );
-	double log_alpha_jl  = lgammafn( alpha_jl );
-	double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
+	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
+	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 	bool this_one;
 
 	string string_g;
@@ -348,17 +390,15 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
 	}
 	
-	vector<int>cumprod_mb( dim - 1 );
-	//cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ];
-	cumprod_mb[0] = 2;
-	//cumprod_mb   = t( t( c( 1, cumprod( max_range_nodes[ mb_node[ 2:length( mb_node ) ] ] ) ) ) )
-	for( j = 1; j < dim - 1; j++ )
-		cumprod_mb[j] = cumprod_mb[ j - 1 ] * 2;
-
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
 	
+	int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
+	vector<vector<unsigned long long int> > mb_conf( length_freq_data );		
+	vector<int>vec_fam_conf_count_0( length_freq_data );	
+	vector<int>vec_fam_conf_count_1( length_freq_data );	
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -369,7 +409,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}
 				
-		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 	}
 
 	// For finding the index of rates 
@@ -395,7 +435,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
-		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &cumprod_mb[0], &ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim, &size_bit );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -403,13 +443,13 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 		selected_edge_j = index_col[ index_selected_edge ];
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -447,9 +487,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 		{ 
 			++size_node[selected_edge_i]; 
 			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
+		}else{ 
 			--size_node[selected_edge_i]; 
 			--size_node[selected_edge_j]; 
 		}
@@ -461,7 +499,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}				
-		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 		if( size_node[ selected_edge_j ] > 0 )
 		{	
@@ -470,7 +508,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}	
-		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 // ----------------------------------------------------------------------------|
 	} 
@@ -500,9 +538,10 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 	int nodexdim, count_mb, t, i, j, counter, dim = *p, pxp = dim * dim;
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl = 2 * *alpha_ijl;   
-	double log_alpha_ijl = lgammafn( *alpha_ijl );
-	double log_alpha_jl = lgammafn( alpha_jl );
-	double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
+	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
+	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 
@@ -514,16 +553,15 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
 	}
 
-	vector<int>cumprod_mb( dim - 1 );
-	//cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ];
-	cumprod_mb[0] = 2;
-	//cumprod_mb   = t( t( c( 1, cumprod( max_range_nodes[ mb_node[ 2:length( mb_node ) ] ] ) ) ) )
-	for( j = 1; j < dim - 1; j++ )
-		cumprod_mb[j] = cumprod_mb[ j - 1 ] * 2;
-
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
+
+	int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
+	vector<vector<unsigned long long int> > mb_conf( length_freq_data );		
+	vector<int>vec_fam_conf_count_0( length_freq_data );	
+	vector<int>vec_fam_conf_count_1( length_freq_data );	
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -534,7 +572,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}
 				
-		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 	}
 
 	// For finding the index of rates 
@@ -564,7 +602,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
-		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &cumprod_mb[0], &ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim, &size_bit );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
@@ -596,9 +634,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}		
@@ -611,7 +647,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}				
-		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 		if( size_node[ selected_edge_j ] > 0 )
 		{	
@@ -620,7 +656,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}	
-		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 // ----------------------------------------------------------------------------|
 	} 
@@ -647,9 +683,10 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 	int nodexdim, count_mb, t, i, j, counter, dim = *p;
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl = 2 * *alpha_ijl;   
-	double log_alpha_ijl = lgammafn( *alpha_ijl );
-	double log_alpha_jl = lgammafn( alpha_jl );
-	double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
+	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
+	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
+	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 	bool this_one;
 
 	int qp = dim * ( dim - 1 ) / 2;
@@ -665,17 +702,15 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
 	}
 
-	vector<int>cumprod_mb( dim - 1 );
-	//cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ];
-	cumprod_mb[0] = 2;
-	//cumprod_mb   = t( t( c( 1, cumprod( max_range_nodes[ mb_node[ 2:length( mb_node ) ] ] ) ) ) )
-	for( j = 1; j < dim - 1; j++ )
-		cumprod_mb[j] = cumprod_mb[ j - 1 ] * 2;
-
 	// Caclulating the log_likelihood for the current graph G
 	vector<int>mb_node( dim );     
 	vector<double>curr_log_mpl( dim );
 	
+	int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
+	vector<vector<unsigned long long int> > mb_conf( length_freq_data );		
+	vector<int>vec_fam_conf_count_0( length_freq_data );	
+	vector<int>vec_fam_conf_count_1( length_freq_data );	
+
 	for( i = 0; i < dim; i++ ) 
 	{ 
 		if( size_node[i] > 0 )
@@ -686,7 +721,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}
 				
-		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 	}
 	
 	// For finding the index of rates 
@@ -715,20 +750,21 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|
 				
-		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &cumprod_mb[0], &ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim, &size_bit );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-   
+  
 		if( i_mcmc >= burn_in )
 		{
-			weight_C = 1.0 / sum_rates;
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+ 
+ 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
 			all_weights[count_all_g] = weight_C;
@@ -770,9 +806,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}		
@@ -785,7 +819,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}				
-		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 		if( size_node[ selected_edge_j ] > 0 )
 		{	
@@ -794,7 +828,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 			for( t = 0; t < dim; t++ ) 
 				if( G[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
 		}	
-		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, &cumprod_mb[0], alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n );
+		log_mpl_binary( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );
 		
 // ----------------------------------------------------------------------------|
 	} 
@@ -836,15 +870,15 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 			 //fam_conf_count[j] = std::count( &data[0] + node_x_n, &data[0] + node_x_n + *n, j + 1 );
 			fam_conf_count[j] = 0;
 			for( i = 0; i < *length_freq_data; i++ )
-				if( data[node_x_lf + i] == ( j + 1 ) ) fam_conf_count[j] += freq_data[i];
+				if( data[node_x_lf + i] == j ) fam_conf_count[j] += freq_data[i];
 		}
 			
 		sum_lgamma_fam = 0.0;
 		for( j = 0; j < max_range_node_j; j++ ) 
-			sum_lgamma_fam += lgammafn( fam_conf_count[j] + *alpha_ijl );
+			sum_lgamma_fam += lgammafn_sign( fam_conf_count[j] + *alpha_ijl, NULL );
 					   
-		*log_mpl_node = sum_lgamma_fam - lgammafn( *n + alpha_jl ) + 
-		                size_mb_conf * ( lgammafn( alpha_jl ) - max_range_node_j * lgammafn( *alpha_ijl ) );      
+		*log_mpl_node = sum_lgamma_fam - lgammafn_sign( *n + alpha_jl, NULL ) + 
+		                size_mb_conf * ( lgammafn_sign( alpha_jl, NULL ) - max_range_node_j * lgammafn_sign( *alpha_ijl, NULL ) );      
 	}else{
 		
 		vector<int>mb_conf( *length_freq_data );	
@@ -859,7 +893,7 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 			
 			size_mb_conf = max_range_nodes[ mb_node[0] ];            
 			// mb_conf = 1:size_mb_conf;      
-			for( j = 0; j < size_mb_conf; j++ ) mb_conf[j] = j + 1;     
+			for( j = 0; j < size_mb_conf; j++ ) mb_conf[j] = j;     
 		}else{
 			vector<int>cumprod_mb( *size_node );
 			cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ];
@@ -900,18 +934,18 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 			{
 				fam_conf_count[j] = 0;
 				for( i = 0; i < *length_freq_data; i++ )
-					if( ( data[node_x_lf + i] == ( j + 1 ) ) && ( data_mb[i] == mb_conf_l ) ) fam_conf_count[j] += freq_data[i];
+					if( ( data[node_x_lf + i] == j ) && ( data_mb[i] == mb_conf_l ) ) fam_conf_count[j] += freq_data[i];
 			}
 
 			sum_lgamma_fam = 0.0;
 			for( j = 0; j < max_range_node_j; j++ ) 
-				sum_lgamma_fam += lgammafn( fam_conf_count[j] + *alpha_ijl );
+				sum_lgamma_fam += lgammafn_sign( fam_conf_count[j] + *alpha_ijl, NULL );
 	   
-			*log_mpl_node += sum_lgamma_fam - lgammafn( mb_conf_count + alpha_jl );     
+			*log_mpl_node += sum_lgamma_fam - lgammafn_sign( mb_conf_count + alpha_jl, NULL );     
 		}		
 
 		// adding remaining terms 
-		*log_mpl_node += size_mb_conf * ( lgammafn( alpha_jl ) - max_range_node_j * lgammafn( *alpha_ijl ) );     
+		*log_mpl_node += size_mb_conf * ( lgammafn_sign( alpha_jl, NULL ) - max_range_node_j * lgammafn_sign( *alpha_ijl, NULL ) );     
 	}
 }
     
@@ -1077,9 +1111,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 		{ 
 			++size_node[selected_edge_i]; 
 			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
+		}else{ 
 			--size_node[selected_edge_i]; 
 			--size_node[selected_edge_j]; 
 		}
@@ -1188,13 +1220,13 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		selected_edge_j = index_col[ index_selected_edge ];
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -1232,9 +1264,7 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		{ 
 			++size_node[selected_edge_i]; 
 			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
+		}else{ 
 			--size_node[selected_edge_i]; 
 			--size_node[selected_edge_j]; 
 		}
@@ -1371,9 +1401,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}		
@@ -1485,13 +1513,13 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-   
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+   
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -1534,9 +1562,7 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}		
@@ -1684,7 +1710,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 			}
 	int sub_qp = counter;
 
-//-- main loop for birth-death MCMC sampling algorithm ------------------------|
+//-- main loop for RJ-MCMC sampling algorithm ---------------------------------|
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -1692,7 +1718,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 		
 //----- STEP 1: selecting edge and calculating alpha --------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
@@ -1703,7 +1729,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -1713,9 +1739,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}
@@ -1811,7 +1835,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 			}
 	int sub_qp = counter;
 
-//-- main loop for birth-death MCMC sampling algorithm ------------------------|
+//-- main loop for Reversible Jump MCMC sampling algorithm --------------------|
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -1819,7 +1843,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		
 //----- STEP 1: selecting edge and calculating alpha --------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
@@ -1830,7 +1854,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -1840,9 +1864,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}
@@ -1868,13 +1890,13 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		log_mpl_dis( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+
 			string_g = string( char_g.begin(), char_g.end() );	
 			
 			this_one = false;
@@ -1891,7 +1913,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 			{
 				sample_graphs_C[size_sample_graph] = string_g;
 				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]          = size_sample_graph; 
+				all_graphs[count_all_g]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			

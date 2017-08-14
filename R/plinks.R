@@ -1,5 +1,5 @@
 # computing probability of all links of the graph
-plinks = function( bdgraph.obj, round = 3 )
+plinks = function( bdgraph.obj, round = 2 )
 {
 	p_links = bdgraph.obj $ p_links
 
@@ -16,9 +16,9 @@ plinks = function( bdgraph.obj, round = 3 )
 			pvec[inp] <- pvec[inp] + graph_weights[i]
 		}
 		
-		dimlab  <- colnames( bdgraph.obj $ last_graph ) 
-		p_links <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )
-		p_links[ upper.tri(p_links) ] <- pvec / sum( graph_weights )
+		label   <- colnames( bdgraph.obj $ last_graph ) 
+		p_links <- matrix( 0, p, p, dimnames = list( label, label ) )
+		p_links[ upper.tri( p_links ) ] <- pvec / sum( graph_weights )
 	}
 	
 	return( Matrix( round( p_links, round ) ) )

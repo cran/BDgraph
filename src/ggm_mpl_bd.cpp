@@ -347,13 +347,14 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 		selected_edge_j = index_col[ index_selected_edge ];
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
 
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -571,7 +572,8 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 // ----- End of MCMC sampling algorithm ---------------------------------------|
 
 	#pragma omp parallel for
-	for( i = 0; i < pxp; i++ ) p_links[i] = p_links_Cpp[i] / sum_weights;
+	for( i = 0; i < pxp; i++ ) 
+		p_links[i] = p_links_Cpp[i] / sum_weights;
 }
     
 // ----------------------------------------------------------------------------|
@@ -657,13 +659,13 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -870,7 +872,7 @@ void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], double S
 		
 //----- STEP 1: selecting edge and calculating alpha --------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
@@ -881,7 +883,7 @@ void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], double S
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -998,7 +1000,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 			}
 	int sub_qp = counter;
 
-//-- main loop for birth-death MCMC sampling algorithm ------------------------|
+//-- main loop for RJ-MCMC sampling algorithm ---------------------------------|
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -1006,7 +1008,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 		
 //----- STEP 1: selecting edge and calculating alpha --------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
@@ -1017,7 +1019,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -1059,13 +1061,13 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], double 
 		log_mpl( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], &copyS[0], &S_mb_node[0], &copy_n, &dim );
 
 //----- Saving result ------------------------ --------------------------------|
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+
 			string_g = string( char_g.begin(), char_g.end() );	
 			
 			this_one = false;

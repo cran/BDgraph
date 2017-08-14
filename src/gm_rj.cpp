@@ -23,7 +23,7 @@ extern "C" {
 // ----------------------------------------------------------------------------|
 // Computing alpha (probability of acceptance) in RJ-MCMC algorithm
 // ----------------------------------------------------------------------------|
-void log_alpha_rjmcmc( double *log_alpha_ij, int *selected_edge_i, int *selected_edge_j, int G[], double Ds[], 
+void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *selected_edge_i, int *selected_edge_j, int G[], double Ds[], 
 				   double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
 				   double K[], double K21[], double K121[], double Kj12[], 
 				   double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], double sigma21xsigma11_inv[],  
@@ -83,7 +83,8 @@ void log_alpha_rjmcmc( double *log_alpha_ij, int *selected_edge_i, int *selected
 		nu_star += G[*selected_edge_i * dim + k] * G[*selected_edge_j * dim + k];
 	nu_star = 0.5 * nu_star;
 
-	*log_alpha_ij = 0.5 * ( log( static_cast<double>( 2.0 ) ) + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+	//*log_alpha_ij = 0.5 * ( log( static_cast<double>( 2.0 ) ) + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+	*log_alpha_ij = - log_ratio_g_prior[ij] + 0.5 * log( 2.0 * Dsjj / a11 ) + 
 			  lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
 	if( G[ij] == 0 ) *log_alpha_ij = - *log_alpha_ij;	
@@ -94,7 +95,7 @@ void log_alpha_rjmcmc( double *log_alpha_ij, int *selected_edge_i, int *selected
 // for D = I_p 
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 double K_hat[], int p_links[],
 			 int *b, int *b_star, double Ds[], int *print )
 {
@@ -154,6 +155,14 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 			}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -162,13 +171,13 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 		
 //----- STEP 1: selecting edge and calculating alpha --------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
 //----- STEP 1: calculating log_alpha_ij --------------------------------------|		
 
-		log_alpha_rjmcmc( &log_alpha_ij, &selected_edge_i, &selected_edge_j, G, Ds, 
+		log_alpha_rjmcmc( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, G, Ds, 
                       &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
                       &K[0], &K21[0], &K121[0], &Kj12[0], 
                       &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
@@ -177,7 +186,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -216,7 +225,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], int *print )
@@ -282,6 +291,14 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 			}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -290,13 +307,13 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		
 		// STEP 1: selecting edge and calculating alpha
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
 //----- STEP 1: calculating log_alpha_ij --------------------------------------|		
 
-		log_alpha_rjmcmc( &log_alpha_ij, &selected_edge_i, &selected_edge_j, G, Ds, 
+		log_alpha_rjmcmc( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, G, Ds, 
                       &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
                       &K[0], &K21[0], &K121[0], &Kj12[0], 
                       &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
@@ -305,7 +322,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -327,13 +344,13 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 //----- saving result ---------------------------------------------------------|	
-		counter = 0;
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-		
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+		
 			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
 
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -377,7 +394,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 // for D = I_p 
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 double K_hat[], int p_links[], 
 			 int *b, int *b_star, double D[], double Ds[], int *print )
@@ -443,6 +460,14 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 			}
 	int sub_qp = counter;
 	
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -456,13 +481,13 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		
 //----- STEP 2: calculating log_alpha_ij --------------------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 		
 //----- STEP 2: calculating log_alpha_ij --------------------------------------|		
 
-		log_alpha_rjmcmc( &log_alpha_ij, &selected_edge_i, &selected_edge_j, G, Ds, 
+		log_alpha_rjmcmc( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, G, Ds, 
                       &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
                       &K[0], &K21[0], &K121[0], &Kj12[0], 
                       &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
@@ -471,7 +496,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -510,7 +535,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 double Z[], int R[], int *n, int *gcgm,
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -581,6 +606,14 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[
 			}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 //-- Main loop for Reversible Jump MCMC ---------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -594,13 +627,13 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[
 		
 //----- STEP 2: calculating log_alpha_ij --------------------------------------|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
-		selected_edge = static_cast<int>( runif( 0, 1 ) * sub_qp );
+		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
 //----- STEP 2: calculating log_alpha_ij --------------------------------------|		
 
-		log_alpha_rjmcmc( &log_alpha_ij, &selected_edge_i, &selected_edge_j, G, Ds, 
+		log_alpha_rjmcmc( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, G, Ds, 
                       &sigma[0], &sigma21[0], &sigma22[0], &sigmaj12[0], &sigmaj22[0],    
                       &K[0], &K21[0], &K121[0], &Kj12[0], 
                       &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
@@ -609,7 +642,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[
 //----- End of calculating log_alpha_ij ---------------------------------------|		
 		
 		// Selecting an edge and updating G (graph)
-		if( log( static_cast<double>( runif( 0, 1 ) ) ) < log_alpha_ij )
+		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
 			G[ij] = 1 - G[ij];
@@ -631,13 +664,13 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 //----- saving result ---------------------------------------------------------|	
-		counter = 0;
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[j * dim + i] + '0'; 
-		
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[j * dim + i] + '0'; 
+		
 			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
 
 			string_g = string( char_g.begin(), char_g.end() );	

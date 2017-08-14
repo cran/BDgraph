@@ -4,8 +4,11 @@
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.start = "empty", 
 					g.space = NULL, g.prior = 0.5, multi.update = NULL, alpha = 0.5, 
-					save.all = FALSE, print = 1000 )
+					save.all = FALSE, print = 1000, cores = "all" )
 {
+	if( cores == "all" ) cores = detect_cores()
+	.C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+
 	burnin = floor( burnin )
 	
 	if( class( data ) == "sim" ) data <- data $ data
@@ -13,34 +16,34 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 
 	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data should be a matrix or dataframe" )
 	if( is.data.frame( data ) ) data <- data.matrix( data )
-	if( iter < burnin )   stop( "Number of iteration must be more than number of burn-in" )
+	if( iter < burnin ) stop( "Number of iteration must be more than number of burn-in" )
 	
 	if( ( g.prior <= 0 ) | ( g.prior >= 1 ) ){
-		stop( "g.prior must be more 0 and 1" )
+		stop( "g.prior must be between 0 and 1" )
 	}else{
 		g_prior = g.prior
 	}
 
-	if( any( is.na( data ) ) ) stop( "This method does not deal with missing value. You could choose method = gcgm" )	
+	if( any( is.na( data ) ) ) stop( "This method does not deal with missing values. You could try bdgraph() function with option method = gcgm" )	
 		
-	p    <- ncol( data )
+	p <- ncol( data )
 	if( is.null( n ) ) n <- nrow( data )
 
 	if( method == "ggm" ) 
 	{
 		if( isSymmetric( data ) )
 		{
-			if ( is.null(n) ) stop( "Please specify the number of observations 'n'" )
+			if ( is.null( n ) ) stop( "Please specify the number of observations 'n'" )
 			cat( "Input is identified as the covriance matrix. \n" )
 			S <- data
 		}else{
- 			S <- t(data) %*% data
+ 			S <- t( data ) %*% data
 		}
 	}
    
 	if( ( method == "dgm" ) || ( method == "dgm-binary" ) ) 
 	{
-		if( transfer == TRUE ) data = data_transform( data )  
+		if( transfer == TRUE ) data = transfer( data )  
 	
 		p         = ncol( data ) - 1
 		freq_data = data[ , p + 1 ]
@@ -48,6 +51,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		n         = sum( freq_data )
 	
 		max_range_nodes = apply( data, 2, max )
+		max_range_nodes = max_range_nodes + 1
 		length_f_data   = length( freq_data )	
 	}
 	
@@ -269,7 +273,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, 
 						all_graphs = all_graphs, all_weights = all_weights, last_graph = last_graph )
 		}else{
-			p_links   = matrix( result $ p_links, p, p ) 
+			p_links = matrix( result $ p_links, p, p ) 
 			if( algorithm == "rjmcmc" )	p_links = p_links / ( iter - burnin )
 			p_links[ lower.tri( p_links ) ] = 0
 			colnames( p_links ) = colnames_data[1:p]
@@ -287,24 +291,3 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	return( output )   
 }
          
-## ----------------------------------------------------------------------------|
-# For discrete data: to transfer raw data for the algorithm 
-## ----------------------------------------------------------------------------|
-data_transform = function( raw_data )
-{
-	all_patterns    = apply( raw_data, 1, function( x ){ paste( x, collapse = '' ) } )   
-	unique_patterns = unique( all_patterns )
-	   
-	length_unique_patterns = length( unique_patterns )
-	data  = matrix( 0, nrow = length_unique_patterns, ncol = ncol( raw_data ) + 1 )
-	   
-	for( i in seq_len( length_unique_patterns ) )
-	{
-		which_one = which( all_patterns == unique_patterns[i] )
-		data[i, ] = c( raw_data[ which_one[1], ], length( which_one ) )
-	}
-	 
-	return( data )
-}
-   
-

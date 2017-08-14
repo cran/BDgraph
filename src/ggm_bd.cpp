@@ -19,6 +19,8 @@
 #include <algorithm>     // for transform function
 #include <functional>    // for transform function
 
+//#include <omp.h>         // for number of cores to use for OpenMP
+
 #include "matrix.h"
 #include "rgwish.h"
 
@@ -30,10 +32,11 @@ extern "C" {
 // for case D = I_p 
 // it is for Bayesian model averaging (MA)
 // ----------------------------------------------------------------------------|
-void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], int *print )
 {
+	//omp_set_num_threads( 2 );
 	int print_c = *print, iteration = *iter, burn_in = *burnin;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
 	int counter = 0, ip, i, j, ij, one = 1, dim = *p, pxp = dim * dim;
@@ -67,7 +70,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 	}
 	
 	// For finding the index of rates 
-	vector<double> rates( qp );
+	vector<double> rates( qp );	
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	vector<double> Dsijj( pxp ); 
@@ -88,6 +91,14 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 		}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+   
 //-- Main loop for birth-death MCMC -------------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -96,7 +107,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|		
 
-		rates_bdmcmc_parallel( &rates[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
+		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -108,7 +119,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 		{
 			weight_C = 1.0 / sum_rates;
 			
-			// K_hat_Cpp[i] += K[i] / sum_rates;
+			// K_hat_Cpp[i] += K[i] * weight_C;
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat_Cpp[0], &one );
 			
 			#pragma omp parallel for
@@ -128,9 +139,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 		{ 
 			++size_node[selected_edge_i]; 
 			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
+		}else{ 
 			--size_node[selected_edge_i]; 
 			--size_node[selected_edge_j]; 
 		}
@@ -145,7 +154,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 	for( i = 0; i < pxp; i++ )
 	{	
 		p_links[i] = p_links_Cpp[i] / sum_weights;
-		K_hat[i]   = K_hat_Cpp[i] / sum_weights;
+		K_hat[i]   = K_hat_Cpp[i]   / sum_weights;
 	}
 }
        
@@ -154,7 +163,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double Ts[],
 // for case D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
 			 int *b, int *b_star, double Ds[], int *print )
@@ -220,6 +229,14 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 //-- Main loop for birth-death MCMC -------------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -228,7 +245,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|		
 
-		rates_bdmcmc_parallel( &rates[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
+		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -236,16 +253,16 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		selected_edge_j = index_col[ index_selected_edge ];
 
 //----- saving result ---------------------------------------------------------|	
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[ j * dim + i ] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[ j * dim + i ] + '0'; 
+
 			weight_C = 1.0 / sum_rates;
 			
-			//for( i = 0; i < pxp; i++ ) K_hat[i] += K[i] / sum_rates;
+			//for( i = 0; i < pxp; i++ ) K_hat[i] += K[i] * weight_C;
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat[0], &one );			
 
 			string_g = string( char_g.begin(), char_g.end() );	
@@ -283,9 +300,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 		{ 
 			++size_node[selected_edge_i]; 
 			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
+		}else{ 
 			--size_node[selected_edge_i]; 
 			--size_node[selected_edge_j]; 
 		}
@@ -315,7 +330,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double Ts[]
 // for D = I_p 
 // it is for Bayesian model averaging
 // ----------------------------------------------------------------------------|
-void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], int *multi_update, int *print )
 {
@@ -376,6 +391,14 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[],
 		}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
@@ -387,7 +410,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[],
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|		
 
-		rates_bdmcmc_parallel( &rates[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
+		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
@@ -422,9 +445,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[],
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}		
@@ -440,7 +461,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[],
 	for( i = 0; i < pxp; i++ )
 	{	
 		p_links[i] = p_links_Cpp[i] / sum_weights;
-		K_hat[i]   = K_hat_Cpp[i] / sum_weights;
+		K_hat[i]   = K_hat_Cpp[i]   / sum_weights;
 	}
 }
     
@@ -449,7 +470,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[],
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ----------------------------------------------------------------------------|
-void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[], double Ts[], double K[], int *p, 
+void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
 			 int *b, int *b_star, double Ds[], int *multi_update, int *print )
@@ -514,6 +535,14 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[]
 		}
 	int sub_qp = counter;
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+		for( i = 0; i < j; i++ )
+		{
+			ij = j * dim + i;
+			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+		}
+
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
@@ -525,19 +554,19 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[]
 		
 //----- STEP 1: calculating birth and death rates -----------------------------|		
 
-		rates_bdmcmc_parallel( &rates[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
+		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 				
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
 //----- Saving result ---------------------------------------------------------|	
-		counter = 0;	
-		for( j = 1; j < dim; j++ )
-			for( i = 0; i < j; i++ )
-				char_g[counter++] = G[ j * dim + i ] + '0'; 
-
 		if( i_mcmc >= burn_in )
 		{
+			counter = 0;	
+			for( j = 1; j < dim; j++ )
+				for( i = 0; i < j; i++ )
+					char_g[counter++] = G[ j * dim + i ] + '0'; 
+
 			weight_C = 1.0 / sum_rates;
 			
 			//for( i = 0; i < pxp; i++ ) K_hat[i] += K[i] / sum_rates;
@@ -583,9 +612,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[]
 			{ 
 				++size_node[selected_edge_i]; 
 				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
+			}else{ 
 				--size_node[selected_edge_i]; 
 				--size_node[selected_edge_j]; 
 			}		
@@ -608,7 +635,8 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[]
 	*counter_all_g = count_all_g;
 	
 	#pragma omp parallel for
-	for( i = 0; i < pxp; i++ ) K_hat[i] /= sum_weights;		
+	for( i = 0; i < pxp; i++ ) 
+		K_hat[i] /= sum_weights;		
 }
               
 } // End of exturn "C"

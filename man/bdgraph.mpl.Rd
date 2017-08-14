@@ -11,7 +11,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
              g.start = "empty", g.space = NULL, g.prior = 0.5, 
              multi.update = NULL, alpha = 0.5, save.all = FALSE, 
-             print = 1000 )
+             print = 1000, cores = "all" )
 }
 
 \arguments{
@@ -26,7 +26,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
 	  
 	\item{method}{
-		A character with two options \code{"ggm"} (defult) and \code{"gcgm"}. 
+		A character with two options \code{"ggm"} (default) and \code{"gcgm"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
 		Option \code{"dgm"} is for discrete graphical models for the data that are discrete.
 		Option \code{"dgm-binary"} is for discrete graphical models for the data that are binary.
@@ -35,7 +35,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{transfer}{ For only discrete data which \code{method = "dgm"} or \code{method = "dgm-binary"}. }
 
 	\item{algorithm}{
-		A character with two options \code{"bdmcmc"} (defult) and \code{"rjmcmc"}. 
+		A character with two options \code{"bdmcmc"} (default) and \code{"rjmcmc"}. 
 		Option \code{"bdmcmc"} is based on birth-death MCMC algorithm.
 		Option \code{"rjmcmc"} is based on reverible jump MCMC algorithm.
 	}
@@ -51,11 +51,15 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	} 
 	\item{g.space}{
 		Corresponds to the sub-space of the graph. 
-		For the case \code{ g.start = "NULL"} (defult), algorithm search in the hole graph space. 
+		For the case \code{ g.start = "NULL"} (default), algorithm search in the hole graph space. 
 		With this option, one could run the search algorithm only to the restricted subspace of the graph.
 		Subspace should determine as an adjacency matrix.
 	} 
-	\item{g.prior}{ Value for the parameter of the prior distributions of the graph. } 
+	\item{g.prior}{
+		For determining the prior distribution of each edge in the graph. 
+		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
+		or an (\eqn{p \times p}) matrix with elements between \eqn{0} and \eqn{1}.
+	}
 	\item{multi.update}{
 		It is only for the BDMCMC algorithm (\code{algorithm = "bdmcmc"}).
 		It is for simultaneously updating multiple links at the same time to update graph in the BDMCMC algorithm.
@@ -67,6 +71,10 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }
+	\item{cores}{ The number of cores to use for parallel execution. 
+	   The default is to use \code{"all"} CPU cores of the computer; 
+	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
+	   }	
 }
 
 \value{
@@ -88,33 +96,28 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit }
+\author{ Abdolreza Mohammadi }
 
 \seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 20, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim( n = 70, p = 6, size = 7, vis = TRUE )
    
-bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 1000 )
+bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 10000 )
   
 summary( bdgraph.obj )
    
 # To compare our result with true graph
 compare( data.sim, bdgraph.obj, colnames = c("True graph", "BDgraph") )
    
-# Running algorithm with starting points from previous run
-bdgraph.obj2 <- bdgraph.mpl( data = data.sim, iter = 5000, g.start = bdgraph.obj )
-    
-compare( data.sim, bdgraph.obj, bdgraph.obj2, 
-         colnames = c( "True graph", "Frist run", "Second run" ) )
 }
 }

@@ -30,7 +30,7 @@ Liu, H., F. Han, M. Yuan, J. Lafferty, and L. Wasserman (2012). High Dimensional
 Zhao, T. and H. Liu (2012). The \pkg{huge} Package for High-dimensional Undirected Graph Estimation in \code{R}, \emph{Journal of Machine Learning Research}, 13:1059-1062
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit }
+\author{ Abdolreza Mohammadi }
 
 \seealso{ \code{\link{bdgraph.sim}} and \code{\link{bdgraph}} }
 

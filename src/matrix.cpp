@@ -271,7 +271,7 @@ void inverse( double A[], double A_inv[], int *p )
 	#pragma omp parallel for
 	for( int i = 0; i < dim; i++ )
 		for( int j = 0; j < dim; j++ )
-			A_inv[j * dim + i] = (i == j);
+			A_inv[j * dim + i] = ( i == j );
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
 	F77_NAME(dposv)( &uplo, &dim, &dim, A, &dim, A_inv, &dim, &info );
@@ -333,12 +333,14 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 	int qp_star = *qp;
 
 	// rates = sum_sort_rates
-	#pragma omp parallel for
 	for ( int i = 1; i < qp_star; i++ )
 		rates[i] += rates[ i - 1 ];
 	
-	*sum_rates   = rates[ qp_star - 1 ];
-	double random_value = *sum_rates * runif( 0, 1 );
+	*sum_rates = rates[ qp_star - 1 ];
+	
+	//GetRNGstate();
+	double random_value = *sum_rates * unif_rand();
+	//PutRNGstate();
 
 	// To start, find the subscript of the middle position.
 	int lower_bound = 0;
@@ -363,7 +365,6 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	int i, qp_star = *qp, qp_star_1 = qp_star - 1;
 
 	// rates = sum_sort_rates
-	#pragma omp parallel for
 	for( i = 1; i < qp_star; i++ )
 		rates[i] += rates[ i - 1 ];
 	
@@ -375,7 +376,9 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	int upper_bound = qp_star_1;
 	int position    = upper_bound / 2; // ( lower_bound + upper_bound ) / 2;
 
-	double random_value = max_bound * runif( 0, 1 );
+	//GetRNGstate();
+	double random_value = max_bound * unif_rand();
+	//PutRNGstate();
 
 	while( upper_bound - lower_bound > 1 )
 	{
@@ -390,11 +393,12 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	// ------------------------------------------------------------------------|
 
 	int counter = 1, same;
+	//GetRNGstate();
 	for( int it = 0; it < 200 * *multi_update; it++ )
 	{
 		if( counter == *multi_update ) break;
 		
-		random_value = max_bound * runif( 0, 1 );
+		random_value = max_bound * unif_rand();
 	
 		// To start, find the subscript of the middle position.
 		lower_bound = 0;
@@ -418,7 +422,8 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 
 		if( same == 0 ) index_selected_edges[counter++] = position;
 	}
-	
+	//PutRNGstate();
+
 	*size_index = counter;
 	*sum_rates  = max_bound;
 } 
@@ -426,7 +431,7 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 // ----------------------------------------------------------------------------|
 // Parallel Computation for birth-death rates for BD-MCMC algorithm
 // ----------------------------------------------------------------------------|
-void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
+void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
 				            double sigma[], double K[], int *b, int *p )
 {
 	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = ( dim - 2 ) * 2;
@@ -509,6 +514,9 @@ void rates_bdmcmc_parallel( double rates[], int G[], int index_row[], int index_
 			log_rate = ( G[ij] )   
 				? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag )
 				: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag );
+			
+			//log_rate = ( G[ij] ) ? log_rate - log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) ) : log_rate + log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_rate = ( G[ij] ) ? log_rate - log_ratio_g_prior[ij] : log_rate + log_ratio_g_prior[ij];
 
 			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 		}
@@ -772,13 +780,14 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	double sum_diag = *Dsjj * ( K022 - K121[3] ) - *Dsij * ( K121[1] + K121[2] );
 
 	// Dsijj = Dsii - Dsij * Dsij / Dsjj;
-	*log_Hij = ( log( static_cast<double>(*Dsjj) ) - log( static_cast<double>(a11) ) + *Dsijj * a11 - sum_diag ) / 2;
+	//*log_Hij = ( log( static_cast<double>(*Dsjj) ) - log( static_cast<double>(a11) ) + *Dsijj * a11 - sum_diag ) / 2;
+	*log_Hij = 0.5 * ( log( *Dsjj / a11 ) + *Dsijj * a11 - sum_diag );
 }    
      
 // ----------------------------------------------------------------------------|
 // Parallel Computation for birth-death rates for double BD-MCMC algorithm
 // ----------------------------------------------------------------------------|
-void rates_bdmcmc_dmh_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
+void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
 				            double sigma[], double K[], double sigma_dmh[], 
 				            double K_dmh[], int *b, int *p )
 {
@@ -834,7 +843,8 @@ void rates_bdmcmc_dmh_parallel( double rates[], int G[], int index_row[], int in
 					   &dim, &p1, &p2, &jj,
 					   &Dijj, &Dij, &Djj );
 				
-				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
+				//log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
+				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) - log_ratio_g_prior[ij] : ( logI_p - logH_ij ) + log_ratio_g_prior[ij];				
 				rates[ index_rate_j + i ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
 		}	
@@ -1009,7 +1019,7 @@ void scale_free( int *G, int *p )
 	GetRNGstate();
 	for( i = p0; i < dim; i++ )
 	{
-	   random_value = (double) total * runif( 0, 1 );
+		random_value = (double) total * unif_rand();
 	   
 		tmp = 0;
 		j   = 0;
@@ -1026,3 +1036,61 @@ void scale_free( int *G, int *p )
 	}
 	PutRNGstate();
 }
+
+// ----------------------------------------------------------------------------|
+// To transfer the raw discreate data 
+void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_data )
+{
+	int i, j, l, counter;
+	
+// -- tranfer each row of raw data to string --------------------------
+	vector<char> char_row( *p );             
+	vector<string>all_patterns( *n );
+	string *unique_patterns = new string[ *n ];
+	
+	for( i = 0; i < *n; i++ )
+	{
+		for( j = 0; j < *p; j++ )
+			char_row[j] = r_data[ j * *n + i ] + '0';
+		
+		all_patterns[i] = string( char_row.begin(), char_row.end() );
+	}
+
+// -- find the unique string-rows -------------------------------------
+	unique_patterns[0] = all_patterns[0];
+	int length_unique_patterns = 1;
+	for( i = 1; i < *n; i++ )
+	{
+		counter = 0;
+		//for( j = 0; j < length_unique_patterns; j++ )
+			//( all_patterns[i] == unique_patterns[j] ) ? j = length_unique_patterns : ++counter;					
+		while( ( counter < length_unique_patterns ) and ( all_patterns[i] != unique_patterns[counter] ) )
+			++counter;
+		
+		if( counter == length_unique_patterns )
+			unique_patterns[ length_unique_patterns++ ] = all_patterns[i];
+	}
+
+// -- tranfer the data ----------------------------------------------
+	for( l = 0; l < length_unique_patterns; l++ )  
+	{
+		counter = 0;
+		int which_one;
+		for( i = 0; i < *n; i++ )
+			if( all_patterns[i] == unique_patterns[ l ] ) 
+			{
+				counter++;
+				which_one = i;
+			}
+			
+		data[ *p * *n + l ] = counter;
+		
+		for( j = 0; j < *p; j++ )
+			data[ j * *n + l ] = r_data[ j * *n + which_one ]; 
+	}
+	
+	*size_unique_data = length_unique_patterns;
+	
+	delete[] unique_patterns;
+}
+

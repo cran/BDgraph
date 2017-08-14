@@ -49,7 +49,7 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
-			joint[j * p2 + i] = rnorm( 0, 1 );
+			joint[j * p2 + i] = norm_rand();
 	PutRNGstate();
 	// ------------------------------------
 
@@ -106,7 +106,7 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
-			joint[j * p2 + i] = rnorm( 0, 1 );
+			joint[j * p2 + i] = norm_rand();
 	PutRNGstate();
 	// ------------------------------------
 																
@@ -347,7 +347,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
-			joint[j * p2 + i] = rnorm( 0, 1 );
+			joint[j * p2 + i] = norm_rand();
 	PutRNGstate();
 	// ------------------------------------
 
@@ -629,7 +629,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], int g_space[], doubl
 
 	//long double max_numeric_limits_ld = std::numeric_limits<long double>::max() / 10000;
 
-	GetRNGstate();
+	//GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm ----------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -740,7 +740,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], int g_space[], doubl
 			}		
 		}
 	} // End of MCMC sampling algorithm ---------------------------------------| 
-	PutRNGstate();
+	//PutRNGstate();
 
 	for( i = 0; i < pxpxT; i++ )
 	{
@@ -882,7 +882,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 
 	double max_numeric_limits_ld = std::numeric_limits<double>::max() / 10000;
 
-	GetRNGstate();
+	//GetRNGstate();
 	// main loop for birth-death MCMC sampling algorithm for time series ----------------------| 
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -1186,7 +1186,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 			}		
 		}
 	} // End of MCMC sampling algorithm ---------------------------------------| 
-	PutRNGstate();
+	//PutRNGstate();
 
 	for( i = 0; i < size_sample_graph; i++ )
 	{

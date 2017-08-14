@@ -4,8 +4,12 @@
 # data is the aggregate periodogram Pk, which is arranged as a large p x (Nlength*p) matrix [P1, P2, ... ,PNlength]
 
 bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
-					   g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), save.all = FALSE )
+					   g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), 
+					   save.all = FALSE, cores = "all" )
 {
+	if( cores == "all" ) cores = detect_cores()
+	.C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+	
 	burnin    = floor( burnin )
 
 	if( !is.matrix(data) & !is.data.frame(data) ) stop( "Data should be a matrix or dataframe" )

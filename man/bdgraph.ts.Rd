@@ -8,7 +8,7 @@
 \usage{
 bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
             g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), 
-            save.all = FALSE )
+            save.all = FALSE, cores = "all" )
 }
 
 \arguments{
@@ -31,18 +31,22 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	
 	\item{g.space}{
 		Corresponds to the sub-space of the graph. 
-		For the case \code{ g.start = "NULL"} (defult), algorithm search in the hole graph space. 
+		For the case \code{ g.start = "NULL"} (default), algorithm search in the hole graph space. 
 		With this option, one could run the search algorithm only to the restricted subspace of the graph.
 		Subspace should determine as an adjacency matrix.
 	} 
 	
 	\item{prior.df}{
-		The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b,D)}, which is a prior distribution of the precision matrix in each frequency. The default is 3.
+		The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b,D)}, which is a prior distribution of the precision matrix in each frequency.
 	}
 	\item{save.all}{
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}	
+	\item{cores}{ The number of cores to use for parallel execution. 
+	   The default is to use \code{"all"} CPU cores of the computer; 
+	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
+	   }	
 }
 
 \value{
@@ -67,15 +71,15 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 }
 
 \references{
-Tank, A., N. Foti, and E. Fox (2015) Bayesian Structure Learning for Stationary Time Series, , \emph{arXiv:1505.03131}
+Tank, A., N. Foti, and E. Fox (2015) Bayesian Structure Learning for Stationary Time Series, , \emph{arXiv preprint arXiv:1505.03131}
 
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv:1706.04416} 
+Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
 \author{ Lang Liu, Nicholas Foti, Alex Tank and  Abdolreza Mohammadi }

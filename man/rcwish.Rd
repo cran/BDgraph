@@ -31,11 +31,11 @@ definite matrix, a realization of the complex Wishart distribution \eqn{CW(b, D)
 }
 
 \references{
-Tank, A., N. Foti, and E. Fox (2015). Bayesian Structure Learning for Stationary Time Series, \emph{arXiv:1505.03131}
+Tank, A., N. Foti, and E. Fox (2015). Bayesian Structure Learning for Stationary Time Series, \emph{arXiv preprint arXiv:1505.03131}
 
 D.R. Brillinger (2001). Time Series: Data Analysis and Theory, \emph{Holden-Day}
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
 }
 
 \author{ Lang Liu, Nicholas Foti, Alex Tank and  Abdolreza Mohammadi }

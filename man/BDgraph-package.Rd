@@ -16,13 +16,15 @@ The package includes 10 main functions:
 
 \preformatted{
 bdgraph        Search algorithm in graphical models
-bdgraph.sim    Synthetic graph data generator 
+bdgraph.mpl    Search algorithm in graphical models using marginal pseudo-likehlihood
+bdgraph.sim    Graph data generator 
 bdgraph.npn    Nonparametric transfer 
-compare        Comparing the results 
+compare        Graph structure comparison 
 plinks         Estimated posterior link probabilities
 plotcoda       Convergence plot
 plotroc        ROC plot
 rgwish         Sampling from G-Wishart distribution
+rwish          Sampling from Wishart distribution
 select         Graph selection
 traceplot      Trace plot of graph size
 }
@@ -32,7 +34,7 @@ traceplot      Trace plot of graph size
 Whenever using this package, please cite as
 \preformatted{
 Mohammadi A. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 3.38, 
+Graphical Models using Birth-Death MCMC, R package version 3.40, 
 https://CRAN.R-project.org/package=BDgraph
 }
 }
@@ -42,11 +44,11 @@ https://CRAN.R-project.org/package=BDgraph
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv:1501.05108} 
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv:1706.04416} 
+Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128
 }
