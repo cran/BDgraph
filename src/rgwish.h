@@ -14,18 +14,7 @@
 #ifndef rgwish_H
 #define rgwish_H
 
-#include <R.h>
-#include <Rmath.h>
-#include <R_ext/Lapack.h>
-#include <R_ext/BLAS.h>
-#include <R_ext/Utils.h>
-#include <sstream>
-#include <string>        // std::string, std::to_string
-#include <vector>        // for using vector
-#include <limits>        // for numeric_limits<double>::max()
 #include "matrix.h"
-
-using namespace std;
 
 extern "C" {
 	void rwish_c( double Ts[], double K[], int *b, int *p );

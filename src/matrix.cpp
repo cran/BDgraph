@@ -325,23 +325,30 @@ void determinant( double A[], double *det_A, int *p )
 	
 	*det_A = result * result;
 }
-    
-// ----------------------------------------------------------------------------|
+        
+// ------------------------------------------------------------------------------------------------|
 // To select an edge for BDMCMC algorithm  
 void select_edge( double rates[], int *index_selected_edge, double *sum_rates, int *qp )
 {
 	int qp_star = *qp;
 
 	// rates = sum_sort_rates
-	for ( int i = 1; i < qp_star; i++ )
-		rates[i] += rates[ i - 1 ];
+	vector<double>cumulative_rates( qp_star, 0.0 );
+	cumulative_rates[ 0 ] = rates[ 0 ];
+	for( int i = 1; i < qp_star; i++ )
+		cumulative_rates[ i ] = cumulative_rates[ i - 1 ] + rates[ i ];
 	
-	*sum_rates = rates[ qp_star - 1 ];
+	*sum_rates = cumulative_rates[ qp_star - 1 ];
 	
-	//GetRNGstate();
+	GetRNGstate();
 	double random_value = *sum_rates * unif_rand();
-	//PutRNGstate();
+	//double random_value = Rf_runif( 0.0, *sum_rates );
+	PutRNGstate();
 
+	//int counter = 0;
+	//while( random_value > cumulative_rates[ counter ] )	++counter;
+	//*index_selected_edge = counter;
+	 
 	// To start, find the subscript of the middle position.
 	int lower_bound = 0;
 	int upper_bound = qp_star - 1;
@@ -349,13 +356,13 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 
 	while( upper_bound - lower_bound > 1 )
 	{
-		//if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
-		( rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
+		 //if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
+		( cumulative_rates[ position ] > random_value ) ? upper_bound = position : lower_bound = position;     
 		
 		position = ( lower_bound + upper_bound ) / 2;
 	}
 	
-	*index_selected_edge = ( rates[position] < random_value ) ? ++position : position;
+	*index_selected_edge = ( cumulative_rates[ position ] < random_value ) ? ++position : position;
 } 
     
 // ----------------------------------------------------------------------------|
@@ -365,10 +372,12 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	int i, qp_star = *qp, qp_star_1 = qp_star - 1;
 
 	// rates = sum_sort_rates
-	for( i = 1; i < qp_star; i++ )
-		rates[i] += rates[ i - 1 ];
+	vector<double>cumulative_rates( qp_star, 0.0 );
+	cumulative_rates[ 0 ] = rates[ 0 ];
+	for ( int i = 1; i < qp_star; i++ )
+		cumulative_rates[ i ] = cumulative_rates[ i - 1 ] + rates[ i ];
 	
-	double max_bound = rates[qp_star_1];
+	double max_bound = cumulative_rates[ qp_star_1 ];
 	
 	// ---------- for first edge ----------------------------------------------|
 	// To start, find the subscript of the middle position.
@@ -383,12 +392,12 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	while( upper_bound - lower_bound > 1 )
 	{
 		//if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
-		( rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
+		( cumulative_rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
 		
 		position = ( lower_bound + upper_bound ) / 2;
 	}
 	
-	if ( rates[position] < random_value ) ++position;
+	if ( cumulative_rates[position] < random_value ) ++position;
 	index_selected_edges[0] = position;
 	// ------------------------------------------------------------------------|
 
@@ -408,12 +417,12 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 		while( upper_bound - lower_bound > 1 )
 		{
 			//if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
-			( rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
+			( cumulative_rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
 			
 			position = ( lower_bound + upper_bound ) / 2;
 		}
 		
-		if( rates[position] < random_value ) ++position;
+		if( cumulative_rates[position] < random_value ) ++position;
 		
 		same = 0;
 		for( i = 0; i < counter; i++ )

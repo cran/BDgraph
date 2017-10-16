@@ -447,11 +447,9 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 		 
 		if( !is.null( object $ graph_weights ) ) 
 		{
-			op = par( mfrow = c( 2, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) ) 
+			op       = par( mfrow = c( 2, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) ) 
 			subGraph = paste( c( "Posterior probability = ", max_prob_G ), collapse = "" )
-		}
-		else
-		{
+		}else{
 			subGraph = "Selected graph with edge posterior probability = 0.5"
 		}
 			
@@ -468,7 +466,7 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 			text( which( max_gWeights == graph_weights )[1], max_prob_G, "Pr(selected graph|data)", col = "gray60", adj = c( 0, +1 ) )
 			
 			# plot posterior distribution of graph size
-			sizesample_graphs = sapply( sample_graphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )
+			sizesample_graphs = sapply( sample_graphs, function( x ) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )
 			xx       <- unique( sizesample_graphs )
 			weightsg <- vector()
 
@@ -484,7 +482,7 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 			
 			abline( h = sum( selected_g ), col = "red" )	  
 			
-			par(op)
+			par( op )
 		}
 	}
 	

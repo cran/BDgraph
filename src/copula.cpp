@@ -68,18 +68,18 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 			j = counter / number;
 			i = counter % number;
 			
-			sigma = 1 / K[j * dim + j];
+			sigma = 1 / K[ j * dim + j ];
 			sd_j  = sqrt( sigma );
 			
 			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
 			
 			get_bounds( Z, R, &lb, &ub, &i, &j, &number );
 			
-			pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-			pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+			pnorm_lb    = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
+			pnorm_ub    = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
 			//runif_value = runif( pnorm_lb, pnorm_ub );
 			runif_value = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
-			Z[counter]  = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
+			Z[counter]  = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
 		}
 	}
 	//PutRNGstate();
@@ -137,11 +137,11 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 			{
 				get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
 				
-				pnorm_lb    = pnorm( lb, mu_ij, sd_j, TRUE, FALSE );
-				pnorm_ub    = pnorm( ub, mu_ij, sd_j, TRUE, FALSE );
+				pnorm_lb    = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
+				pnorm_ub    = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
 				//runif_value = runif( pnorm_lb, pnorm_ub );
 				runif_value = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
-				Z[counter]  = qnorm( runif_value, mu_ij, sd_j, TRUE, FALSE );
+				Z[counter]  = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
 			} 
 			else 
 				//Z[counter] = rnorm( mu_ij, sd_j );

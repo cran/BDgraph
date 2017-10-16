@@ -16,7 +16,7 @@
 #         * alpha: The parameter of the prior distribution
 # OUTPUT: * selected_g - adjacency matrix for the selected graph 
 ## ------------------------------------------------------------------------------------------------|
-hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, operator = "or" )
+hill_climb_mpl_binary = function( data, freq_data, n, alpha = 0.5, operator = "or" )
 {
 	p = ncol( data )
 	
@@ -27,7 +27,7 @@ hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, ope
 		cat( mes, "\r" )
 		flush.console()	
 		
-		mb_i       = local_mb_hc( node = i, data = data, freq_data = freq_data, max_range_nodes = max_range_nodes, p = p, n = n, alpha = alpha )
+		mb_i       = local_mb_hc_binary( node = i, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
 		G[mb_i, i] = 1
     }
 
@@ -37,7 +37,7 @@ hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, ope
   
     if( sum( G_local ) != 0 )
     {
-       selected_G = global_hc( G_local = G_local, data = data, freq_data = freq_data, max_range_nodes = max_range_nodes, p = p, n = n, alpha = alpha )   
+       selected_G = global_hc_binary( G_local = G_local, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )   
     }else{
 		selected_G = G_local
     }
@@ -48,13 +48,13 @@ hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, ope
 ## ------------------------------------------------------------------------------------------------|
 # Local Marginal Pseudo-likelihood optimization to discovers the Markov blanket of each node
 ## ------------------------------------------------------------------------------------------------|
-local_mb_hc = function( node, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
+local_mb_hc_binary = function( node, data, freq_data, p, n, alpha = 0.5 )
 {
 	temp            = seq_len( p )
 	mb_potential    = temp[ - node ]	
 	l_mb_potential  = p - 1
 	mb_hat          = numeric()
-	log_prob_mb_hat = log_mpl_disrete( node, mb_hat, data, freq_data, max_range_nodes, p, n, alpha = alpha )	
+	log_prob_mb_hat = log_mpl_binary( node, mb_hat, data, freq_data, p, n, alpha = alpha )	
 	cont            = TRUE
 	
 	while( cont == TRUE )
@@ -63,7 +63,7 @@ local_mb_hc = function( node, data, freq_data, max_range_nodes, p, n, alpha = 0.
 		log_prob_mb_candidates = numeric( l_mb_potential ) 
 		
 		for( i in seq_len( l_mb_potential ) )
-			log_prob_mb_candidates[i] = log_mpl_disrete( node = node, mb_node = c( mb_hat, mb_potential[i] ), data = data, freq_data = freq_data, max_range_nodes = max_range_nodes, p = p, n = p, alpha = alpha )			
+			log_prob_mb_candidates[i] = log_mpl_binary( node = node, mb_node = c( mb_hat, mb_potential[i] ), data = data, freq_data = freq_data, p = p, n = p, alpha = alpha )			
 		
 		log_prob_mb_candidate_top = max( log_prob_mb_candidates )
 		
@@ -86,7 +86,7 @@ local_mb_hc = function( node, data, freq_data, max_range_nodes, p, n, alpha = 0.
 				delete = FALSE
 				log_prob_mb_candidates = numeric( length_mb_hat )
 				for( i in 1:length_mb_hat )
-					log_prob_mb_candidates[i] = log_mpl_disrete( node = node, mb_node = mb_hat[ -i ], data = data, freq_data = freq_data, max_range_nodes = max_range_nodes, p = p, n = n, alpha = alpha )
+					log_prob_mb_candidates[i] = log_mpl_binary( node = node, mb_node = mb_hat[ -i ], data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
 				
 				log_prob_mb_candidate_top = max( log_prob_mb_candidates )
 				
@@ -108,7 +108,7 @@ local_mb_hc = function( node, data, freq_data, max_range_nodes, p, n, alpha = 0.
 ## ------------------------------------------------------------------------------------------------|
 # Neighborhood search algorithm for global Marginal Pseudo-likelihood optimization 
 ## ------------------------------------------------------------------------------------------------|
-global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
+global_hc_binary = function( G_local, data, freq_data, p, n, alpha = 0.5 )
 {
 	print( "PART 2, running global search algorithm" )
 
@@ -119,10 +119,11 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 	curr_scores = numeric( p )
 	
 	for( i in 1:p )
-		curr_scores[i] = log_mpl_disrete( i, which( ug[i, ] == 1 ), data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+		curr_scores[i] = log_mpl_binary( node = i, which( ug[i, ] == 1 ), data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
 	
 	edge_change_imp = matrix( 0, n_edges, 2 )
 	edge_change     = matrix( TRUE, n_edges, 2 )
+	
 	cont = TRUE
 	while( cont == TRUE )
 	{
@@ -135,17 +136,19 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 			node = edge[1]			
 			mb   = which( ug[node, ] == 1 )			
 			
-			if( ug[edge[1], edge[2]] == 0 )
+			if( ug[ edge[1], edge[2] ] == 0 )
 			{
 				swoe1 = curr_scores[node]
 				mb    = c( mb, edge[2] )
-				swe1  = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+				swe1  = log_mpl_binary( node = node, mb, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
+				
 				edge_change_imp[edge_change_ind[i], 1] = swe1 - swoe1;
 				edge_change[edge_change_ind[i], 1] = FALSE
 			}else{
 				swe1  = curr_scores[node]
-				mb    = mb[mb != edge[2]]
-				swoe1 = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+				mb    = mb[ mb != edge[2] ]
+				swoe1 = log_mpl_binary( node = node, mb, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
+				
 				edge_change_imp[edge_change_ind[i], 1] = swoe1 - swe1;
 				edge_change[edge_change_ind[i], 1] = FALSE				
 			}			
@@ -162,13 +165,15 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 			{
 				swoe2 = curr_scores[node]
 				mb    = c( mb, edge[1] )
-				swe2  = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+				swe2  = log_mpl_binary( node = node, mb, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
+				
 				edge_change_imp[edge_change_ind[i], 2] = swe2 - swoe2;
 				edge_change[edge_change_ind[i], 2] = FALSE
 			}else{
 				swe2  = curr_scores[node]
 				mb    = mb[mb  != edge[1]]
-				swoe2 = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+				swoe2 = log_mpl_binary( node = node, mb, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
+				
 				edge_change_imp[edge_change_ind[i], 2] = swoe2 - swe2;
 				edge_change[edge_change_ind[i], 2] = FALSE				
 			}			
@@ -190,10 +195,12 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 				ug[edge[2], edge[1]] = 0				
 			}
 			
-			curr_scores[edge[1]] = log_mpl_disrete( edge[1], which( ug[edge[1], ] == 1 ), data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
-			curr_scores[edge[2]] = log_mpl_disrete( edge[2], which( ug[edge[2], ] == 1 ), data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+			curr_scores[edge[1]] = log_mpl_binary( node = edge[1], which( ug[edge[1], ] == 1 ), data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
+			curr_scores[edge[2]] = log_mpl_binary( node = edge[2], which( ug[edge[2], ] == 1 ), data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
+			
 			edge_change[edges[, 1] == edge[1]|edges[, 1] == edge[2], 1] = TRUE
 			edge_change[edges[, 2] == edge[1]|edges[, 2] == edge[2], 2] = TRUE
+			
 			cont = TRUE
 		}	
 	}	
@@ -204,24 +211,27 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 ## ------------------------------------------------------------------------------------------------|
 # Computing the Marginal pseudo-likelihood for discrete data 
 ## ------------------------------------------------------------------------------------------------|
-log_mpl_disrete = function( node, mb_node, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
+log_mpl_binary = function( node, mb_node, data, freq_data, p, n, alpha = 0.5 )
 {
+	mb_node          = as.vector( mb_node )
+	alpha_ijl        = alpha
 	length_freq_data = length( freq_data )
 	size_node        = length( mb_node )
 	node             = node - 1
 	mb_node          = mb_node - 1
 	log_mpl_node     = 0.0
 
-	result = .C( "log_mpl_dis", as.integer(node), as.integer(mb_node), as.integer(size_node), 
+	result = .C( "log_mpl_binary_parallel_hc", as.integer(node), as.integer(mb_node), as.integer(size_node), 
 	            log_mpl_node = as.double(log_mpl_node), as.integer(data), as.integer(freq_data), 
-	            as.integer(length_freq_data), as.integer(max_range_nodes), as.double(alpha), 
-	            as.integer(n), as.integer(p), PACKAGE = "BDgraph" )
+	            as.integer(length_freq_data), as.double(alpha_ijl), 
+	            as.integer(n), PACKAGE = "BDgraph" )
 	
 	log_mpl_node = result $ log_mpl_node
 	
 	return( log_mpl_node )
 }
      
+
 
 
 

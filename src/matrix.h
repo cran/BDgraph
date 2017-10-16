@@ -13,16 +13,7 @@
 #ifndef matrix_H
 #define matrix_H
 
-#include <sstream>
-#include <string>        // std::string, std::to_string
-#include <R.h>
-#include <Rmath.h>
-#include <R_ext/Lapack.h>
-#include <R_ext/BLAS.h>
-#include <R_ext/Utils.h>
-#include <vector>            // for using vector
-
-using namespace std;
+#include "util.h"
 
 extern "C" {
 	void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p  );

@@ -10,14 +10,9 @@
 //     Maintainer:
 //     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
-#include <sstream>
-#include <string>        // std::string, std::to_string
-#include <vector>        // for using vector
 #include "matrix.h"
 #include "rgwish.h"
 #include "copula.h"
-
-using namespace std;
 
 extern "C" {
 // ----------------------------------------------------------------------------|
@@ -346,10 +341,10 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			counter = 0;
+			counter = 0;	
 			for( j = 1; j < dim; j++ )
 				for( i = 0; i < j; i++ )
-					char_g[counter++] = G[j * dim + i] + '0'; 
+					char_g[ counter++ ] = G[ j * dim + i ] + '0'; 
 		
 			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
 
@@ -666,10 +661,10 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 //----- saving result ---------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
-			counter = 0;
+			counter = 0;	
 			for( j = 1; j < dim; j++ )
 				for( i = 0; i < j; i++ )
-					char_g[counter++] = G[j * dim + i] + '0'; 
+					char_g[ counter++ ] = G[ j * dim + i ] + '0'; 
 		
 			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
 

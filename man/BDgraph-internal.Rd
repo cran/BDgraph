@@ -7,7 +7,12 @@
 \alias{ hill_climb_mpl }
 \alias{ local_mb_hc }
 \alias{ global_hc }
-\alias{ log_mpl_dis }
+\alias{ log_mpl_disrete }
+
+\alias{ hill_climb_mpl_binary }
+\alias{ local_mb_hc_binary }
+\alias{ global_hc_binary }
+\alias{ log_mpl_binary }
 
 \alias{ detect_cores }
 

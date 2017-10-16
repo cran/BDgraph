@@ -26,7 +26,7 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 	GetRNGstate();
 	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		psi[i * dim + i] = sqrt( rgamma( ( bK + dim - i - 1 ) / 2.0, 2.0 ) );
+		psi[i * dim + i] = sqrt( Rf_rgamma( ( bK + dim - i - 1 ) / 2.0, 2.0 ) );
 		//psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
 
 	#pragma omp parallel for
@@ -154,7 +154,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	//GetRNGstate();
 	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		sigma_start[i * dim1] = sqrt( rgamma( ( bKdim - i ) / 2.0, 2.0 ) ); // i * dim1 = i * dim + i
+		sigma_start[i * dim1] = sqrt( Rf_rgamma( ( bKdim - i ) / 2.0, 2.0 ) ); // i * dim1 = i * dim + i
 		//sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
 
 	#pragma omp parallel for
@@ -299,7 +299,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )
-				psi[i * dim + i] = sqrt( rgamma( ( b_c + nu[i] ) / 2.0, 2.0 ) );
+				psi[i * dim + i] = sqrt( Rf_rgamma( ( b_c + nu[i] ) / 2.0, 2.0 ) );
 				//psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
 
 			for( i = 0; i < dim - 1; i++ ) 
@@ -350,7 +350,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )
-				psi[i * dim + i] = sqrt( rgamma( ( b_c + nu[i] ) / 2.0, 2.0 ) );
+				psi[i * dim + i] = sqrt( Rf_rgamma( ( b_c + nu[i] ) / 2.0, 2.0 ) );
 				//psi[i * dim + i] = sqrt( rchisq( b_c + nu[i] ) );
 
 			for( i = 0; i < dim - 1; i++ ) 

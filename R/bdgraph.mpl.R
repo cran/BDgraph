@@ -4,7 +4,7 @@
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.start = "empty", 
 					g.space = NULL, g.prior = 0.5, multi.update = NULL, alpha = 0.5, 
-					save.all = FALSE, print = 1000, cores = "all" )
+					save.all = FALSE, print = 1000, cores = "all", operator = "or" )
 {
 	if( cores == "all" ) cores = detect_cores()
 	.C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
@@ -43,7 +43,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
    
 	if( ( method == "dgm" ) || ( method == "dgm-binary" ) ) 
 	{
-		if( transfer == TRUE ) data = transfer( data )  
+		if( transfer == TRUE ) data = transfer( r_data = data )  
 	
 		p         = ncol( data ) - 1
 		freq_data = data[ , p + 1 ]
@@ -55,26 +55,16 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		length_f_data   = length( freq_data )	
 	}
 	
-	if( class( g.start ) == "bdgraph" ) 
-	{
-		if( is.matrix( g.start ) ) G = unclass( g.start ) else G <- g.start $ last_graph
-	}
+	if( method == "dgm-binary" )
+		if( ( min( data ) != 0 ) || ( max( data ) != 1 ) ) stop( "For the case 'method = dgm-binary', data must be binary (0,1)" )
 	
-	if( class( g.start ) == "sim" ) 	G <- as.matrix( g.start $ G )
-	
+	if( class( g.start ) == "bdgraph"                         ) G = g.start $ last_graph
+	if( class( g.start ) == "sim"                             ) G = as.matrix( g.start $ G )
 	if( class( g.start ) == "character" && g.start == "empty" ) G = matrix( 0, p, p )
+	if( class( g.start ) == "character" && g.start == "full"  )	G = matrix( 1, p, p )
+	if( is.matrix( g.start )                                  ) G = g.start
 	
-	if( class( g.start ) == "character" && g.start == "full" )
-	{
-		G         = matrix( 1, p, p )
-		diag( G ) = 0
-	}	
-
-	if( is.matrix( g.start ) )
-	{
-		G       = g.start
-		diag(G) = 0
-	}
+	diag(G) = 0
 			
 	if( save.all == TRUE )
 	{
@@ -256,7 +246,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	{
 		last_graph             = matrix( result $ G, p, p )
 		colnames( last_graph ) = colnames_data[1:p]
-
+   
 		if( save.all == TRUE )
 		{
 			size_sample_g = result $ size_sample_g
@@ -280,7 +270,11 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			output = list( p_links = p_links, last_graph = last_graph )
 		}
 	}else{
-		selected_graph = hill_climb_mpl( data = data, freq_data = freq_data, n = n, max_range_nodes = max_range_nodes, alpha = alpha )
+		if( method == "dgm" )
+			selected_graph = hill_climb_mpl( data = data, freq_data = freq_data, n = n, max_range_nodes = max_range_nodes, alpha = alpha, operator = operator )
+
+		if( method == "dgm-binary" )
+			selected_graph = hill_climb_mpl_binary( data = data, freq_data = freq_data, n = n, alpha = alpha, operator = operator )			
 		
 		colnames( selected_graph ) = colnames_data[1:p]
 		output = selected_graph
@@ -290,4 +284,4 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	class( output ) = "bdgraph"
 	return( output )   
 }
-         
+           

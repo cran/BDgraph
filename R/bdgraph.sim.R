@@ -24,7 +24,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
 		if( is.null( size ) )
 		{
-			if( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
+#			if( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
 			
 			G[ upper.tri( G ) ] <- rbinom( p * ( p - 1 ) / 2, 1, prob )
 		} 
@@ -33,10 +33,10 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size should be between zero and p*(p-1)/2" )
 			
 			smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
-			G[upper.tri(G)][smp] <- 1
+			G[ upper.tri( G ) ][smp] <- 1
 		}
 		
-		G <- G + t(G)
+		G <- G + t( G )
 	}
 	
 	if( graph == "cluster" )
@@ -44,12 +44,15 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		# partition variables
 		if( is.null( class ) )
 		{ 
+			class = NULL
+			if( !is.null( size ) )   class = length( size )
+			if( length( prob ) > 1 ) class = length( prob )
+			if( is.null( class ) )   class = max( 2, ceiling( p / 20 ) )
+
 			if( !is.null( size ) )
 			{
 				class <- length( size )
-			} 
-			else 
-			{
+			}else{
 				class <- max( 2, ceiling( p / 20 ) )
 			}
 		}
@@ -64,7 +67,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		 
 		if( is.null( size ) )
 		{
-			if( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
+#			if( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
 
 			for( i in 1 : class )
 			{

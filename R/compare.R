@@ -92,12 +92,14 @@ compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 # To compare the result
 compute_measures = function( G, est_G ) 
 {
-	tp   = sum( ( G != 0 ) * ( est_G != 0 ) )
-	fp   = sum( ( G == 0 ) * ( est_G != 0 ) )
-	fn   = sum( ( G != 0 ) * ( est_G == 0 ) )
-	tn_M = ( G == 0 ) * ( est_G == 0 )
-	tn   = sum( tn_M[ upper.tri( tn_M == 1 ) ] )
-	
+	upper_G     = G[     upper.tri( G     ) ]
+	upper_est_G = est_G[ upper.tri( est_G ) ]
+		
+	tp = sum( ( upper_G != 0 ) * ( upper_est_G != 0 ) ) 
+	tn = sum( ( upper_G == 0 ) * ( upper_est_G == 0 ) )
+	fp = sum( ( upper_G == 0 ) * ( upper_est_G != 0 ) ) 
+	fn = sum( ( upper_G != 0 ) * ( upper_est_G == 0 ) )
+		
 	# harmonic mean of precision and recall, called F-measure or balanced F-score
 	F1score = ( 2 * tp ) / ( 2 * tp + fp + fn )
 

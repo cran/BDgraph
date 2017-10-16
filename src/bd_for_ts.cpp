@@ -11,21 +11,8 @@
 //     Alex Tank:           atank18@gmail.com
 //     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
-#include <R.h>
-#include <Rmath.h>
-#include <R_ext/Lapack.h>
-#include <R_ext/BLAS.h>
-#include <R_ext/Utils.h>
-#include <R_ext/Complex.h>
 #include "MyLapack.h"
-#include <sstream>
-#include <string>        // std::string, std::to_string
-#include <vector>        // for using vector
-#include <math.h>        // isinf, sqrt
 #include "matrix.h"
-#include <limits>        // for numeric_limits<long double>::max()
-
-using namespace std;
 
 extern "C" {
 

@@ -1,14 +1,7 @@
 #ifndef R_MYLAPACK_H
 #define R_MYLAPACK_H
 
-#include <limits>   
-#include <R_ext/Lapack.h>
-#include <R_ext/Utils.h>
-#include <string>             // std::string, std::to_string
-#include <R_ext/RS.h>		  // for F77_... 
-#include <R_ext/Complex.h>	  // for Rcomplex 
-#include <R_ext/BLAS.h>
-#include <math.h>
+#include "util.h"
 
 #ifdef	__cplusplus
 extern "C" {

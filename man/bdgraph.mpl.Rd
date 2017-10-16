@@ -11,7 +11,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
              g.start = "empty", g.space = NULL, g.prior = 0.5, 
              multi.update = NULL, alpha = 0.5, save.all = FALSE, 
-             print = 1000, cores = "all" )
+             print = 1000, cores = "all", operator = "or" )
 }
 
 \arguments{
@@ -74,7 +74,8 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{cores}{ The number of cores to use for parallel execution. 
 	   The default is to use \code{"all"} CPU cores of the computer; 
 	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
-	   }	
+	   }
+	\item{operator}{ A character with two options \code{"or"} (default) and \code{"and"}. It is for hill-climbing algorithm.  }	   	
 }
 
 \value{

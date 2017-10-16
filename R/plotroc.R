@@ -54,7 +54,8 @@ plotroc = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 compute_tp_fp = function( G, bdgraph.obj, cut, smooth )
 {
 	p           = nrow( G )
-	sum_edges   = sum( G )
+	upper_G     = G[ upper.tri( G ) ]
+	sum_edges   = sum( upper_G )
 	sum_no_dges = p * ( p - 1 ) / 2 - sum_edges
 
     if( class( bdgraph.obj ) != "huge" )
@@ -78,9 +79,10 @@ compute_tp_fp = function( G, bdgraph.obj, cut, smooth )
 			# checking for cut pints
 			est_G = matrix( 0, p, p )
 			est_G[ p_links > cut_points[i] ] = 1
+			upper_est_G = est_G[ upper.tri( est_G ) ]
 
-			tp[i] = sum( ( G != 0 ) * ( est_G != 0 ) ) / sum_edges
-			fp[i] = sum( ( G == 0 ) * ( est_G != 0 ) ) / sum_no_dges
+			tp[i] = sum( ( upper_G != 0 ) * ( upper_est_G != 0 ) ) / sum_edges
+			fp[i] = sum( ( upper_G == 0 ) * ( upper_est_G != 0 ) ) / sum_no_dges
 		}
 	}else{
 		path = bdgraph.obj $ path
@@ -89,11 +91,11 @@ compute_tp_fp = function( G, bdgraph.obj, cut, smooth )
 
 		for( i in 1 : length( path ) )
 		{
-			est_G = as.matrix( path[[i]] )
-			est_G[ lower.tri( est_G, diag = TRUE ) ] = 0
+			est_G       = as.matrix( path[[ i ]] )
+			upper_est_G = est_G[ upper.tri( est_G ) ]
 			
-			tp[i] = sum( ( G != 0 ) * ( est_G != 0 ) ) / sum_edges
-			fp[i] = sum( ( G == 0 ) * ( est_G != 0 ) ) / sum_no_dges
+			tp[i] = sum( ( upper_G != 0 ) * ( upper_est_G != 0 ) ) / sum_edges
+			fp[i] = sum( ( upper_G == 0 ) * ( upper_est_G != 0 ) ) / sum_no_dges
 		}
 		
 		tp = c( tp, 1 )

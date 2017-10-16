@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 //     Copyright (C) 2012-2017 Reza Mohammadi
 //
 //     This file is part of BDgraph package.
@@ -9,25 +9,244 @@
 //
 //     Maintainer:
 //     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
-// ----------------------------------------------------------------------------|
-#include <sstream>
-#include <string>        // std::string, std::to_string
-#include <vector>        // for using vector
-#include <math.h>        // isinf, sqrt
-#include <limits>        // for numeric_limits<double>::max()
-#include <R.h>
-#include <Rmath.h>
-#include <algorithm>     // for transform function and std::sort, std::max_element
-#include <functional>    // for transform function
-
+// ------------------------------------------------------------------------------------------------|
 #include "matrix.h"
 
-using namespace std;
-
 extern "C" {
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------| 
+// Computing the Marginal pseudo-likelihood for HC algorithm and binary data
+// ------------------------------------------------------------------------------------------------| 
+void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
+                  int data[], int freq_data[], int *length_freq_data, 
+                  double *alpha_ijl, int *n )
+{
+	double alpha_jl      = 2 * *alpha_ijl;
+	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
+	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
+
+	int i_hash, counter, i, j, l, size_mb_conf, mb_node_x_lf, node_x_lf = *node * *length_freq_data;
+	double sum_lgamma_fam;
+
+	*log_mpl_node = 0.0;
+	int fam_conf_count_0 = 0, fam_conf_count_1 = 0;
+		   
+	switch( *size_node )
+	{
+		case 0:
+			for( i = 0; i < *length_freq_data; i++ )
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				
+			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
+						   
+			*log_mpl_node = sum_lgamma_fam - lgammafn_sign( *n + alpha_jl, NULL ) + log_alpha_jl - 2 * log_alpha_ijl;      
+			break;
+				
+		case 1:
+			mb_node_x_lf = mb_node[0] * *length_freq_data; 		
+
+			for( l = 0; l < 2; l++ )  // collects the necessary statistics from the data and calculates the score
+			{
+				fam_conf_count_0 = 0;
+				fam_conf_count_1 = 0;
+				for( i = 0; i < *length_freq_data; i++ )
+					if( data[ mb_node_x_lf + i ] == l ) 
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+								
+				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
+		   
+				//mb_conf_count = fam_conf_count[0] + fam_conf_count[1];
+				*log_mpl_node += sum_lgamma_fam - lgammafn_sign( fam_conf_count_0 + fam_conf_count_1 + alpha_jl, NULL );     
+			}		
+
+			// adding remaining terms 
+			*log_mpl_node += 2 * log_alpha_jl - 4 * log_alpha_ijl;   
+			break;
+	
+		default:			
+			int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
+			int sz = size_bit;
+			
+			vector<int>vec_fam_conf_count_0( *length_freq_data );	
+			vector<int>vec_fam_conf_count_1( *length_freq_data );	
+
+			vector<vector<unsigned long long int> > mb_conf( *length_freq_data );		
+			vector<vector<unsigned long long int> > data_mb( *length_freq_data );		
+
+			int size_hash = *size_node / sz + 1;
+			vector<unsigned long long int> hash_mb( size_hash, 0 );			
+
+			// for case i = 0
+			for( j = 0; j < *size_node; j++ )
+			{
+				i_hash = j / sz;
+				//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
+				hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
+			}
+			mb_conf[0] = hash_mb;
+			size_mb_conf = 1;
+
+			if( data[ node_x_lf ] == 0 ) 
+			{
+				vec_fam_conf_count_0[0] = freq_data[0];
+				vec_fam_conf_count_1[0] = 0;
+			}else{
+				vec_fam_conf_count_1[0] = freq_data[0];
+				vec_fam_conf_count_0[0] = 0;
+			}
+
+			int sizeof_hash = size_hash * sizeof hash_mb[0];
+			for( i = 1; i < *length_freq_data; i++ )
+			{
+				//vector<unsigned long long int> hash_mb( size_hash, 0 );
+				memset( &hash_mb[0], 0, sizeof_hash );
+				
+				for( j = 0; j < *size_node; j++ )
+				{
+					i_hash = j / sz;
+					//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+					hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+				}
+				
+				//data_mb[i] = hash_mb;
+				counter = 1;
+				for( j = 0; j < size_mb_conf; j++ )
+					if( hash_mb == mb_conf[j] ) 
+					{
+						( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[j] += freq_data[i] : vec_fam_conf_count_1[j] += freq_data[i];
+						counter = 0;  
+						break;
+					}					
+				
+				if( counter )
+				{
+					//( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i] : vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+					if( data[ node_x_lf + i ] == 0 ) 
+					{
+						vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_1[ size_mb_conf ] = 0;
+					}else{
+						vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_0[ size_mb_conf ] = 0;
+					}
+					
+					mb_conf[ size_mb_conf++ ] = hash_mb;
+				}
+			}
+						
+			for( l = 0; l < size_mb_conf; l++ )  // collects the necessary statistics from the data and calculates the score
+				*log_mpl_node += lgammafn_sign( vec_fam_conf_count_0[l] + *alpha_ijl, NULL ) + lgammafn_sign( vec_fam_conf_count_1[l] + *alpha_ijl, NULL ) - lgammafn_sign( vec_fam_conf_count_0[l] + vec_fam_conf_count_1[l] + alpha_jl, NULL );     
+
+			// adding remaining terms 
+			*log_mpl_node += size_mb_conf * ( log_alpha_jl - 2 * log_alpha_ijl );   
+
+			break;
+	}
+}
+    
+// ------------------------------------------------------------------------------------------------| 
+// Parallel function to compute the Marginal pseudo-likelihood for BINARY data
+// ------------------------------------------------------------------------------------------------| 
+void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
+                  int data[], int freq_data[], int *length_freq_data, 
+                  double *alpha_ijl, int *n )
+{
+	double alpha_jl      = 2 * *alpha_ijl;
+	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
+	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
+
+	int i, l, size_mb_conf, mb_node_x_lf, node_x_lf = *node * *length_freq_data;
+	double sum_lgamma_fam;
+
+	*log_mpl_node = 0.0;
+	int fam_conf_count_0 = 0, fam_conf_count_1 = 0;
+		   
+	switch( *size_node )
+	{
+		case 0:
+			for( i = 0; i < *length_freq_data; i++ )
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				
+			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
+						   
+			*log_mpl_node = sum_lgamma_fam - lgammafn_sign( *n + alpha_jl, NULL ) + log_alpha_jl - 2 * log_alpha_ijl;      
+			break;
+				
+		case 1:
+			mb_node_x_lf = mb_node[0] * *length_freq_data; 		
+
+			for( l = 0; l < 2; l++ )  // collects the necessary statistics from the data and calculates the score
+			{
+				fam_conf_count_0 = 0;
+				fam_conf_count_1 = 0;
+				for( i = 0; i < *length_freq_data; i++ )
+					if( data[ mb_node_x_lf + i ] == l ) 
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+								
+				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
+		   
+				//mb_conf_count = fam_conf_count[0] + fam_conf_count[1];
+				*log_mpl_node += sum_lgamma_fam - lgammafn_sign( fam_conf_count_0 + fam_conf_count_1 + alpha_jl, NULL );     
+			}		
+
+			// adding remaining terms 
+			*log_mpl_node += 2 * log_alpha_jl - 4 * log_alpha_ijl;   
+			break;
+	
+		default:			
+			vector<vector<unsigned long long int> > mb_conf( *length_freq_data );		
+			vector<vector<unsigned long long int> > data_mb( *length_freq_data );		
+			int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
+
+			int sz = size_bit;
+			int size_hash = *size_node / sz + 1;			
+	
+			#pragma omp parallel
+			{
+				int j, i_hash;
+				vector<unsigned long long int> hash_mb( size_hash );
+				int sizeof_hash = size_hash * sizeof hash_mb[0];
+				
+				#pragma omp for
+				for( int i = 0; i < *length_freq_data; i++ )
+				{
+					memset( &hash_mb[0], 0, sizeof_hash );
+					
+					for( j = 0; j < *size_node; j++ )
+					{
+						i_hash = j / sz;
+						//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+						hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+					}
+					data_mb[i] = hash_mb;
+				}
+			}
+			
+			mb_conf = data_mb;
+			std::sort( mb_conf.begin(), mb_conf.end() );
+			mb_conf.erase( std::unique( mb_conf.begin(), mb_conf.end() ), mb_conf.end() );
+			size_mb_conf = mb_conf.size();
+
+			for( l = 0; l < size_mb_conf; l++ )  // collects the necessary statistics from the data and calculates the score
+			{
+				fam_conf_count_0 = 0;
+				fam_conf_count_1 = 0;
+				for( i = 0; i < *length_freq_data; i++ )
+					if( data_mb[i] == mb_conf[ l ] ) 
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				
+				*log_mpl_node += lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL ) - lgammafn_sign( fam_conf_count_0 + fam_conf_count_1 + alpha_jl, NULL );     
+			}
+
+			// adding remaining terms 
+			*log_mpl_node += size_mb_conf * ( log_alpha_jl - 2 * log_alpha_ijl );   
+
+			break;
+	}
+}
+    	
+// ------------------------------------------------------------------------------------------------|
 // Computing the Marginal pseudo-likelihood for discrete data
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
                   int data[], int freq_data[], int *length_freq_data, 
                   int max_range_nodes[], double *alpha_ijl, int *n )
@@ -136,143 +355,4 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
     *log_mpl_node += size_mb_conf * lgammafn( alpha_jl ) - size_mb_conf * max_range_node_j * lgammafn( *alpha_ijl );     
 }
      
-// ----------------------------------------------------------------------------|
-// Computing Bayes-factor for Hill-Climb algorithm for discrete data
-// ----------------------------------------------------------------------------|
-void bayes_factors_mpl_dis( double bayes_factors[], double curr_log_mpl[], int G_hat[], int edges_G_or[], 
-                            int *size_G_or, int size_node[], int data[], int freq_data[], 
-                            int *length_freq_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p )
-{
-	int i, j, t, nodexdim, count_mb, dim = *p, size_node_i_new, size_node_j_new;
-	double log_mpl_i_new, log_mpl_j_new;
-	
-	vector<int>mb_node_i_new( dim );     
-	vector<int>mb_node_j_new( dim );     
-	
-	for( int e = 0; e < *size_G_or; e++ )
-	{
-		i = edges_G_or[ e ];
-		j = edges_G_or[ *size_G_or + e ];
-
-		if( G_hat[ j * dim + i ] )
-		{ 
-			size_node_i_new = size_node[i] - 1; 
-			size_node_j_new = size_node[j] - 1; 
-
-			if( size_node_i_new > 0 )
-			{	
-				nodexdim = i * dim;
-				count_mb = 0; 
-				for( t = 0; t < dim; t++ ) 
-					if( G_hat[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
-			}	
-			
-			if( size_node_j_new > 0 )
-			{						
-				nodexdim = j * dim;
-				count_mb = 0; 
-				for( t = 0; t < dim; t++ ) 
-					if( G_hat[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
-			}	
-		}else{ 
-			size_node_i_new = size_node[i] + 1; 
-			size_node_j_new = size_node[j] + 1; 
-
-			nodexdim = i * dim;
-			count_mb = 0; 
-			for( t = 0; t < dim; t++ ) 
-				if( G_hat[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
-
-			nodexdim = j * dim;
-			count_mb = 0; 
-			for( t = 0; t < dim; t++ ) 
-				if( G_hat[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
-		}
-		
-		log_mpl_hc_dis( &i, &mb_node_i_new[0], &size_node_i_new, &log_mpl_i_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
-		log_mpl_hc_dis( &j, &mb_node_j_new[0], &size_node_j_new, &log_mpl_j_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
-																	
-		bayes_factors[ e ] = log_mpl_i_new + log_mpl_j_new - curr_log_mpl[i] - curr_log_mpl[j];
-	}	
-}			
-   
-// ----------------------------------------------------------------------------|
-// Neighborhood search algorithm for global Marginal Pseudo-likelihood optimization 
-// ----------------------------------------------------------------------------|
-void dgm_global_mpl_hc( int G_hat[], int edges_G_or[], int *size_G_or, int data[], int freq_data[], int *length_f_data, 
-                        int max_range_nodes[], double *alpha_ijl, int *n, int *p )
-{
-	int length_freq_data = *length_f_data, copy_n = *n, i, dim = *p, nodexdim, count_mb, t;
-	int max_bayes_factors_loc, selected_edge_i, selected_edge_j, selected_edge_ij;
-
-	// Caclulating the log_likelihood for the current graph G
-	vector<int>size_node( dim, 0 );
-	vector<int>mb_node( dim, 0 );     
-	vector<double>curr_log_mpl( dim );
-	for( i = 0; i < dim; i++ ) 				
-		log_mpl_hc_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
-	
-	vector<double>bayes_factors( *size_G_or );
-
-//-- main loop for neighborhood sampling algorithm ----------------------------|
-	int cont = 1;
-	while( cont == 1 )
-	{
-		cont = 0;
-
-		bayes_factors_mpl_dis( &bayes_factors[0], &curr_log_mpl[0], G_hat, edges_G_or, size_G_or, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
-		
-		double max_bayes_factors = *std::max_element( bayes_factors.begin(), bayes_factors.end() );
-		//double max_bayes_factors = *std::max_element( &bayes_factors[0], &bayes_factors[0] + *size_G_or );
-		
-		if( max_bayes_factors > 0 )
-		{
-			//max_bayes_factors_loc = which.max( bayes_factors )
-			max_bayes_factors_loc = std::distance( bayes_factors.begin(), std::max_element( bayes_factors.begin(), bayes_factors.end() ) );
-			
-			selected_edge_i = edges_G_or[ max_bayes_factors_loc ];
-			selected_edge_j = edges_G_or[ *size_G_or + max_bayes_factors_loc ];
-
-			// Updating G (graph) based on selected edge
-			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-			G_hat[selected_edge_ij] = 1 - G_hat[selected_edge_ij];
-			G_hat[selected_edge_i * dim + selected_edge_j] = G_hat[selected_edge_ij];
-						
-			if( G_hat[ selected_edge_ij ] )
-			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
-			}
-
-// ----------------------------------------------------------------------------|
-			if( size_node[ selected_edge_i ] > 0 )
-			{	
-				nodexdim = selected_edge_i * dim;
-				count_mb = 0;  
-				for( t = 0; t < dim; t++ ) 
-					if( G_hat[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
-			}				
-			log_mpl_hc_dis( &selected_edge_i, &mb_node[0], &size_node[ selected_edge_i ], &curr_log_mpl[ selected_edge_i ], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
-			
-			if( size_node[ selected_edge_j ] > 0 )
-			{	
-				nodexdim = selected_edge_j * dim;
-				count_mb = 0;    
-				for( t = 0; t < dim; t++ ) 
-					if( G_hat[ nodexdim + t ] ) mb_node[ count_mb++ ] = t;
-			}	
-			log_mpl_hc_dis( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );	
-// ----------------------------------------------------------------------------|
-			cont = 1;
-		}	
-// ----------------------------------------------------------------------------|
-	} 
-// ----- End of sampling algorithm --------------------------------------------|
-}
-       
 } // End of exturn "C"

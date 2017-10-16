@@ -25,7 +25,7 @@ BDgraph NEWS
 
 - CHANGES IN VERSION 2.38
 	* Function "bdgraph.mpl()" is added to the package, which is based on Marginal Pseudo-Likelihood 
-	  estimation
+	   estimation
 	* In algorithm "gcgm", step "copula" are implimented in parallel using OpenMP in C++. 
 	* Function "bdgraph.ts" is implimented in parallel using OpenMP in C++.
 	* New reference related to the ratio of normalizing constant is added to manual.	
@@ -33,6 +33,10 @@ BDgraph NEWS
 - CHANGES IN VERSION 2.40
 	* Option "g.prior" is added to function "bdgraph()", for prior distribution of the graph 
 	* Option "cores"   is added to function "bdgraph()", for determining the number of cores to use
-	  for parallel execution.
+	   for parallel execution.
 	* Function "transfer()" is added to the package
+   
+- CHANGES IN VERSION 2.41
+	* Option "dgm-binary" is added to function "bdgraph()" which is for running Hill-Climbing 
+	   algorihtm for binary data
    

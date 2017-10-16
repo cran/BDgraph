@@ -10,17 +10,9 @@
 //     Maintainer:
 //     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
 // ----------------------------------------------------------------------------|
-#include <sstream>
-#include <string>        // std::string, std::to_string
-#include <vector>        // for using vector
-#include <limits>        // for std::numeric_limits<double>::max()
-#include <R.h>
-#include <Rmath.h>
 #include "matrix.h"
 #include "rgwish.h"
 #include "copula.h"
-
-using namespace std;
 
 extern "C" {
 // ----------------------------------------------------------------------------|
@@ -71,7 +63,6 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 	}
 
 	// For finding the index of rates 
-	vector<double> rates( qp );
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
@@ -83,6 +74,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 				counter++;
 			}
 	int sub_qp = counter;
+	vector<double> rates( sub_qp );	
 
 	vector<double> log_ratio_g_prior( pxp );	
 	for( j = 1; j < dim; j++ )
@@ -217,7 +209,6 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 	}
 
 	// For finding the index of rates 
-	vector<double> rates( qp );
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
@@ -229,6 +220,7 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 				counter++;
 			}
 	int sub_qp = counter;
+	vector<double> rates( sub_qp );
 
 	vector<double> log_ratio_g_prior( pxp );	
 	for( j = 1; j < dim; j++ )
@@ -272,7 +264,7 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 			counter = 0;	
 			for( j = 1; j < dim; j++ )
 				for( i = 0; i < j; i++ )
-					char_g[counter++] = G[ j * dim + i ] + '0'; 
+					char_g[ counter++ ] = G[ j * dim + i ] + '0'; 
 
 			weight_C = 1.0 / sum_rates;
 			
@@ -392,7 +384,6 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 	}
 
 	// For finding the index of rates 
-	vector<double> rates( qp );
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
@@ -404,6 +395,7 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 				counter++;
 			}
 	int sub_qp = counter;
+	vector<double> rates( sub_qp );
 
 	vector<double> log_ratio_g_prior( pxp );	
 	for( j = 1; j < dim; j++ )
@@ -547,7 +539,6 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 	}
 
 	// For finding the index of rates 
-	vector<double> rates( qp );
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
@@ -559,6 +550,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 				counter++;
 			}
 	int sub_qp = counter;
+	vector<double> rates( sub_qp );
 
 	vector<double> log_ratio_g_prior( pxp );	
 	for( j = 1; j < dim; j++ )
@@ -600,7 +592,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 			counter = 0;	
 			for( j = 1; j < dim; j++ )
 				for( i = 0; i < j; i++ )
-					char_g[counter++] = G[ j * dim + i ] + '0'; 
+					char_g[ counter++ ] = G[ j * dim + i ] + '0'; 
 
 			weight_C = 1.0 / sum_rates;
 			
