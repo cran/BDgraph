@@ -13,6 +13,7 @@
   
 #include "copula.h"
    
+extern "C" {
 // Calculating mean for copula function
 void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int *j, int *n, int *p )
 {
@@ -181,3 +182,5 @@ void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p
 
 	cholesky( &inv_Ds[0], Ts, &dim );	
 }
+
+} // End of exturn "C"

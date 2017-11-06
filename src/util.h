@@ -17,12 +17,12 @@
 
 #include <R.h>
 #include <Rmath.h>
+#include <R_ext/Print.h>
 
 #include <R_ext/Lapack.h>
 #include <R_ext/BLAS.h>
 #include <R_ext/Utils.h>
 #include <R_ext/Complex.h>
-#include <R_ext/Print.h>
 #include <R_ext/Arith.h>     // for the special values like NA, NaN  
 
 #include <R_ext/Visibility.h>

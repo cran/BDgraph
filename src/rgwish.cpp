@@ -16,7 +16,7 @@
 // sampling from Wishart distribution // Ts = chol( solve( Ds ) )
 void rwish_c( double Ts[], double K[], int *b, int *p )
 {
-	int i, j, dim = *p, pxp = dim * dim, bK = *b;
+	int dim = *p, pxp = dim * dim, bK = *b;
 	double alpha = 1.0, beta   = 0.0;
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 
@@ -24,15 +24,15 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
 	// ---- Sample values in Psi matrix ---------------------------------------|
 	GetRNGstate();
-	#pragma omp parallel for
-	for( i = 0; i < dim; i++ )
-		psi[i * dim + i] = sqrt( Rf_rgamma( ( bK + dim - i - 1 ) / 2.0, 2.0 ) );
+	//#pragma omp parallel for
+	for( int i = 0; i < dim; i++ )
+		psi[ i * dim + i ] = sqrt( Rf_rgamma( ( bK + dim - i - 1 ) / 2.0, 2.0 ) );
 		//psi[i * dim + i] = sqrt( rchisq( bK + dim - i - 1 ) );
 
-	#pragma omp parallel for
-	for( j = 1; j < dim; j++ )
+	//#pragma omp parallel for
+	for( int j = 1; j < dim; j++ )
 		for( int i = 0; i < j; i++ )
-			psi[j * dim + i] = norm_rand();
+			psi[ j * dim + i ] = norm_rand();
 	PutRNGstate();
 	// ------------------------------------------------------------------------|
 

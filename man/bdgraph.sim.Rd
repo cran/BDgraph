@@ -28,6 +28,7 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
 	  For option \code{"non-Gaussian"}, data are transfered multivariate normal distribution to continuous multivariate non-Gaussian distribution.
 	  For option \code{"discrete"}, data are transfered from multivariate normal distribution to discrete multivariat distribution.
 	  For option \code{"mixed"}, data are transfered from multivariate normal distribution to mixture of 'count', 'ordinal', 'non-Gaussian', 'binary' and 'Gaussian', respectively. 
+	  For option \code{"binary"}, data are generated directly from the joint distribution. This option is working only for the case p is less than 17. 
 	}
 
   \item{prob}{ If \code{graph="random"}, it is the probability that a pair of nodes has a link.}

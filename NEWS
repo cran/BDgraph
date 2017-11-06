@@ -39,4 +39,13 @@ BDgraph NEWS
 - CHANGES IN VERSION 2.41
 	* Option "dgm-binary" is added to function "bdgraph()" which is for running Hill-Climbing 
 	   algorihtm for binary data
+	   
+	* "configure" and "configure.ac" is added to configure checks of C++ codes
+	
+- CHANGES IN VERSION 2.42
+	* Function "local_rates_ggm_mpl" in cpp is added for bdgraph.mpl function
+	* configure and configure.ac is added to the package for Makevars file
+	* Functions "bdgraph.ts", "rcwish", and "rcgwish" are removed from the package
+	 
+ 
    

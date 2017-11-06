@@ -141,7 +141,7 @@ void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *
                   double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, 
                   vector<vector<unsigned long long int> > &mb_conf, vector<vector<unsigned long long int> > &data_mb, int *size_bit )
 {
-	int i_hash, i, l, size_mb_conf, mb_node_x_lf, node_x_lf = *node * *length_freq_data;
+	int i, l, size_mb_conf, mb_node_x_lf, node_x_lf = *node * *length_freq_data;
 	double sum_lgamma_fam;
 
 	*log_mpl_node = 0.0;

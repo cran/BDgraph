@@ -15,6 +15,11 @@
 \alias{ log_mpl_binary }
 
 \alias{ detect_cores }
+\alias{ check.os }
+
+\alias{ sample_ug }
+\alias{ generate_clique_factors }
+\alias{ calc_joint_dist }
 
 \docType{data}
 

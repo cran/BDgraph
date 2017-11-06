@@ -4,6 +4,8 @@ import( "Matrix" )
 importFrom( "grDevices", "dev.new" )
 importFrom( "igraph", "graph.adjacency", "plot.igraph", "layout.circle" )
 
+importFrom( "igraph", "make_undirected_graph", "max_cliques" )
+
 importFrom( "graphics", "abline", "matplot", "par", "plot", "points", "text", "title", "legend" )
 		    
 importFrom( "stats", "cor", "sd", 
@@ -16,7 +18,6 @@ importFrom( "utils", "flush.console", "read.table", "object.size" )
 
 export( bdgraph,
 		bdgraph.mpl,
-		bdgraph.ts,
 
 		transfer,
 		plinks,
@@ -34,9 +35,6 @@ export( bdgraph,
 		rwish,
 		gnorm,
 		
-		rcwish,
-		rgcwish,
-
 		print.bdgraph, 
 		plot.bdgraph, 
 		summary.bdgraph,

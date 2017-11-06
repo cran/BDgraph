@@ -1,9 +1,20 @@
+## ------------------------------------------------------------------------------------------------|
 # To select the graph in which the edge posterior probabilities are more than "cut" value
 # OR if cut is NULL to select the best graph (graph with the highest posterior probability) 
+## ------------------------------------------------------------------------------------------------|
 select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 {
-	p_links = bdgraph.obj $ p_links
-	p       = nrow( bdgraph.obj $ last_graph )
+	if( class( bdgraph.obj ) == "bdgraph" )
+	{
+		p_links = bdgraph.obj $ p_links
+		p       = nrow( bdgraph.obj $ last_graph )
+	}
+	
+	if( is.matrix( bdgraph.obj ) ) 
+	{
+		p_links = bdgraph.obj
+		p       = nrow( p_links )
+	}
   
 	if( is.null( p_links ) )
 	{
@@ -43,13 +54,11 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 		G <- graph.adjacency( selected_g, mode = "undirected", diag = FALSE )
 		if( p < 20 ) sizev = 15 else sizev = 2
 
-		if( is.null(cut) )
+		if( is.null( cut ) )
 		{
 			plot.igraph( G, layout = layout.circle, main = "Graph with highest posterior probability", sub = paste( c( "Posterior probability = ", round( max( graph_weights ) / sum( graph_weights ), 4) ), collapse = "" ),
 			            vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black'  )
-		} 
-		else 
-		{
+		}else{
 			plot.igraph( G, layout = layout.circle, main = paste( c( "Graph with links posterior probabilities > ",  cut ), collapse = "" ), vertex.color = "white", vertex.size = sizev, vertex.label.color = 'black' )
 		}
 	}

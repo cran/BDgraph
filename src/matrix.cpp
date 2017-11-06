@@ -303,7 +303,7 @@ void cholesky( double A[], double U[], int *p )
 	#pragma omp parallel for
 	for( int i = 0; i < dim; i++ )
 		for( int j = 0; j < i; j++ )
-			U[j * dim + i] = 0.0;
+			U[ j * dim + i ] = 0.0;
 }
   
 // ----------------------------------------------------------------------------|
@@ -1006,7 +1006,7 @@ void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[
 	i_B_inv[3] =  ( r_det * i_B[0] - r_B[0] * i_det ) / mod;
 }
 
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
 void scale_free( int *G, int *p )
 {
@@ -1016,12 +1016,12 @@ void scale_free( int *G, int *p )
 
 	for( i = 0; i < p0 - 1; i++ )
 	{
-		G[i * dim + i + 1]   = 1;
-		G[(i + 1) * dim + i] = 1;
+		G[         i * dim + i + 1 ] = 1;
+		G[ ( i + 1 ) * dim + i     ] = 1;
 	}
 		
-	for( i = 0 ; i < p0 ; i++ ) size_a[i] = 2;
-	for( i = p0; i < dim; i++ ) size_a[i] = 0;
+	for( i = 0 ; i < p0 ; i++ ) size_a[ i ] = 2;
+	for( i = p0; i < dim; i++ ) size_a[ i ] = 0;
 	
 	int total = 2 * p0;
 	
@@ -1034,14 +1034,16 @@ void scale_free( int *G, int *p )
 		j   = 0;
 		
 		while( tmp < random_value && j < i ) 
-			tmp += size_a[j++];
+			tmp += size_a[ j++ ];
 		
 		j--;
-		G[i * dim + j] = 1;
-		G[j * dim + i] = 1;
+		
+		G[ i * dim + j ] = 1;
+		G[ j * dim + i ] = 1;
+		
 		total += 2;
-		size_a[j]++;
-		size_a[i]++;
+		size_a[ j ]++;
+		size_a[ i ]++;
 	}
 	PutRNGstate();
 }

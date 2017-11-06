@@ -2,12 +2,10 @@
 
 extern "C" {
   
-  void check_nthread(int *R_nthread){
-    
-    if( !__PARALLEL__){
-    	*R_nthread = 1;
-    }
-    
-  }
+	void check_nthread( int *R_nthread )
+	{
+		if( !__PARALLEL__ )
+			*R_nthread = 1;
+	}
   
 }

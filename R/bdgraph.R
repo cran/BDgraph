@@ -5,8 +5,12 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 					iter = 5000, burnin = iter / 2, g.start = "empty", g.space = NULL, g.prior = 0.5, 
 					prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, cores = "all" )
 {
+	check.os( os = 2 )	
 	if( cores == "all" ) cores = detect_cores()
 	.C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+	tmp <- .C( "check_nthread", cores = as.integer(cores), PACKAGE = "BDgraph" )
+	cores = tmp $ cores
+	
 	
 	burnin = floor( burnin )
 	

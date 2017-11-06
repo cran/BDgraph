@@ -40,8 +40,8 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		Option \code{"rjmcmc"} is based on reverible jump MCMC algorithm.
 	}
 	
-	\item{iter}{The number of iteration for the sampling algorithm.}
-	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
+	\item{iter}{   The number of iteration for the sampling algorithm. }
+	\item{burnin}{ The number of burn-in iteration for the sampling algorithm. }
 
 	\item{g.start}{
 		Corresponds to a starting point of the graph. It could be \code{"empty"} (default) and \code{"full"}. 
@@ -75,7 +75,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	   The default is to use \code{"all"} CPU cores of the computer; 
 	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
 	   }
-	\item{operator}{ A character with two options \code{"or"} (default) and \code{"and"}. It is for hill-climbing algorithm.  }	   	
+	\item{operator}{ A character with two options \code{"or"} (default) and \code{"and"}. It is for hill-climbing algorithm. }	   	
 }
 
 \value{

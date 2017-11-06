@@ -7,12 +7,13 @@
 Provides the estimated posterior link probabilities for all possible links in the graph.
 }
 
-\usage{ plinks( bdgraph.obj, round = 2 ) }
+\usage{ plinks( bdgraph.obj, round = 2, burnin = NULL ) }
 
 \arguments{
   \item{bdgraph.obj}{An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
 
   \item{round}{ A value for rounding all probabilities to the specified number of decimal places. }
+  \item{burnin}{ The number of burn-in iteration to scape.  }
 }
 
 \value{
