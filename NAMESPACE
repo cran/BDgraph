@@ -39,7 +39,10 @@ export( bdgraph,
 		plot.bdgraph, 
 		summary.bdgraph,
 		print.sim, 
-		plot.sim
+		plot.sim,
+		
+		check.os,
+		detect_cores
 	   )
 
 S3method( "summary", "bdgraph" )

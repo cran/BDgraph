@@ -347,8 +347,8 @@ generate_clique_factors = function( ug )
 	ug[ lower.tri( ug, diag = TRUE ) ] = 0   
 	p              = ncol( ug )
 	edges          = which( ug == 1, arr.ind = T )
-	a              = make_undirected_graph( c( t( edges ) ), p )
-	cliques        = max_cliques( a )
+	a              = igraph::make_undirected_graph( c( t( edges ) ), p )
+	cliques        = igraph::max_cliques( a )
 	clique_factors = vector( 'list', length( cliques ) )
 	
 	for ( i in 1:length( cliques ) )
@@ -368,10 +368,10 @@ calc_joint_dist = function( ug, clique_factors )
 	oc         = 2 - t( oc[ 1:p, ] )
 
 	edges      = which( ug == 1, arr.ind = T )
-	a          = make_undirected_graph( c( t( edges ) ), p )
+	a          = igraph::make_undirected_graph( c( t( edges ) ), p )
 
 	joint_dist = rep( 1, 2 ^ p )
-	cliques    = max_cliques( a )
+	cliques    = igraph::max_cliques( a )
 	
 	for ( i in 1:length( cliques ) )
 	{

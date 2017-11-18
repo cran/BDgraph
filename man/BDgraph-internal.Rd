@@ -29,4 +29,4 @@
 
 \author{ Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit }
 
-\keyword{ internal }
+\keyword{ Internal }

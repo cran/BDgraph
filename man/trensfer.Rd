@@ -15,9 +15,13 @@
 \item{data}{ An (\eqn{n \times p+1}) matrix of transferred data, in which the last column is the frequency of duplicated rows. }
 }
 
-%\references{ }
+\references{
+Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v2} 
 
-\author{ Abdolreza Mohammadi }
+Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+}
+
+\author{ Abdolreza Mohammadi and Adrian Dobra }
 
 \seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph.mpl}} and \code{\link{bdgraph}} }
 
