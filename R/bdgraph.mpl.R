@@ -7,10 +7,13 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 					save.all = FALSE, print = 1000, cores = "all", operator = "or" )
 {
 	check.os( os = 2 )	
+	
 	if( cores == "all" ) cores = detect_cores()
+	
+	tmp   <- .C( "check_nthread", cores = as.integer(cores), PACKAGE = "BDgraph" )
+	cores <- tmp $ cores
+	
 	.C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
-	tmp <- .C( "check_nthread", cores = as.integer(cores), PACKAGE = "BDgraph" )
-	cores = tmp $ cores
 	
 	burnin = floor( burnin )
 	

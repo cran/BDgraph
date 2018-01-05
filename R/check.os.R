@@ -7,3 +7,4 @@ check.os <- function( os = 2 )
 	systm <- ifelse( tmp $ os == 0, 'windows_or_mac', 'linux' )
 	message( paste0( 'BDgraph ', ifelse( systm == 'windows_or_mac', 'does not support ', 'supports ' ), 'multi-threading on this OS' ) )
 }
+   

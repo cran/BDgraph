@@ -16,10 +16,9 @@ citEntry( entry = "Manual",
 citEntry( entry = "Article",
 	title       = "BDgraph: An R Package for Bayesian Structure Learning in Graphical Models",
 	author      = personList( as.person( "Abdolreza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
-	textVersion = paste( "Mohammadi A. and E. C. Wit (2016). BDgraph: An R Package for Bayesian Structure Learning in Graphical Models. Journal of Statistical Software, accepted." ),
-	year        = "2016",
-	journal     = "Journal of Statistical Software",
-	note        = "accepted",
+	textVersion = paste( "Mohammadi A. and E. C. Wit (2017). BDgraph: An R Package for Bayesian Structure Learning in Graphical Models. arXiv preprint arXiv:1501.05108." ),
+	year        = "2017",
+	journal     = "arXiv preprint arXiv:1501.05108",
 )
 
 citEntry( entry = "Article",
@@ -31,5 +30,13 @@ citEntry( entry = "Article",
 	volume      = "10",
 	number      = "1",
 	pages       = "109-138",
+)
+
+citEntry( entry = "Article",
+	title       = "Loglinear model selection and human mobility",
+	author      = personList( as.person( "Adrian Dobra" ), as.person( "Abdolreza Mohammadi" ) ),
+	textVersion = paste( "Dobra A. and A. Mohammadi (2017). Loglinear model selection and human mobility. arXiv preprint arXiv:1711.02623." ),
+	year        = "2017",
+	journal     = "arXiv preprint arXiv:1711.02623",
 )
 

@@ -1,4 +1,4 @@
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 //     Copyright (C) 2012-2017 A. (Reza) Mohammadi
 //
 //     This file is part of BDgraph package.
@@ -8,8 +8,8 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
-// ----------------------------------------------------------------------------|
+//     Reza Mohammadi: a.mohammadi@uva.nl or a.mohammadi@rug.nl
+// ------------------------------------------------------------------------------------------------|
 #include "matrix.h"
 #include "rgwish.h"
 
@@ -17,11 +17,11 @@ using namespace std;
 
 extern "C" {
 
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // birth-death MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for Bayesian model averaging
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double Ti[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], double D[], int *print )
@@ -144,11 +144,11 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g
 	}
 }
        
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // birth-death MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for maximum a posterior probability estimation (MAP)
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double Ti[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -305,11 +305,11 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double 
 		K_hat[i] /= sum_weights;
 }
         
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // Multiple birth-death MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for Bayesian model averaging
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double Ti[], double K[], int *p, 
 			 double K_hat[], double p_links[],
 			 int *b, int *b_star, double Ds[], double D[], int *multi_update, int *print )
@@ -440,11 +440,11 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 	}
 }
 
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // Multiple birth-death MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for maximum a posterior probability estimation (MAP)
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double Ti[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
@@ -607,11 +607,11 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 	for( i = 0; i < pxp; i++ ) K_hat[i] /= sum_weights;		
 }
               
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // Reversible Jump MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for Bayesian model averaging
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double Ti[], double K[], int *p, 
 			 double K_hat[], int p_links[],
 			 int *b, int *b_star, double Ds[], double D[], int *print )
@@ -751,11 +751,11 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g
 //-- End of main MCMC loop ----------------------------------------------------| 
 }
                    
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // Reversible Jump MCMC for Gaussian Graphical models  
 // Based on Double Metropolis-Hastings
 // it is for maximum a posterior probability estimation (MAP)
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double Ti[], double K[], int *p, 
 			 int all_graphs[], double all_weights[], double K_hat[], 
 			 char *sample_graphs[], double graph_weights[], int *size_sample_g,

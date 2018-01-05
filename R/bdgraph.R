@@ -6,13 +6,15 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 					prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, cores = "all" )
 {
 	check.os( os = 2 )	
+	
 	if( cores == "all" ) cores = detect_cores()
+	
+	tmp   <- .C( "check_nthread", cores = as.integer(cores), PACKAGE = "BDgraph" )
+	cores <- tmp $ cores
+	
 	.C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
-	tmp <- .C( "check_nthread", cores = as.integer(cores), PACKAGE = "BDgraph" )
-	cores = tmp $ cores
 	
-	
-	burnin = floor( burnin )
+	burnin <- floor( burnin )
 	
 	if( class( data ) == "sim" ) data <- data $ data
 

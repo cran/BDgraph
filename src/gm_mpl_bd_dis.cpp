@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
 //
 //     Maintainer:
-//     Reza Mohammadi: a.mohammadi@rug.nl or a.mohammadi@uvt.nl
+//     Reza Mohammadi: a.mohammadi@uva.nl or a.mohammadi@rug.nl
 // ------------------------------------------------------------------------------------------------| 
 #include "matrix.h"
 

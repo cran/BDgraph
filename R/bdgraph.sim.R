@@ -155,7 +155,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 	if( graph == "AR2" )
 	{
 		K = toeplitz( c( 1, 0.5, 0.25, rep( 0, p - 3 ) ) )
-		G     = 1 * ( abs(K) > 0.2 ) 
+		G = 1 * ( abs(K) > 0.2 ) 
 	}
 
 	if( graph == "star" )
@@ -165,22 +165,21 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		K[ ( 2 : p ), 1 ] <- 0.1
 	}
 
-#--- generate multivariate data according to the graph structure ----------------------------------|
+	#--- generate multivariate data according to the graph structure ------------------------------|
 	if( n != 0 )
 	{
 		if( !is.null( sigma ) ) K <- solve( sigma )   
 
 		if( is.matrix( K ) )
 		{ 
-			G     <- 1 * ( abs(K) > 0.02 )
-			if( is.null( sigma ) ) sigma <- solve(K)	
-		} 
-		else 
-		{
-#--- Generate precision matrix according to the graph structure ---------------|
-			Ti      = chol( solve( D ) )
-			diag(G) = 0
-			K       = matrix( 0, p, p )
+			G         <- 1 * ( abs( K ) > 0.02 )
+			diag( G ) <- 0
+			if( is.null( sigma ) ) sigma <- solve( K )	
+		}else{ 
+			#--- Generate precision matrix according to the graph structure -----------------------|
+			Ti        = chol( solve( D ) )
+			diag( G ) = 0
+			K         = matrix( 0, p, p )
 			
 			result = .C( "rgwish_c", as.integer(G), as.double(Ti), K = as.double(K), 
 						 as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
@@ -189,17 +188,14 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			sigma = solve( K )
 		}
 		
-		diag( G ) <- 0
-		p         <- nrow( G )
-		
-#--- generate multivariate normal data ------------------------------------------------------------|
+		#--- generate multivariate normal data ----------------------------------------------------|
 		if( typeof( mean ) == "double" ) mean <- rep( mean, p )
 		R <- chol( sigma )
 		z <- matrix( rnorm( p * n ), p, n )
 		d <- t( R ) %*% z + mean
 		d <- t( d )
 
-#--- generate multivariate mixed data -------------------------------------------------------------|
+		#--- generate multivariate mixed data -----------------------------------------------------|
 		if( type == "mixed" )
 		{
 			# generating mixed data which are 'count', 'ordinal', 'non-Gaussian', 
@@ -213,21 +209,21 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
 			# generating ordinal data
 			col_number     <- c( ( ps + 1 ):( 2 * ps ) )
-			prob           <- pnorm( d[, col_number] )
+			prob           <- pnorm( d[ , col_number ] )
 			d[,col_number] <- qpois( p = prob, lambda = 2 )
 
 			# generating non-Guassian data
 			col_number     <- c( ( 2 * ps + 1 ):( 3 * ps ) )
-			prob           <- pnorm( d[, col_number] )
+			prob           <- pnorm( d[ , col_number ] )
 			d[,col_number] <- qexp( p = prob, rate = 10 )
 
 			# for binary data
 			col_number     <- c( ( 3 * ps + 1 ):( 4 * ps ) )
-			prob           <- pnorm( d[, col_number] )
+			prob           <- pnorm( d[ , col_number ] )
 			d[,col_number] <- qbinom( p = prob, size = 1, prob = 0.5 )
 		}
 
-#--- generate multivariate continuous non-Gaussian data -------------------------------------------|
+		#--- generate multivariate continuous non-Gaussian data -----------------------------------|
 		if( type == "non-Gaussian" )
 		{
 			# generating multivariate continuous non-Gaussian data  
@@ -235,7 +231,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			d    <- qexp( p = prob, rate = 10 )
 		}
 
-#--- generate multivariate discrete data ----------------------------------------------------------|
+		#--- generate multivariate discrete data --------------------------------------------------|
 		if( type == "discrete" )
 		{
 			runif_m   <- matrix( runif( cut * p ), nrow = p, ncol = cut )   
@@ -264,7 +260,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		}
 	}
 	
-#--- graph visualization --------------------------------------------------------------------------|
+	#--- graph visualization ----------------------------------------------------------------------|
 	if( vis )
 	{
 		graphG <- graph.adjacency( G, mode = "undirected", diag = FALSE )
@@ -274,7 +270,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		             vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
 	}
 	
-#--- Saving the result ----------------------------------------------------------------------------|
+	#--- Saving the result ------------------------------------------------------------------------|
 	if( n != 0 )
 	{
 		simulation <- list( G = G, data = d, sigma = sigma, K = K, graph = graph, type = type )

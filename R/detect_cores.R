@@ -10,7 +10,7 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 			x = system( "WMIC CPU Get DeviceID,NumberOfCores", intern = TRUE )
 			sum( read.table( text = x, header = TRUE ) $ NumberOfCores )
 		}
-	} else {
+	}else{
 		systems = list(
 
 			linux =
@@ -39,14 +39,16 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 		)
 
 		for( i in seq( systems ) )
-			if( all.tests || length( grep( paste0( "^", names( systems )[i]), R.version $ os ) ) )
-			for( cmd in systems[i] ) 
-			{
-				a = try( suppressWarnings( system( cmd, TRUE ) ), silent = TRUE )
-				if( inherits( a, "try-error" ) ) next
-				a <- gsub( "^ +", "", a[1] )
-				if( length( grep( "^[1-9]", a ) ) ) return( as.integer( a ) )
-			}
+		{
+			if( all.tests || length( grep( paste0( "^", names( systems )[i] ), R.version $ os ) ) )
+				for( cmd in systems[i] ) 
+				{
+					a = try( suppressWarnings( system( cmd, TRUE ) ), silent = TRUE )
+					if( inherits( a, "try-error" ) ) next
+					a <- gsub( "^ +", "", a[1] )
+					if( length( grep( "^[1-9]", a ) ) ) return( as.integer( a ) )
+				}
+		}
       
 		NA_integer_
 	}		
