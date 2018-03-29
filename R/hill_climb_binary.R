@@ -19,8 +19,8 @@
 hill_climb_mpl_binary = function( data, freq_data, n, alpha = 0.5, operator = "or" )
 {
 	p = ncol( data )
-	
-	G = matrix( 0, p, p )	
+	G = matrix( 0, p, p )
+		
 	for( i in 1:p )
 	{
 		mes = paste( c( " PART 1: Local search for node ", i ), collapse = "" )

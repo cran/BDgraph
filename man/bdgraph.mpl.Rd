@@ -26,7 +26,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{n}{The number of observations. It is needed if the \code{"data"} is a covariance matrix.}
 	  
 	\item{method}{
-		A character with two options \code{"ggm"} (default) and \code{"gcgm"}. 
+		A character with two options \code{"ggm"} (default), \code{"dgm"} and \code{"dgm-binary"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
 		Option \code{"dgm"} is for discrete graphical models for the data that are discrete.
 		Option \code{"dgm-binary"} is for discrete graphical models for the data that are binary.
@@ -95,7 +95,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 }
 
 \references{
-Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+Dobra, A. and R. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
 
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
@@ -108,7 +108,7 @@ Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov n
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
 }
 
-\author{ Abdolreza Mohammadi and Adrian Dobra }
+\author{ Reza Mohammadi and Adrian Dobra }
 
 \seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
 

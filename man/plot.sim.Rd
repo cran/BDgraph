@@ -31,7 +31,7 @@ Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constant
 Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi and Ernst Wit }
 
 \seealso{\code{\link{bdgraph}}}
 

@@ -43,7 +43,7 @@ Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constant
 
 Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
 }
-\author{Abdolreza Mohammadi, Antonio Abbruzzo, and Ivan Vujacic}
+\author{Reza Mohammadi, Antonio Abbruzzo, and Ivan Vujacic}
 \seealso{ \code{\link{bdgraph}} and \code{\link{select}} }
 
 \examples{

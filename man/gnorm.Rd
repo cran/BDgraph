@@ -42,7 +42,7 @@ Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian 
 Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi and Ernst Wit }
 
 \examples{
 # adj.g: adjacency matrix of graph with 3 nodes and 2 links

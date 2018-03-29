@@ -68,7 +68,7 @@ Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility,
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi and Ernst Wit }
 
 \seealso{\code{\link{bdgraph}}}
 

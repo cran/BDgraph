@@ -55,12 +55,12 @@ traceplot      Trace plot of graph size
 Whenever using this package, please cite as
 \preformatted{
 Mohammadi A. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 3.44, 
+Graphical Models using Birth-Death MCMC, R package version 3.45, 
 https://CRAN.R-project.org/package=BDgraph
 }
 }
 
-\author{Abdolreza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit}
+\author{Reza Mohammadi <a.mohammadi@rug.nl> and Ernst Wit}
 
 \references{
 Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138

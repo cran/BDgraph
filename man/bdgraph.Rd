@@ -109,7 +109,7 @@ Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility,
 Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 }
 
-\author{ Abdolreza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi and Ernst Wit }
 
 \seealso{ \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
 
