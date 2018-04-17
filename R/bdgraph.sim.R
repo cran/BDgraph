@@ -24,13 +24,13 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
 		if( is.null( size ) )
 		{
-#			if( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
+#			if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
 			
 			G[ upper.tri( G ) ] <- rbinom( p * ( p - 1 ) / 2, 1, prob )
 		} 
 		else 
 		{
-			if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size should be between zero and p*(p-1)/2" )
+			if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size must be between zero and p*(p-1)/2" )
 			
 			smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
 			G[ upper.tri( G ) ][smp] <- 1
@@ -67,7 +67,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		 
 		if( is.null( size ) )
 		{
-#			if( prob < 0 | prob > 1 ) stop( "'prob' should be between zero and one" )
+#			if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
 
 			for( i in 1 : class )
 			{
@@ -80,7 +80,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		else 
 		{
 			if( class != length(size) )  stop( "Number of graph sizes is not match with number of clusters" )
-			if( sum(size) < 0 | sum(size) > p * (p - 1) / 2 )   stop( "Total graph sizes should be between zero and p*(p-1)/2" )
+			if( sum(size) < 0 | sum(size) > p * (p - 1) / 2 )   stop( "Total graph sizes must be between zero and p*(p-1)/2" )
 
 			for( i in 1 : class )
 			{

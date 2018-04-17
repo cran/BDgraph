@@ -1,19 +1,18 @@
 Package: BDgraph
-Type: Package
+Version: 2.46
+Date: 2018-04-16
 Title: Bayesian Structure Learning in Graphical Models using
         Birth-Death MCMC
-Version: 2.45
-Date: 2018-03-22
-Author: Reza Mohammadi and Ernst Wit
-Depends: R (>= 3.0.0), Matrix, igraph
+Author: Reza Mohammadi (<https://orcid.org/0000-0001-9538-0648>) and Ernst Wit
 Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>
+URL: https://www.uva.nl/profile/a.mohammadi
 Description: Provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, discrete, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models literature, including Mohammadi and Wit (2015) <doi:10.1214/14-BA889> and Mohammadi et al. (2017) <doi:10.1111/rssc.12171>. To speed up the computations, the BDMCMC sampling algorithms are implemented in parallel using OpenMP in C++.
 Acknowledgements: The help of the CRAN team to integrate C++ code with
         R is gratefully acknowledged.
+Depends: R (>= 3.0.0), Matrix, igraph
 License: GPL (>= 2)
-LazyLoad: yes
-URL: http://www.uva.nl/profile/a.mohammadi
-Packaged: 2018-03-28 23:12:35 UTC; reza
 Repository: CRAN
-Date/Publication: 2018-03-29 15:39:30 UTC
+LazyLoad: yes
 NeedsCompilation: yes
+Packaged: 2018-04-17 12:10:27 UTC; reza
+Date/Publication: 2018-04-17 14:25:21 UTC

@@ -36,6 +36,7 @@ export( bdgraph,
 		rgcwish,
 		rwish,
 		gnorm,
+		rmvnorm,
 		
 		print.bdgraph, 
 		plot.bdgraph, 

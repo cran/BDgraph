@@ -1,13 +1,13 @@
 \name{rwish}
 \alias{rwish}
 
-\title{Sampling from Wishart distribution}
+\title{ Sampling from Wishart distribution }
 
 \description{
-Generates random matrices, distributed according to the Wishart distribution with parameters b and D, \eqn{W(b, D)}.
+Generates random matrices, distributed according to the Wishart distribution with parameters \eqn{b} and \eqn{D}, \eqn{W(b, D)}.
 }
 
-\usage{rwish( n = 1, p = 2, b = 3, D = diag(p) )}
+\usage{ rwish( n = 1, p = 2, b = 3, D = diag(p) ) }
 
 \arguments{
   \item{n}{ The number of samples required. }

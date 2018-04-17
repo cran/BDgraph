@@ -38,8 +38,8 @@ Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constant
 
 \examples{
 	\dontrun{
-	# Generating multivariate normal data from a 'cycle' graph
-	data.sim <- bdgraph.sim( n = 70, p = 6, graph = "cycle", vis = TRUE )
+	# Generating multivariate normal data from a 'circle' graph
+	data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
    
 	bdgraph.obj   <- bdgraph( data = data.sim, iter = 10000 )
   

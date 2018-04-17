@@ -49,6 +49,9 @@ BDgraph NEWS
 	 
 - CHANGES IN VERSION 2.44
 	* Functions "bdgraph.ts", "rcwish", and "rcgwish" are added to the package.
+
+- CHANGES IN VERSION 2.46
+	* Functions "rmvnorm" is added to the package.
 	 
   
    

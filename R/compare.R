@@ -1,29 +1,49 @@
 # To compare the result according to the true graph
 compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, colnames = NULL, vis = FALSE ) 
 {
-	if( is.matrix( sim.obj ) )      G    = sim.obj
-	if( is.matrix( bdgraph.obj ) )  est  = bdgraph.obj
+	if( is.matrix( sim.obj ) )
+	{
+	    if( ( sum( sim.obj == 0 ) + sum( sim.obj == 1 ) ) != ( p ^ 2 ) ) stop( "Element of 'sim.obj' must be zero or one" )
+	    G    = sim.obj
+	}
+    
+	if( is.matrix( bdgraph.obj ) )
+	{
+	    if( ( sum( bdgraph.obj == 0 ) + sum( bdgraph.obj == 1 ) ) != ( p ^ 2 ) ) stop( "Element of 'bdgraph.obj' must be zero or one" )
+	    est  = bdgraph.obj
+	}
 	
 	if( !is.matrix( sim.obj )      && ( class( sim.obj )      == "sim"     ) )  G    <- sim.obj $ G 
-	if( !is.matrix( bdgraph.obj )  && ( class( bdgraph.obj )  == "bdgraph" ) )  est  <- select( bdgraph.obj ) 
+	if( !is.matrix( bdgraph.obj )  && ( class( bdgraph.obj )  == "bdgraph" ) )  est  <- BDgraph::select( bdgraph.obj ) 
 	if( class( bdgraph.obj )  == "select"  )  est  <- bdgraph.obj $ refit
    
 	G   = as.matrix( G )        # G is the adjacency matrix of true graph 
 	est = as.matrix( est )      # est is the adjacency matrix of estimated graph 
 	p   = nrow( G )
+	
+	if( sum( dim( G ) == dim( est ) ) != 2 ) stop( "'sim.obj' and 'bdgraph.obj' have non-conforming size" )
+	
 	G[ lower.tri( G, diag = TRUE ) ]     = 0
 	est[ lower.tri( est, diag = TRUE ) ] = 0
-   	   
+	   	   
 	result = matrix( 1, 8, 2 )
 	result[ , 2 ] = compute_measures( G = G, est_G = est )
    
     if( !is.null( bdgraph.obj2 ) )
     {
-		if( is.matrix( bdgraph.obj2 ) ) est2 = bdgraph.obj2
-		if( !is.matrix( bdgraph.obj2 ) && ( class( bdgraph.obj2 ) == "bdgraph" ) )  est2 <- select( bdgraph.obj2 ) 
+		if( is.matrix( bdgraph.obj2 ) )
+		{
+		    if( ( sum( bdgraph.obj2 == 0 ) + sum( bdgraph.obj2 == 1 ) ) != ( p ^ 2 ) ) stop( "Element of 'bdgraph.obj2' must be zero or one" )
+		    est2 = bdgraph.obj2
+		}
+		
+		if( !is.matrix( bdgraph.obj2 ) && ( class( bdgraph.obj2 ) == "bdgraph" ) )  est2 <- BDgraph::select( bdgraph.obj2 ) 
 		if( class( bdgraph.obj2 ) == "select"  )  est2 <- bdgraph.obj2 $ refit
 
-		est2 = as.matrix( est2 )       
+		est2 = as.matrix( est2 )
+		
+		if( sum( dim( G ) == dim( est2 ) ) != 2 ) stop( "'sim.obj' and 'bdgraph.obj2' have non-conforming size" )
+		
 		est2[ lower.tri( est2, diag = TRUE ) ] = 0
 
 		result = cbind( result, compute_measures( G = G, est_G = est2 ) )
@@ -31,20 +51,27 @@ compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 	
     if( !is.null( bdgraph.obj3 ) )
     { 
-		if( is.matrix( bdgraph.obj3 ) ) est3 = bdgraph.obj3
-		if( !is.matrix( bdgraph.obj3 ) && ( class( bdgraph.obj3 ) == "bdgraph" ) )  est3 <- select( bdgraph.obj3 ) 
+		if( is.matrix( bdgraph.obj3 ) ) 
+		{
+		    if( ( sum( bdgraph.obj3 == 0 ) + sum( bdgraph.obj3 == 1 ) ) != ( p ^ 2 ) ) stop( "Element of 'bdgraph.obj3' must be zero or one" )
+		    est3 = bdgraph.obj3
+		}
+		
+		if( !is.matrix( bdgraph.obj3 ) && ( class( bdgraph.obj3 ) == "bdgraph" ) )  est3 <- BDgraph::select( bdgraph.obj3 ) 
 		if( class( bdgraph.obj3 ) == "select"  )  est3 <- bdgraph.obj3 $ refit
 		  
-		est3 = as.matrix( est3 )       
+		est3 = as.matrix( est3 ) 
+		
+		if( sum( dim( G ) == dim( est3 ) ) != 2 ) stop( "'sim.obj' and 'bdgraph.obj3' have non-conforming size" )
+		
 		est3[ lower.tri( est3, diag = TRUE ) ] = 0
 
 		result = cbind( result, compute_measures( G = G, est_G = est3 ) )
 	} 
 	
-	result[ c( 3, 4 ), 1 ] = 0
-	result[ 1, 1 ] = sum( G )
-	result[ 2, 1 ] = p * ( p - 1 ) / 2 - result[ 1, 1 ]  
-
+	result[ c( 3, 4 ), 1 ]    = 0
+	result[ 1, 1 ]            = sum( G )
+	result[ 2, 1 ]            = p * ( p - 1 ) / 2 - result[ 1, 1 ]  
 	result[ is.na( result ) ] = 0
 
 	if( is.null( colnames ) ) 

@@ -49,7 +49,7 @@ Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constant
 
 \examples{
 \dontrun{
-graph.sim <- bdgraph.sim( p = 5, graph = "cycle" )
+graph.sim <- bdgraph.sim( p = 5, graph = "circle" )
 adj.g     <- graph.sim $ G
 adj.g    # adjacency of graph with 5 nodes and 4 links
    

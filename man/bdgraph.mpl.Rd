@@ -122,7 +122,7 @@ bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 10000 )
 summary( bdgraph.obj )
    
 # To compare our result with true graph
-compare( data.sim, bdgraph.obj, colnames = c("True graph", "BDgraph") )
+compare( data.sim, bdgraph.obj, colnames = c( "True graph", "BDgraph" ) )
    
 }
 }

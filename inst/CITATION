@@ -10,7 +10,7 @@ citEntry( entry = "Manual",
 	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
 	year        = year,
 	note        = vers,
-	textVersion = paste( "Mohammadi A. and E. C. Wit (", year, "). BDgraph: Bayesian Structure Learning in Graphical Models using Birth-Death MCMC.", vers, ".", sep="" )
+	textVersion = paste( "Mohammadi R. and E. C. Wit (", year, "). BDgraph: Bayesian Structure Learning in Graphical Models using Birth-Death MCMC.", vers, ".", sep="" )
 )
 
 citEntry( entry = "Article",
@@ -35,7 +35,7 @@ citEntry( entry = "Article",
 citEntry( entry = "Article",
 	title       = "Loglinear model selection and human mobility",
 	author      = personList( as.person( "Adrian Dobra" ), as.person( "Reza Mohammadi" ) ),
-	textVersion = paste( "Dobra A. and A. Mohammadi (2017). Loglinear model selection and human mobility. arXiv preprint arXiv:1711.02623." ),
+	textVersion = paste( "Dobra A. and R. Mohammadi (2017). Loglinear model selection and human mobility. arXiv preprint arXiv:1711.02623." ),
 	year        = "2017",
 	journal     = "arXiv preprint arXiv:1711.02623",
 )
