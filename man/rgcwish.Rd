@@ -43,8 +43,9 @@ Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian
 
 \examples{
 \dontrun{
-adj.g <- toeplitz( c( 0, 1, rep( 0, 3 ) ) )
-adj.g    # adjacency of graph with 5 nodes and 4 links
+# Generating a 'circle' graph as a non-decomposable graph
+adj.g <- graph.sim( p = 5, graph = "circle" )
+adj.g    # adjacency of graph with 5 nodes
    
 sample <- rgcwish( n = 3, adj.g = adj.g, b = 3, D = diag(5) )
 round( sample, 2 )  

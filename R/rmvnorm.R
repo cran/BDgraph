@@ -1,6 +1,17 @@
 ## ------------------------------------------------------------------------------------------------|
-# Data generator from multivarate normal distribution X N_p( mu, sig )
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
 ## ------------------------------------------------------------------------------------------------|
+#     Data generator from multivarate normal distribution                                          |
+## ------------------------------------------------------------------------------------------------|
+
 rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), sigma = diag( length( mean ) ) )
 {
     if( !isSymmetric( sigma, tol = sqrt( .Machine$double.eps ), check.attributes = FALSE ) ) 
@@ -8,7 +19,7 @@ rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), sigma = dia
     
     sigma <- as.matrix( sigma )
     p     <- nrow( sigma )
-    if( typeof( mean ) == "double" ) mean <- rep( mean, p )
+    if( length( mean ) == 1 ) mean <- rep( mean, p )
     if( length( mean ) != nrow( sigma ) ) stop( "mean and sigma have non-conforming size" )
     
     #--- generate multivariate normal data ----------------------------------------------------|

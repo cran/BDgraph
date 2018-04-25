@@ -1,15 +1,15 @@
-\name{plot.sim}
-\alias{plot.sim}
+\name{plot.graph}
+\alias{plot.graph}
 
-\title{ Plot function for \code{S3} class \code{"sim"} }
+\title{ Plot function for \code{S3} class \code{"graph"} }
 
-\description{ Visualizes structure of the true graph. }
+\description{ Visualizes structure of the graph. }
 \usage{
-\method{plot}{sim}( x, main = NULL, layout = layout.circle, ... )
+\method{plot}{graph}( x, main = NULL, layout = layout.circle, ... )
 }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.  }
+  \item{x}{ An object of \code{S3} class \code{"graph"}, from function \code{\link{graph.sim}}.  }
   
   \item{main}{ Graphical parameter (see plot).}
   
@@ -33,13 +33,13 @@ Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesi
 
 \author{ Reza Mohammadi and Ernst Wit }
 
-\seealso{\code{\link{bdgraph.sim}}}
+\seealso{\code{\link{graph.sim}}, \code{\link{bdgraph.sim}}}
 
 \examples{
 \dontrun{
-# Generating synthetic multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 10, p = 15 )
-  
-plot( data.sim )
+# Generating a 'random' graph 
+adj <- graph.sim( p = 10, graph = "random" )
+plot( adj )
+adj
 }
 }

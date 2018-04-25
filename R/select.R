@@ -1,7 +1,18 @@
 ## ------------------------------------------------------------------------------------------------|
-# To select the graph in which the edge posterior probabilities are more than "cut" value
-# OR if cut is NULL to select the best graph (graph with the highest posterior probability) 
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
 ## ------------------------------------------------------------------------------------------------|
+#     To select the graph in which the edge posterior probabilities are more than "cut" value      |
+#     OR if cut is NULL to select the best graph ( graph with the highest posterior probability )  |
+## ------------------------------------------------------------------------------------------------|
+
 select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 {
 	if( class( bdgraph.obj ) == "bdgraph" )
@@ -9,10 +20,17 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 		p_links = bdgraph.obj $ p_links
 		p       = nrow( bdgraph.obj $ last_graph )
 	}
-	
+
+    if( class( bdgraph.obj ) == "ssgraph" )
+    {
+        p_links = bdgraph.obj $ p_links
+        p       = nrow( bdgraph.obj $ K_hat )
+    }
+    
 	if( is.matrix( bdgraph.obj ) ) 
 	{
-		p_links = bdgraph.obj
+	    if( any( bdgraph.obj < 0 ) || any( bdgraph.obj > 1 ) ) stop( "Values of 'bdgraph.obj' must be between ( 0, 1 )." )
+	    p_links = bdgraph.obj
 		p       = nrow( p_links )
 	}
   
@@ -30,22 +48,20 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 			dimlab       <- colnames( bdgraph.obj $ last_graph )
 			selected_g   <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
 			selected_g[ upper.tri(selected_g) ] <- vec_G
-		} 
-		else 
-		{
-			if ( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' should be between zero and one." )
-			p_links                = as.matrix( plinks( bdgraph.obj ) )
+		}else{
+		    
+			if ( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' must be between ( 0, 1 )." )
+			p_links                = as.matrix( BDgraph::plinks( bdgraph.obj ) )
 			p_links[ p_links > cut ]  = 1
 			p_links[ p_links <= cut ] = 0
 			selected_g          = p_links
 		}
-	}
-	else
-	{
+	}else{
 		if( is.null( cut ) ) cut = 0.5
-		if( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' should be between zero and one." )
-		selected_g                = 0 * p_links
-		selected_g[ p_links > cut ]  = 1
+		if( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' must be between ( 0, 1 )." )
+		
+		selected_g                   = 0 * p_links
+		selected_g[ p_links >  cut ] = 1
 		selected_g[ p_links <= cut ] = 0
 	}
 		
@@ -63,6 +79,6 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 		}
 	}
 
-	return( Matrix( selected_g, sparse = TRUE ) )
+	return( selected_g )
 }
        

@@ -1,7 +1,20 @@
-## Main function: BDMCMC algorithm for time series
-################################################################################
-# Nlength is the length of the time series
-# data is the aggregate periodogram Pk, which is arranged as a large p x (Nlength*p) matrix [P1, P2, ... ,PNlength]
+## ------------------------------------------------------------------------------------------------|
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
+## ------------------------------------------------------------------------------------------------|
+#     BDMCMC algorithm for time series                                                             |
+## ------------------------------------------------------------------------------------------------|
+#     Nlength is the length of the time series                                                     |
+#     data is the aggregate periodogram Pk, which is arranged as                                   |
+#     a large p x (Nlength*p) matrix [P1, P2, ... ,PNlength]                                       |
+## ------------------------------------------------------------------------------------------------|
 
 bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
 					   g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), 
@@ -32,7 +45,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	W = matrix( 0, p, p * Nlength )  # I(p*p)
 	
 	for( t in 1 : Nlength )
-	  diag( W[, ( t * p - p + 1 ):( t * p )] ) = 1
+		diag( W[, ( t * p - p + 1 ):( t * p )] ) = 1
 	
 	K      = W
 	sigma  = K
@@ -71,9 +84,9 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		
 		for( t in 1:Nlength )
 		{
-		  result = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), PACKAGE = "BDgraph" )
-		  K[, ( t * p - p + 1 ):( t * p )] = matrix ( result $ K, p, p )
-		  sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p )] )
+			result = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b_star), as.integer(p), PACKAGE = "BDgraph" )
+			K[, ( t * p - p + 1 ):( t * p )] = matrix ( result $ K, p, p )
+			sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p )] )
 		}
 	}
 	
@@ -102,7 +115,6 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		  sigma[, ( t * p - p + 1 ):( t * p )] = solve( K[, ( t * p - p + 1 ):( t * p )] )
 		}	
 	}
-	
 
 	if( save.all == TRUE )
 	{
@@ -113,7 +125,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		all_graphs    = rep ( 0, iter - burnin )         # vector of numbers like "10100"
 		all_weights   = rep ( 1, iter - burnin )         # waiting time for every state		
 		size_sample_g = 0
-		exit = 0
+		exit          = 0
 	}
 	else
 		p_links = 0 * G
@@ -150,34 +162,33 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 					all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), r_K_hat = as.double(r_K_hat), i_K_hat = as.double(i_K_hat), 
 					sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), 
 					exit = as.integer(exit), as.integer(b), as.integer(b_star), r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), PACKAGE = "BDgraph" )
-	}
-	else
-	{
+	}else{
 		result = .C( "bdmcmc_for_multi_dim", as.integer(iter), as.integer(burnin), G = as.integer(G), g_space = as.integer(g_space), as.double(Ls), r_K = as.double(r_K), 
 					i_K = as.double(i_K), as.integer(p), as.integer(Nlength), r_sigma = as.double(r_sigma), i_sigma = as.double(i_sigma), 
 					r_K_hat = as.double(r_K_hat), i_K_hat = as.double(i_K_hat), p_links = as.double(p_links), as.integer(b), as.integer(b_star), 
 					r_Ds = as.double(Re(Ws)), i_Ds = as.double(Im(Ws)), PACKAGE = "BDgraph" )
 	}
 	
-	r_K_hat      = result $ r_K_hat
-	i_K_hat      = result $ i_K_hat
-	K_hat = matrix( complex( 1, r_K_hat, i_K_hat ), p, p * Nlength )
+	r_K_hat    = result $ r_K_hat
+	i_K_hat    = result $ i_K_hat
+	K_hat      = matrix( complex( 1, r_K_hat, i_K_hat ), p, p * Nlength )
 
 	last_graph = matrix( result $ G, p, p )
 
-	last_r_K      = result $ r_K
-	last_i_K      = result $ i_K
-	last_K = matrix( complex( 1, last_r_K, last_i_K ), p, p * Nlength )
+	last_r_K   = result $ r_K
+	last_i_K   = result $ i_K
+	last_K     = matrix( complex( 1, last_r_K, last_i_K ), p, p * Nlength )
 
-	if ( save.all == TRUE )
+	if( save.all == TRUE )
 	{
 		status = result $ exit
-		if ( status )
+		if( status )
 		{
 			mes <- paste( c( "Exit at iteration ", status ), collapse = "" )
 			cat( mes, "\r" )
 		}
-		if ( status == 0 | status >= burnin - 1 )
+		
+		if( status == 0 | status >= burnin - 1 )
 		{
 			size_sample_g = result $ size_sample_g
 			sample_graphs = result $ sample_graphs[ 1 : size_sample_g ]
@@ -187,16 +198,12 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 			
 			output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = K_hat, 
 					all_graphs = all_graphs, all_weights = all_weights, last_graph = last_graph, last_K = last_K, status = status)
-		}
-		else
-		{
+		}else{
 			p_links   = matrix( result $ G, p, p ) 
 			p_links[ lower.tri( p_links ) ] = 0
 			output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K )
 		}
-	}
-	else
-	{
+	}else{
 		p_links   = matrix( result $ p_links, p, p ) 
 		p_links[ lower.tri( p_links ) ] = 0
 		output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K )

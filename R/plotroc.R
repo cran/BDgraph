@@ -1,4 +1,17 @@
-# To plot ROC curve
+## ------------------------------------------------------------------------------------------------|
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
+## ------------------------------------------------------------------------------------------------|
+#     To plot ROC curve                                                                            |
+## ------------------------------------------------------------------------------------------------|
+
 plotroc = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
                     bdgraph.obj4 = NULL, cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" )
 {
@@ -50,7 +63,9 @@ plotroc = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 	}   
 }
        
-# function for ROC plot
+## ------------------------------------------------------------------------------------------------|
+#    function for ROC plot
+## ------------------------------------------------------------------------------------------------|
 compute_tp_fp = function( G, bdgraph.obj, cut, smooth )
 {
 	p           = nrow( G )
@@ -58,17 +73,28 @@ compute_tp_fp = function( G, bdgraph.obj, cut, smooth )
 	sum_edges   = sum( upper_G )
 	sum_no_dges = p * ( p - 1 ) / 2 - sum_edges
 
-    if( class( bdgraph.obj ) != "huge" )
+	if( class( bdgraph.obj ) == "bdgraph" )
+	{
+	    p_links = bdgraph.obj $ p_links
+	    if( is.null( p_links ) ) p_links = BDgraph::plinks( bdgraph.obj, round = 10 )
+	    p_links = as.matrix( p_links )
+	}
+	
+	if( class( bdgraph.obj ) == "ssgraph" )
+	{
+	    p_links = bdgraph.obj $ p_links
+	    if( is.null( p_links ) ) p_links = BDgraph::plinks( bdgraph.obj, round = 10 )
+	    p_links = as.matrix( p_links )
+	}
+
+	if( is.matrix( bdgraph.obj ) )
+	{
+	    if( any( bdgraph.obj < 0 ) || any( bdgraph.obj > 1 ) ) stop( "Values of 'bdgraph.obj' must be between ( 0, 1 )." )
+	    p_links = as.matrix( bdgraph.obj )
+	}
+	
+	if( class( bdgraph.obj ) != "huge" )
     {
-		if( class( bdgraph.obj ) == "bdgraph" )
-		{
-			p_links = bdgraph.obj $ p_links
-			if( is.null( p_links ) ) p_links = plinks( bdgraph.obj, round = 10 )
-			p_links = as.matrix( p_links )
-		}else{
-			p_links = as.matrix( bdgraph.obj )
-		}
-		
 		tp = c( 1, rep( 0, cut ) )
 		fp = tp
 

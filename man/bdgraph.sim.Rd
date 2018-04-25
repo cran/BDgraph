@@ -86,7 +86,7 @@ round( data.sim $ data, 2 )
 data.sim <- bdgraph.sim( p = 8, n = 10, graph = "hub", type = "mixed" )
 round( data.sim $ data, 2 )
 
-# Generating only a 'hub' graph (with no data) 
+# Generating only a 'scale-free' graph (with no data) 
 graph.sim <- bdgraph.sim( p = 8, graph = "scale-free" )
 plot( graph.sim )
 graph.sim $ G

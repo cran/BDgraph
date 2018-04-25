@@ -53,5 +53,8 @@ BDgraph NEWS
 - CHANGES IN VERSION 2.46
 	* Functions "rmvnorm" is added to the package.
 	 
+- CHANGES IN VERSION 2.47
+	* Functions "graph.sim" is added to the package.
+	* Functions "plot.graph" is added to the package.
   
    

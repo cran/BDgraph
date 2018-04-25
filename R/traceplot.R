@@ -1,4 +1,17 @@
-# plot of graph size to check the convergency of BDMCMC algorithm
+## ------------------------------------------------------------------------------------------------|
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
+## ------------------------------------------------------------------------------------------------|
+#     Plot of graph size to check the convergency of BDMCMC algorithm                              |
+## ------------------------------------------------------------------------------------------------|
+
 traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 {
 	if( !is.null( bdgraph.obj $ p_links ) ) stop( "Function needs output of 'bdgraph' with option save.all = TRUE" )  
@@ -46,7 +59,7 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 		plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
 		abline( h = size_selected_g, col = "red" )	  
 		pacf( sizeall_graphs, main = "PAIC for graph size" )
-		par(op)
+		par( op )
 	}		
 }  
       

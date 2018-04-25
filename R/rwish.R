@@ -1,10 +1,24 @@
-## ----------------------------------------------------------------------------|
-# sampling from Wishart distribution
-## ----------------------------------------------------------------------------|
-rwish = function( n = 1, p = 2, b = 3, D = diag(p) )
+## ------------------------------------------------------------------------------------------------|
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
+## ------------------------------------------------------------------------------------------------|
+#     Sampling from Wishart distribution                                                           |
+## ------------------------------------------------------------------------------------------------|
+
+rwish = function( n = 1, p = 2, b = 3, D = diag( p ) )
 {
-	Ti      = chol( solve( D ) ) 
-	K       = matrix( 0, p, p )
+	if( b <= 2 )            stop( "For Wishart distribution parameter 'b' must be more than 2" )
+	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite" )
+
+	Ti = chol( solve( D ) ) 
+	K  = matrix( 0, p, p )
 
 	if( n > 1 )
 	{

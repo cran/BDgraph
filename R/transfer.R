@@ -1,22 +1,21 @@
-## ----------------------------------------------------------------------------|
-# For discrete data: to transfer raw data for the algorithm 
-## ----------------------------------------------------------------------------|
+## ------------------------------------------------------------------------------------------------|
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
+## ------------------------------------------------------------------------------------------------|
+#     For discrete data: to transfer raw data for the algorithm                                    |
+## ------------------------------------------------------------------------------------------------|
+
 transfer = function( r_data )
 {
 	if( class( r_data ) == "sim" ) r_data <- r_data $ data
   
-#	all_patterns    = apply( r_data, 1, function( x ){ paste( x, collapse = '' ) } )   
-#	unique_patterns = unique( all_patterns )
-	   
-#	length_unique_patterns = length( unique_patterns )
-#	data  = matrix( 0, nrow = length_unique_patterns, ncol = ncol( r_data ) + 1 )
-	   
-#	for( i in seq_len( length_unique_patterns ) )
-#	{
-#		which_one = which( all_patterns == unique_patterns[i] )
-#		data[i, ] = c( r_data[ which_one[1], ], length( which_one ) )
-#	}
-
 	n    = dim( r_data )[1]
 	p    = dim( r_data )[2]
 	data = matrix( 0, nrow = n, ncol = p + 1 )

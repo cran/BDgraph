@@ -33,12 +33,13 @@ The computationally intensive tasks of the package are implemented in parallel u
 Besides, the package contains several functions for simulation and visualization, as well as three multivariate datasets taken from the literature.
 }
 \details{
-The package includes 10 main functions: 
+The package includes following main functions: 
 
 \preformatted{
 bdgraph        Search algorithm in graphical models
 bdgraph.mpl    Search algorithm in graphical models using marginal pseudo-likehlihood
-bdgraph.sim    Graph data generator 
+bdgraph.sim    Graph data simulation 
+graph.sim      Graph simulation 
 bdgraph.npn    Nonparametric transfer 
 compare        Graph structure comparison 
 plinks         Estimated posterior link probabilities
@@ -54,8 +55,8 @@ traceplot      Trace plot of graph size
 \section{How to cite this package}{
 Whenever using this package, please cite as
 \preformatted{
-Mohammadi A. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 3.45, 
+Mohammadi R. and E. C. Wit (2017). BDgraph: Bayesian Structure Learning in 
+Graphical Models using Birth-Death MCMC, R package version 3.47, 
 https://CRAN.R-project.org/package=BDgraph
 }
 }

@@ -1,10 +1,23 @@
-# computing the probability of all the possible graphs or one specific graph 
+## ------------------------------------------------------------------------------------------------|
+#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#                                                                                                  |
+#     This file is part of BDgraph package.                                                        |
+#                                                                                                  |
+#     BDgraph is free software: you can redistribute it and/or modify it under                     |
+#     the terms of the GNU General Public License as published by the Free                         |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
+#                                                                                                  |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
+## ------------------------------------------------------------------------------------------------|
+#     Computing the probability of all the possible graphs or one specific graph                   |
+## ------------------------------------------------------------------------------------------------|
+
 pgraph = function( bdgraph.obj, number.g = 4, adj_g = NULL )
 {
 	if( !is.null( bdgraph.obj $ p_links ) ) stop( "It needs object of 'bdgraph' with option save.all = TRUE" ) 
 	
-	sample_graphs  = bdgraph.obj $ sample_graphs
-	graph_weights  = bdgraph.obj $ graph_weights
+	sample_graphs = bdgraph.obj $ sample_graphs
+	graph_weights = bdgraph.obj $ graph_weights
 	sort_gWeights = sort( graph_weights, decreasing = TRUE )
   
 	if( is.null( adj_g ) )
@@ -25,10 +38,9 @@ pgraph = function( bdgraph.obj, number.g = 4, adj_g = NULL )
 
 		return( list( selected_g = list_g, prob_g = sort_gWeights[1 : number.g] / sum( graph_weights ) ) )
 		
-	} 
-	else 
-	{
-		if ( class(adj_g) == "sim" ) G <- as.matrix( adj_g $ G )
+	}else{
+		if ( class( adj_g ) == "sim" )   G <- as.matrix( adj_g $ G )
+		if ( class( adj_g ) == "graph" ) G <- unclass( adj_g )		
 
 		indG   = paste( G[upper.tri(G)], collapse = '' )
 		wh     = which( sample_graphs == indG )

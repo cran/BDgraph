@@ -1,16 +1,15 @@
 // ------------------------------------------------------------------------------------------------|
-//     This file is part of BDgraph package.
-//
-//     BDgraph is free software: you can redistribute it and/or modify it under 
-//     the terms of the GNU General Public License as published by the Free 
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
-//
-//     Authors contact information:
-//     Lang Liu:            liulang13@mails.tsinghua.edu.cn
-//     Nicholas Foti:       nfoti@uw.edu
-//     Alex Tank:           atank18@gmail.com
-//     Reza Mohammadi: a.mohammadi@uva.nl or a.mohammadi@rug.nl
+//     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
+//                                                                                                 |
+//     This file is part of BDgraph package.                                                       |
+//                                                                                                 |
+//     BDgraph is free software: you can redistribute it and/or modify it under                    |
+//     the terms of the GNU General Public License as published by the Free                        |
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
+//                                                                                                 |
+//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
 // ------------------------------------------------------------------------------------------------|
+
 #include "MyLapack.h"
 #include "matrix.h"
 

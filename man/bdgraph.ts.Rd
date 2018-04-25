@@ -16,7 +16,7 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	The aggregate periodogram \eqn{P_k}, which is arranged as a large \eqn{p x (Nlength*p)} matrix \eqn{[P_1, P_2, ... ,P_Nlength]}.
 	}
 
-	\item{Nlength}{ The length of the time series. It can be NULL. }
+	\item{Nlength}{ The length of the time series. }
 	\item{n}{The number of observations. }
 	  	
 	\item{iter}{The number of iteration for the sampling algorithm.}
@@ -65,8 +65,7 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		  It is needed for monitoring the convergence of the BD-MCMC algorithm.}
 
 	\item{all_weights}{A vector which includes the waiting times for all iterations after burn-in. It is needed for monitoring the convergence of the BD-MCMC algorithm.}
-	\item{status}{An integer to indicate the iteration where the algorithm exits, since if the sum of all rates is 0 at some iteration, the graph at this iteration is regarded as the real graph.
-		  It is 0 if the algorithm doesn't exit.}
+	\item{status}{An integer to indicate the iteration where the algorithm exits, since if the sum of all rates is 0 at some iteration, the graph at this iteration is              regarded as the real graph. It is 0 if the algorithm doesn't exit.}
 	
 }
 
@@ -93,10 +92,10 @@ Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility,
 # Generating time series data
 Nlength = 100; N = 150; p = 6; b = 3; threshold = 1e-8;
 
-I               = diag(p)
-A               = 0.5 * matrix( rbinom( p * p, 1, 0.2 ), p, p )
-A[lower.tri(A)] = 0
-diag(A)         = 0.5
+I                   = diag( p )
+A                   = diag( p )
+A[ upper.tri( A ) ] = rbinom( p * ( p - 1 ) / 2, 1, 0.2 )
+A                   = 0.5 * A
 
 G = matrix( 0, p, p )
 K = matrix( 0, p, p * Nlength )
@@ -113,42 +112,29 @@ for( k in 1:Nlength )
 	diag( K[ , ( k * p - p + 1 ) : ( k * p ) ] ) = 1
 }
 
-G0       = K_times
-diag(G0) = 0
+G0         = K_times
+diag( G0 ) = 0
 
 D = K
-# d is the Fourier coefficients of X
-d = array( 0, c( p, Nlength, N ) )
+d = array( 0, c( p, Nlength, N ) )  # d is the Fourier coefficients of X
 x = array( 0, c( p, Nlength, N ) )
 
 for( n in 1:N )
 { # Generate X
 	e = matrix( rnorm( p * Nlength ), p, Nlength )
 	for( t in 1:Nlength )
-	{
-		if( t == 1 )
-		{
-			x[,t,n] = e[,t]
-		}else{
-			x[,t,n] = A %*% x[,t-1,n] + e[,t]
-		}
-	}
+		x[ , t, n ] = ifelse( t == 1, e[ , t ], e[ , t ] + A %*% x[ , t - 1, n ] )
 }
 
 P = 0 * D
-for (n in 1:N)
-{ # Compute Pk
-	X = x[,,n]
+for( n in 1:N )
+{   # Compute Pk
+	X = x[ , , n ]
 
-	for (i in 1:p) 
-	{
-		d[i,,n] = fft(X[i,])
-	}
+	for( i in 1:p ) d[ i, , n ] = fft( X[ i, ] )
 
-	for (i in 1:Nlength) 
-	{
-		P[,(i*p-p+1):(i*p)] = P[,(i*p-p+1):(i*p)] + d[,i,n] %*% t(Conj(d[,i,n]))
-	}
+	for( i in 1:Nlength ) 
+		P[, (i*p-p+1):(i*p)] = P[, (i*p-p+1):(i*p)] + d[, i, n] %*% t(Conj(d[, i, n]))
 }
 
 bdgraph.obj = bdgraph.ts( P, Nlength, N, iter = 1000 )
