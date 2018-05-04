@@ -43,6 +43,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		
 	dimd <- dim( data )
 	p    <- dimd[ 2 ]
+	if( p < 3 ) stop( "Number of variables/nodes ('p') must be more than 2" )
 	if( is.null( n ) ) n <- dimd[ 1 ]
 
 	if( !is.matrix( g.prior ) )
@@ -561,7 +562,7 @@ plot.bdgraph = function( x, cut = NULL, number.g = 1, layout = layout.circle, ..
 			
 			if( number.g > 1 & number.g < 7 ) par( op )
 		}else{
-			if( ( cut < 0 ) || ( cut > 1 ) ) stop( " Value of 'cut' must be between 0 and 1. " )
+			if( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' must be between 0 and 1." )
 
 			p_links = x $ p_links
 			if( is.null( p_links ) ) p_links = BDgraph::plinks( x )

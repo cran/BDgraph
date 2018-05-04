@@ -30,6 +30,7 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 	}
 	
 	p <- nrow( G )  
+	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
 	
 	if( is.null( D ) ) D <- diag( p )
 	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite" )

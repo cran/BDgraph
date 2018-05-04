@@ -44,6 +44,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	if( any( is.na( data ) ) ) stop( "This method does not deal with missing values. You could try bdgraph() function with option method = gcgm" )	
 		
 	p <- ncol( data )
+	if( p < 3 ) stop( "Number of variables/nodes ('p') must be more than 2" )
 	if( is.null( n ) ) n <- nrow( data )
 
 	if( method == "ggm" ) 

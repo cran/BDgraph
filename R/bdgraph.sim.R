@@ -17,6 +17,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 						cut = 4, b = 3, D = diag(p), K = NULL, sigma = NULL, 
 						vis = FALSE )
 {
+    if( p < 2 ) stop( "'p' must be more than 1" )
     if( is.matrix( K ) )  graph <- "fixed"
     
     if( type == "normal" )     type = "Gaussian"
@@ -24,40 +25,44 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     
     if( is.matrix( graph ) )
 	{
-		G     <- graph
+        if( p != nrow( graph ) )    stop( "Value of 'p' is not match with dimension of matrix 'graph'" )
+        if( !isSymmetric( graph ) ) stop( "Matrix 'graph' must be symmetric" )
+        if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Element of matrix 'graph' must be 0 or 1." )
+        
+        G     <- graph
 	    graph <- "fixed"
     } 
 	
     #--- build the graph structure ----------------------------------------------------------------|
-    if( sum( graph != c( "fixed", "AR1", "AR2", "star" ) ) == 0 )
-    {
-		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class, vis = vis )
-	}
+    if( sum( graph == c( "fixed", "AR1", "AR2", "star" ) ) == 0 )
+		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class )
 
     if( graph == "AR1" )
     {
         sigma = matrix( 0, p, p )
         
-        for (i in 1 : (p - 1))
-            for (j in (i + 1) : p)
+        for( i in 1 : ( p - 1 ) )
+            for( j in ( i + 1 ) : p )
                 sigma[i, j] = ( 0.7 ) ^ abs( i - j )
             
             sigma = sigma + t( sigma ) + diag( p )
             K     = solve( sigma )
-            #G     = 1 * ( abs(K) > 0.2 ) 
+            G     = 1 * ( abs( K ) > 0.02 ) 
     }
     
     if( graph == "AR2" )
     {
         K = toeplitz( c( 1, 0.5, 0.25, rep( 0, p - 3 ) ) )
-        # G = 1 * ( abs(K) > 0.2 ) 
+        G = 1 * ( abs( K ) > 0.02 ) 
     }
     
     if( graph == "star" )
     {
-        K                 <- diag(p)
+        K                 <- diag( p )
         K[ 1, ( 2 : p ) ] <- 0.1
         K[ ( 2 : p ), 1 ] <- 0.1
+        
+        G = 1 * ( abs( K ) > 0.02 ) 
     }
 
 	#--- generate multivariate data according to the graph structure ------------------------------|
@@ -158,7 +163,18 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 	}else{
 		simulation <- list( G = G, graph = graph )		
 	}
-	
+
+    #--- graph visualization ----------------------------------------------------------------------|
+    if( vis == TRUE )
+    {
+        true_graph = as.matrix( G )
+        graphG <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
+        
+        if( p < 20 ) size = 10 else size = 2
+        igraph::plot.igraph( graphG, layout = layout.circle, main = "Graph structure", 
+                     vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
+    }
+    
 	class( simulation ) <- "sim"
 	return( simulation )
 }

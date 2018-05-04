@@ -31,13 +31,21 @@ rgwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 	}
 	
 	diag( G ) = 0
-	p <- nrow( G )  
+	
+	p <- nrow( G )
+	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
 	
 	if( is.null( D ) ) D <- diag( p )
 	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite matrix." )
 		
-	if( dim( D )[1] != p ) stop( "Dimension of matrix G and D must be the same." )
-		
+	if( dim( D )[ 1 ] != p ) stop( "Dimension of matrix G and D must be the same." )
+	
+	if( p == 1 )
+	    return( rwish( n = n, p = p, b = b, D = D ) )
+
+	if( sum( G ) == ( p * ( p - 1 ) ) )
+	    return( rwish( n = n, p = p, b = b, D = D ) )
+	    
 	Ti = chol( solve( D ) )
 	K  = matrix( 0, p, p )
 	

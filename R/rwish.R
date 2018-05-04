@@ -14,9 +14,12 @@
 
 rwish = function( n = 1, p = 2, b = 3, D = diag( p ) )
 {
-	if( b <= 2 )            stop( "For Wishart distribution parameter 'b' must be more than 2" )
+    if( p < 1 ) stop( "'p' must be more than or equal with 1" )
+    if( b <= 2 )            stop( "For Wishart distribution parameter 'b' must be more than 2" )
 	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite" )
-
+    if( n < 1 ) stop( "'n' must be more than or equal with 1" )
+    if( ncol( D ) != p ) stop( "'p' and 'D' have non-conforming size" )
+    
 	Ti = chol( solve( D ) ) 
 	K  = matrix( 0, p, p )
 

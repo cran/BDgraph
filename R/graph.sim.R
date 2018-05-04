@@ -14,7 +14,8 @@
 
 graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
 {
-	if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
+    if( p < 2 ) stop( "'p' must be more than 1" )
+    if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
 
     #--- build the graph structure ----------------------------------------------------------------|
     if( graph == "random" )
@@ -113,6 +114,8 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     
     if( graph == "circle" )
     {
+        if( p < 2 ) stop( "For 'circle' graph, 'p' must be more than 2" )
+        
         G       <- toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
         G[1, p] <- 1
         G[p, 1] <- 1
@@ -134,7 +137,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     }
         
     #--- graph visualization ----------------------------------------------------------------------|
-    if( vis )
+    if( vis == TRUE )
     {
         graphG <- graph.adjacency( G, mode = "undirected", diag = FALSE )
         

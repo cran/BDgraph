@@ -37,15 +37,16 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 
 	if( any( is.na( data ) ) ) stop( "This method does not deal with missing value" )
 		
-	dimd <- dim(data)
-	p    <- dimd[1]
-	if( is.null(Nlength) ) Nlength <- dimd[2] / p
+	dimd <- dim( data )
+	p    <- dimd[ 1 ]
+	if( p < 3 ) stop( "Number of variables/nodes ('p') must be more than 2" )
+	if( is.null( Nlength ) ) Nlength <- dimd[ 2 ] / p
 	
 	P = data 
-	W = matrix( 0, p, p * Nlength )  # I(p*p)
+	W = matrix( 0, p, p * Nlength )  # I( p * p )
 	
 	for( t in 1 : Nlength )
-		diag( W[, ( t * p - p + 1 ):( t * p )] ) = 1
+		diag( W[ , ( t * p - p + 1 ):( t * p ) ] ) = 1
 	
 	K      = W
 	sigma  = K
@@ -57,18 +58,18 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	
 	for( k in 1:Nlength )
 	{
-	  inv_Ws = solve( Ws[, ( k * p - p + 1 ):( k * p )] )
+	  inv_Ws = solve( Ws[ , ( k * p - p + 1 ):( k * p ) ] )
 	  row1   = cbind( Re( inv_Ws ), -Im( inv_Ws ) )
 	  row2   = cbind( Im( inv_Ws ), Re( inv_Ws ) )
 	  sig    = rbind( row1, row2 ) / 2
-	  Ls[, ( k * 2 * p - 2 * p + 1 ):( k * 2 * p )] = t( chol( sig ) )
+	  Ls[ , ( k * 2 * p - 2 * p + 1 ):( k * 2 * p ) ] = t( chol( sig ) )
 	}
 
 	if( class( g.start ) == "bdgraph" ) 
 	{
 		G <- g.start $ last_graph
 		K <- g.start $ last_K
-		if( dim(K)[2] != p * Nlength ) stop( "K should be a p x (p x Nlength) matrix")
+		if( dim( K )[ 2 ] != p * Nlength ) stop( "K should be a p x (p x Nlength) matrix")
 	} 
 
 	if( class( g.start ) == "sim" ) 
