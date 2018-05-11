@@ -16,14 +16,14 @@
 }
 
 \references{
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v2} 
+Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 
 Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
 }
 
 \author{ Reza Mohammadi and Adrian Dobra }
 
-\seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph.mpl}} and \code{\link{bdgraph}} }
+\seealso{ \code{\link{bdgraph.mpl}} and \code{\link{bdgraph.sim}} }
 
 \examples{
 \dontrun{

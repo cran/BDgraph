@@ -1,5 +1,5 @@
-9a3a681de2442fa0638e44d1aabd8378 *DESCRIPTION
-a3a357635d11e7aecc73a75562bf3ccc *NAMESPACE
+cd1e51f2e555b6906efb8d7beed60c08 *DESCRIPTION
+ba424ce126dd06ad73dbc4eed5c866e2 *NAMESPACE
 71fc6553f1830109e09f7d903b79c673 *NEWS
 9bd753f393187182abb51060cc4b05d3 *R/bdgraph.R
 8ed9b2ef74cc055cfb96cb02e3232d7e *R/bdgraph.mpl.R
@@ -31,9 +31,9 @@ e66900a0e679a19b0c32de56a9a33366 *cleanup
 c46b8604d16fd48a5cbc11ac2edc6ae0 *data/reinis.RData
 4db46ea2b4302923b4d6cdf84b6e2e67 *data/surveyData.RData
 34e13a79206edc96ac1152c0915664ce *inst/CITATION
-f74ad14566f818182d566a97e9e5d005 *man/BDgraph-package.Rd
+2eba6a1c84e72876ab9309f5f4ebc627 *man/BDgraph-package.Rd
 0a0d95b1184d70fe7a92e7cf84659c95 *man/bdgraph.Rd
-d2c2fd243be0ad918608d2fddd3d9854 *man/bdgraph.mpl.Rd
+89d3f0f4df3748f9672dd49736a0adac *man/bdgraph.mpl.Rd
 45e34147c17761901639d6095daf4960 *man/bdgraph.npn.Rd
 603cfe657fa5bbfbde42f78adb270c59 *man/bdgraph.sim.Rd
 62195a8241507bc40b5122faf2977ded *man/bdgraph.ts.Rd
@@ -54,12 +54,12 @@ d8c8b3481f8ca1026fc4e983653ae73e *man/reinis.Rd
 2a7550d67ed832177ffc76b6ca700cb9 *man/rgcwish.Rd
 9747d15f06c0fc1275c76639f1894d7f *man/rgwish.Rd
 0c57812ad75a52d42fd2150617dc1e76 *man/rmvnorm.Rd
-aed95f6561a249c916a6c3249c06f5ad *man/rwish.Rd
+acbb4bfb1983f20a6627554609afd732 *man/rwish.Rd
 c4e32cc4115427afb4e086148c09ffe2 *man/select.Rd
 0b4427879b76a4f6b743bf39ca4402ab *man/summary.bdgraph.Rd
 3d9fc4cb9aa112d6bcc64b12092dfcc5 *man/surveyData.Rd
-ca5ea26589e99db9575909742898666d *man/traceplot.Rd
-1482e7dd818c9c8dbb277233d9970441 *man/trensfer.Rd
+b418cb9505f1ea6f82c83ad2918ac795 *man/traceplot.Rd
+41b55af34562e01d3e4a660969bda0dd *man/trensfer.Rd
 bc20e2facad72a75f4b1b42e8bfdda9f *src/BDgraph_init.c
 1670d8de698e82c47176e35ab3086323 *src/Makevars.in
 09febf3453af8c07a0a6d26bfc057d76 *src/Makevars.win

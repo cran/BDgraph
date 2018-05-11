@@ -1,18 +1,15 @@
 useDynLib( BDgraph, .registration = TRUE )
-import( "ssgraph" )
 
 importFrom( "Matrix", "Matrix", "printSpMatrix" )
 
-importFrom( "igraph", "graph.adjacency", "plot.igraph", "layout.circle" )
-importFrom( "igraph", "make_undirected_graph", "max_cliques" )
+importFrom( "igraph", "graph.adjacency", "plot.igraph", "layout.circle", 
+            "make_undirected_graph", "max_cliques" )
 
 importFrom( "grDevices", "dev.new" )
 
 importFrom( "graphics", "abline", "matplot", "par", "plot", "points", "text", "title", "legend" )
 		    
-importFrom( "stats", "toeplitz" )
-
-importFrom( "stats", "cor", "sd", 
+importFrom( "stats", "toeplitz", "cor", "sd", 
 			"rnorm", "pnorm", "qnorm", 
 			"rbinom", "qbinom", 
 			"qexp", "qpois",
