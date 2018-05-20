@@ -14,7 +14,13 @@
 
 plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... )
 {
-	if( !is.null( bdgraph.obj $ p_links ) ) stop( "It needs object of 'bdgraph' with option save.all = TRUE" ) 
+    if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
+    {
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save.all = TRUE" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save.all = TRUE" )
+    }else{
+        stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()'" )
+    }
 	
 	if( is.null( thin ) ) thin = ceiling( length( bdgraph.obj $ all_graphs ) / 1000 )
 

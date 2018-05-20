@@ -14,8 +14,14 @@
 
 traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 {
-	if( !is.null( bdgraph.obj $ p_links ) ) stop( "Function needs output of 'bdgraph' with option save.all = TRUE" )  
-
+    if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
+    {
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save.all = TRUE" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save.all = TRUE" )
+    }else{
+        stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()'" )
+    }
+    
 	sample_graphs     = bdgraph.obj $ sample_graphs
     all_graphs        = bdgraph.obj $ all_graphs
 	graph_weights     = bdgraph.obj $ graph_weights

@@ -18,7 +18,7 @@
 
 bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
 					   g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), 
-					   save.all = FALSE, cores = "all" )
+					   save.all = FALSE, cores = 2 )
 {
 	check.os( os = 2 )	
 	

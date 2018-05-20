@@ -14,10 +14,9 @@
 
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.start = "empty", g.space = NULL, g.prior = 0.5, 
-					prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, cores = "all" )
+					prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, cores = 2 )
 {
 	check.os( os = 2 )	
-	
 	if( cores == "all" ) cores = detect_cores()
 	
 	tmp   <- .C( "check_nthread", cores = as.integer(cores), PACKAGE = "BDgraph" )
@@ -107,6 +106,12 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		K <- g.start $ last_K
 	} 
 
+	if( class( g.start ) == "ssgraph" ) 
+	{
+	    G <- g.start $ last_graph
+	    K <- g.start $ last_K
+	} 
+	
 	if( class( g.start ) == "sim" ) 
 	{
 		G <- as.matrix( g.start $ G )
@@ -142,6 +147,15 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 		K      = matrix ( result $ K, p, p ) 	
 	}
 			
+	if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( p ^ 2 ) ) stop( "Element of 'g.start', as a matrix, must have 0 or 1" )
+	
+	diag( G ) = 0    
+	if( !isSymmetric( G ) )
+	{
+	    G[ lower.tri( G, diag( TRUE ) ) ] <- 0
+	    G  = G + t( G )
+	}
+	
 	if( save.all == TRUE )
 	{
 		qp1           = ( p * ( p - 1 ) / 2 ) + 1

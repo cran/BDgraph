@@ -11,7 +11,9 @@ It can be used for monitoring the convergence of the sampling algorithms, BDMCMC
 \usage{ plotcoda( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... ) }
 
 \arguments{
-  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+  }
   
   \item{thin}{ An option for getting fast result for a cumulative plot according to part of the iteration.}
     

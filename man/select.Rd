@@ -12,7 +12,11 @@ or a graph with the highest posterior probability; see examples.
 \usage{ select( bdgraph.obj, cut = NULL, vis = FALSE ) }
 
 \arguments{
-  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from function \code{ssgraph} from \code{R} package \pkg{ssgraph}.
+					  It also can be  an (\eqn{p \times p}) matrix in which each element of the matrix response to the weight of the links.
+					}
+					
   \item{cut}{ Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; see the examples. }  
   \item{vis}{ Visualize the selected graph structure. }
 }

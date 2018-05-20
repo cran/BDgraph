@@ -37,9 +37,11 @@ Log of the normalizing constant approximation using Monte Carlo method for a G-W
 \references{
 Atay-Kayis, A. and H. Massam (2005). A monte carlo method for computing the marginal likelihood in nondecomposable Gaussian graphical models, \emph{Biometrika}, 92(2):317-335
 
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
-
 Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
+
+Uhler, C., et al (2018) Exact formulas for the normalizing constants of Wishart distributions for graphical models, \emph{The Annals of Statistics} 46(1):90-118
+
+Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 }
 
 \author{ Reza Mohammadi and Ernst Wit }

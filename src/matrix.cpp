@@ -15,6 +15,7 @@
 // ------------------------------------------------------------------------------------------------|
 // Takes square matrix A (p x p) and 
 // retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
+// ------------------------------------------------------------------------------------------------|
 void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 {
 	int i, j, ixp, subixp, psub = *p_sub, pdim = *p;
@@ -22,16 +23,17 @@ void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 	for( i = 0; i < psub; i++ )
 	{
 		ixp    = i * psub;
-		subixp = sub[i] * pdim;
+		subixp = sub[ i ] * pdim;
 		
 		for( j = 0; j < psub; j++ )
-			sub_A[ixp + j] = A[subixp + sub[j]]; 
+			sub_A[ ixp + j ] = A[ subixp + sub[ j ] ]; 
 	}
 }
    
 // ------------------------------------------------------------------------------------------------|
 // Takes symmetric matrix A (p x p) and 
 // retrieves upper part of sub_matrix B (p_sub x p_sub), dictated by vector sub
+// ------------------------------------------------------------------------------------------------|
 void sub_matrix_upper( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 {
 	int i, j, ixp, subixp, psub = *p_sub, pdim = *p;
@@ -39,10 +41,10 @@ void sub_matrix_upper( double A[], double sub_A[], int sub[], int *p_sub, int *p
 	for( i = 0; i < psub; i++ )
 	{
 		ixp    = i * psub;
-		subixp = sub[i] * pdim;
+		subixp = sub[ i ] * pdim;
 			
 		for( j = 0; j <= i; j++ )
-			sub_A[ixp + j] = A[subixp + sub[j]]; 
+			sub_A[ ixp + j ] = A[ subixp + sub[ j ] ]; 
 	}
 }
    
@@ -50,6 +52,7 @@ void sub_matrix_upper( double A[], double sub_A[], int sub[], int *p_sub, int *p
 // Takes square matrix A (p x p) and 
 // retrieves vector sub_A which is 'sub' th row of matrix A, minus 'sub' element
 // Likes A[j, -j] in R
+// ------------------------------------------------------------------------------------------------|
 void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
 	int subj = *sub, pdim = *p, subxp = subj * pdim;
@@ -62,6 +65,7 @@ void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 // Takes square matrix A (p x p) and 
 // retrieves sub_matrix sub_A(2 x p-2) which is sub rows of matrix A, minus two elements
 // Likes A[(i,j), -(i,j)] in R ONLY FOR SYMMETRIC MATRICES
+// ------------------------------------------------------------------------------------------------|
 void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col, sub0p = sub0 * pdim, sub1p = sub1 * pdim;
@@ -89,6 +93,7 @@ void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 // Takes square matrix A (p x p) and 
 // retrieves sub_matrix sub_A(p-2 x 2) which is sub cols of matrix A, minus two elements
 // Likes A[-(i,j), (i,j)] in R 
+// ------------------------------------------------------------------------------------------------|
 void sub_cols_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int subi = *row, subj = *col, pdim = *p, p2 = pdim - 2, subixp = subi * pdim, subjxp = subj * pdim;
@@ -106,20 +111,23 @@ void sub_cols_mins( double A[], double sub_A[], int *row, int *col, int *p )
 // Takes symmatric matrix A (p x p) and 
 // retrieves A12(1x(p-1)) and A22((p-1)x(p-1))
 // Like A12=A[j, -j], and A22=A[-j, -j] in R
+// ------------------------------------------------------------------------------------------------|
 void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
 	int i, ixpdim, ixp1, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim, mpsub = pdim - psub - 1;
+    int size_psub  = sizeof( double ) * psub;
+    int size_mpsub = sizeof( double ) * mpsub;
 
-	memcpy( A12,        A + subxp,            sizeof( double ) * psub );	
-	memcpy( A12 + psub, A + subxp + psub + 1, sizeof( double ) * ( pdim - psub - 1 ) );	
+	memcpy( A12,        A + subxp,            size_psub );	
+	memcpy( A12 + psub, A + subxp + psub + 1, size_mpsub );	
 
 	for( i = 0; i < psub; i++ )
 	{	
 		ixpdim = i * pdim;
 		ixp1   = i * p1;
 		
-		memcpy( A22 + ixp1       , A + ixpdim           , sizeof( double ) * psub );
-		memcpy( A22 + ixp1 + psub, A + ixpdim + psub + 1, sizeof( double ) * mpsub );
+		memcpy( A22 + ixp1       , A + ixpdim           , size_psub );
+		memcpy( A22 + ixp1 + psub, A + ixpdim + psub + 1, size_mpsub );
 	}
 
 	for( i = psub + 1; i < pdim; i++ )
@@ -127,8 +135,8 @@ void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 		ixpdim = i * pdim;
 		ixp1   = ( i - 1 ) * p1;
 		
-		memcpy( A22 + ixp1       , A + ixpdim           , sizeof( double ) * psub);
-		memcpy( A22 + ixp1 + psub, A + ixpdim + psub + 1, sizeof( double ) * mpsub );
+		memcpy( A22 + ixp1       , A + ixpdim           , size_psub );
+		memcpy( A22 + ixp1 + psub, A + ixpdim + psub + 1, size_mpsub );
 	}
 }
     
@@ -136,6 +144,7 @@ void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 // Takes square matrix A (p x p) and 
 // retrieves A11(2x2), A12(2x(p-2)), and A22((p-2)x(p-2))
 // Like A11=A[e, e], A12=A[e, -e], and A22=A[-e, -e] in R
+// ------------------------------------------------------------------------------------------------|
 void sub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
 	int i, j, ixp, ij, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
@@ -204,6 +213,7 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 // Takes square matrix A (p x p) and 
 // retrieves A11_inv(2x2), A21((p-2)x2), and A22((p-2)x(p-2))
 // Like A11_inv=inv( A[e, e] ), A21=A[-e, e], and A22=A[-e, -e] in R
+// ------------------------------------------------------------------------------------------------|
 void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[], int *row, int *col, int *p )
 {
 	int i, ixp, ixp2, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
@@ -218,23 +228,27 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 	A11_inv[1]     = - a12 / det_A11;
 	A11_inv[2]     = A11_inv[1];
 	A11_inv[3]     = a11 / det_A11;
+	
+	int size_sub0 = sizeof( double ) * sub0;
+	int size_sub1_sub0 = sizeof( double ) * ( sub1 - sub0_plus );
+	int size_pdim_sub0 = sizeof( double ) * ( pdim - sub1_plus );
+	
+	memcpy( A21           , A + sub0xp            , size_sub0 );		
+	memcpy( A21 + sub0    , A + sub0xp + sub0_plus, size_sub1_sub0 );	
+	memcpy( A21 + sub1 - 1, A + sub0xp + sub1_plus, size_pdim_sub0 );	
 
-	memcpy( A21           , A + sub0xp            , sizeof( double ) * sub0 );		
-	memcpy( A21 + sub0    , A + sub0xp + sub0_plus, sizeof( double ) * ( sub1 - sub0_plus ) );	
-	memcpy( A21 + sub1 - 1, A + sub0xp + sub1_plus, sizeof( double ) * ( pdim - sub1_plus ) );	
-
-	memcpy( A21 + p2           , A + sub1xp            , sizeof( double ) * sub0 );		
-	memcpy( A21 + p2 + sub0    , A + sub1xp + sub0_plus, sizeof( double ) * ( sub1 - sub0_plus ) );	
-	memcpy( A21 + p2 + sub1 - 1, A + sub1xp + sub1_plus, sizeof( double ) * ( pdim - sub1_plus ) );	
+	memcpy( A21 + p2           , A + sub1xp            , size_sub0 );		
+	memcpy( A21 + p2 + sub0    , A + sub1xp + sub0_plus, size_sub1_sub0 );	
+	memcpy( A21 + p2 + sub1 - 1, A + sub1xp + sub1_plus, size_pdim_sub0 );	
  
 	for( i = 0; i < sub0; i++ )
 	{	
 		ixp  = i * pdim;
 		ixp2 = i * p2;
 
-		memcpy( A22 + ixp2           , A + ixp            , sizeof( double ) * sub0 );
-		memcpy( A22 + ixp2 + sub0    , A + ixp + sub0_plus, sizeof( double ) * ( sub1 - sub0_plus ) );
-		memcpy( A22 + ixp2 + sub1 - 1, A + ixp + sub1_plus, sizeof( double ) * ( pdim - sub1_plus ) );	
+		memcpy( A22 + ixp2           , A + ixp            , size_sub0 );
+		memcpy( A22 + ixp2 + sub0    , A + ixp + sub0_plus, size_sub1_sub0 );
+		memcpy( A22 + ixp2 + sub1 - 1, A + ixp + sub1_plus, size_pdim_sub0 );	
 	}
  
 	for( i = sub0_plus; i < sub1; i++ )
@@ -242,9 +256,9 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 		ixp  = i * pdim;
 		ixp2 = ( i - 1 ) * p2;
 
-		memcpy( A22 + ixp2           , A + ixp            , sizeof( double ) * sub0 );
-		memcpy( A22 + ixp2 + sub0    , A + ixp + sub0_plus, sizeof( double ) * ( sub1 - sub0_plus ) );
-		memcpy( A22 + ixp2 + sub1 - 1, A + ixp + sub1_plus, sizeof( double ) * ( pdim - sub1_plus ) );	
+		memcpy( A22 + ixp2           , A + ixp            , size_sub0 );
+		memcpy( A22 + ixp2 + sub0    , A + ixp + sub0_plus, size_sub1_sub0 );
+		memcpy( A22 + ixp2 + sub1 - 1, A + ixp + sub1_plus, size_pdim_sub0 );	
 	}
 	
 	for( i = sub1_plus; i < pdim; i++ )
@@ -252,15 +266,16 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 		ixp  = i * pdim;
 		ixp2 = ( i - 2 ) * p2;
 				
-		memcpy( A22 + ixp2           , A + ixp            , sizeof( double ) * sub0 );
-		memcpy( A22 + ixp2 + sub0    , A + ixp + sub0_plus, sizeof( double ) * ( sub1 - sub0_plus ) );
-		memcpy( A22 + ixp2 + sub1 - 1, A + ixp + sub1_plus, sizeof( double ) * ( pdim - sub1_plus ) );		
+		memcpy( A22 + ixp2           , A + ixp            , size_sub0 );
+		memcpy( A22 + ixp2 + sub0    , A + ixp + sub0_plus, size_sub1_sub0 );
+		memcpy( A22 + ixp2 + sub1 - 1, A + ixp + sub1_plus, size_pdim_sub0 );		
 	}
 }
       
 // ------------------------------------------------------------------------------------------------|
 // inverse function for symmetric positive-definite matrices (p x p)
 // WARNING: Matrix you pass is overwritten with the result
+// ------------------------------------------------------------------------------------------------|
 void inverse( double A[], double A_inv[], int *p )
 {
 	int info, dim = *p;
@@ -270,7 +285,7 @@ void inverse( double A[], double A_inv[], int *p )
 	#pragma omp parallel for
 	for( int i = 0; i < dim; i++ )
 		for( int j = 0; j < dim; j++ )
-			A_inv[j * dim + i] = ( i == j );
+			A_inv[ j * dim + i ] = ( i == j );
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
 	F77_NAME(dposv)( &uplo, &dim, &dim, A, &dim, A_inv, &dim, &info );
@@ -278,6 +293,7 @@ void inverse( double A[], double A_inv[], int *p )
     
 // ------------------------------------------------------------------------------------------------|
 // inverse function for symmetric (2 x 2)
+// ------------------------------------------------------------------------------------------------|
 void inverse_2x2( double B[], double B_inv[] )
 {
 	double detB = B[0] * B[3] - B[1] * B[1];
@@ -290,12 +306,13 @@ void inverse_2x2( double B[], double B_inv[] )
 // ------------------------------------------------------------------------------------------------|
 // Cholesky decomposition of symmetric positive-definite matrix
 // A = U' %*% U
+// ------------------------------------------------------------------------------------------------|
 void cholesky( double A[], double U[], int *p )
 {
 	char uplo = 'U';
-	int info, dim = *p, pxp = dim * dim;
+	int info, dim = *p;
 	
-	memcpy( U, A, sizeof( double ) * pxp );	
+	memcpy( U, A, sizeof( double ) * dim * dim );	
 	
 	F77_NAME(dpotrf)( &uplo, &dim, U, &dim, &info );	
 	
@@ -307,11 +324,12 @@ void cholesky( double A[], double U[], int *p )
   
 // ------------------------------------------------------------------------------------------------|
 // Determinant of symmetric possitive-definite matrix ---------------------------------------------|
-// ++++++++++  WARNING: Matrix you pass is overwritten +++++++++++++++++++
+//      ^^^^^^^^^^^^^^^^^^^  WARNING: Matrix you pass is overwritten ^^^^^^^^^^^^^^^^^^^
 //  For any symmetric PD Matrix D, we have:
 //                |D| ) = |T| ^ 2
 //  where T is the cholesky decomposition of D. Thus, |T| = \prod_{i = 1}^p T_{ii}
 //  which makes this quite easy.
+// ------------------------------------------------------------------------------------------------|
 void determinant( double A[], double *det_A, int *p )
 {
 	char uplo = 'U';
@@ -366,6 +384,7 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
     
 // ------------------------------------------------------------------------------------------------|
 // To simultaneously select multiple edges for BDMCMC algorithm  
+// ------------------------------------------------------------------------------------------------|
 void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp )
 {
 	int i, qp_star = *qp, qp_star_1 = qp_star - 1;
@@ -735,9 +754,10 @@ void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index
 	}
 }
     
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // computing birth/death rate or alpha for element (i,j)
 // it is for double Metropolis-Hasting algorihtms
+// ------------------------------------------------------------------------------------------------|
 void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
                double Kj12[], double Kj12xK22_inv[], double K12[], double K12xK22_inv[], double K121[], 
                double sigmaj12[], double sigmaj22[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[],
@@ -875,6 +895,7 @@ void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int 
      	
 // -------------- NEW for Lang codes --------------------------------------------------------------|
 // For Hermitian matrix
+// ------------------------------------------------------------------------------------------------|
 void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
 	int i, l = 0, subj = *sub, pdim = *p, subxp = subj * pdim;
@@ -888,6 +909,7 @@ void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
       
 // ------------------------------------------------------------------------------------------------|
 // For Hermitian matrix
+// ------------------------------------------------------------------------------------------------|
 void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col, sub0p = sub0 * pdim, sub1p = sub1 * pdim;
@@ -913,6 +935,7 @@ void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
        
 // ------------------------------------------------------------------------------------------------|
 // sub_matrices1 for Hermitian matrix
+// ------------------------------------------------------------------------------------------------|
 void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
 	int i, ixpdim, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim, mpsub = pdim - psub - 1;
@@ -939,6 +962,7 @@ void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
         
 // ----------------------------------------------------------------------------|
 // sub_matrices for Hermitian matrix
+// ------------------------------------------------------------------------------------------------|
 void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
 	int i, i1, i2, ixp, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
@@ -989,6 +1013,7 @@ void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *r
    
 // ------------------------------------------------------------------------------------------------|
 // inverse function for Hermitian (2 x 2)
+// ------------------------------------------------------------------------------------------------|
 void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] )
 {
 	double r_det = r_B[0] * r_B[3] - i_B[0] * i_B[3] - ( r_B[1] * r_B[1] + i_B[1] * i_B[1] );
@@ -1007,6 +1032,7 @@ void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[
 
 // ------------------------------------------------------------------------------------------------|
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
+// ------------------------------------------------------------------------------------------------|
 void scale_free( int *G, int *p )
 {
 	int i, j, tmp, dim = *p, p0 = 2;
@@ -1049,6 +1075,7 @@ void scale_free( int *G, int *p )
 
 // ------------------------------------------------------------------------------------------------|
 // To transfer the raw discreate data 
+// ------------------------------------------------------------------------------------------------|
 void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_data )
 {
 	int i, j, l, counter;
@@ -1082,10 +1109,10 @@ void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_d
 	}
 
 // -- tranfer the data ----------------------------------------------------------------------------|
+	int which_one = 0;
 	for( l = 0; l < length_unique_patterns; l++ )  
 	{
 		counter = 0;
-		int which_one;
 		for( i = 0; i < *n; i++ )
 			if( all_patterns[i] == unique_patterns[ l ] ) 
 			{

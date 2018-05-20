@@ -21,17 +21,25 @@ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
   }
   
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links. }
   
   \item{bdgraph.obj2}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
                        It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
                        It is for comparing two different approaches. }
   
   \item{bdgraph.obj3}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
                        It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
                        It is for comparing three different approaches. }
   
   \item{bdgraph.obj4}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
                        It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
                        It is for comparing four different approaches. }
   

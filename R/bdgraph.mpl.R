@@ -15,7 +15,7 @@
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.start = "empty", 
 					g.space = NULL, g.prior = 0.5, multi.update = NULL, alpha = 0.5, 
-					save.all = FALSE, print = 1000, cores = "all", operator = "or" )
+					save.all = FALSE, print = 1000, cores = 2, operator = "or" )
 {
 	check.os( os = 2 )	
 	
@@ -77,6 +77,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		if( ( min( data ) != 0 ) || ( max( data ) != 1 ) ) stop( "For the case 'method = dgm-binary', data must be binary (0,1)" )
 	
 	if( class( g.start ) == "bdgraph"                         ) G = g.start $ last_graph
+	if( class( g.start ) == "ssgraph"                         ) G = g.start $ last_graph
 	if( class( g.start ) == "sim"                             ) G = as.matrix( g.start $ G )
 	if( class( g.start ) == "character" && g.start == "empty" ) G = matrix( 0, p, p )
 	if( class( g.start ) == "character" && g.start == "full"  )	G = matrix( 1, p, p )

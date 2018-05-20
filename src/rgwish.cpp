@@ -14,6 +14,7 @@
 
 // ------------------------------------------------------------------------------------------------|
 // sampling from Wishart distribution // Ts = chol( solve( Ds ) )
+// ------------------------------------------------------------------------------------------------|
 void rwish_c( double Ts[], double K[], int *b, int *p )
 {
 	int dim = *p, pxp = dim * dim, bK = *b;
@@ -47,6 +48,7 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
 // ------------------------------------------------------------------------------------------------|
 // G is adjacency matrix which has zero in its diagonal // threshold = 1e-8
+// ------------------------------------------------------------------------------------------------|
 void rgwish_c( int G[], double Ts[], double K[], int *b, int *p )
 {
 	int info, i, j, l, size_node, one = 1, dim = *p, pxp = dim * dim;	
@@ -143,6 +145,7 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p )
      
 // ------------------------------------------------------------------------------------------------|
 // rgwish ONLY for inside of MCMC algorithm
+// ------------------------------------------------------------------------------------------------|
 void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sigma[], int *b_star, int *p,
 					double sigma_start[], double inv_C[], double beta_star[], double sigma_i[], 
 					vector<double> &sigma_start_N_i, vector<double> &sigma_N_i, vector<int> &N_i )
@@ -287,6 +290,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 // Part of function "gnorm"
 // which is for calculating Normalizing constant of G-Wishart distribution 
 // based on Monto Carlo algorithm
+// ------------------------------------------------------------------------------------------------|
 void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, int *p, double f_T[] )
 {
 	int iter, i, j, ij, h, r, mc_iter = *mc, dim = *p, pxp = dim * dim, b_c = *b;

@@ -15,6 +15,7 @@
 extern "C" {
 // ------------------------------------------------------------------------------------------------|
 // Calculating mean for copula function
+// ------------------------------------------------------------------------------------------------|
 void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int *j, int *n, int *p )
 {
 	int k, dim = *p, number = *n, row = *i, col = *j;
@@ -31,6 +32,7 @@ void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int
 
 // ------------------------------------------------------------------------------------------------|
 // Calculating bounds for copula function
+// ------------------------------------------------------------------------------------------------|
 void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
 	int kj, ij, row = *i, col = *j;
@@ -55,6 +57,7 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
  
 // ------------------------------------------------------------------------------------------------|
 // copula part
+// ------------------------------------------------------------------------------------------------|
 void copula( double Z[], double K[], int R[], int *n, int *p )
 {
 	int number = *n, dim = *p, nxp = number * dim;
@@ -90,6 +93,7 @@ void copula( double Z[], double K[], int R[], int *n, int *p )
 
 // ------------------------------------------------------------------------------------------------|
 // Calculating bounds for copula function with missing data 
+// ------------------------------------------------------------------------------------------------|
 void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
 	int kj, ij, row = *i, col = *j;
@@ -117,6 +121,7 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
  
 // ------------------------------------------------------------------------------------------------|
 // copula part for missing data
+// ------------------------------------------------------------------------------------------------|
 void copula_NA( double Z[], double K[], int R[], int *n, int *p )
 {
 	int number = *n, dim = *p, nxp = number * dim;
@@ -158,6 +163,7 @@ void copula_NA( double Z[], double K[], int R[], int *n, int *p )
      
 // ------------------------------------------------------------------------------------------------|
 // Calculating Ds = D + S for the BDMCMC sampling algorithm
+// ------------------------------------------------------------------------------------------------|
 void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
 {
 	int gcgm_check = *gcgm, dim = *p, pxp = dim * dim;
@@ -178,6 +184,7 @@ void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[
 
 // ------------------------------------------------------------------------------------------------|
 // Calculating Ts = chol( solve( Ds ) ) for the BDMCMC sampling algorithm
+// ------------------------------------------------------------------------------------------------|
 void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p )
 {
 	int dim = *p, pxp = dim * dim;

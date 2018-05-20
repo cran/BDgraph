@@ -11,7 +11,9 @@ It is a tool for monitoring the convergence of the sampling algorithms, BDMCMC a
 \usage{ traceplot ( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... ) }
 
 \arguments{
-  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+  }
   \item{acf}{ Visualize the autocorrelation functions for graph size. }
   \item{pacf}{ Visualize the partial autocorrelations for graph size. }
   \item{main}{ Graphical parameter (see plot). }

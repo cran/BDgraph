@@ -8,7 +8,7 @@
 \usage{
 bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
             g.start = "empty", g.space = NULL, prior.df = rep( 3, Nlength ), 
-            save.all = FALSE, cores = "all" )
+            save.all = FALSE, cores = 2 )
 }
 
 \arguments{
@@ -44,8 +44,8 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}	
 	\item{cores}{ The number of cores to use for parallel execution. 
-	   The default is to use \code{"all"} CPU cores of the computer; 
-	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
+	   The default is to use \code{2} CPU cores of the computer.
+	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
 	   }	
 }
 

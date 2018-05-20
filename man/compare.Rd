@@ -13,9 +13,23 @@
 	An object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
 	It also can be the adjacency matrix corresponding to the true graph structure.
 	}
-  \item{bdgraph.obj}{  An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. It also can be an adjacency matrix corresponding to an estimated graph. }
-  \item{bdgraph.obj2}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. It also can be an adjacency matrix corresponding to an estimated graph. It is for comparing two different approaches. }
-  \item{bdgraph.obj3}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. It also can be an adjacency matrix corresponding to an estimated graph. It is for comparing three different approaches. }
+  \item{bdgraph.obj}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+					  It also can be an adjacency matrix corresponding to an estimated graph. 
+					  }
+  
+  \item{bdgraph.obj2}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+					  It also can be an adjacency matrix corresponding to an estimated graph. 
+					  It is for comparing two different approaches. }
+  
+  \item{bdgraph.obj3}{ An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+					  It also can be an adjacency matrix corresponding to an estimated graph. 
+					  It is for comparing three different approaches. }
   
   \item{colnames}{ A character vector giving the column names for the result table. }
   

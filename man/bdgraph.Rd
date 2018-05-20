@@ -11,7 +11,7 @@
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
          burnin = iter / 2, g.start = "empty", g.space = NULL, g.prior = 0.5, 
          prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, 
-         cores = "all" )
+         cores = 2 )
 }
 
 \arguments{
@@ -41,10 +41,10 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
 	\item{g.start}{
-		Corresponds to a starting point of the graph. It could be \code{"empty"} (default) and \code{"full"}. 
+		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
-		It also could be an object with \code{S3} class \code{"bdgraph"}; 
-		with this option we could run the sampling algorithm from the last objects of previous run (see examples).     
+		It also could be an object with \code{S3} class \code{"bdgraph"} or \code{"ssgraph"}; 
+		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
 	\item{g.space}{
 		Corresponds to the sub-space of the graph. 
@@ -71,8 +71,8 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	}
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }	
 	\item{cores}{ The number of cores to use for parallel execution. 
-	   The default is to use \code{"all"} CPU cores of the computer; 
-	   it can also be a number, e.g. \code{cores=2} means 2 CPU cores to use for parallel execution.
+	   The default is to use \code{2} CPU cores of the computer.
+	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
 	   }	
 }
 
