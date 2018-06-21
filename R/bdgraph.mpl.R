@@ -78,7 +78,8 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	
 	if( class( g.start ) == "bdgraph"                         ) G = g.start $ last_graph
 	if( class( g.start ) == "ssgraph"                         ) G = g.start $ last_graph
-	if( class( g.start ) == "sim"                             ) G = as.matrix( g.start $ G )
+	if( class( g.start ) == "sim"                             ) G = as.matrix( unclass( g.start $ G ) )
+	if( class( g.start ) == "graph"                           ) G <- unclass( g.start )
 	if( class( g.start ) == "character" && g.start == "empty" ) G = matrix( 0, p, p )
 	if( class( g.start ) == "character" && g.start == "full"  )	G = matrix( 1, p, p )
 	if( is.matrix( g.start )                                  ) G = g.start

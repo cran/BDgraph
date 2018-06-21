@@ -26,8 +26,12 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 	
 	burnin <- floor( burnin )
 	
-	if( class( data ) == "sim" ) data <- data $ data
-
+	if( class( data ) == "sim" )
+	{
+	    is.discrete <- data $ is.discrete
+	    data        <- data $ data
+	}
+	
 	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data must be a matrix or dataframe" )
 	if( is.data.frame( data ) ) data <- data.matrix( data )
 	if( iter < burnin )   stop( "Number of iteration must be more than number of burn-in" )
@@ -114,9 +118,11 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc",
 	
 	if( class( g.start ) == "sim" ) 
 	{
-		G <- as.matrix( g.start $ G )
+		G <- as.matrix( unclass( g.start $ G ) )
 		K <- as.matrix( g.start $ K )
 	} 
+	
+	if( class( g.start ) == "graph" ) G <- unclass( g.start )
 	
 	if( class( g.start ) == "character" && g.start == "empty"  )
 	{

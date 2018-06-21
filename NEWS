@@ -57,4 +57,6 @@ BDgraph NEWS
 	* Functions "graph.sim" is added to the package.
 	* Functions "plot.graph" is added to the package.
   
-   
+- CHANGES IN VERSION 2.51
+	* vignette is added to the package.
+

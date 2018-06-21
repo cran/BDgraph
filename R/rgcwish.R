@@ -16,18 +16,24 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 {
 	if( b <= 2 )           stop( "For complex G-Wishart distribution parameter 'b' must be more than 2" )
 	if( is.null( adj.g ) ) stop( "Adjacency matrix must be determined" )
+    
+    if( is.matrix( adj.g )          ) G <- unclass( adj.g )
+    #if( class( adj.g ) == "graph"   ) G <- unclass( adj.g )
+    if( class( adj.g ) == "sim"     ) G <- adj.g $ G
+    if( class( adj.g ) == "bdgraph" ) G <- BDgraph::select( adj.g ) 
+    if( class( adj.g ) == "ssgraph" ) G <- BDgraph::select( adj.g ) 
+    
+    if( !isSymmetric( G ) )
+    {
+        G[ lower.tri( G ) ] <- 0
+        G  = G + t( G )
+    }
+    
+    
+    if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix 'adj.g' must be 0 or 1" )	
 
-	if( class( adj.g ) == "sim"   ) G <- adj.g $ G
-	if( class( adj.g ) == "graph" ) G <- unclass( adj.g )
-
-    G <- as.matrix( G )
-	if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix G must be zero or one" )	
-
-	if( !isSymmetric( G ) )
-	{
-		G[ lower.tri( G, diag( TRUE ) ) ] <- 0
-		G  = G + t( G )
-	}
+	G <- as.matrix( G )
+	diag( G ) = 0
 	
 	p <- nrow( G )  
 	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
@@ -35,7 +41,7 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 	if( is.null( D ) ) D <- diag( p )
 	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite" )
 	
-	if( dim( D )[1] != p ) stop( "Dimension of matrix G and D must be the same." )
+	if( nrow( D ) != p ) stop( "Dimension of matrix G and D must be the same." )
 		
 	inv_D = solve( D )
 	row1  = cbind( Re(inv_D), -Im(inv_D) )

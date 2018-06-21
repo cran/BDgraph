@@ -12,8 +12,11 @@ Generates random matrices, distributed according to the complex G-Wishart distri
 \arguments{
   \item{n}{The number of samples required. }
   \item{adj.g}{
-    The adjacency matrix corresponding to the graph structure. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
+    The adjacency matrix corresponding to the graph structure which can be non-decomposable or decomposable. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+    \code{adj.g} could be an object of class \code{"graph"}, from function \code{\link{graph.sim}}.
+    It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
+    It also could be an object of class \code{"bdgraph"}, from functions \code{\link{bdgraph.mpl}} or \code{\link{bdgraph}}.
     }
   \item{b}{The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b, D)}. }
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for complex G-Wishart distribution, \eqn{CW_G(b, D)}. 

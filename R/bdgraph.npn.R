@@ -14,13 +14,16 @@
 
 bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 {
-    if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data should be a matrix or dataframe" )	
+    if( class( data ) == "sim" ) data <- data $ data
+    
+    if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data must be a matrix or dataframe" )	
     if( is.data.frame( data ) ) data = data.matrix( data )
-    if( any( is.na( data ) ) ) stop( "Data should contain no missing data" ) 
+    if( any( is.na( data ) ) ) stop( "Data must contain no missing data" ) 
 	
 	n <- nrow( data )
 	
   	# ------ shrinkage transfer -------------------------------------------------------------------|
+	
 	if( npn == "shrinkage" )
 	{
 		data = qnorm( apply( data, 2, rank ) / ( n + 1 ) )
@@ -28,6 +31,7 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 	}
 	
 	# ------ truncation transfer ------------------------------------------------------------------|
+	
 	if( npn == "truncation" )
 	{
 		if( is.null( npn.thresh ) ) npn.thresh = 0.25 * ( n ^ ( -0.25 ) ) * ( pi * log( n ) ) ^ ( -0.5 )
@@ -37,6 +41,7 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 	}
 
 	# ------ skeptic transfer ---------------------------------------------------------------------|
+	
 	if( npn == "skeptic" ) data = 2 * sin( pi / 6 * cor( data, method = "spearman" ) )
 	
 	return( data )

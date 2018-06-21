@@ -25,7 +25,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     
     if( is.matrix( graph ) )
 	{
-        if( p != nrow( graph ) )    stop( "Value of 'p' is not match with dimension of matrix 'graph'" )
+        if( p != nrow( graph )    ) stop( "Value of 'p' is not match with dimension of matrix 'graph'" )
         if( !isSymmetric( graph ) ) stop( "Matrix 'graph' must be symmetric" )
         if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Element of matrix 'graph' must be 0 or 1." )
         
@@ -92,6 +92,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		d <- BDgraph::rmvnorm( n = n, mean = mean, sigma = sigma )
 		
 		#--- generate multivariate mixed data -----------------------------------------------------|
+		is.discrete = numeric( p )
+
 		if( type == "mixed" )
 		{
 			# generating mixed data which are 'count', 'ordinal', 'non-Gaussian', 
@@ -99,15 +101,19 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			ps = floor( p / 5 )
 			
 			# generating count data
-			col_number     <- c( 1:ps )
-			prob           <- pnorm( d[, col_number] )
-			d[,col_number] <- qpois( p = prob, lambda = 10 )
+			col_number        <- c( 1:ps )
+			prob              <- pnorm( d[, col_number] )
+			d[ , col_number ] <- qpois( p = prob, lambda = 10 )
+			
+			is.discrete[ 1:ps ] = 1
 
 			# generating ordinal data
-			col_number     <- c( ( ps + 1 ):( 2 * ps ) )
-			prob           <- pnorm( d[ , col_number ] )
-			d[,col_number] <- qpois( p = prob, lambda = 2 )
-
+			col_number        <- c( ( ps + 1 ):( 2 * ps ) )
+			prob              <- pnorm( d[ , col_number ] )
+			d[ , col_number ] <- qpois( p = prob, lambda = 2 )
+			
+			is.discrete[ c( ( ps + 1 ):( 2 * ps ) ) ] = 1
+			
 			# generating non-Guassian data
 			col_number     <- c( ( 2 * ps + 1 ):( 3 * ps ) )
 			prob           <- pnorm( d[ , col_number ] )
@@ -117,6 +123,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			col_number     <- c( ( 3 * ps + 1 ):( 4 * ps ) )
 			prob           <- pnorm( d[ , col_number ] )
 			d[,col_number] <- qbinom( p = prob, size = 1, prob = 0.5 )
+			
+			is.discrete[ c( ( 3 * ps + 1 ):( 4 * ps ) ) ] = 1
 		}
 
 		#--- generate multivariate continuous non-Gaussian data -----------------------------------|
@@ -130,14 +138,16 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		#--- generate multivariate discrete data --------------------------------------------------|
 		if( type == "discrete" )
 		{
+		    is.discrete[ 1:p ] = 1
+		    
 			runif_m   <- matrix( runif( cut * p ), nrow = p, ncol = cut )   
-			marginals <- apply( runif_m, 1, function( x ) { qnorm( cumsum( x / sum( x ) )[-length( x )] ) } )
+			marginals <- apply( runif_m, 1, function( x ) { qnorm( cumsum( x / sum( x ) )[ -length( x ) ] ) } )
 			if( cut == 2 ) marginals = matrix( marginals, nrow = 1, ncol = p )
 				 
 			for( j in 1:p )
 			{
-				breaks <- c( min( d[, j] ) - 1, marginals[, j], max( d[, j] ) + 1 )  
-				d[, j] <- as.integer( cut( d[, j], breaks = breaks, right = FALSE ) )
+				breaks   <- c( min( d[ , j ] ) - 1, marginals[ , j ], max( d[ , j ] ) + 1 )  
+				d[ , j ] <- as.integer( cut( d[ , j ], breaks = breaks, right = FALSE ) )
 			}	
 			
 			d = d - 1
@@ -145,7 +155,9 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
 		if( type == "binary" )
 		{
-			if( p > 16 ) stop( "For type 'binary', number of nodes (p) must be less than 16" )
+		    is.discrete[ 1:p ] = 1
+		    
+		    if( p > 16 ) stop( "For type 'binary', number of nodes (p) must be less than 16" )
 			
 			## Generate clique factors
 			clique_factors = generate_clique_factors( ug = G )
@@ -159,7 +171,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 	#--- Saving the result ------------------------------------------------------------------------|
 	if( n != 0 )
 	{
-		simulation <- list( G = G, data = d, sigma = sigma, K = K, graph = graph, type = type )
+		simulation <- list( G = G, data = d, sigma = sigma, K = K, graph = graph, type = type, is.discrete = is.discrete )
 	}else{
 		simulation <- list( G = G, graph = graph )		
 	}

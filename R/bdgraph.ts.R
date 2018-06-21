@@ -74,10 +74,12 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 
 	if( class( g.start ) == "sim" ) 
 	{
-		G <- as.matrix( g.start $ G )
+		G <- as.matrix( unclass( g.start $ G ) )
 		K <- as.matrix( g.start $ K )
 		if( dim(K)[2] != p * Nlength ) stop( "K should be a p x (p x Nlength) matrix")
 	} 
+	
+	if( class( g.start ) == "graph" ) G <- unclass( g.start )
 	
 	if( class( g.start ) == "character" && g.start == "empty" )
 	{
