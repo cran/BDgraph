@@ -12,7 +12,7 @@
 #     Sampling from G-Wishart distribution                                                         |
 ## ------------------------------------------------------------------------------------------------|
 
-rgwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
+rgwish = function( n = 1, adj.g = NULL, b = 3, D = NULL, threshold = 1e-8 )
 {
 	if( b <= 2 )           stop( "For G-Wishart distribution parameter 'b' must be more than 2" )
 	if( is.null( adj.g ) ) stop( "Adjacency matrix must be determined" )
@@ -29,15 +29,15 @@ rgwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
         G                   <- G + t( G )
     }
     
-    if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix 'adj.g' must be 0 or 1" )	
+	if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'adj.g' must be 0 or 1" )
 
-	G <- as.matrix( G )
-	diag( G ) = 0
+	G         <- as.matrix( G )
+	diag( G ) <- 0
 	
 	p <- nrow( G )
 	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
 	
-	if( is.null( D ) ) D <- diag( p )
+	if( is.null( D )      ) D <- diag( p )
 	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite matrix." )
 	if( nrow( D ) != p    ) stop( "Dimension of matrix G and D must be the same." )
 	
@@ -56,12 +56,12 @@ rgwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 		
 		for( i in 1 : n )
 		{
-			result          = .C( "rgwish_c", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
-			samples[ , , i] = matrix( result $ K, p, p ) 		
+			result = .C( "rgwish_c", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
+			samples[ , , i ] = matrix( result $ K, p, p ) 		
 		}
 	}else{
 	
-		result  = .C( "rgwish_c", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
+		result  = .C( "rgwish_c", as.integer(G), as.double(Ti), K = as.double(K), as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
 		samples = matrix( result $ K, p, p ) 		
 	}
 

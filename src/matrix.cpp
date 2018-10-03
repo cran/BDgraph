@@ -72,20 +72,20 @@ void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 
 	for( i = 0; i < sub0; i++ )
 	{
-		sub_A[l++] = A[sub0p + i]; 
-		sub_A[l++] = A[sub1p + i]; 
+		sub_A[ l++ ] = A[ sub0p + i ]; 
+		sub_A[ l++ ] = A[ sub1p + i ]; 
 	}
 	
 	for( i = sub0 + 1; i < sub1; i++ )
 	{
-		sub_A[l++] = A[sub0p + i]; 
-		sub_A[l++] = A[sub1p + i]; 
+		sub_A[ l++ ] = A[ sub0p + i ]; 
+		sub_A[ l++ ] = A[ sub1p + i ]; 
 	}
 
 	for( i = sub1 + 1; i < pdim; i++ )
 	{
-		sub_A[l++] = A[sub0p + i]; 
-		sub_A[l++] = A[sub1p + i]; 
+		sub_A[ l++ ] = A[ sub0p + i ]; 
+		sub_A[ l++ ] = A[ sub1p + i ]; 
 	}
 }
 
@@ -149,33 +149,33 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 {
 	int i, j, ixp, ij, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
 
-	A11[0] = A[sub0 * pdim + sub0];
-	A11[1] = A[sub0 * pdim + sub1];
-	A11[2] = A11[1];                   // for symmetric matrices
-	A11[3] = A[sub1 * pdim + sub1];
+	A11[ 0 ] = A[ sub0 * pdim + sub0 ];
+	A11[ 1 ] = A[ sub0 * pdim + sub1 ];
+	A11[ 2 ] = A11[ 1 ];                   // for symmetric matrices
+	A11[ 3 ] = A[ sub1 * pdim + sub1 ];
  
 	for( i = 0; i < sub0; i++ )
 	{	
 		ixp = i * pdim;
 		
-		A12[i + i]     = A[ixp + sub0];
-		A12[i + i + 1] = A[ixp + sub1];
+		A12[ i + i ]     = A[ ixp + sub0 ];
+		A12[ i + i + 1 ] = A[ ixp + sub1 ];
 	
 		for( j = 0; j < sub0; j++ )
-			A22[j * p2 + i] = A[ixp + j];
+			A22[ j * p2 + i ] = A[ ixp + j ];
 
 		for( j = sub0 + 1; j < sub1; j++ )
 		{
 			ij = ixp + j;
-			A22[(j - 1) * p2 + i] = A[ij];
-			A22[i * p2 + j - 1]   = A[ij];
+			A22[ ( j - 1 ) * p2 + i ] = A[ ij ];
+			A22[ i * p2 + j - 1 ]   = A[ ij ];
 		}
 		
 		for( j = sub1 + 1; j < pdim; j++ )
 		{
 			ij = ixp + j;
-			A22[(j - 2) * p2 + i] = A[ij];
-			A22[i * p2 + j - 2]   = A[ij];
+			A22[ ( j - 2 ) * p2 + i ] = A[ ij ];
+			A22[ i * p2 + j - 2 ]   = A[ ij ];
 		}
 	}
  
@@ -183,17 +183,17 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	{
 		ixp = i * pdim;
 		
-		A12[i + i - 2] = A[ixp + sub0];
-		A12[i + i - 1] = A[ixp + sub1];
+		A12[ i + i - 2 ] = A[ ixp + sub0 ];
+		A12[ i + i - 1 ] = A[ ixp + sub1 ];
 	
 		for( j = sub0 + 1; j < sub1; j++ )
-			A22[(j - 1) * p2 + i - 1] = A[ixp + j];
+			A22[ ( j - 1 ) * p2 + i - 1 ] = A[ ixp + j ];
 		
 		for( j = sub1 + 1; j < pdim; j++ )
 		{
 			ij = ixp + j;
-			A22[(j - 2) * p2 + i - 1] = A[ij];
-			A22[(i - 1) * p2 + j - 2] = A[ij];
+			A22[ ( j - 2 ) * p2 + i - 1 ] = A[ ij ];
+			A22[ ( i - 1 ) * p2 + j - 2 ] = A[ ij ];
 		}
 	}
 	
@@ -201,11 +201,11 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	{
 		ixp = i * pdim;
 				
-		A12[i + i - 4] = A[ixp + sub0];
-		A12[i + i - 3] = A[ixp + sub1];
+		A12[ i + i - 4 ] = A[ ixp + sub0 ];
+		A12[ i + i - 3 ] = A[ ixp + sub1 ];
 		
 		for( j = sub1 + 1; j < pdim; j++ )
-			A22[(j - 2) * p2 + i - 2] = A[ixp + j];
+			A22[ ( j - 2 ) * p2 + i - 2 ] = A[ ixp + j ];
 	}
 }
    
@@ -224,10 +224,10 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 	double a22 = A[ sub1 * pdim + sub1 ];
 
 	double det_A11 = a11 * a22 - a12 * a12;
-	A11_inv[0]     = a22 / det_A11;
-	A11_inv[1]     = - a12 / det_A11;
-	A11_inv[2]     = A11_inv[1];
-	A11_inv[3]     = a11 / det_A11;
+	A11_inv[ 0 ]   = a22 / det_A11;
+	A11_inv[ 1 ]   = - a12 / det_A11;
+	A11_inv[ 2 ]   = A11_inv[ 1 ];
+	A11_inv[ 3 ]   = a11 / det_A11;
 	
 	int size_sub0 = sizeof( double ) * sub0;
 	int size_sub1_sub0 = sizeof( double ) * ( sub1 - sub0_plus );
@@ -296,12 +296,12 @@ void inverse( double A[], double A_inv[], int *p )
 // ------------------------------------------------------------------------------------------------|
 void inverse_2x2( double B[], double B_inv[] )
 {
-	double detB = B[0] * B[3] - B[1] * B[1];
-	B_inv[0]    = B[3] / detB;
-	B_inv[1]    = - B[1] / detB;
-	B_inv[2]    = B_inv[1];
-	B_inv[3]    = B[0] / detB;
-}
+	double detB = B[ 0 ] * B[ 3 ] - B[ 1 ] * B[ 1 ];
+	B_inv[ 0 ]  = B[ 3 ] / detB;
+	B_inv[ 1 ]  = - B[ 1 ] / detB;
+	B_inv[ 2 ]  = B_inv[ 1 ];
+	B_inv[ 3 ]  = B[ 0 ] / detB;
+} 
     
 // ------------------------------------------------------------------------------------------------|
 // Cholesky decomposition of symmetric positive-definite matrix
@@ -345,6 +345,7 @@ void determinant( double A[], double *det_A, int *p )
         
 // ------------------------------------------------------------------------------------------------|
 // To select an edge for BDMCMC algorithm  
+// ------------------------------------------------------------------------------------------------|
 void select_edge( double rates[], int *index_selected_edge, double *sum_rates, int *qp )
 {
 	int qp_star = *qp;
@@ -359,6 +360,44 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 	
 	GetRNGstate();
 	double random_value = *sum_rates * unif_rand();
+	//double random_value = Rf_runif( 0.0, *sum_rates );
+	PutRNGstate();
+
+	//int counter = 0;
+	//while( random_value > cumulative_rates[ counter ] )	++counter;
+	//*index_selected_edge = counter;
+	 
+	// To start, find the subscript of the middle position.
+	int lower_bound = 0;
+	int upper_bound = qp_star - 1;
+	int position    = upper_bound / 2;  // ( lower_bound + upper_bound ) / 2;
+
+	while( upper_bound - lower_bound > 1 )
+	{
+		 //if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
+		( cumulative_rates[ position ] > random_value ) ? upper_bound = position : lower_bound = position;     
+		
+		position = ( lower_bound + upper_bound ) / 2;
+	}
+	
+	*index_selected_edge = ( cumulative_rates[ position ] < random_value ) ? ++position : position;
+} 
+
+// select_edge for bd_for_ts
+void select_edge_ts( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp )
+{
+	int qp_star = *qp;
+
+	// rates = sum_sort_rates
+	vector<long double>cumulative_rates( qp_star, 0.0 );
+	cumulative_rates[ 0 ] = rates[ 0 ];
+	for( int i = 1; i < qp_star; i++ )
+		cumulative_rates[ i ] = cumulative_rates[ i - 1 ] + rates[ i ];
+	
+	*sum_rates = cumulative_rates[ qp_star - 1 ];
+	
+	GetRNGstate();
+	long double random_value = *sum_rates * unif_rand();
 	//double random_value = Rf_runif( 0.0, *sum_rates );
 	PutRNGstate();
 
@@ -397,7 +436,7 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	
 	double max_bound = cumulative_rates[ qp_star_1 ];
 	
-	// ---------- for first edge ----------------------------------------------|
+	// ---------- for first edge ------------------------------------------------------------------|
 	// To start, find the subscript of the middle position.
 	int lower_bound = 0;
 	int upper_bound = qp_star_1;
@@ -410,14 +449,14 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	while( upper_bound - lower_bound > 1 )
 	{
 		//if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
-		( cumulative_rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
+		( cumulative_rates[ position ] > random_value ) ? upper_bound = position : lower_bound = position;     
 		
 		position = ( lower_bound + upper_bound ) / 2;
 	}
 	
 	if ( cumulative_rates[position] < random_value ) ++position;
 	index_selected_edges[0] = position;
-	// ------------------------------------------------------------------------|
+	// --------------------------------------------------------------------------------------------|
 
 	int counter = 1, same;
 	//GetRNGstate();
@@ -435,7 +474,7 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 		while( upper_bound - lower_bound > 1 )
 		{
 			//if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
-			( cumulative_rates[position] > random_value ) ? upper_bound = position : lower_bound = position;     
+			( cumulative_rates[ position ] > random_value ) ? upper_bound = position : lower_bound = position;     
 			
 			position = ( lower_bound + upper_bound ) / 2;
 		}
@@ -444,10 +483,10 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 		
 		same = 0;
 		for( i = 0; i < counter; i++ )
-			if( index_selected_edges[i] == position )
+			if( index_selected_edges[ i ] == position )
 				++same;
 
-		if( same == 0 ) index_selected_edges[counter++] = position;
+		if( same == 0 ) index_selected_edges[ counter++ ] = position;
 	}
 	//PutRNGstate();
 
@@ -491,16 +530,16 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			ij = j * dim + i;
 			jj = j * dim1;
 			
-			Dsjj = Ds[jj];
+			Dsjj = Ds[ jj ];
 			
 			sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], &j, &dim );
 
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
 			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
-			sigmajj_inv = - 1.0 / sigma[jj];
+			sigmajj_inv = - 1.0 / sigma[ jj ];
 			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
 			
-			// For (i,j) = 0 ----------------------------------------------|	
+			// For (i,j) = 0 ----------------------------------------------------------------------|	
 			sub_row_mins( &K[0], &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
 			Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
 
@@ -510,7 +549,7 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			// K022 = Kj12xK22_inv %*% t(Kj12)
 			K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
 
-			// For (i,j) = 1 ----------------------------------------------|
+			// For (i,j) = 1 ----------------------------------------------------------------------|
 			sub_cols_mins( &K[0], &K21[0], &i, &j, &dim );  // K21 = K[-e, e]  
 			
 			sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
@@ -526,24 +565,24 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			
 			// K121 = K12xK22_inv %*% K21													
 			F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
-			// Finished (i,j) = 1------------------------------------------|
+			// Finished (i,j) = 1------------------------------------------------------------------|
 
-			a11      = K[i * dim1] - K121[0];	
-			sum_diag = Dsjj * ( K022 - K121[3] ) - Ds[ij] * ( K121[1] + K121[2] );
+			a11      = K[ i * dim1 ] - K121[ 0 ];	
+			sum_diag = Dsjj * ( K022 - K121[ 3 ] ) - Ds[ ij ] * ( K121[ 1 ] + K121[ 2 ] );
 
 			// nu_star = b + sum( Gf[,i] * Gf[,j] )
 			nu_star = b1;
 			//for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k];   
-			for( k = 0; k < dim; k++ ) nu_star += G[i * dim + k] * G[j * dim + k];   
+			for( k = 0; k < dim; k++ ) nu_star += G[ i * dim + k ] * G[ j * dim + k ];   
 			//nu_star = F77_NAME(ddot)( &dim, &G[0] + ixdim, &one, &G[0] + jxdim, &one );
 			nu_star = 0.5 * nu_star;
 
-			log_rate = ( G[ij] )   
-				? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ij] * a11 + sum_diag )
-				: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsijj[ij] * a11 + sum_diag );
+			log_rate = ( G[ ij ] )   
+				? 0.5 * log( 2.0 * Dsjj / a11 ) + lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsijj[ ij ] * a11 + sum_diag )
+				: 0.5 * log( 0.5 * a11 / Dsjj ) - lgammafn( nu_star + 0.5 ) + lgammafn( nu_star ) + 0.5 * ( Dsijj[ ij ] * a11 + sum_diag );
 			
 			//log_rate = ( G[ij] ) ? log_rate - log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) ) : log_rate + log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
-			log_rate = ( G[ij] ) ? log_rate - log_ratio_g_prior[ij] : log_rate + log_ratio_g_prior[ij];
+			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
 
 			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 		}
@@ -565,18 +604,18 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 // ------------------------------------------------------------------------------------------------|
 // Parallel Computation for birth-death rates for complex BD-MCMC algorithm
 // ------------------------------------------------------------------------------------------------|
-void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double r_Ds[], double i_Ds[],
-				            double r_sigma[], double i_sigma[], double r_K[], double i_K[], int *b, int *p )
+void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp,
+				             double r_Ds[], double i_Ds[], double r_sigma[], double i_sigma[], double r_K[], double i_K[], int *b, int *p )
 {
-	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = p2 * 2, p2xp2 = p2 * p2, counter = 0;
+	int b1 = *b, one = 1, two = 2, dim = *p, p1 = dim - 1, p2 = dim - 2, dim1 = dim + 1, p2x2 = p2 * 2, p2xp2 = p2 * p2;
 	double alpha = 1.0, beta = 0.0, dmone = -1.0;
 	char transT = 'T', transN = 'N';																	
 
 	#pragma omp parallel
 	{
 		int i, j, k, ij, jj, rowCol, nu_star;
-		double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, r_sum_diag, r_K022, i_K022, r_a11, i_a11, r_sigmaj11, i_sigmaj11;
-		double mod_Dsjj, mod_a11, coef, r_temp, G_prior, log_rate;
+		double r_Dsjj, r_Dsij, i_Dsij, sum_diag, r_K022, i_K022, a11, r_sigmaj11, i_sigmaj11;
+		double coef, epower, I_const, log_rate;
 
 		double *r_K121     = new double[ 4 ];  
 		double *i_K121     = new double[ 4 ];  
@@ -613,33 +652,31 @@ void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index
 		double *i_K12xK22_inv = new double[ p2x2 ];  
 
 		#pragma omp for
-		for( counter = 0; counter < *sub_qp; counter++ )
+		for( int counter = 0; counter < *sub_qp; counter++ )
 		{
 			i = index_row[ counter ];
 			j = index_col[ counter ];
 
 			jj     = j * dim1;
 			r_Dsjj = r_Ds[jj];
-			i_Dsjj = i_Ds[jj];
 			
-			r_sigmaj11 = r_sigma[jj];        // sigma[j, j]  
-			i_sigmaj11 = i_sigma[jj]; 			
-			sub_matrices1( &r_sigma[0], &r_sigmaj12[0], &r_sigmaj22[0], &j, &dim );
+			r_sigmaj11 = r_sigma[ jj ];        // sigma[j, j]  
+			i_sigmaj11 = i_sigma[ jj ]; 			
+			sub_matrices1( &r_sigma[0], &r_sigmaj12[0], &r_sigmaj22[0], &j, &dim ); // sigmaj22 = sigma[-j,-j]
 			Hsub_matrices1( &i_sigma[0], &i_sigmaj12[0], &i_sigmaj22[0], &j, &dim );
 
-			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
-			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
+			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj21 * sigmaj12 / sigmaj11
 			for( int row = 0; row < p1; row++ )       
 				for( int col = 0; col < p1; col++ )
 				{
-					rowCol             = col * p1 + row;
-					r_Kj22_inv[rowCol] = r_sigmaj22[rowCol] - (r_sigmaj11*(r_sigmaj12[row]*r_sigmaj12[col] + i_sigmaj12[row]*i_sigmaj12[col]) + i_sigmaj11*(r_sigmaj12[row]*i_sigmaj12[col] - i_sigmaj12[row]*r_sigmaj12[col]))/(r_sigmaj11*r_sigmaj11 + i_sigmaj11*i_sigmaj11);
-					i_Kj22_inv[rowCol] = i_sigmaj22[rowCol] - (r_sigmaj11*(r_sigmaj12[row]*i_sigmaj12[col] - i_sigmaj12[row]*r_sigmaj12[col]) - i_sigmaj11*(r_sigmaj12[row]*r_sigmaj12[col] + i_sigmaj12[row]*i_sigmaj12[col]))/(r_sigmaj11*r_sigmaj11 + i_sigmaj11*i_sigmaj11);
+					rowCol               = col * p1 + row;
+					r_Kj22_inv[ rowCol ] = r_sigmaj22[rowCol] - (r_sigmaj11*(r_sigmaj12[row]*r_sigmaj12[col] + i_sigmaj12[row]*i_sigmaj12[col]) + i_sigmaj11*(r_sigmaj12[row]*i_sigmaj12[col] - i_sigmaj12[row]*r_sigmaj12[col]))/(r_sigmaj11*r_sigmaj11 + i_sigmaj11*i_sigmaj11);
+					i_Kj22_inv[ rowCol ] = i_sigmaj22[rowCol] - (r_sigmaj11*(r_sigmaj12[row]*i_sigmaj12[col] - i_sigmaj12[row]*r_sigmaj12[col]) - i_sigmaj11*(r_sigmaj12[row]*r_sigmaj12[col] + i_sigmaj12[row]*i_sigmaj12[col]))/(r_sigmaj11*r_sigmaj11 + i_sigmaj11*i_sigmaj11);
 				}		
 			
 			ij     = j * dim + i;
-			r_Dsij = r_Ds[ij];
-			i_Dsij = i_Ds[ij];
+			r_Dsij = r_Ds[ ij ];
+			i_Dsij = i_Ds[ ij ];
 
 			// For (i,j) = 0 ----------------------------------------------|	
 			sub_row_mins( &r_K[0], &r_Kj12[0], &j, &dim );   // Kj12 = K[j, -j]
@@ -682,8 +719,8 @@ void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index
 			// solve( K[-e, -e] ) = sigma22 - sigma2112
 			for( k = 0; k < p2xp2 ; k++ ) 
 			{
-				r_K22_inv[k] = r_sigma22[k] - r_sigma2112[k];
-				i_K22_inv[k] = i_sigma22[k] - i_sigma2112[k];
+				r_K22_inv[ k ] = r_sigma22[ k ] - r_sigma2112[ k ];
+				i_K22_inv[ k ] = i_sigma22[ k ] - i_sigma2112[ k ];
 			}
 
 			// K12 %*% K22_inv
@@ -699,24 +736,19 @@ void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index
 			// Finished (i,j) = 1------------------------------------------|
 			nu_star = b1;
 			for( k = 0; k < dim; k++ ) // nu_star = b + sum( Gf[,i] * Gf[,j] )
-				nu_star += G[i * dim + k] * G[j * dim + k]; 
+				nu_star += G[ i * dim + k ] * G[ j * dim + k ]; 
 						
-			G_prior = lgammafn( 0.5 * ( nu_star + 1 ) ) - lgammafn( 0.5 * nu_star );
+			I_const  = lgammafn( 0.5 * ( nu_star + 1 ) ) - lgammafn( 0.5 * nu_star ); //I
 
-			r_a11      = r_K[i * dim1] - r_K121[0]; //k_ii - k_ii^1
-			i_a11      = i_K[i * dim1] - i_K121[0]; //k_ii - k_ii^1
-			r_sum_diag = r_Dsjj*(r_K022 - r_K121[3]) - (r_Dsij*r_K121[1] - i_Dsij*i_K121[1]) - (r_Dsij*r_K121[2] + i_Dsij*i_K121[2]); //tr(D*(K0-K1))
+			a11      = r_K[i * dim1] - r_K121[0]; //k_ii - k_ii^1
+			sum_diag = r_Dsjj*(r_K022 - r_K121[3]) - (r_Dsij*r_K121[1] - i_Dsij*i_K121[1]) - (r_Dsij*r_K121[2] + i_Dsij*i_K121[2]); //tr(D*(K0-K1))
 
-			mod_Dsjj = sqrt( r_Dsjj * r_Dsjj + i_Dsjj * i_Dsjj );
-			mod_a11  = sqrt( r_a11 * r_a11 + i_a11 * i_a11 );
-			coef     = ( r_Dsij * r_Dsij + i_Dsij * i_Dsij ) / ( r_Dsjj * r_Dsjj + i_Dsjj * i_Dsjj );
-			r_temp   = coef * ( r_a11 * r_Dsjj + i_a11 * i_Dsjj ) + r_sum_diag;			
-			log_rate = ( G[ij] ) ? log(G_prior) + log( mod_Dsjj ) - log( mod_a11 ) - r_temp : log( mod_a11 ) - log( mod_Dsjj ) + r_temp - log(G_prior);
-			
-			log_rate += log( rates[counter] );
+			coef     = ( r_Dsij * r_Dsij + i_Dsij * i_Dsij ) / r_Dsjj;
+			epower   = coef * a11 + sum_diag;			
+			log_rate = ( G[ij] ) ? I_const + log( r_Dsjj ) - log( a11 ) - epower : log( a11 ) - log( r_Dsjj ) + epower - I_const;
 			
 			//log_rates[counter] += log_rate;  // Computer the rate in log space			
-			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;		
+			log_rates[counter] += log_rate;
 		}
 		delete[] r_K121;  
 		delete[] i_K121;  
@@ -776,7 +808,7 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	double sigmajj_inv = - 1.0 / sigma[ *selected_edge_j * ( *dim + 1 ) ];
 	F77_NAME(dsyr)( &sideL, p1, &sigmajj_inv, sigmaj12, &one, sigmaj22, p1 );
 
-	// For (i,j) = 0 ----------------------------------------------|	
+	// For (i,j) = 0 ------------------------------------------------------------------------------|	
 	sub_row_mins( K, Kj12, selected_edge_j, dim );  // K12 = K[j, -j]  
 	Kj12[ *selected_edge_i ] = 0.0;                       // K12[1,i] = 0
 
@@ -786,7 +818,7 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	// K022 = Kj12xK22_inv %*% t(Kj12)
 	double K022 = F77_NAME(ddot)( p1, Kj12xK22_inv, &one, Kj12, &one );			
 
-	// For (i,j) = 1 ----------------------------------------------|
+	// For (i,j) = 1 ------------------------------------------------------------------------------|
 	sub_cols_mins( K, K12, selected_edge_i, selected_edge_j, dim );   // K21 = K[-e, e] 
 	
 	sub_matrices_inv( sigma, sigma11_inv, sigma12, sigma22, selected_edge_i, selected_edge_j, dim );
@@ -802,7 +834,7 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	
 	// K121 = K12xK22_inv %*% K21													
 	F77_NAME(dgemm)( &transN, &transN, &two, &two, p2, &alpha, K12xK22_inv, &two, K12, p2, &beta, K121, &two );		
-	// Finished (i,j) = 1------------------------------------------|
+	// Finished (i,j) = 1 -------------------------------------------------------------------------|
 
 	double a11      = K[*selected_edge_i * *dim + *selected_edge_i] - K121[0];	
 	double sum_diag = *Dsjj * ( K022 - K121[3] ) - *Dsij * ( K121[1] + K121[2] );
@@ -846,15 +878,15 @@ void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int 
 			index_rate_j = ( j * ( j - 1 ) ) / 2;
 
 			jj   = j * dim + j;
-			Dsjj = Ds[jj];
-			Djj  = D[jj];
+			Dsjj = Ds[ jj ];
+			Djj  = D[ jj ];
 
 			for( i = 0; i < j; i++ )
 			{
 				ij    = j * dim + i;
-				Dsij  = Ds[ij];
+				Dsij  = Ds[ ij ];
 				Dsijj = - Dsij * Dsij / Dsjj;
-				Dij   = D[ij];
+				Dij   = D[ ij ];
 				Dijj  = - Dij * Dij / Djj;
 
 				double logH_ij, logI_p;
@@ -871,8 +903,8 @@ void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int 
 					   &dim, &p1, &p2, &jj,
 					   &Dijj, &Dij, &Djj );
 				
-				//log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
-				log_rate = ( G[ij] ) ? ( logH_ij - logI_p ) - log_ratio_g_prior[ij] : ( logI_p - logH_ij ) + log_ratio_g_prior[ij];				
+				//log_rate = ( G[ ij ] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );				
+				log_rate = ( G[ ij ] ) ? ( logH_ij - logI_p ) - log_ratio_g_prior[ ij ] : ( logI_p - logH_ij ) + log_ratio_g_prior[ ij ];				
 				rates[ index_rate_j + i ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
 		}	
@@ -889,7 +921,6 @@ void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int 
 		delete[] sigma21xsigma11_inv;  
 		delete[] K12xK22_inv;  
 		delete[] K12;  
-
 	}
 }
      	
@@ -901,10 +932,10 @@ void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
 	int i, l = 0, subj = *sub, pdim = *p, subxp = subj * pdim;
 
 	for( i = 0; i < subj; i++ )
-		sub_A[l++] = -A[subxp + i];
+		sub_A[ l++ ] = -A[ subxp + i ];
 	
 	for( i = subj + 1; i < pdim; i++ )
-		sub_A[l++] = -A[subxp + i];
+		sub_A[ l++ ] = -A[ subxp + i ];
 }
       
 // ------------------------------------------------------------------------------------------------|
@@ -916,20 +947,20 @@ void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 
 	for( i = 0; i < sub0; i++ )
 	{
-		sub_A[l++] = -A[sub0p + i]; 
-		sub_A[l++] = -A[sub1p + i]; 
+		sub_A[ l++ ] = -A[ sub0p + i ]; 
+		sub_A[ l++ ] = -A[ sub1p + i ]; 
 	}
 	
 	for( i = sub0 + 1; i < sub1; i++ )
 	{
-		sub_A[l++] = -A[sub0p + i]; 
-		sub_A[l++] = -A[sub1p + i]; 
+		sub_A[ l++ ] = -A[ sub0p + i ]; 
+		sub_A[ l++ ] = -A[ sub1p + i ]; 
 	}
 
 	for( i = sub1 + 1; i < pdim; i++ )
 	{
-		sub_A[l++] = -A[sub0p + i]; 
-		sub_A[l++] = -A[sub1p + i]; 
+		sub_A[ l++ ] = -A[ sub0p + i ]; 
+		sub_A[ l++ ] = -A[ sub1p + i ]; 
 	}
 }
        
@@ -941,9 +972,10 @@ void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 	int i, ixpdim, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim, mpsub = pdim - psub - 1;
 
 	for( i = 0; i < psub; i++ )
-		A12[i] = -A[subxp + i];
+		A12[ i ] = -A[ subxp + i ];
+	
 	for( i = psub; i < pdim - 1; i++ )
-		A12[i] = -A[subxp + i + 1];
+		A12[ i ] = -A[ subxp + i + 1 ];
 
 	for( i = 0; i < psub; i++ )
 	{	
@@ -960,24 +992,24 @@ void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 	}
 }
         
-// ----------------------------------------------------------------------------|
+// ------------------------------------------------------------------------------------------------|
 // sub_matrices for Hermitian matrix
 // ------------------------------------------------------------------------------------------------|
 void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
 	int i, i1, i2, ixp, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
 
-	A11[0] = A[sub0 * pdim + sub0];
-	A11[1] = A[sub0 * pdim + sub1];
-	A11[2] = -A11[1];                   // for symmetric matrices
-	A11[3] = A[sub1 * pdim + sub1];
+	A11[ 0 ] = A[ sub0 * pdim + sub0 ];
+	A11[ 1 ] = A[ sub0 * pdim + sub1 ];
+	A11[ 2 ] = -A11[ 1 ];                   // for symmetric matrices
+	A11[ 3 ] = A[ sub1 * pdim + sub1 ];
  
 	for( i = 0; i < sub0; i++ )
 	{	
 		ixp = i * pdim;
 		
-		A12[i + i]     = A[ixp + sub0];
-		A12[i + i + 1] = A[ixp + sub1];
+		A12[ i + i ]     = A[ ixp + sub0 ];
+		A12[ i + i + 1 ] = A[ ixp + sub1 ];
 
 		memcpy( A22 + i * p2,            A + ixp,            sizeof( double ) * sub0 );
 		memcpy( A22 + i * p2 + sub0,     A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );
@@ -989,8 +1021,8 @@ void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *r
 		ixp = i * pdim;
 		i1 = i - 1;
 
-		A12[i + i - 2] = A[ixp + sub0];
-		A12[i + i - 1] = A[ixp + sub1];
+		A12[ i + i - 2] = A[ ixp + sub0 ];
+		A12[ i + i - 1] = A[ ixp + sub1 ];
 
 		memcpy( A22 + i1 * p2,            A + ixp,            sizeof( double ) * sub0 );
 		memcpy( A22 + i1 * p2 + sub0,     A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );
@@ -1002,8 +1034,8 @@ void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *r
 		ixp = i * pdim;
 		i2  = i - 2;
 				
-		A12[i + i - 4] = A[ixp + sub0];
-		A12[i + i - 3] = A[ixp + sub1];
+		A12[ i + i - 4 ] = A[ ixp + sub0 ];
+		A12[ i + i - 3 ] = A[ ixp + sub1 ];
 
 		memcpy( A22 + i2 * p2,            A + ixp,            sizeof( double ) * sub0 );
 		memcpy( A22 + i2 * p2 + sub0,     A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );
@@ -1088,9 +1120,9 @@ void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_d
 	for( i = 0; i < *n; i++ )
 	{
 		for( j = 0; j < *p; j++ )
-			char_row[j] = r_data[ j * *n + i ] + '0';
+			char_row[ j ] = r_data[ j * *n + i ] + '0';
 		
-		all_patterns[i] = string( char_row.begin(), char_row.end() );
+		all_patterns[ i ] = string( char_row.begin(), char_row.end() );
 	}
 
 // -- find the unique string-rows -----------------------------------------------------------------|
@@ -1101,11 +1133,11 @@ void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_d
 		counter = 0;
 		//for( j = 0; j < length_unique_patterns; j++ )
 			//( all_patterns[i] == unique_patterns[j] ) ? j = length_unique_patterns : ++counter;					
-		while( ( counter < length_unique_patterns ) and ( all_patterns[i] != unique_patterns[counter] ) )
+		while( ( counter < length_unique_patterns ) and ( all_patterns[ i ] != unique_patterns[ counter ] ) )
 			++counter;
 		
 		if( counter == length_unique_patterns )
-			unique_patterns[ length_unique_patterns++ ] = all_patterns[i];
+			unique_patterns[ length_unique_patterns++ ] = all_patterns[ i ];
 	}
 
 // -- tranfer the data ----------------------------------------------------------------------------|
@@ -1114,7 +1146,7 @@ void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_d
 	{
 		counter = 0;
 		for( i = 0; i < *n; i++ )
-			if( all_patterns[i] == unique_patterns[ l ] ) 
+			if( all_patterns[ i ] == unique_patterns[ l ] ) 
 			{
 				counter++;
 				which_one = i;

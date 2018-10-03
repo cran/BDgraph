@@ -60,6 +60,6 @@ plinks = function( bdgraph.obj, round = 2, burnin = NULL )
     if( class( bdgraph.obj ) == "ssgraph" )
         p_links = bdgraph.obj $ p_links        
         
-	return( Matrix( round( p_links, round ) ) )
+	return( Matrix::Matrix( round( p_links, round ) ) )
 }
       

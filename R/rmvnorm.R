@@ -24,7 +24,7 @@ rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), sigma = dia
     
     #--- generate multivariate normal data ----------------------------------------------------|
     chol_sig <- chol( sigma )
-    z        <- matrix( rnorm( p * n ), p, n )
+    z        <- matrix( stats::rnorm( p * n ), p, n )
     data     <- t( chol_sig ) %*% z + mean
     data     <- t( data )
 

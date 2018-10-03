@@ -6,32 +6,32 @@ Check these declarations against the C/Fortran source code.
 */
 
 /* .C calls */
-extern void bdmcmc_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void bdmcmc_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void bdmcmc_map_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void check_nthread(void *);
 extern void check_os(void *);
-extern void dgm_bdmcmc_mpl_binary_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void dgm_bdmcmc_mpl_binary_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void dgm_bdmcmc_mpl_binary_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void dgm_bdmcmc_mpl_binary_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void dgm_bdmcmc_mpl_binary_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void dgm_bdmcmc_mpl_binary_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void dgm_bdmcmc_mpl_binary_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void dgm_bdmcmc_mpl_binary_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_rjmcmc_mpl_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_rjmcmc_mpl_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_DMH_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_DMH_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_DMH_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_DMH_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_DMH_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_DMH_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void gcgm_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_DMH_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_DMH_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_DMH_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_DMH_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_DMH_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_DMH_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -56,38 +56,38 @@ extern void log_mpl_dis(void *, void *, void *, void *, void *, void *, void *, 
 extern void omp_set_num_cores(void *);
 extern void rcwish_c(void *, void *, void *, void *);
 extern void rgcwish_c(void *, void *, void *, void *, void *);
-extern void rgwish_c(void *, void *, void *, void *, void *);
+extern void rgwish_c(void *, void *, void *, void *, void *, void *);
 extern void rwish_c(void *, void *, void *, void *);
 extern void scale_free(void *, void *);
 extern void transfer_data(void *, void *, void *, void *, void *);
 
 static const R_CMethodDef CEntries[] = {
-    {"bdmcmc_for_multi_dim",                   (DL_FUNC) &bdmcmc_for_multi_dim,                   18},
+    {"bdmcmc_for_multi_dim",                   (DL_FUNC) &bdmcmc_for_multi_dim,                   19},
     {"bdmcmc_map_for_multi_dim",               (DL_FUNC) &bdmcmc_map_for_multi_dim,               22},
     {"check_nthread",                          (DL_FUNC) &check_nthread,                           1},
     {"check_os",                               (DL_FUNC) &check_os,                                1},
-    {"dgm_bdmcmc_mpl_binary_ma",               (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma,               13},
-    {"dgm_bdmcmc_mpl_binary_ma_multi_update",  (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma_multi_update,  14},
-    {"dgm_bdmcmc_mpl_binary_map",              (DL_FUNC) &dgm_bdmcmc_mpl_binary_map,              17},
-    {"dgm_bdmcmc_mpl_binary_map_multi_update", (DL_FUNC) &dgm_bdmcmc_mpl_binary_map_multi_update, 19},
+    {"dgm_bdmcmc_mpl_binary_ma",               (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma,               12},
+    {"dgm_bdmcmc_mpl_binary_ma_multi_update",  (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma_multi_update,  13},
+    {"dgm_bdmcmc_mpl_binary_map",              (DL_FUNC) &dgm_bdmcmc_mpl_binary_map,              16},
+    {"dgm_bdmcmc_mpl_binary_map_multi_update", (DL_FUNC) &dgm_bdmcmc_mpl_binary_map_multi_update, 18},
     {"dgm_bdmcmc_mpl_ma",                      (DL_FUNC) &dgm_bdmcmc_mpl_ma,                      13},
     {"dgm_bdmcmc_mpl_ma_multi_update",         (DL_FUNC) &dgm_bdmcmc_mpl_ma_multi_update,         14},
     {"dgm_bdmcmc_mpl_map",                     (DL_FUNC) &dgm_bdmcmc_mpl_map,                     17},
     {"dgm_bdmcmc_mpl_map_multi_update",        (DL_FUNC) &dgm_bdmcmc_mpl_map_multi_update,        19},
     {"dgm_rjmcmc_mpl_ma",                      (DL_FUNC) &dgm_rjmcmc_mpl_ma,                      13},
     {"dgm_rjmcmc_mpl_map",                     (DL_FUNC) &dgm_rjmcmc_mpl_map,                     17},
-    {"gcgm_bdmcmc_ma",                         (DL_FUNC) &gcgm_bdmcmc_ma,                         19},
-    {"gcgm_bdmcmc_ma_multi_update",            (DL_FUNC) &gcgm_bdmcmc_ma_multi_update,            20},
-    {"gcgm_bdmcmc_map",                        (DL_FUNC) &gcgm_bdmcmc_map,                        23},
-    {"gcgm_bdmcmc_map_multi_update",           (DL_FUNC) &gcgm_bdmcmc_map_multi_update,           25},
-    {"gcgm_DMH_bdmcmc_ma",                     (DL_FUNC) &gcgm_DMH_bdmcmc_ma,                     20},
-    {"gcgm_DMH_bdmcmc_ma_multi_update",        (DL_FUNC) &gcgm_DMH_bdmcmc_ma_multi_update,        21},
-    {"gcgm_DMH_bdmcmc_map",                    (DL_FUNC) &gcgm_DMH_bdmcmc_map,                    24},
-    {"gcgm_DMH_bdmcmc_map_multi_update",       (DL_FUNC) &gcgm_DMH_bdmcmc_map_multi_update,       26},
-    {"gcgm_DMH_rjmcmc_ma",                     (DL_FUNC) &gcgm_DMH_rjmcmc_ma,                     20},
-    {"gcgm_DMH_rjmcmc_map",                    (DL_FUNC) &gcgm_DMH_rjmcmc_map,                    24},
-    {"gcgm_rjmcmc_ma",                         (DL_FUNC) &gcgm_rjmcmc_ma,                         19},
-    {"gcgm_rjmcmc_map",                        (DL_FUNC) &gcgm_rjmcmc_map,                        23},
+    {"gcgm_bdmcmc_ma",                         (DL_FUNC) &gcgm_bdmcmc_ma,                         20},
+    {"gcgm_bdmcmc_ma_multi_update",            (DL_FUNC) &gcgm_bdmcmc_ma_multi_update,            21},
+    {"gcgm_bdmcmc_map",                        (DL_FUNC) &gcgm_bdmcmc_map,                        24},
+    {"gcgm_bdmcmc_map_multi_update",           (DL_FUNC) &gcgm_bdmcmc_map_multi_update,           26},
+    {"gcgm_DMH_bdmcmc_ma",                     (DL_FUNC) &gcgm_DMH_bdmcmc_ma,                     21},
+    {"gcgm_DMH_bdmcmc_ma_multi_update",        (DL_FUNC) &gcgm_DMH_bdmcmc_ma_multi_update,        22},
+    {"gcgm_DMH_bdmcmc_map",                    (DL_FUNC) &gcgm_DMH_bdmcmc_map,                    25},
+    {"gcgm_DMH_bdmcmc_map_multi_update",       (DL_FUNC) &gcgm_DMH_bdmcmc_map_multi_update,       27},
+    {"gcgm_DMH_rjmcmc_ma",                     (DL_FUNC) &gcgm_DMH_rjmcmc_ma,                     21},
+    {"gcgm_DMH_rjmcmc_map",                    (DL_FUNC) &gcgm_DMH_rjmcmc_map,                    25},
+    {"gcgm_rjmcmc_ma",                         (DL_FUNC) &gcgm_rjmcmc_ma,                         20},
+    {"gcgm_rjmcmc_map",                        (DL_FUNC) &gcgm_rjmcmc_map,                        24},
     {"ggm_bdmcmc_ma",                          (DL_FUNC) &ggm_bdmcmc_ma,                          14},
     {"ggm_bdmcmc_ma_multi_update",             (DL_FUNC) &ggm_bdmcmc_ma_multi_update,             15},
     {"ggm_bdmcmc_map",                         (DL_FUNC) &ggm_bdmcmc_map,                         18},
@@ -112,7 +112,7 @@ static const R_CMethodDef CEntries[] = {
     {"omp_set_num_cores",                      (DL_FUNC) &omp_set_num_cores,                       1},
     {"rcwish_c",                               (DL_FUNC) &rcwish_c,                                4},
     {"rgcwish_c",                              (DL_FUNC) &rgcwish_c,                               5},
-    {"rgwish_c",                               (DL_FUNC) &rgwish_c,                                5},
+    {"rgwish_c",                               (DL_FUNC) &rgwish_c,                                6},
     {"rwish_c",                                (DL_FUNC) &rwish_c,                                 4},
     {"scale_free",                             (DL_FUNC) &scale_free,                              2},
     {"transfer_data",                          (DL_FUNC) &transfer_data,                           5},

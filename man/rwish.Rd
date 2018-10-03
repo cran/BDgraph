@@ -34,19 +34,19 @@ Note, for the case \eqn{n=1}, the output is a matrix.
 \references{
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128
 
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
+Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
+Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
-\author{ Reza Mohammadi }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
+
+\seealso{ \code{\link{rgwish}} and \code{\link{rgcwish}} }
 
 \examples{
-\dontrun{
-sample <- rwish( n = 3, p = 5, b = 3, D = diag( p ) )
+sample <- rwish( n = 3, p = 5, b = 3, D = diag( 5 ) )
 round( sample, 2 )  
-}
 }
 

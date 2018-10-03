@@ -58,37 +58,36 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
 // ------------------------------------------------------------------------------------------------|
 // copula part
 // ------------------------------------------------------------------------------------------------|
-void copula( double Z[], double K[], int R[], int *n, int *p )
+void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int *p )
 {
-	int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
-	
-	//GetRNGstate();
-	#pragma omp parallel
-	{	
-		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
-		int i, j;
-		
-		#pragma omp for
-		for( int counter = 0; counter < nxp; counter++ )
-		{   
-			j = counter / number;
-			i = counter % number;
-			
-			sigma = 1.0 / K[ j * dimp1 ]; // 1.0 / K[ j * dim + j ];
-			sd_j  = sqrt( sigma );
-			
-			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
-			
-			get_bounds( Z, R, &lb, &ub, &i, &j, &number );
-			
-			pnorm_lb     = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
-			pnorm_ub     = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
-			//runif_value = runif( pnorm_lb, pnorm_ub );
-			runif_value  = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
-			Z[ counter ] = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
-		}
-	}
-	//PutRNGstate();
+    int number = *n, dim = *p, dimp1 = dim + 1, i, j, jxn;
+    double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
+    
+    //GetRNGstate();
+    for( j = 0; j < dim; j++ )
+    {
+        if( not_continuous[ j ] )
+        {
+            jxn = j * number;
+            
+            sigma = 1.0 / K[ j * dimp1 ]; // 1.0 / K[ j * dim + j ];
+            sd_j  = sqrt( sigma );
+            
+            for( i = 0; i < number; i++ )
+            {   
+                get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+                
+                get_bounds( Z, R, &lb, &ub, &i, &j, &number );
+                
+                pnorm_lb     = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
+                pnorm_ub     = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
+                //runif_value = runif( pnorm_lb, pnorm_ub );
+                runif_value  = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
+                Z[ jxn + i ] = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
+            }
+        }
+    }
+    //PutRNGstate();
 }
 
 // ------------------------------------------------------------------------------------------------|
@@ -122,54 +121,53 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
 // ------------------------------------------------------------------------------------------------|
 // copula part for missing data
 // ------------------------------------------------------------------------------------------------|
-void copula_NA( double Z[], double K[], int R[], int *n, int *p )
+void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, int *p )
 {
-	int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
-
-	//GetRNGstate();
-	#pragma omp parallel
-	{	
-		double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
-		int i, j;
-	
-		#pragma omp for
-		for( int counter = 0; counter < nxp; counter++ )
-		{   
-			j = counter / number;
-			i = counter % number;
-
-			sigma = 1.0 / K[ j * dimp1 ]; // 1.0 / K[ j * dim + j ];
-			sd_j  = sqrt( sigma );
-			
-			get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
-			
-			if( R[counter] != 0 )
-			{
-				get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
-				
-				pnorm_lb     = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
-				pnorm_ub     = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
-				//runif_value = runif( pnorm_lb, pnorm_ub );
-				runif_value  = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
-				Z[ counter ] = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
-			} 
-			else 
-				//Z[counter] = rnorm( mu_ij, sd_j );
-				Z[ counter ] = mu_ij + norm_rand() * sd_j;
-		}
-	}
-	//PutRNGstate();
+    int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
+ 
+    //GetRNGstate();
+    #pragma omp parallel
+    {	
+        double sigma, sd_j, mu_ij, lb, ub, runif_value, pnorm_lb, pnorm_ub;
+        int i, j;
+        
+        #pragma omp for
+        for( int counter = 0; counter < nxp; counter++ )
+        {   
+            j = counter / number;
+            i = counter % number;
+            
+            sigma = 1.0 / K[ j * dimp1 ]; // 1.0 / K[ j * dim + j ];
+            sd_j  = sqrt( sigma );
+            
+            get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+            
+            if( R[ counter ] != 0 )
+            {
+                get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
+                
+                pnorm_lb     = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
+                pnorm_ub     = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
+                //runif_value = runif( pnorm_lb, pnorm_ub );
+                runif_value  = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
+                Z[ counter ] = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
+            } 
+            else 
+                Z[ counter ] = mu_ij + norm_rand() * sd_j;  // Z[counter] = rnorm( mu_ij, sd_j );
+        }
+    }
+    //PutRNGstate();
 }
-     
+    
 // ------------------------------------------------------------------------------------------------|
 // Calculating Ds = D + S for the BDMCMC sampling algorithm
 // ------------------------------------------------------------------------------------------------|
-void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
+void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
 {
 	int gcgm_check = *gcgm, dim = *p, pxp = dim * dim;
 
-	//if( gcgm_check == 0 ) copula( Z, K, R, n, &dim ); else	copula_NA( Z, K, R, n, &dim );
-	( gcgm_check == 0 ) ? copula( Z, K, R, n, &dim ) : copula_NA( Z, K, R, n, &dim );
+	// if( gcgm_check == 0 ) copula( Z, K, R, n, &dim ); else	copula_NA( Z, K, R, n, &dim );
+	( gcgm_check == 0 ) ? copula( Z, K, R, not_continuous, n, &dim ) : copula_NA( Z, K, R, not_continuous, n, &dim );
 	
 	// S <- t(Z) %*% Z
 	// Here, I'm using Ds instead of S, for saving memory

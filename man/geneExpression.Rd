@@ -17,12 +17,10 @@ The dataset contains human gene expression of \eqn{100} transcripts
        }
 
 \examples{
-\dontrun{
-  data( geneExpression )
-  dim( geneExpression )
-  head( geneExpression )
-  boxplot( geneExpression )
-}
+data( geneExpression )
+
+dim( geneExpression )
+head( geneExpression )
 }
 
 \keyword{ datasets }

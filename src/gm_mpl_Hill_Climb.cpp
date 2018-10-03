@@ -34,7 +34,7 @@ void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mp
 	{
 		case 0:
 			for( i = 0; i < *length_freq_data; i++ )
-				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 				
 			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 						   
@@ -50,7 +50,7 @@ void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mp
 				fam_conf_count_1 = 0;
 				for( i = 0; i < *length_freq_data; i++ )
 					if( data[ mb_node_x_lf + i ] == l ) 
-						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 								
 				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 		   
@@ -80,7 +80,7 @@ void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mp
 			{
 				i_hash = j / sz;
 				//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
-				hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
+				hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[ j ] * *length_freq_data ] << ( j - i_hash * sz );
 			}
 			mb_conf[0] = hash_mb;
 			size_mb_conf = 1;
@@ -104,15 +104,15 @@ void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mp
 				{
 					i_hash = j / sz;
 					//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
-					hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+					hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[ j ] * *length_freq_data + i ] << ( j - i_hash * sz );
 				}
 				
 				//data_mb[i] = hash_mb;
 				counter = 1;
 				for( j = 0; j < size_mb_conf; j++ )
-					if( hash_mb == mb_conf[j] ) 
+					if( hash_mb == mb_conf[ j ] ) 
 					{
-						( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[j] += freq_data[i] : vec_fam_conf_count_1[j] += freq_data[i];
+						( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ j ] += freq_data[ i ] : vec_fam_conf_count_1[ j ] += freq_data[ i ];
 						counter = 0;  
 						break;
 					}					
@@ -122,10 +122,10 @@ void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mp
 					//( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i] : vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
 					if( data[ node_x_lf + i ] == 0 ) 
 					{
-						vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_0[ size_mb_conf ] = freq_data[ i ];
 						vec_fam_conf_count_1[ size_mb_conf ] = 0;
 					}else{
-						vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_1[ size_mb_conf ] = freq_data[ i ];
 						vec_fam_conf_count_0[ size_mb_conf ] = 0;
 					}
 					
@@ -164,7 +164,7 @@ void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, doubl
 	{
 		case 0:
 			for( i = 0; i < *length_freq_data; i++ )
-				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 				
 			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 						   
@@ -180,7 +180,7 @@ void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, doubl
 				fam_conf_count_1 = 0;
 				for( i = 0; i < *length_freq_data; i++ )
 					if( data[ mb_node_x_lf + i ] == l ) 
-						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 								
 				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 		   
@@ -215,9 +215,9 @@ void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, doubl
 					{
 						i_hash = j / sz;
 						//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
-						hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+						hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[ j ] * *length_freq_data + i ] << ( j - i_hash * sz );
 					}
-					data_mb[i] = hash_mb;
+					data_mb[ i ] = hash_mb;
 				}
 			}
 			
@@ -231,8 +231,8 @@ void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, doubl
 				fam_conf_count_0 = 0;
 				fam_conf_count_1 = 0;
 				for( i = 0; i < *length_freq_data; i++ )
-					if( data_mb[i] == mb_conf[ l ] ) 
-						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+					if( data_mb[ i ] == mb_conf[ l ] ) 
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 				
 				*log_mpl_node += lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL ) - lgammafn_sign( fam_conf_count_0 + fam_conf_count_1 + alpha_jl, NULL );     
 			}
@@ -276,7 +276,7 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
         
         size_mb_conf = max_range_nodes[ mb_node[0] ];            
         // mb_conf = 1:size_mb_conf;      
-		for( j = 0; j < size_mb_conf; j++ ) mb_conf[j] = j;     
+		for( j = 0; j < size_mb_conf; j++ ) mb_conf[ j ] = j;     
 	}
 	
 	if( *size_node > 1 ) 
@@ -285,12 +285,12 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
 		cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ];
 		//cumprod_mb   = t( t( c( 1, cumprod( max_range_nodes[ mb_node[ 2:length( mb_node ) ] ] ) ) ) )
 		for( j = 1; j < *size_node; j++ )
-			cumprod_mb[j] = cumprod_mb[ j - 1 ] * max_range_nodes[ mb_node[ j ] ];
+			cumprod_mb[ j ] = cumprod_mb[ j - 1 ] * max_range_nodes[ mb_node[ j ] ];
 			
         //data_mb = c( data[ , mb_node ] %*% cumprod_mb ) 
 		for( i = 0; i < *length_freq_data; i++ )
 			for( j = 0; j < *size_node; j++ )
-				data_mb[i] += cumprod_mb[j] * data[ mb_node[j] * *length_freq_data + i ];
+				data_mb[ i ] += cumprod_mb[ j ] * data[ mb_node[ j ] * *length_freq_data + i ];
 			
         //mb_conf      = unique( data_mb )            
 		//vector<int>mb_conf( *n );
@@ -309,14 +309,14 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
 		for( j = 0; j < max_range_node_j; j++ ) 
 		{  
 			 //fam_conf_count[j] = std::count( &data[0] + node_x_n, &data[0] + node_x_n + *n, j + 1 );
-			fam_conf_count[j] = 0;
+			fam_conf_count[ j ] = 0;
 			for( i = 0; i < *length_freq_data; i++ )
-				if( data[node_x_lf + i] == j ) fam_conf_count[j] += freq_data[i];
+				if( data[ node_x_lf + i ] == j ) fam_conf_count[ j ] += freq_data[ i ];
 		}
 			
 		sum_lgamma_fam = 0.0;
 		for( j = 0; j < max_range_node_j; j++ ) 
-			sum_lgamma_fam += lgammafn( fam_conf_count[j] + *alpha_ijl );
+			sum_lgamma_fam += lgammafn( fam_conf_count[ j ] + *alpha_ijl );
 					   
 		*log_mpl_node = sum_lgamma_fam - lgammafn( *n + alpha_jl );      
 	}
@@ -332,20 +332,20 @@ void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_n
 			//mb_conf_count = std::count( data_mb.begin(), data_mb.end(), mb_conf_l );
 			mb_conf_count = 0;
 			for( i = 0; i < *length_freq_data; i++ )
-				if( data_mb[i] == mb_conf_l ) mb_conf_count += freq_data[i];
+				if( data_mb[ i ] == mb_conf_l ) mb_conf_count += freq_data[ i ];
 			
 			//fam_conf_count = node_conf * 0
 			//for( j in 1:max_range_node_j ) fam_conf_count[j] = sum( ( data[ , node ] == j ) * ind )
 			for( j = 0; j < max_range_node_j; j++ )
 			{
-				fam_conf_count[j] = 0;
+				fam_conf_count[ j ] = 0;
 				for( i = 0; i < *length_freq_data; i++ )
-					if( ( data[node_x_lf + i] == j ) && ( data_mb[i] == mb_conf_l ) ) fam_conf_count[j] += freq_data[i];
+					if( ( data[ node_x_lf + i ] == j ) && ( data_mb[ i ] == mb_conf_l ) ) fam_conf_count[ j ] += freq_data[ i ];
 			}
 
 			sum_lgamma_fam = 0.0;
 			for( j = 0; j < max_range_node_j; j++ ) 
-				sum_lgamma_fam += lgammafn( fam_conf_count[j] + *alpha_ijl );
+				sum_lgamma_fam += lgammafn( fam_conf_count[ j ] + *alpha_ijl );
 	   
 			*log_mpl_node += sum_lgamma_fam - lgammafn( mb_conf_count + alpha_jl );     
 		}		

@@ -30,7 +30,7 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
     }
     
     
-    if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix 'adj.g' must be 0 or 1" )	
+	if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'adj.g' must be 0 or 1" )
 
 	G <- as.matrix( G )
 	diag( G ) = 0
@@ -55,8 +55,8 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 		samples = array( 0, c( p, p, n ) )
 		for( i in 1 : n )
 		{
-			result       = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
-			samples[,,i] = matrix( result $ K, p, p ) 		
+			result           = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
+			samples[ , , i ] = matrix( result $ K, p, p ) 		
 		}
 	}else{
 		result  = .C( "rgcwish_c", as.integer(G), as.double(Ls), K = as.complex(K), as.integer(b), as.integer(p), PACKAGE = "BDgraph" )

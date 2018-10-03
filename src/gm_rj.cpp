@@ -18,11 +18,12 @@ extern "C" {
 // ------------------------------------------------------------------------------------------------|
 // Computing alpha (probability of acceptance) in RJ-MCMC algorithm
 // ------------------------------------------------------------------------------------------------|
-void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *selected_edge_i, int *selected_edge_j, int G[], double Ds[], 
-				   double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
-				   double K[], double K21[], double K121[], double Kj12[], 
-				   double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], double sigma21xsigma11_inv[],  
-				   int *b, int *p )
+void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *selected_edge_i, 
+                    int *selected_edge_j, int G[], double Ds[], 
+                    double sigma[], double sigma21[], double sigma22[], double sigmaj12[], double sigmaj22[],    
+                    double K[], double K21[], double K121[], double Kj12[], 
+                    double K12xK22_inv[], double Kj12xK22_inv[], double sigma11_inv[], 
+                    double sigma21xsigma11_inv[], int *b, int *p )
 {
 	int one = 1, two = 2, dim = *p, dim1 = dim + 1, p1 = dim - 1, p2 = dim - 2;
 
@@ -31,8 +32,8 @@ void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *se
 
 	int ij      = *selected_edge_j * dim + *selected_edge_i;
 	int jj      = *selected_edge_j * dim1;
-	double Dsij = Ds[ij];
-	double Dsjj = Ds[jj];
+	double Dsij = Ds[ ij ];
+	double Dsjj = Ds[ jj ];
 	
 	sub_matrices1( &sigma[0], &sigmaj12[0], &sigmaj22[0], selected_edge_j, &dim );
 
@@ -79,10 +80,10 @@ void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *se
 	nu_star = 0.5 * nu_star;
 
 	//*log_alpha_ij = 0.5 * ( log( static_cast<double>( 2.0 ) ) + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
-	*log_alpha_ij = - log_ratio_g_prior[ij] + 0.5 * log( 2.0 * Dsjj / a11 ) + 
+	*log_alpha_ij = - log_ratio_g_prior[ ij ] + 0.5 * log( 2.0 * Dsjj / a11 ) + 
 			  lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
-	if( G[ij] == 0 ) *log_alpha_ij = - *log_alpha_ij;	
+	if( G[ ij ] == 0 ) *log_alpha_ij = - *log_alpha_ij;	
 }
 
 // ------------------------------------------------------------------------------------------------|
@@ -90,9 +91,9 @@ void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *se
 // for D = I_p 
 // it is for Bayesian model averaging
 // ------------------------------------------------------------------------------------------------|
-void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double K_hat[], int p_links[],
-			 int *b, int *b_star, double Ds[], int *print )
+void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+                    int *p, double *threshold, double K_hat[], int p_links[], 
+                    int *b, int *b_star, double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin;
 	int selected_edge, selected_edge_i, selected_edge_j, ip, i, j, ij, counter;
@@ -133,7 +134,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pri
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of selected edge 
@@ -141,13 +142,16 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pri
 	vector<int> index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	vector<double> log_ratio_g_prior( pxp );	
@@ -155,7 +159,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pri
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
 // -- Main loop for Reversible Jump MCMC ----------------------------------------------------------| 
@@ -184,30 +188,28 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pri
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
-			G[ij] = 1 - G[ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[ij];
+			G[ ij ] = 1 - G[ ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ ij ];
 
-			if( G[ij] )
+			if( G[ ij ] )
 			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
+				++size_node[ selected_edge_i ]; 
+				++size_node[ selected_edge_j ]; 
+			}else{ 
+				--size_node[ selected_edge_i ]; 
+				--size_node[ selected_edge_j ]; 
 			}
 		}
 
 // ------ STEP 2: Sampling from G-Wishart for new graph -------------------------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 // ----- saving result ----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 			for( i = 0; i < pxp ; i++ )
 			{
-				K_hat[i] += K[i];
-				p_links[i] += G[i];
+				K_hat[ i ]   += K[ i ];
+				p_links[ i ] += G[ i ];
 			}	
 // ----- End of saving result ---------------------------------------------------------------------|	
 	}  
@@ -220,10 +222,11 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pri
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 int all_graphs[], double all_weights[], double K_hat[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
-			 int *b, int *b_star, double Ds[], int *print )
+void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+                    int *p, double *threshold, 
+                    int all_graphs[], double all_weights[], double K_hat[], 
+                    char *sample_graphs[], double graph_weights[], int *size_sample_g,
+                    int *b, int *b_star, double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin, count_all_g = 0;
 	int selected_edge, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
@@ -270,20 +273,23 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	vector<double> log_ratio_g_prior( pxp );	
@@ -291,7 +297,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
 // -- Main loop for Reversible Jump MCMC ----------------------------------------------------------| 
@@ -320,23 +326,21 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
-			G[ij] = 1 - G[ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[ij];
+			G[ ij ] = 1 - G[ ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ ij ];
 
-			if( G[ij] )
+			if( G[ ij ] )
 			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
+				++size_node[ selected_edge_i ]; 
+				++size_node[ selected_edge_j ]; 
+			}else{ 
+				--size_node[ selected_edge_i ]; 
+				--size_node[ selected_edge_j ]; 
 			}
 		}
 
 // ------ STEP 2: Sampling from G-Wishart for new graph -------------------------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 // ----- saving result ----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -346,25 +350,25 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 				for( i = 0; i < j; i++ )
 					char_g[ counter++ ] = G[ j * dim + i ] + '0'; 
 		
-			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
+			for( i = 0; i < pxp ; i++ ) K_hat[ i ] += K[ i ];	
 
 			string_g = string( char_g.begin(), char_g.end() );	
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i]++;           // += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ]++;           // += all_weights[count_all_g];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]          = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -377,8 +381,8 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy(sample_graphs[i], qp, 0);
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
@@ -389,10 +393,11 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_pr
 // for D = I_p 
 // it is for Bayesian model averaging
 // ------------------------------------------------------------------------------------------------|
-void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double Z[], int R[], int *n, int *gcgm,
-			 double K_hat[], int p_links[], 
-			 int *b, int *b_star, double D[], double Ds[], int *print )
+void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+                    int *p, double *threshold, 
+                    double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                    double K_hat[], int p_links[], 
+                    int *b, int *b_star, double D[], double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin;
 	int selected_edge, counter, selected_edge_i, selected_edge_j;
@@ -438,7 +443,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of selected edge 
@@ -446,13 +451,16 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 	vector<int> index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	
 	vector<double> log_ratio_g_prior( pxp );	
@@ -460,7 +468,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
 // -- Main loop for Reversible Jump MCMC ----------------------------------------------------------| 
@@ -471,7 +479,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 
 // ----- STEP 1: copula ---------------------------------------------------------------------------|		
 		
-		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 		
 // ----- STEP 2: calculating log_alpha_ij ---------------------------------------------------------|		
@@ -494,30 +502,28 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
-			G[ij] = 1 - G[ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[ij];
+			G[ ij ] = 1 - G[ ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ ij ];
 
-			if( G[ij] )
+			if( G[ ij ] )
 			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
+				++size_node[ selected_edge_i ]; 
+				++size_node[ selected_edge_j ]; 
+			}else{ 
+				--size_node[ selected_edge_i ]; 
+				--size_node[ selected_edge_j ]; 
 			}
 		}
 
 // ------ STEP 2: Sampling from G-Wishart for new graph -------------------------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 // ----- saving result ----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 			for( i = 0; i < pxp ; i++ )
 			{
-				K_hat[i]   += K[i];
-				p_links[i] += G[i];
+				K_hat[ i ]   += K[ i ];
+				p_links[ i ] += G[ i ];
 			}	
 // ----- End of saving result ---------------------------------------------------------------------|	
 	}  
@@ -530,11 +536,12 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double Z[], int R[], int *n, int *gcgm,
-			 int all_graphs[], double all_weights[], double K_hat[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
-			 int *b, int *b_star, double D[], double Ds[], int *print )
+void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+                    int *p, double *threshold, 
+                    double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                    int all_graphs[], double all_weights[], double K_hat[], 
+                    char *sample_graphs[], double graph_weights[], int *size_sample_g,
+                    int *b, int *b_star, double D[], double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin, count_all_g = 0;
 	int selected_edge, counter, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
@@ -584,7 +591,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of selected edge 
@@ -592,13 +599,16 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 	vector<int> index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	vector<double> log_ratio_g_prior( pxp );	
@@ -606,7 +616,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
 // -- Main loop for Reversible Jump MCMC ----------------------------------------------------------| 
@@ -617,7 +627,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 
 // ----- STEP 1: copula ---------------------------------------------------------------------------|		
 		
-		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 		
 // ----- STEP 2: calculating log_alpha_ij ---------------------------------------------------------|		
@@ -640,23 +650,21 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
-			G[ij] = 1 - G[ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[ij];
+			G[ ij ] = 1 - G[ ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ ij ];
 
-			if( G[ij] )
+			if( G[ ij ] )
 			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
+				++size_node[ selected_edge_i ]; 
+				++size_node[ selected_edge_j ]; 
+			}else{ 
+				--size_node[ selected_edge_i ]; 
+				--size_node[ selected_edge_j ]; 
 			}
 		}
 
 // ------ STEP 2: Sampling from G-Wishart for new graph -------------------------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
 // ----- saving result ----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
@@ -666,25 +674,25 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 				for( i = 0; i < j; i++ )
 					char_g[ counter++ ] = G[ j * dim + i ] + '0'; 
 		
-			for( i = 0; i < pxp ; i++ ) K_hat[i] += K[i];	
+			for( i = 0; i < pxp ; i++ ) K_hat[ i ] += K[ i ];	
 
 			string_g = string( char_g.begin(), char_g.end() );	
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i]++;     // += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ]++;     // += all_weights[count_all_g];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]            = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -697,8 +705,8 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy(sample_graphs[i], qp, 0);
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy(sample_graphs[ i ], qp, 0);
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;

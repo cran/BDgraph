@@ -23,7 +23,9 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
     }
 	
 	if( is.null( thin ) ) thin = ceiling( length( bdgraph.obj $ all_graphs ) / 1000 )
-
+	if( !is.numeric( thin ) ) stop( " 'thin' must be an number" )
+	if( is.matrix(  thin ) ) stop( " 'thin' must be an number" )
+	
 	sample_graphs   = bdgraph.obj $ sample_graphs
 	p               = nrow( bdgraph.obj $ last_graph )
 	qp              = p * ( p - 1 ) / 2 
@@ -40,7 +42,7 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	{
 		mes = paste( c( "Calculation ... in progress : ", floor( 100 * g / length_allG_new ), "%" ), collapse = "" )
 		cat(mes, "\r")
-		flush.console()	
+		utils::flush.console()	
 
 		which_edge             = which( unlist( strsplit( as.character( sample_graphs[ allG_new[g] ] ), "" ) ) == 1 )
 		vec_result[which_edge] = vec_result[which_edge] + all_weights_new[g]
@@ -57,12 +59,12 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	mes = paste( c( "Calculation ... done.                        " ), collapse = "" )
 	cat( mes, "\r" )
 	cat( "\n" )
-	flush.console()
+	utils::flush.console()
 
-	matplot( x = thin * ( 1 : length_allG_new ), y = t( result ), type = "l", lty = 1, col = 1,
+	graphics::matplot( x = thin * ( 1 : length_allG_new ), y = t( result ), type = "l", lty = 1, col = 1,
 		     xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
 	if ( is.null( main ) ) main = "Trace of the Posterior Probabilities of the Links"
-	title( main = main, cex.main = 1.5 )
+	graphics::title( main = main, cex.main = 1.5 )
 }
     

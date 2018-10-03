@@ -8,7 +8,7 @@ Generates random matrices, distributed according to the G-Wishart distribution w
 Note this fuction works for both non-decomposable and decomposable graphs. 
 }
 
-\usage{rgwish( n = 1, adj.g = NULL, b = 3, D = NULL )}
+\usage{ rgwish( n = 1, adj.g = NULL, b = 3, D = NULL, threshold = 1e-8 ) }
 
 \arguments{
   \item{n}{The number of samples required. }
@@ -22,6 +22,7 @@ Note this fuction works for both non-decomposable and decomposable graphs.
   \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. }
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
            The default is an identity matrix.}
+  \item{threshold}{ The threshold value for the convergence of sampling algorithm from G-Wishart.}
 }
 
 \details{
@@ -41,19 +42,20 @@ Note, for the case \eqn{n=1}, the output is a matrix.
 \references{
 Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128
 
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
+Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
 
-Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
+Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
-\author{ Reza Mohammadi }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
+
+\seealso{ \code{\link{rwish}} and \code{\link{rgcwish}} }
 
 \examples{
-\dontrun{
 # Generating a 'circle' graph as a non-decomposable graph
 adj.g <- graph.sim( p = 5, graph = "circle" )
 adj.g    # adjacency of graph with 5 nodes
@@ -63,7 +65,5 @@ round( sample, 2 )
 
 sample <- rgwish( n = 5, adj.g = adj.g )
 round( sample, 2 )  
-
-}
 }
 

@@ -22,7 +22,7 @@
 #     Pensar et al. for more details.                                                              |
 ## ------------------------------------------------------------------------------------------------|
 #     INPUT:  * data (n x p) matrix, as discrete data with n observations and p variables.         |
-#             The outcome space of each variable must be in the form 0, 1, ..., r.                 |
+#               The outcome space of each variable must be in the form 0, 1, ..., r.               |
 #             * alpha: The parameter of the prior distribution                                     |
 #     OUTPUT: * selected_g - adjacency matrix for the selected graph                               |
 ## ------------------------------------------------------------------------------------------------|
@@ -36,7 +36,7 @@ hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, ope
 	{
 		mes = paste( c( " PART 1: Local search for node ", i ), collapse = "" )
 		cat( mes, "\r" )
-		flush.console()	
+		utils::flush.console()	
 		
 		mb_i       = local_mb_hc( node = i, data = data, freq_data = freq_data, max_range_nodes = max_range_nodes, p = p, n = n, alpha = alpha )
 		G[mb_i, i] = 1
@@ -130,7 +130,7 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 	curr_scores = numeric( p )
 	
 	for( i in 1:p )
-		curr_scores[i] = log_mpl_disrete( i, which( ug[i, ] == 1 ), data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
+		curr_scores[ i ] = log_mpl_disrete( i, which( ug[i, ] == 1 ), data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
 	
 	edge_change_imp = matrix( 0, n_edges, 2 )
 	edge_change     = matrix( TRUE, n_edges, 2 )
@@ -138,50 +138,50 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 	while( cont == TRUE )
 	{
 		cont = FALSE
-		edge_change_ind = which( edge_change[, 1] == TRUE )
+		edge_change_ind = which( edge_change[, 1 ] == TRUE )
 		
 		for( i in 1:length( edge_change_ind ) ) 
 		{
-			edge = edges[edge_change_ind[i], ]
-			node = edge[1]			
+			edge = edges[ edge_change_ind[ i ], ]
+			node = edge[ 1 ]			
 			mb   = which( ug[node, ] == 1 )			
 			
-			if( ug[edge[1], edge[2]] == 0 )
+			if( ug[ edge[ 1 ], edge[ 2 ] ] == 0 )
 			{
-				swoe1 = curr_scores[node]
-				mb    = c( mb, edge[2] )
+				swoe1 = curr_scores[ node ]
+				mb    = c( mb, edge[ 2 ] )
 				swe1  = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
-				edge_change_imp[edge_change_ind[i], 1] = swe1 - swoe1;
-				edge_change[edge_change_ind[i], 1] = FALSE
+				edge_change_imp[ edge_change_ind[ i ], 1 ] = swe1 - swoe1;
+				edge_change[ edge_change_ind[ i ], 1 ]     = FALSE
 			}else{
-				swe1  = curr_scores[node]
-				mb    = mb[mb != edge[2]]
+				swe1  = curr_scores[ node ]
+				mb    = mb[ mb != edge[ 2 ] ]
 				swoe1 = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
-				edge_change_imp[edge_change_ind[i], 1] = swoe1 - swe1;
-				edge_change[edge_change_ind[i], 1] = FALSE				
+				edge_change_imp[ edge_change_ind[ i ], 1 ] = swoe1 - swe1;
+				edge_change[ edge_change_ind[ i ], 1 ] = FALSE				
 			}			
 		}
 		
-		edge_change_ind = which( edge_change[, 2] == 1 )
+		edge_change_ind = which( edge_change[ , 2 ] == 1 )
 		for( i in 1:length( edge_change_ind ) ) 
 		{
-			edge = edges[edge_change_ind[i], ]
-			node = edge[2]
-			mb   = which( ug[node, ] == 1 )
+			edge = edges[ edge_change_ind[ i ], ]
+			node = edge[ 2 ]
+			mb   = which( ug[ node, ] == 1 )
 			
-			if( ug[edge[1], edge[2]] == 0 )
+			if( ug[ edge[ 1 ], edge[ 2 ] ] == 0 )
 			{
-				swoe2 = curr_scores[node]
-				mb    = c( mb, edge[1] )
+				swoe2 = curr_scores[ node ]
+				mb    = c( mb, edge[ 1 ] )
 				swe2  = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
-				edge_change_imp[edge_change_ind[i], 2] = swe2 - swoe2;
-				edge_change[edge_change_ind[i], 2] = FALSE
+				edge_change_imp[ edge_change_ind[ i ], 2 ] = swe2 - swoe2;
+				edge_change[ edge_change_ind[ i ], 2 ] = FALSE
 			}else{
-				swe2  = curr_scores[node]
-				mb    = mb[mb  != edge[1]]
+				swe2  = curr_scores[ node ]
+				mb    = mb[ mb  != edge[ 1 ] ]
 				swoe2 = log_mpl_disrete( node, mb, data = data, freq_data = freq_data, max_range_nodes, p = p, n = n, alpha = alpha )
-				edge_change_imp[edge_change_ind[i], 2] = swoe2 - swe2;
-				edge_change[edge_change_ind[i], 2] = FALSE				
+				edge_change_imp[ edge_change_ind[ i ], 2 ] = swoe2 - swe2;
+				edge_change[ edge_change_ind[ i ], 2 ]     = FALSE				
 			}			
 		}
 		

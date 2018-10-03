@@ -36,36 +36,36 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 	
 	if ( acf == FALSE & pacf == FALSE )
 	{
-		plot( x = x_vec, sizeall_graphs, type = "l", main = main, cex.main = 1.5, cex.lab = 1.3, cex.axis = 1.2, ylab = "Graph size", xlab = "Iteration", ... )
-		abline( h = size_selected_g, col = "red" )	   
+		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, cex.main = 1.5, cex.lab = 1.3, cex.axis = 1.2, ylab = "Graph size", xlab = "Iteration", ... )
+		graphics::abline( h = size_selected_g, col = "red" )	   
 	}
 	
 	if ( acf == TRUE & pacf == TRUE )
 	{
-		op = par( mfrow = c( 2, 2 ), pty = "s" )  
-		plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
-		abline( h = size_selected_g, col = "red" )	  
+		op = graphics::par( mfrow = c( 2, 2 ), pty = "s" )  
+		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
+		graphics::abline( h = size_selected_g, col = "red" )	  
 		acf( sizeall_graphs,  main = "ACF for graph size" )
 		pacf( sizeall_graphs, main = "PACF for graph size" )
-		par( op )
+		graphics::par( op )
 	}
 	
 	if ( acf == TRUE & pacf == FALSE )
 	{
-		op <- par( mfrow = c( 1, 2 ), pty = "s" ) 
-		plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
-		abline( h = size_selected_g, col = "red" )	  
+		op <- graphics::par( mfrow = c( 1, 2 ), pty = "s" ) 
+		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
+		graphics::abline( h = size_selected_g, col = "red" )	  
 		acf( sizeall_graphs, main = "ACF for graph size" )
-		par( op )
+		graphics::par( op )
 	}
 	
 	if ( acf == FALSE & pacf == TRUE )
 	{
-		op <- par( mfrow = c( 1, 2 ), pty = "s" ) 
-		plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
-		abline( h = size_selected_g, col = "red" )	  
+		op <- graphics::par( mfrow = c( 1, 2 ), pty = "s" ) 
+		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
+		graphics::abline( h = size_selected_g, col = "red" )	  
 		pacf( sizeall_graphs, main = "PAIC for graph size" )
-		par( op )
+		graphics::par( op )
 	}		
 }  
       

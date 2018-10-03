@@ -25,12 +25,12 @@
 }
 
 \references{
-Liu, H., F. Han, M. Yuan, J. Lafferty, and L. Wasserman (2012). High Dimensional Semiparametric Gaussian Copula Graphical Models, \emph{Annals of Statistics}, 40(4):2293-2326
+Liu, H., et al (2012). High Dimensional Semiparametric Gaussian Copula Graphical Models, \emph{Annals of Statistics}, 40(4):2293-2326
 
-Zhao, T. and H. Liu (2012). The \pkg{huge} Package for High-dimensional Undirected Graph Estimation in \code{R}, \emph{Journal of Machine Learning Research}, 13:1059-1062
+Zhao, T. and Liu, H. (2012). The \pkg{huge} Package for High-dimensional Undirected Graph Estimation in \code{R}, \emph{Journal of Machine Learning Research}, 13:1059-1062
 }
 
-\author{ Reza Mohammadi }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
 \seealso{ \code{\link{bdgraph.sim}} and \code{\link{bdgraph}} }
 

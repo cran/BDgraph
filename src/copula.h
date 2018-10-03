@@ -20,13 +20,13 @@ extern "C" {
 
 	void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n );
 
-	void copula( double Z[], double K[], int R[], int *n, int *p );
+	void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int *p );
 	 
 	void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n );
 
-	void copula_NA( double Z[], double K[], int R[], int *n, int *p );
+	void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, int *p );
 
-	void get_Ds( double K[], double Z[], int R[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p );
+	void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p );
 
 	void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p );
 }

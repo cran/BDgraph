@@ -24,7 +24,7 @@
 #     INPUT:  * data (n x p) matrix, as discrete data with n observations and p variables.         |
 #               The outcome space of each variable must be in the form 0, 1, ..., r.               |
 #             * alpha: The parameter of the prior distribution                                     |
-#      OUTPUT: * selected_g - adjacency matrix for the selected graph                              |
+#     OUTPUT: * selected_g - adjacency matrix for the selected graph                               |
 ## ------------------------------------------------------------------------------------------------|
 
 hill_climb_mpl_binary = function( data, freq_data, n, alpha = 0.5, operator = "or" )
@@ -36,7 +36,7 @@ hill_climb_mpl_binary = function( data, freq_data, n, alpha = 0.5, operator = "o
 	{
 		mes = paste( c( " PART 1: Local search for node ", i ), collapse = "" )
 		cat( mes, "\r" )
-		flush.console()	
+		utils::flush.console()	
 		
 		mb_i       = local_mb_hc_binary( node = i, data = data, freq_data = freq_data, p = p, n = n, alpha = alpha )
 		G[mb_i, i] = 1

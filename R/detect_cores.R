@@ -8,7 +8,7 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 			as.numeric( res )
 		} else {
 			x = system( "WMIC CPU Get DeviceID,NumberOfCores", intern = TRUE )
-			sum( read.table( text = x, header = TRUE ) $ NumberOfCores )
+			sum( utils::read.table( text = x, header = TRUE ) $ NumberOfCores )
 		}
 	}else{
 		systems = list(

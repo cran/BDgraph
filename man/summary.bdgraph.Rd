@@ -19,26 +19,26 @@ Provides a summary of the results for function \code{\link{bdgraph}}.
 }
 
 \value{
-	\item{best.graph}{The adjacency matrix corresponding to the selected graph which has the highest posterior probability.}
+	\item{selected_g}{The adjacency matrix corresponding to the selected graph which has the highest posterior probability.}
 	\item{p_links}{An upper triangular matrix corresponding to the posterior probabilities of all possible links.}
 	\item{K_hat}{The estimated precision matrix.}
 }
 
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
+Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
 
-Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 
-Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
+Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
-\author{ Reza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{\code{\link{bdgraph}}}
+\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

@@ -8,10 +8,11 @@
 	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
-bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-         burnin = iter / 2, g.start = "empty", g.space = NULL, g.prior = 0.5, 
-         prior.df = 3, multi.update = NULL, save.all = FALSE, print = 1000, 
-         cores = 2 )
+bdgraph( data, n = NULL, method = "ggm", not.cont = NULL, 
+         algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
+         g.start = "empty", g.prior = 0.5, prior.df = 3, 
+         multi.update = NULL, save.all = FALSE, print = 1000, 
+         cores = NULL, threshold = 1e-8 )
 }
 
 \arguments{
@@ -30,6 +31,8 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
 		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
+	
+	\item{not.cont}{ For the case \code{method = "gcgm"}, a vector with binary values in which \eqn{1} for not continuous variables. }
 
 	\item{algorithm}{
 		A character with two options \code{"bdmcmc"} (default) and \code{"rjmcmc"}. 
@@ -46,18 +49,13 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		It also could be an object with \code{S3} class \code{"bdgraph"} or \code{"ssgraph"}; 
 		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
-	\item{g.space}{
-		Corresponds to the sub-space of the graph. 
-		For the case \code{ g.start = "NULL"} (default), algorithm search in the hole graph space. 
-		With this option, one could run the search algorithm only to the restricted subspace of the graph.
-		Subspace should determine as an adjacency matrix.
-	} 
 
 	\item{g.prior}{
 		For determining the prior distribution of each edge in the graph. 
 		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
 		or an (\eqn{p \times p}) matrix with elements between \eqn{0} and \eqn{1}.
 	}
+	
 	\item{prior.df}{
 		The degree of freedom for G-Wishart distribution, \eqn{W_G(b,D)}, which is a prior distribution of the precision matrix.
 	}
@@ -71,9 +69,10 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	}
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }	
 	\item{cores}{ The number of cores to use for parallel execution. 
-	   The default is to use \code{2} CPU cores of the computer.
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
-	   }	
+	   The default is to use "all" CPU cores of the computer.
+    }	
+    \item{threshold}{ The threshold value for the convergence of sampling algorithm from G-Wishart for the precision matrix.}
 }
 
 \value{
@@ -96,25 +95,26 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 }
 
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
+Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
 
-Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645
 
-Mohammadi, A., Massam H., and G. Letac (2017). The ratio of normalizing constants for Bayesian graphical Gaussian model selection, \emph{arXiv preprint arXiv:1706.04416} 
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 
-Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+Mohammadi, A., Massam H., and Letac, G. (2017). The ratio of normalizing constants for Bayesian graphical Gaussian model selection, \emph{arXiv preprint arXiv:1706.04416} 
 
-Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
+Mohammadi, A. and Dobra A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 }
 
-\author{ Reza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
+\seealso{ \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
 
 \examples{
 \dontrun{
+# --- Example 1
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 20, p = 6, size = 7, vis = TRUE )
    
@@ -123,14 +123,16 @@ bdgraph.obj <- bdgraph( data = data.sim, iter = 1000 )
 summary( bdgraph.obj )
    
 # To compare our result with true graph
-compare( data.sim, bdgraph.obj, colnames = c("True graph", "BDgraph") )
+compare( data.sim, bdgraph.obj, main = c( "True graph", "BDgraph" ) )
    
 # Running algorithm with starting points from previous run
-bdgraph.obj2 <- bdgraph( data = data.sim, iter = 5000, g.start = bdgraph.obj )
+bdgraph.obj2 <- bdgraph( data = data.sim, g.start = bdgraph.obj )
     
 compare( data.sim, bdgraph.obj, bdgraph.obj2, 
-         colnames = c( "True graph", "Frist run", "Second run" ) )
+         main = c( "True graph", "Frist run", "Second run" ) )
+
    
+# --- Example 2
 # Generating mixed data from a 'scale-free' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, type = "mixed", graph = "scale-free", vis = TRUE )
    
@@ -138,6 +140,6 @@ bdgraph.obj <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
   
 summary( bdgraph.obj )
    
-compare( data.sim, bdgraph.obj )	  
-}
+compare( data.sim, bdgraph.obj )
+}	  
 }

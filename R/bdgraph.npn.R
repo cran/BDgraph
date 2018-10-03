@@ -26,8 +26,9 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 	
 	if( npn == "shrinkage" )
 	{
-		data = qnorm( apply( data, 2, rank ) / ( n + 1 ) )
-		data = data / sd( data[ , 1 ] )
+		data = stats::qnorm( apply( data, 2, rank ) / ( n + 1 ) )
+		#data = data / stats::sd( data[ , 1 ] )
+		data = t( ( t( data ) - apply( data, 2, mean ) ) / apply( data, 2, stats::sd ) )
 	}
 	
 	# ------ truncation transfer ------------------------------------------------------------------|
@@ -36,13 +37,14 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 	{
 		if( is.null( npn.thresh ) ) npn.thresh = 0.25 * ( n ^ ( -0.25 ) ) * ( pi * log( n ) ) ^ ( -0.5 )
 		
-		data = qnorm( pmin( pmax( apply( data, 2, rank ) / n, npn.thresh ), 1 - npn.thresh ) )
-    	data = data / sd( data[ , 1 ] )
+		data = stats::qnorm( pmin( pmax( apply( data, 2, rank ) / n, npn.thresh ), 1 - npn.thresh ) )
+    	data = data / stats::sd( data[ , 1 ] )
 	}
 
 	# ------ skeptic transfer ---------------------------------------------------------------------|
 	
-	if( npn == "skeptic" ) data = 2 * sin( pi / 6 * cor( data, method = "spearman" ) )
+	if( npn == "skeptic" ) data = 2 * sin( pi / 6 * stats::cor( data, method = "spearman" ) )
 	
 	return( data )
 }
+    

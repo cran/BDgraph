@@ -9,9 +9,9 @@
 \usage{
 bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE, 
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
-             g.start = "empty", g.space = NULL, g.prior = 0.5, 
+             g.start = "empty", g.prior = 0.5, 
              multi.update = NULL, alpha = 0.5, save.all = FALSE, 
-             print = 1000, cores = 2, operator = "or" )
+             print = 1000, cores = NULL, operator = "or" )
 }
 
 \arguments{
@@ -49,12 +49,6 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		It also could be an object with \code{S3} class \code{"bdgraph"} or \code{"ssgraph"}; 
 		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
-	\item{g.space}{
-		Corresponds to the sub-space of the graph. 
-		For the case \code{ g.start = "NULL"} (default), algorithm search in the hole graph space. 
-		With this option, one could run the search algorithm only to the restricted subspace of the graph.
-		Subspace should determine as an adjacency matrix.
-	} 
 	\item{g.prior}{
 		For determining the prior distribution of each edge in the graph. 
 		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
@@ -72,8 +66,8 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	}
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }
 	\item{cores}{ The number of cores to use for parallel execution. 
-	   The default is to use \code{2} CPU cores of the computer.
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
+	   The default is to use "all" CPU cores of the computer.
 	   }	
 	\item{operator}{ A character with two options \code{"or"} (default) and \code{"and"}. It is for hill-climbing algorithm. }	   	
 }
@@ -95,18 +89,18 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 }
 
 \references{
-Dobra, A. and R. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
+Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 
-Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}
+Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
+Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
 }
 
-\author{ Reza Mohammadi and Adrian Dobra }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Adrian Dobra, and Johan Pensar }
 
 \seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
 
@@ -115,12 +109,11 @@ Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 70, p = 6, size = 7, vis = TRUE )
    
-bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 10000 )
+bdgraph.obj <- bdgraph.mpl( data = data.sim )
   
 summary( bdgraph.obj )
    
 # To compare our result with true graph
-compare( data.sim, bdgraph.obj, colnames = c( "True graph", "BDgraph" ) )
-   
+compare( data.sim, bdgraph.obj, main = c( "True graph", "BDgraph" ) )
 }
 }

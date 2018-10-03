@@ -17,17 +17,34 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 						cut = 4, b = 3, D = diag(p), K = NULL, sigma = NULL, 
 						vis = FALSE )
 {
-    if( p < 2 ) stop( "'p' must be more than 1" )
-    if( is.matrix( K ) )  graph <- "fixed"
+    if( p < 2 )                       stop( " 'p' must be more than 1" )
+    if( ( prob < 0 ) | ( prob > 1 ) ) stop( " Value of 'prob' must be between ( 0, 1 )" )
+    if( cut < 2 )                     stop( " Value of 'cut' must be more than 1" )
+    if( b <= 2 )                      stop( " Value of 'b' must be more than 2" )
     
-    if( type == "normal" )     type = "Gaussian"
+    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( " matrices 'graph' and 'K' have non-conforming size" )
+        
+    if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( " Value of 'size' must be between ( 0, p*(p-1)/2 )" )
+    
+    if( is.matrix( K ) )
+    {
+        if( !isSymmetric( K ) ) stop( " Matrix 'K' must be positive definite" )
+        
+        graph <- "fixed"
+        p     <- nrow( K )
+    }
+    
+    if( ( type == "discrete" ) & ( cut == 2 ) ) type = "binary"
+    
+    if( type == "normal"     ) type = "Gaussian"
     if( type == "non-normal" ) type = "non-Gaussian"
     
     if( is.matrix( graph ) )
 	{
-        if( p != nrow( graph )    ) stop( "Value of 'p' is not match with dimension of matrix 'graph'" )
         if( !isSymmetric( graph ) ) stop( "Matrix 'graph' must be symmetric" )
-        if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Element of matrix 'graph' must be 0 or 1." )
+
+        p = nrow( graph )
+        if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Element of 'graph', as a matrix, must be 0 or 1." )
         
         G     <- graph
 	    graph <- "fixed"
@@ -52,7 +69,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     
     if( graph == "AR2" )
     {
-        K = toeplitz( c( 1, 0.5, 0.25, rep( 0, p - 3 ) ) )
+        K = stats::toeplitz( c( 1, 0.5, 0.25, rep( 0, p - 3 ) ) )
         G = 1 * ( abs( K ) > 0.02 ) 
     }
     
@@ -77,12 +94,16 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			if( is.null( sigma ) ) sigma <- solve( K )	
 		}else{ 
 			#--- Generate precision matrix according to the graph structure -----------------------|
-			Ti        = chol( solve( D ) )
+		    if( !isSymmetric( D ) ) stop( " Matrix 'D' must be positive definite" )
+		   
+		    Ti        = chol( solve( D ) )
 			diag( G ) = 0
 			K         = matrix( 0, p, p )
 			
+			threshold = 1e-8  # for "rgwish_c" function in C++
+	
 			result = .C( "rgwish_c", as.integer(G), as.double(Ti), K = as.double(K), 
-						 as.integer(b), as.integer(p), PACKAGE = "BDgraph" )
+						 as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
 			
 			K     = matrix( result $ K, p, p ) 		
 			sigma = solve( K )
@@ -92,7 +113,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		d <- BDgraph::rmvnorm( n = n, mean = mean, sigma = sigma )
 		
 		#--- generate multivariate mixed data -----------------------------------------------------|
-		is.discrete = numeric( p )
+		not.cont = numeric( p )
 
 		if( type == "mixed" )
 		{
@@ -102,46 +123,46 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			
 			# generating count data
 			col_number        <- c( 1:ps )
-			prob              <- pnorm( d[, col_number] )
-			d[ , col_number ] <- qpois( p = prob, lambda = 10 )
+			prob              <- stats::pnorm( d[, col_number] )
+			d[ , col_number ] <- stats::qpois( p = prob, lambda = 10 )
 			
-			is.discrete[ 1:ps ] = 1
+			not.cont[ 1:ps ] = 1
 
 			# generating ordinal data
 			col_number        <- c( ( ps + 1 ):( 2 * ps ) )
-			prob              <- pnorm( d[ , col_number ] )
-			d[ , col_number ] <- qpois( p = prob, lambda = 2 )
+			prob              <- stats::pnorm( d[ , col_number ] )
+			d[ , col_number ] <- stats::qpois( p = prob, lambda = 2 )
 			
-			is.discrete[ c( ( ps + 1 ):( 2 * ps ) ) ] = 1
+			not.cont[ c( ( ps + 1 ):( 2 * ps ) ) ] = 1
 			
 			# generating non-Guassian data
 			col_number     <- c( ( 2 * ps + 1 ):( 3 * ps ) )
-			prob           <- pnorm( d[ , col_number ] )
-			d[,col_number] <- qexp( p = prob, rate = 10 )
+			prob           <- stats::pnorm( d[ , col_number ] )
+			d[,col_number] <- stats::qexp( p = prob, rate = 10 )
 
 			# for binary data
-			col_number     <- c( ( 3 * ps + 1 ):( 4 * ps ) )
-			prob           <- pnorm( d[ , col_number ] )
-			d[,col_number] <- qbinom( p = prob, size = 1, prob = 0.5 )
+			col_number        <- c( ( 3 * ps + 1 ):( 4 * ps ) )
+			prob              <- stats::pnorm( d[ , col_number ] )
+			d[ , col_number ] <- stats::qbinom( p = prob, size = 1, prob = 0.5 )
 			
-			is.discrete[ c( ( 3 * ps + 1 ):( 4 * ps ) ) ] = 1
+			not.cont[ c( ( 3 * ps + 1 ):( 4 * ps ) ) ] = 1
 		}
 
 		#--- generate multivariate continuous non-Gaussian data -----------------------------------|
 		if( type == "non-Gaussian" )
 		{
 			# generating multivariate continuous non-Gaussian data  
-			prob <- pnorm( d )
-			d    <- qexp( p = prob, rate = 10 )
+			prob <- stats::pnorm( d )
+			d    <- stats::qexp( p = prob, rate = 10 )
 		}
 
 		#--- generate multivariate discrete data --------------------------------------------------|
 		if( type == "discrete" )
 		{
-		    is.discrete[ 1:p ] = 1
+		    not.cont[ 1:p ] = 1
 		    
-			runif_m   <- matrix( runif( cut * p ), nrow = p, ncol = cut )   
-			marginals <- apply( runif_m, 1, function( x ) { qnorm( cumsum( x / sum( x ) )[ -length( x ) ] ) } )
+			runif_m   <- matrix( stats::runif( cut * p ), nrow = p, ncol = cut )   
+			marginals <- apply( runif_m, 1, function( x ) { stats::qnorm( cumsum( x / sum( x ) )[ -length( x ) ] ) } )
 			if( cut == 2 ) marginals = matrix( marginals, nrow = 1, ncol = p )
 				 
 			for( j in 1:p )
@@ -155,7 +176,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
 		if( type == "binary" )
 		{
-		    is.discrete[ 1:p ] = 1
+		    not.cont[ 1:p ] = 1
 		    
 		    if( p > 16 ) stop( "For type 'binary', number of nodes (p) must be less than 16" )
 			
@@ -171,7 +192,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 	#--- Saving the result ------------------------------------------------------------------------|
 	if( n != 0 )
 	{
-		simulation <- list( G = G, data = d, sigma = sigma, K = K, graph = graph, type = type, is.discrete = is.discrete )
+		simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont )
 	}else{
 		simulation <- list( G = G, graph = graph )		
 	}
@@ -183,7 +204,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
         graphG <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
         
         if( p < 20 ) size = 10 else size = 2
-        igraph::plot.igraph( graphG, layout = layout.circle, main = "Graph structure", 
+        igraph::plot.igraph( graphG, layout = igraph::layout.circle, main = "Graph structure", 
                      vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
     }
     
@@ -221,9 +242,9 @@ plot.sim = function( x, main = NULL, layout = layout.circle, ... )
 {
     true_graph = as.matrix( x $ G )
     if( is.null( main ) ) main = "Graph structure"
-  	g_igraph <- graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
+  	g_igraph <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
 	
-    plot.igraph( g_igraph, main = main, layout = layout, ... )
+  	igraph::plot.igraph( g_igraph, main = main, layout = layout, ... )
 }		
        
 ## ------------------------------------------------------------------------------------------------|
@@ -259,7 +280,7 @@ generate_clique_factors = function( ug )
 	for ( i in 1:length( cliques ) )
 	{
 		clq                 = cliques[[i]]
-		clique_factors[[i]] = runif( 2 ^ length( clq ) )
+		clique_factors[[i]] = stats::runif( 2 ^ length( clq ) )
 	}
 	
 	return( clique_factors )

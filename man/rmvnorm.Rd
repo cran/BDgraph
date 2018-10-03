@@ -20,17 +20,15 @@
 
 \value{ A numeric matrix with rows equal to \eqn{n} and columns equal to \eqn{length( mean )}. }
 
-\author{ Reza Mohammadi }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{\code{\link{bdgraph.sim}}, \code{\link{rwish}}, \code{\link{rgwish}}}
+\seealso{\code{\link{bdgraph.sim}}, \code{\link{rwish}}, and \code{\link{rgwish}}}
 
 \examples{
-    \dontrun{
-        mean  <- c( 5, 20 )       
-        sigma <- matrix( c( 4, 2,
-                            2, 5 ), 2, 2 )  # covariance matrix
-        
-        dat <- rmvnorm( n = 1000, mean = mean, sigma = sigma )
-        plot( dat )
-    }
+mean  <- c( 5, 20 )       
+sigma <- matrix( c( 4, 2,
+                    2, 5 ), 2, 2 )  # covariance matrix
+
+sample <- rmvnorm( n = 500, mean = mean, sigma = sigma )
+plot( sample )
 }

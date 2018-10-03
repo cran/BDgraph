@@ -20,10 +20,9 @@ extern "C" {
 // for D = I_p 
 // it is for Bayesian model averaging
 // ------------------------------------------------------------------------------------------------|
-void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double Z[], int R[], int *n, int *gcgm,
-			 double K_hat[], double p_links[],
-			 int *b, int *b_star, double D[], double Ds[], int *print )
+void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+            int *p, double *threshold, double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+            double K_hat[], double p_links[], int *b, int *b_star, double D[], double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
@@ -59,20 +58,23 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of rates 
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );	
 
@@ -81,29 +83,29 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC -------------------------------------------| 
+//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-//----- STEP 1: copula --------------------------------------------------------|		
+//----- STEP 1: copula ----------------------------------------------------------------------------|		
 		
-		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
 			for( i = 0; i < j; i++ )
 			{
-				ij        = j * dim + i;
-				Dsij      = Ds[ij];
-				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
+				ij          = j * dim + i;
+				Dsij        = Ds[ ij ];
+				Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
 			}
 				
-//----- STEP 2: calculating birth and death rates -----------------------------|		
+//----- STEP 2: calculating birth and death rates -------------------------------------------------|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
@@ -112,7 +114,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//----- saving result ---------------------------------------------------------|	
+//----- saving result -----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -122,39 +124,37 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 			
 			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
-				if( G[i] ) p_links_Cpp[i] += weight_C;
+				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
-//----- End of saving result --------------------------------------------------|	
+//----- End of saving result ----------------------------------------------------------------------|	
 		
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-		G[selected_edge_ij] = 1 - G[selected_edge_ij];
-		G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
+		G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
+		G[ selected_edge_i * dim + selected_edge_j ] = G[ selected_edge_ij ];
 
-		if( G[selected_edge_ij] )
+		if( G[ selected_edge_ij ] )
 		{ 
-			++size_node[selected_edge_i]; 
-			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
-			--size_node[selected_edge_i]; 
-			--size_node[selected_edge_j]; 
+			++size_node[ selected_edge_i ]; 
+			++size_node[ selected_edge_j ]; 
+		}else{ 
+			--size_node[ selected_edge_i ]; 
+			--size_node[ selected_edge_j ]; 
 		}
 
-//------ STEP 3: Sampling from G-Wishart for new graph ------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+//------ STEP 3: Sampling from G-Wishart for new graph --------------------------------------------|
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC ------------------------------------| 
+//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 	{	
-		p_links[i] = p_links_Cpp[i] / sum_weights;
-		K_hat[i]   = K_hat_Cpp[i]   / sum_weights;
+		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
+		K_hat[ i ]   = K_hat_Cpp[ i ]   / sum_weights;
 	}
 }
     
@@ -163,11 +163,12 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], int g_space[], double g_pr
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double Z[], int R[], int *n, int *gcgm,
-			 int all_graphs[], double all_weights[], double K_hat[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g,
-			 int *b, int *b_star, double D[], double Ds[], int *print )
+void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+                    int *p, double *threshold, 
+                    double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                    int all_graphs[], double all_weights[], double K_hat[], 
+                    char *sample_graphs[], double graph_weights[], int *size_sample_g,
+                    int *b, int *b_star, double D[], double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin, count_all_g = 0;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
@@ -205,20 +206,23 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of rates 
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -227,29 +231,29 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC -------------------------------------------| 
+//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-//----- STEP 1: copula --------------------------------------------------------|		
+//----- STEP 1: copula ----------------------------------------------------------------------------|		
 		
-		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
 			for( i = 0; i < j; i++ )
 			{
-				ij        = j * dim + i;
-				Dsij      = Ds[ij];
-				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
+				ij          = j * dim + i;
+				Dsij        = Ds[ ij ];
+				Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
 			}
 		
-//----- STEP 2: calculating birth and death rates -----------------------------|		
+//----- STEP 2: calculating birth and death rates -------------------------------------------------|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
@@ -258,7 +262,7 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//----- Saving result ---------------------------------------------------------|	
+//----- Saving result -----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -272,65 +276,63 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat[0], &one );			
 
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[count_all_g] = weight_C;
+			all_weights[ count_all_g ] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i] += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ] += all_weights[ count_all_g ];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]          = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]          = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//----- End of saving result --------------------------------------------------|	
+//----- End of saving result ----------------------------------------------------------------------|	
 		
 		// Updating G (graph) based on selected edge
-		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-		G[selected_edge_ij] = 1 - G[selected_edge_ij];
-		G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
+		selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
+		G[ selected_edge_ij ] = 1 - G[ selected_edge_ij];
+		G[ selected_edge_i * dim + selected_edge_j ] = G[ selected_edge_ij ];
 
-		if( G[selected_edge_ij] )
+		if( G[ selected_edge_ij ] )
 		{ 
-			++size_node[selected_edge_i]; 
-			++size_node[selected_edge_j]; 
-		}
-		else
-		{ 
-			--size_node[selected_edge_i]; 
-			--size_node[selected_edge_j]; 
+			++size_node[ selected_edge_i ]; 
+			++size_node[ selected_edge_j ]; 
+		}else{ 
+			--size_node[ selected_edge_i ]; 
+			--size_node[ selected_edge_j ]; 
 		}
 
-//------ STEP 3: Sampling from G-Wishart for new graph ------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+//------ STEP 3: Sampling from G-Wishart for new graph --------------------------------------------|
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC ------------------------------------| 
+//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
 
 	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ ) 
-		K_hat[i] /= sum_weights;
+		K_hat[ i ] /= sum_weights;
 }
        
 // ------------------------------------------------------------------------------------------------|
@@ -338,10 +340,11 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], int g_space[], double g_p
 // for D = I_p 
 // it is for Bayesian model averaging
 // ------------------------------------------------------------------------------------------------|
-void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double Z[], int R[], int *n, int *gcgm,
-			 double K_hat[], double p_links[],
-			 int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
+void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
+                        double K[], int *p, double *threshold, 
+                        double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                        double K_hat[], double p_links[],
+                        int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin, multi_update_C = *multi_update;
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
@@ -380,20 +383,23 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of rates 
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -402,36 +408,36 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC -------------------------------------------| 
+//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-//----- STEP 1: copula --------------------------------------------------------|		
+//----- STEP 1: copula ----------------------------------------------------------------------------|		
 		
-		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
 			for( i = 0; i < j; i++ )
 			{
-				ij        = j * dim + i;
-				Dsij      = Ds[ij];
-				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
+				ij          = j * dim + i;
+				Dsij        = Ds[ ij ];
+				Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
 			}
 				
-//----- STEP 2: calculating birth and death rates -----------------------------|		
+//----- STEP 2: calculating birth and death rates -------------------------------------------------|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//----- saving result ---------------------------------------------------------|	
+//----- saving result -----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -441,45 +447,43 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 			
 			#pragma omp parallel for
 			for( i = 0; i < pxp ; i++ )
-				if( G[i] ) p_links_Cpp[i] += weight_C;
+				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
-//----- End of saving result --------------------------------------------------|	
+//----- End of saving result ----------------------------------------------------------------------|	
 		
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
-			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-			G[selected_edge_ij] = 1 - G[selected_edge_ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
+			selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
+			G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ selected_edge_ij ];
 		
-			if( G[selected_edge_ij] )
+			if( G[ selected_edge_ij ] )
 			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
+				++size_node[ selected_edge_i ]; 
+				++size_node[ selected_edge_j ]; 
+			}else{ 
+				--size_node[ selected_edge_i ]; 
+				--size_node[ selected_edge_j ]; 
 			}		
 		}
 		
-//------ STEP 3: Sampling from G-Wishart for new graph ------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+//------ STEP 3: Sampling from G-Wishart for new graph --------------------------------------------|
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC ------------------------------------| 
+//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
 	{	
-		p_links[i] = p_links_Cpp[i] / sum_weights;
-		K_hat[i]   = K_hat_Cpp[i]   / sum_weights;
+		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
+		K_hat[ i ]   = K_hat_Cpp[ i ]   / sum_weights;
 	}
 }
     
@@ -488,11 +492,12 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], int g_space[]
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[], double g_prior[], double Ts[], double K[], int *p, 
-			 double Z[], int R[], int *n, int *gcgm,
-			 int all_graphs[], double all_weights[], double K_hat[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
-			 int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
+void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
+                    double K[], int *p, double *threshold, 
+                    double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                    int all_graphs[], double all_weights[], double K_hat[], 
+                    char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
+                    int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
 {
 	int print_c = *print, multi_update_C = *multi_update, iteration = *iter, burn_in = *burnin;
 	int count_all_g = *counter_all_g;
@@ -535,20 +540,23 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 	for( i = 0; i < dim; i++ )
 	{
 		ip = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ip + j];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ ip + j ];
 	}
 
 	// For finding the index of rates 
 	vector<int> index_row( qp );
 	vector<int> index_col( qp );
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[counter] = i;
-				index_col[counter] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -557,36 +565,36 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 		for( i = 0; i < j; i++ )
 		{
 			ij = j * dim + i;
-			log_ratio_g_prior[ij] = log( static_cast<double>( g_prior[ij] / ( 1 - g_prior[ij] ) ) );
+			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC -------------------------------------------| 
+//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-//----- STEP 1: copula --------------------------------------------------------|		
+//----- STEP 1: copula ----------------------------------------------------------------------------|		
 		
-		get_Ds( K, Z, R, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
 			for( i = 0; i < j; i++ )
 			{
-				ij        = j * dim + i;
-				Dsij      = Ds[ij];
-				Dsijj[ij] = Dsij * Dsij / Ds[j * dim + j]; 
+				ij          = j * dim + i;
+				Dsij        = Ds[ ij ];
+				Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
 			}
 				
-//----- STEP 2: calculating birth and death rates -----------------------------|		
+//----- STEP 2: calculating birth and death rates -------------------------------------------------|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//----- Saving result ---------------------------------------------------------|	
+//----- Saving result -----------------------------------------------------------------------------|	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -600,64 +608,62 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat[0], &one );			
 
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[count_all_g] = weight_C;
+			all_weights[ count_all_g ] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i] += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ] += all_weights[ count_all_g ];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]          = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//----- End of saving result --------------------------------------------------|	
+//----- End of saving result ----------------------------------------------------------------------|	
 		
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
-			G[selected_edge_ij] = 1 - G[selected_edge_ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[selected_edge_ij];
+			G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ selected_edge_ij ];
 		
-			if( G[selected_edge_ij] )
+			if( G[ selected_edge_ij ] )
 			{ 
-				++size_node[selected_edge_i]; 
-				++size_node[selected_edge_j]; 
-			}
-			else
-			{ 
-				--size_node[selected_edge_i]; 
-				--size_node[selected_edge_j]; 
+				++size_node[ selected_edge_i ]; 
+				++size_node[ selected_edge_j ]; 
+			}else{ 
+				--size_node[ selected_edge_i ]; 
+				--size_node[ selected_edge_j ]; 
 			}		
 		}
 
-//------ STEP 3: Sampling from G-Wishart for new graph ------------------------|
-		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
+//------ STEP 3: Sampling from G-Wishart for new graph --------------------------------------------|
+		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC ------------------------------------| 
+//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
 
 	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy(sample_graphs[i], qp, 0);
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy(sample_graphs[ i ], qp, 0);
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
@@ -665,7 +671,7 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], int g_space[
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ ) 
-		K_hat[i] /= sum_weights;
+		K_hat[ i ] /= sum_weights;
 }
        
 } // End of exturn "C"

@@ -42,12 +42,14 @@ extern "C" {
 	
 	void select_edge( double rates[], int *index_selected_edge, double *sum_rates, int *qp );
 
+	void select_edge_ts( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp );
+
 	void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp );
 
 	void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
 					            double sigma[], double K[], int *b, int *p );
 
-	void rates_cbdmcmc_parallel( double rates[], int G[], int index_row[], int index_col[], int *sub_qp, double r_Ds[], double i_Ds[],
+	void rates_cbdmcmc_parallel( long double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double r_Ds[], double i_Ds[],
 				            double r_sigma[], double i_sigma[], double r_K[], double i_K[], int *b, int *p );
 
 	void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,

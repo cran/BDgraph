@@ -20,29 +20,21 @@ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
 	\eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
   }
   
-  \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
-                      It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links. }
+  \item{bdgraph.obj}{ 
+        An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+        It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+        It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links. }
   
-  \item{bdgraph.obj2}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
-                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
-                       It is for comparing two different approaches. }
-  
-  \item{bdgraph.obj3}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
-                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
-                       It is for comparing three different approaches. }
-  
-  \item{bdgraph.obj4}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-					  It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
-                       It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
-                       It is for comparing four different approaches. }
-  
+  \item{bdgraph.obj2, 
+        bdgraph.obj3,
+        bdgraph.obj4 }{ 
+            An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
+            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+            It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+            It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
+            It is for comparing two different approaches. }
+ 
   \item{cut}{ Number of cut points.}
   
   \item{smooth}{ Logical: for smoothing the ROC curve.} 
@@ -51,20 +43,20 @@ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
 }
 
 \references{
-Mohammadi, A. and E. Wit (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
-Mohammadi, A. and E. Wit (2015). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108} 
+Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
 
-Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 
-Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C} 
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
 
-Mohammadi, A., Massam H., and G. Letac (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
+Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
 }
 
-\author{ Reza Mohammadi and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{\code{\link{bdgraph}} and \code{\link{compare}}}
+\seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, and \code{\link{compare}} }
 
 \examples{
 \dontrun{

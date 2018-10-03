@@ -23,7 +23,7 @@ gnorm = function( adj.g, b = 3, D = diag( ncol( adj.g ) ), iter = 100 )
 
     G <- unclass( adj.g )
     G <- as.matrix( G )
-	if( sum( ( G == 1 ) * ( G == 0 ) ) != 0 ) stop( "Elements of matrix G must be zero or one" )	
+	if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'G' must be 0 or 1" )
 
 	G[ lower.tri( G, diag = TRUE ) ] <- 0
 

@@ -24,7 +24,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         
         if( is.null( size ) )
         {
-            G[ upper.tri( G ) ] <- rbinom( p * ( p - 1 ) / 2, 1, prob )
+            G[ upper.tri( G ) ] <- stats::rbinom( p * ( p - 1 ) / 2, 1, prob )
         }else{
             if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size must be between zero and p*(p-1)/2" )
             
@@ -63,18 +63,18 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         
         if( is.null( size ) )
         {
-            # if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
+            # if( prob < 0 | prob > 1 ) stop( " 'prob' must be between zero and one" )
             
             for( i in 1 : class )
             {
                 tmp <- if( i == 1 ) ( 1 : vp[1] ) else ( ( sum( vp[1 : (i-1)] ) + 1 ) : sum( vp[1:i] ) )
                 gg                <- matrix( 0, vp[i], vp[i] )
-                gg[upper.tri(gg)] <- rbinom( vp[i] * ( vp[i] - 1 ) / 2, 1, prob )
+                gg[upper.tri(gg)] <- stats::rbinom( vp[i] * ( vp[i] - 1 ) / 2, 1, prob )
                 G[tmp, tmp]       <- gg
             }
         }else{
-            if( class != length( size ) )  stop( "Number of graph sizes is not match with number of clusters" )
-            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( "Total graph sizes must be between zero and p*(p-1)/2" )
+            if( class != length( size ) )  stop( " Number of graph sizes is not match with number of clusters" )
+            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( " Total graph sizes must be between zero and p*(p-1)/2" )
             
             for( i in 1 : class )
             {
@@ -106,9 +106,9 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         
         for( i in 1:class )
         {
-            tmp           <- which( g.ind == i )
-            G[tmp[1],tmp] <- 1
-            G[tmp,tmp[1]] <- 1
+            tmp              <- which( g.ind == i )
+            G[ tmp[1], tmp ] <- 1
+            G[ tmp, tmp[1] ] <- 1
         }
     }
     
@@ -116,9 +116,9 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     {
         if( p < 2 ) stop( "For 'circle' graph, 'p' must be more than 2" )
         
-        G       <- toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
-        G[1, p] <- 1
-        G[p, 1] <- 1
+        G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
+        G[ 1, p ] <- 1
+        G[ p, 1 ] <- 1
     }
     
     if( graph == "scale-free" )
@@ -135,14 +135,36 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
             G[ j, i ] = 1
         }
     }
+    
+    if( ( graph == "lattice" ) | ( graph == "grid" ) )
+    {
+        G = matrix( 0, p, p )
+        sp = floor( sqrt( p ) )
+        
+        for( row in 1:( sp - 1 ) )
+        {
+            for( col in 1:( sp - 1 ) )
+            {
+                node = ( row - 1 ) * sp + col
+                G[ node, node + 1  ] = 1
+                G[ node, node + sp ] = 1
+            }
+            
+            node = sp * row
+            G[ node, node + sp ] = 1
+            
+            node = sp * ( sp - 1 ) + row
+            G[ node, node + 1 ] = 1
+        }        
+    }
         
     #--- graph visualization ----------------------------------------------------------------------|
     if( vis == TRUE )
     {
-        graphG <- graph.adjacency( G, mode = "undirected", diag = FALSE )
+        graph_ig <- igraph::graph.adjacency( G, mode = "undirected", diag = FALSE )
         
         if( p < 20 ) size = 10 else size = 2
-        plot.igraph( graphG, layout = layout.circle, main = "Graph structure", 
+        igraph::plot.igraph( graph_ig, layout = igraph::layout.circle, main = "Graph structure", 
                      vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
     }
     
@@ -157,8 +179,8 @@ plot.graph = function( x, main = NULL, layout = layout.circle, ... )
 {
     true_graph = as.matrix( x )
     if( is.null( main ) ) main = "Graph structure"
-    g_igraph <- graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
+    g_igraph <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
     
-    plot.igraph( g_igraph, main = main, layout = layout, ... )
+    igraph::plot.igraph( g_igraph, main = main, layout = layout, ... )
 }		
 

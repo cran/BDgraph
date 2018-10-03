@@ -16,12 +16,12 @@
 }
 
 \references{
-Mohammadi, A. and A. Dobra (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
+Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 
-Dobra, A. and A. Mohammadi (2017). Loglinear Model Selection and Human Mobility, \emph{arXiv preprint arXiv:1711.02623}
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 }
 
-\author{ Reza Mohammadi and Adrian Dobra }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Adrian Dobra }
 
 \seealso{ \code{\link{bdgraph.mpl}} and \code{\link{bdgraph.sim}} }
 
@@ -34,6 +34,5 @@ r_data
    
 # Transfer the data
 transfer( r_data )
-  
 }
 }

@@ -1,0 +1,15 @@
+
+To do list: June 22 2018
+-------------------------
+
+	- adding option "weight = FALSE" to function "compare()"
+
+	- Writing a vignettes with title:
+	   "An Introduction to the BDgraph Package for Bayesian Graphical Models" 
+	   
+    - adding predit.bdgraph() function
+    
+    - working on bergm idea
+    
+    
+ 

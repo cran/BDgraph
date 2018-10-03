@@ -32,7 +32,7 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 	{
 		case 0:
 			for( i = 0; i < *length_freq_data; i++ )
-				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 				
 			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 						   
@@ -40,7 +40,7 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 			break;
 				
 		case 1:
-			mb_node_x_lf = mb_node[0] * *length_freq_data; 		
+			mb_node_x_lf = mb_node[ 0 ] * *length_freq_data; 		
 
 			for( l = 0; l < 2; l++ )  // collects the necessary statistics from the data and calculates the score
 			{
@@ -48,7 +48,7 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 				fam_conf_count_1 = 0;
 				for( i = 0; i < *length_freq_data; i++ )
 					if( data[ mb_node_x_lf + i ] == l ) 
-						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 								
 				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 		   
@@ -70,21 +70,21 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 			{
 				i_hash = j / sz;
 				//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
-				hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data ] << ( j - i_hash * sz );
+				hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[ j ] * *length_freq_data ] << ( j - i_hash * sz );
 			}
 			mb_conf[0] = hash_mb;
 			size_mb_conf = 1;
 
 			if( data[ node_x_lf ] == 0 ) 
 			{
-				vec_fam_conf_count_0[0] = freq_data[0];
-				vec_fam_conf_count_1[0] = 0;
+				vec_fam_conf_count_0[ 0 ] = freq_data[ 0 ];
+				vec_fam_conf_count_1[ 0 ] = 0;
 			}else{
-				vec_fam_conf_count_1[0] = freq_data[0];
-				vec_fam_conf_count_0[0] = 0;
+				vec_fam_conf_count_1[ 0 ] = freq_data[ 0 ];
+				vec_fam_conf_count_0[ 0 ] = 0;
 			}
 
-			int sizeof_hash = size_hash * sizeof hash_mb[0];
+			int sizeof_hash = size_hash * sizeof hash_mb[ 0 ];
 			for( i = 1; i < *length_freq_data; i++ )
 			{
 				//vector<unsigned long long int> hash_mb( size_hash, 0 );
@@ -94,28 +94,28 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 				{
 					i_hash = j / sz;
 					//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
-					hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+					hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[ j ] * *length_freq_data + i ] << ( j - i_hash * sz );
 				}
 				
 				//data_mb[i] = hash_mb;
 				counter = 1;
 				for( j = 0; j < size_mb_conf; j++ )
-					if( hash_mb == mb_conf[j] ) 
+					if( hash_mb == mb_conf[ j ] ) 
 					{
-						( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[j] += freq_data[i] : vec_fam_conf_count_1[j] += freq_data[i];
+						( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ j ] += freq_data[ i ] : vec_fam_conf_count_1[ j ] += freq_data[ i ];
 						counter = 0;  
 						break;
 					}					
 				
 				if( counter )
 				{
-					//( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i] : vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+					//( data[ node_x_lf + i ] == 0 ) ? vec_fam_conf_count_0[ size_mb_conf ] = freq_data[ i ] : vec_fam_conf_count_1[ size_mb_conf ] = freq_data[ i ];
 					if( data[ node_x_lf + i ] == 0 ) 
 					{
-						vec_fam_conf_count_0[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_0[ size_mb_conf ] = freq_data[ i ];
 						vec_fam_conf_count_1[ size_mb_conf ] = 0;
 					}else{
-						vec_fam_conf_count_1[ size_mb_conf ] = freq_data[i];
+						vec_fam_conf_count_1[ size_mb_conf ] = freq_data[ i ];
 						vec_fam_conf_count_0[ size_mb_conf ] = 0;
 					}
 					
@@ -124,7 +124,7 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 			}
 						
 			for( l = 0; l < size_mb_conf; l++ )  // collects the necessary statistics from the data and calculates the score
-				*log_mpl_node += lgammafn_sign( vec_fam_conf_count_0[l] + *alpha_ijl, NULL ) + lgammafn_sign( vec_fam_conf_count_1[l] + *alpha_ijl, NULL ) - lgammafn_sign( vec_fam_conf_count_0[l] + vec_fam_conf_count_1[l] + *alpha_jl, NULL );     
+				*log_mpl_node += lgammafn_sign( vec_fam_conf_count_0[ l ] + *alpha_ijl, NULL ) + lgammafn_sign( vec_fam_conf_count_1[ l ] + *alpha_ijl, NULL ) - lgammafn_sign( vec_fam_conf_count_0[l] + vec_fam_conf_count_1[l] + *alpha_jl, NULL );     
 
 			// adding remaining terms 
 			*log_mpl_node += size_mb_conf * ( *log_alpha_jl - 2 * *log_alpha_ijl );   
@@ -139,7 +139,8 @@ void log_mpl_binary( int *node, int mb_node[], int *size_node, double *log_mpl_n
 void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
                   int data[], int freq_data[], int *length_freq_data, 
                   double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, 
-                  vector<vector<unsigned long long int> > &mb_conf, vector<vector<unsigned long long int> > &data_mb, int *size_bit )
+                  vector<vector<unsigned long long int> > &mb_conf, 
+                  vector<vector<unsigned long long int> > &data_mb, int *size_bit )
 {
 	int i, l, size_mb_conf, mb_node_x_lf, node_x_lf = *node * *length_freq_data;
 	double sum_lgamma_fam;
@@ -151,7 +152,7 @@ void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *
 	{
 		case 0:
 			for( i = 0; i < *length_freq_data; i++ )
-				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+				( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 				
 			sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 						   
@@ -167,7 +168,7 @@ void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *
 				fam_conf_count_1 = 0;
 				for( i = 0; i < *length_freq_data; i++ )
 					if( data[ mb_node_x_lf + i ] == l ) 
-						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 								
 				sum_lgamma_fam = lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL );
 		   
@@ -198,9 +199,9 @@ void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *
 					{
 						i_hash = j / sz;
 						//hash_mb[ i_hash ] |= data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
-						hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[j] * *length_freq_data + i ] << ( j - i_hash * sz );
+						hash_mb[ i_hash ] += (unsigned long long)data[ mb_node[ j ] * *length_freq_data + i ] << ( j - i_hash * sz );
 					}
-					data_mb[i] = hash_mb;
+					data_mb[ i ] = hash_mb;
 				}
 			}
 			
@@ -214,8 +215,8 @@ void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *
 				fam_conf_count_0 = 0;
 				fam_conf_count_1 = 0;
 				for( i = 0; i < *length_freq_data; i++ )
-					if( data_mb[i] == mb_conf[ l ] ) 
-						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[i] : fam_conf_count_1 += freq_data[i];
+					if( data_mb[ i ] == mb_conf[ l ] ) 
+						( data[ node_x_lf + i ] == 0 ) ? fam_conf_count_0 += freq_data[ i ] : fam_conf_count_1 += freq_data[ i ];
 				
 				*log_mpl_node += lgammafn_sign( fam_conf_count_0 + *alpha_ijl, NULL ) + lgammafn_sign( fam_conf_count_1 + *alpha_ijl, NULL ) - lgammafn_sign( fam_conf_count_0 + fam_conf_count_1 + *alpha_jl, NULL );     
 			}
@@ -230,16 +231,19 @@ void log_mpl_binary_parallel( int *node, int mb_node[], int *size_node, double *
 // ------------------------------------------------------------------------------------------------| 
 // Computing birth-death rates for dgm_mpl_binary method
 // ------------------------------------------------------------------------------------------------| 
-void rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], double log_mpl_pro_node_j[], double curr_log_mpl[], int G[], int index_row[], int index_col[], int *sub_qp, 
-                          int size_node[], int data[], int freq_data[], int *length_freq_data, double *log_ratio_g_prior,
-                          double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, int *p )
+void rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[], 
+                    double log_mpl_pro_node_i[], double log_mpl_pro_node_j[], 
+                    double curr_log_mpl[], int G[], double g_prior[], int index_row[], int index_col[], int *sub_qp, 
+                    int size_node[], int data[], int freq_data[], int *length_freq_data,
+                    double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, 
+                    int *n, int *p )
 {
 	int dim = *p;
 	int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
 
 	#pragma omp parallel
 	{
-		int i, j, t, G_ij, nodexdim, count_mb, size_node_i_new, size_node_j_new;
+		int i, j, t, ij, nodexdim, count_mb, size_node_i_new, size_node_j_new;
 		double log_rate;
 		
 		int *mb_node_i_new = new int[ dim ];          // For dynamic memory used
@@ -252,52 +256,56 @@ void rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], double lo
 		#pragma omp for
 		for( int counter = 0; counter < *sub_qp; counter++ )
 		{
-			i    = index_row[ counter ];
-			j    = index_col[ counter ];
-			G_ij = G[ j * dim + i ];
+			i  = index_row[ counter ];
+			j  = index_col[ counter ];
+			ij =  j * dim + i;
 			
-			if( G_ij )
-			{ 
-				size_node_i_new = size_node[i] - 1; 
-				size_node_j_new = size_node[j] - 1; 
-
-				if( size_node_i_new > 0 )
-				{	
-					nodexdim = i * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
-				}	
-				
-				if( size_node_j_new > 0 )
-				{						
-					nodexdim = j * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
-				}	
-			}else{ 
-				size_node_i_new = size_node[i] + 1; 
-				size_node_j_new = size_node[j] + 1; 
-
-				nodexdim = i * dim;
-				count_mb = 0; 
-				for( t = 0; t < dim; t++ ) 
-					if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
-
-				nodexdim = j * dim;
-				count_mb = 0; 
-				for( t = 0; t < dim; t++ ) 
-					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
+			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			{
+			    if( G[ ij ] )
+    			{ 
+    				size_node_i_new = size_node[ i ] - 1; 
+    				size_node_j_new = size_node[ j ] - 1; 
+    
+    				if( size_node_i_new > 0 )
+    				{	
+    					nodexdim = i * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
+    				}	
+    				
+    				if( size_node_j_new > 0 )
+    				{						
+    					nodexdim = j * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
+    				}	
+    			}else{ 
+    				size_node_i_new = size_node[ i ] + 1; 
+    				size_node_j_new = size_node[ j ] + 1; 
+    
+    				nodexdim = i * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
+    
+    				nodexdim = j * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
+    			}
+    			
+    			log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_pro_node_i[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
+    			log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_pro_node_j[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
+    																		
+    			log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[ i ] - curr_log_mpl[ j ];
+    			//log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
+    			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
+    			
+    			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
-			
-			log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_pro_node_i[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
-			log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_pro_node_j[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
-																		
-			log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[i] - curr_log_mpl[j];
-			log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
-			
-			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
 		}
 		
 		delete[] mb_node_i_new;
@@ -308,17 +316,19 @@ void rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], double lo
 // ------------------------------------------------------------------------------------------------|
 // Local update the birth-death rates for dgm_mpl_binary method
 // ------------------------------------------------------------------------------------------------|
-void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], double log_mpl_pro_node_j[], 
-                       int *selected_edge_i, int *selected_edge_j, double curr_log_mpl[], int G[], int g_space[], 
-                       int size_node[], int data[], int freq_data[], int *length_freq_data, double *log_ratio_g_prior,
-                       double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, int *n, int *p )
+void local_rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[], 
+                    double log_mpl_pro_node_i[], double log_mpl_pro_node_j[], 
+                    int *selected_edge_i, int *selected_edge_j, double curr_log_mpl[], int G[], double g_prior[],
+                    int size_node[], int data[], int freq_data[], int *length_freq_data,
+                    double *alpha_ijl, double *alpha_jl, double *log_alpha_ijl, double *log_alpha_jl, 
+                    int *n, int *p )
 {
 	int dim = *p;
 	int size_bit = sizeof( unsigned long long int ) * CHAR_BIT / 2;
 	
 	#pragma omp parallel
 	{
-		int counter, i, j, t, G_ij, nodexdim, count_mb, size_node_j_new;
+		int counter, i, j, t, ij, nodexdim, count_mb, size_node_j_new;
 		double log_rate;
 		
 		int *mb_node_j_new = new int[ dim ];          // For dynamic memory used
@@ -330,40 +340,41 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 		#pragma omp for
 		for( int ind = 0; ind < *selected_edge_i; ind++ )
 		{
-			i = ind;
-			j = *selected_edge_i;
+			i  = ind;
+			j  = *selected_edge_i;
+			ij = j * dim + i;
 			
-			if( g_space[ j * dim + i ] )
+			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
 			{
-				counter = j * ( j - 1 ) / 2 + i;
-				G_ij    = G[ j * dim + i ];
-				
-				if( G_ij )
-				{ 
-					size_node_j_new = size_node[j] - 1; 
-
-					if( size_node_j_new > 0 )
-					{						
-						nodexdim = j * dim;
-						count_mb = 0; 
-						for( t = 0; t < dim; t++ ) 
-							if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
-					}	
-				}else{ 
-					size_node_j_new = size_node[j] + 1; 
-
-					nodexdim = j * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
-				}
-				
-				log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_pro_node_j[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );								
-
-				log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[i] - curr_log_mpl[j];
-				log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
-				
-				rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;	
+    			counter = j * ( j - 1 ) / 2 + i;
+    
+    			if( G[ ij ] )
+    			{ 
+    				size_node_j_new = size_node[ j ] - 1; 
+    
+    				if( size_node_j_new > 0 )
+    				{						
+    					nodexdim = j * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
+    				}	
+    			}else{ 
+    				size_node_j_new = size_node[ j ] + 1; 
+    
+    				nodexdim = j * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
+    			}
+    			
+    			log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_pro_node_j[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );								
+    
+    			log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[ i ] - curr_log_mpl[ j ];
+    			// log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
+    			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
+    			
+    			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;	
 			}
 		}	
 		
@@ -372,7 +383,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 
 	#pragma omp parallel
 	{
-		int counter, i, j, t, G_ij, nodexdim, count_mb, size_node_i_new;
+		int counter, i, j, t, ij, nodexdim, count_mb, size_node_i_new;
 		double log_rate;
 		
 		int *mb_node_i_new = new int[ dim ];          // For dynamic memory used
@@ -384,40 +395,41 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 		#pragma omp for
 		for( int ind = *selected_edge_i + 1; ind < dim; ind++ )
 		{
-			i = *selected_edge_i;
-			j = ind;
+			i  = *selected_edge_i;
+			j  = ind;
+			ij = j * dim + i;
 
-			if( g_space[ j * dim + i ] )
+			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
 			{
-				counter = j * ( j - 1 ) / 2 + i;
-				G_ij    = G[ j * dim + i ];
-				
-				if( G_ij )
-				{ 
-					size_node_i_new = size_node[i] - 1; 
+			    counter = j * ( j - 1 ) / 2 + i;
 
-					if( size_node_i_new > 0 )
-					{	
-						nodexdim = i * dim;
-						count_mb = 0; 
-						for( t = 0; t < dim; t++ ) 
-							if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
-					}	
-				}else{ 
-					size_node_i_new = size_node[i] + 1; 
-
-					nodexdim = i * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
-				}
-				
-				log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_pro_node_i[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
-
-				log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[i] - curr_log_mpl[j];
-				log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
-				
-				rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;	
+    			if( G[ ij ] )
+    			{ 
+    				size_node_i_new = size_node[ i ] - 1; 
+    
+    				if( size_node_i_new > 0 )
+    				{	
+    					nodexdim = i * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
+    				}	
+    			}else{ 
+    				size_node_i_new = size_node[ i ] + 1; 
+    
+    				nodexdim = i * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
+    			}
+    			
+    			log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_pro_node_i[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
+    
+    			log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[ i ] - curr_log_mpl[ j ];
+    			//log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
+    			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
+    			
+    			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
 		}
 		
@@ -426,7 +438,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 
 	#pragma omp parallel
 	{
-		int counter, i, j, t, G_ij, nodexdim, count_mb, size_node_j_new;
+		int counter, i, j, t, ij, nodexdim, count_mb, size_node_j_new;
 		double log_rate;
 		
 		int *mb_node_j_new = new int[ dim ];          // For dynamic memory used
@@ -438,40 +450,41 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 		#pragma omp for
 		for( int ind = 0; ind < *selected_edge_j; ind++ )
 		{
-			i = ind;
-			j = *selected_edge_j;
+			i  = ind;
+			j  = *selected_edge_j;
+			ij = j * dim + i;
 
-			if( g_space[ j * dim + i ] )
+			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
 			{
-				counter = j * ( j - 1 ) / 2 + i;
-				G_ij    = G[ j * dim + i ];
-				
-				if( G_ij )
-				{ 
-					size_node_j_new = size_node[j] - 1; 
+			    counter = j * ( j - 1 ) / 2 + i;
 
-					if( size_node_j_new > 0 )
-					{						
-						nodexdim = j * dim;
-						count_mb = 0; 
-						for( t = 0; t < dim; t++ ) 
-							if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
-					}	
-				}else{ 
-					size_node_j_new = size_node[j] + 1; 
-
-					nodexdim = j * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
-				}
-				
-				log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_pro_node_j[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );								
-
-				log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[i] - curr_log_mpl[j];
-				log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
-				
-				rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;	
+    			if( G[ ij ] )
+    			{ 
+    				size_node_j_new = size_node[ j ] - 1; 
+    
+    				if( size_node_j_new > 0 )
+    				{						
+    					nodexdim = j * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
+    				}	
+    			}else{ 
+    				size_node_j_new = size_node[ j ] + 1; 
+    
+    				nodexdim = j * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
+    			}
+    			
+    			log_mpl_binary( &j, mb_node_j_new, &size_node_j_new, &log_mpl_pro_node_j[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );								
+    
+    			log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[ i ] - curr_log_mpl[ j ];
+    			//log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
+    			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
+    			
+    			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
 		}	
 		
@@ -480,7 +493,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 
 	#pragma omp parallel
 	{
-		int counter, i, j, t, G_ij, nodexdim, count_mb, size_node_i_new;
+		int counter, i, j, t, ij, nodexdim, count_mb, size_node_i_new;
 		double log_rate;
 		
 		int *mb_node_i_new = new int[ dim ];          // For dynamic memory used
@@ -492,40 +505,41 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 		#pragma omp for
 		for( int ind = *selected_edge_j + 1; ind < dim; ind++ )
 		{
-			i = *selected_edge_j;
-			j = ind;
+			i  = *selected_edge_j;
+			j  = ind;
+			ij = j * dim + i;
 
-			if( g_space[ j * dim + i ] )
+			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
 			{
-				counter = j * ( j - 1 ) / 2 + i;
-				G_ij    = G[ j * dim + i ];
-				
-				if( G_ij )
-				{ 
-					size_node_i_new = size_node[i] - 1; 
+			    counter = j * ( j - 1 ) / 2 + i;
 
-					if( size_node_i_new > 0 )
-					{	
-						nodexdim = i * dim;
-						count_mb = 0; 
-						for( t = 0; t < dim; t++ ) 
-							if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
-					}	
-				}else{ 
-					size_node_i_new = size_node[i] + 1; 
-
-					nodexdim = i * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
-				}
-				
-				log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_pro_node_i[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
-
-				log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[i] - curr_log_mpl[j];
-				log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
-				
-				rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;	
+    			if( G[ ij ] )
+    			{ 
+    				size_node_i_new = size_node[ i ] - 1; 
+    
+    				if( size_node_i_new > 0 )
+    				{	
+    					nodexdim = i * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
+    				}	
+    			}else{ 
+    				size_node_i_new = size_node[ i ] + 1; 
+    
+    				nodexdim = i * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
+    			}
+    			
+    			log_mpl_binary( &i, mb_node_i_new, &size_node_i_new, &log_mpl_pro_node_i[ counter ], data, freq_data, length_freq_data, alpha_ijl, alpha_jl, log_alpha_ijl, log_alpha_jl, n, &vec_fam_conf_count_0[0], &vec_fam_conf_count_1[0], mb_conf, &size_bit );		
+    
+    			log_rate = log_mpl_pro_node_i[ counter ] + log_mpl_pro_node_j[ counter ] - curr_log_mpl[ i ] - curr_log_mpl[ j ];
+    			//log_rate = ( G_ij ) ? log_rate - *log_ratio_g_prior : log_rate + *log_ratio_g_prior;
+    			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
+    			
+    			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
 		}
 		
@@ -537,19 +551,19 @@ void local_rates_gm_mpl_binary( double rates[], double log_mpl_pro_node_i[], dou
 // birth-death MCMC for Graphical models for binary data with marginal pseudo-likelihood  
 // it is for Bayesian model averaging (MA)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], double *g_prior, int data[], int freq_data[], int *length_f_data, 
-               double *alpha_ijl, int *n, int *p, double p_links[], int *print )
+void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], double g_prior[], 
+                                int data[], int freq_data[], int *length_f_data, 
+                                double *alpha_ijl, int *n, int *p, double p_links[], int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print, iteration = *iter, burn_in = *burnin, copy_n = *n;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p, pxp = dim * dim;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl = 2 * *alpha_ijl;   
 	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
 	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
-	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
-	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
-	
+
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 	
 	// Counting size of notes
@@ -557,7 +571,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 
 	// Caclulating the log_likelihood for the current graph G
@@ -572,7 +586,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -582,27 +596,38 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 				
 		log_mpl_binary_parallel( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 	}
-	
+
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+		
 	// For finding the index of rates 
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	vector<double>log_mpl_pro_node_i( sub_qp );
 	vector<double>log_mpl_pro_node_j( sub_qp );
 
 	vector<double> rates( sub_qp );
-	rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+	rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 	
 //-- main loop for birth-death MCMC sampling algorithm --------------------------------------------|
 	GetRNGstate();
@@ -612,7 +637,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -628,7 +653,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 						
 			#pragma omp parallel for
 			for( int i = 0; i < pxp ; i++ )
-				if( G[i] ) p_links_Cpp[i] += weight_C;
+				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
@@ -667,7 +692,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 		}	
 		log_mpl_binary_parallel( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 
-		local_rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_space, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		local_rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_prior, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 // ------------------------------------------------------------------------------------------------|
 	} 
 	PutRNGstate();
@@ -675,28 +700,28 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], int g_space[], d
 
 	#pragma omp parallel for
 	for( int i = 0; i < pxp; i++ )
-		p_links[i] = p_links_Cpp[i] / sum_weights;
+		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
 }
        
 // ------------------------------------------------------------------------------------------------|
 // birth-death MCMC for Graphical models for binary data with marginal pseudo-likelihood  
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], double *g_prior, int data[], int freq_data[], int *length_f_data, double *alpha_ijl, int *n, int *p, 
-			 int all_graphs[], double all_weights[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *print )
+void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], double g_prior[], int data[], 
+                int freq_data[], int *length_f_data, double *alpha_ijl, int *n, int *p, 
+                int all_graphs[], double all_weights[], 
+                char *sample_graphs[], double graph_weights[], int *size_sample_g, int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, count_all_g = 0;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
 	int qp = dim * ( dim - 1 ) / 2;
+
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl      = 2 * *alpha_ijl;   
 	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
 	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
-	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
-	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 	bool this_one;
 
 	string string_g;
@@ -708,7 +733,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 	
 	// Caclulating the log_likelihood for the current graph G
@@ -723,7 +748,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -733,26 +758,37 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 				
 		log_mpl_binary_parallel( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 	}
- 
+
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] == 1 )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	vector<double>log_mpl_pro_node_i( sub_qp );
 	vector<double>log_mpl_pro_node_j( sub_qp );
 
 	vector<double> rates( sub_qp );
-	rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+	rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
  
 //-- main loop for birth-death MCMC sampling algorithm --------------------------------------------|
 	GetRNGstate();
@@ -762,7 +798,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -782,23 +818,23 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[count_all_g] = weight_C;
+			all_weights[ count_all_g ] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i] += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ] += all_weights[ count_all_g ];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]            = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -839,7 +875,7 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 		}	
 		log_mpl_binary_parallel( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
   		
-		local_rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_space, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		local_rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_prior, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
   				
 // ------------------------------------------------------------------------------------------------|
 	} 
@@ -849,8 +885,8 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 	#pragma omp parallel for
 	for( int i = 0; i < size_sample_graph; i++ ) 
 	{
-		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
@@ -860,19 +896,19 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], int g_space[], 
 // birth-death MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for Bayesian model averaging (MA)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], double *g_prior, int data[], int freq_data[], int *length_f_data, double *alpha_ijl, int *n, int *p, 
-			 double p_links[], int *multi_update, int *print )
+void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], 
+                int data[], int freq_data[], int *length_f_data, double *alpha_ijl, int *n, int *p, 
+                double p_links[], int *multi_update, int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, multi_update_C = *multi_update;
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p, pxp = dim * dim;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl = 2 * *alpha_ijl;   
 	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
 	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
-	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
-	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
 
@@ -881,7 +917,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 
 	// Caclulating the log_likelihood for the current graph G
@@ -896,7 +932,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -907,19 +943,30 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 		log_mpl_binary_parallel( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 	}
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] == 1 )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	int size_index = multi_update_C;
@@ -929,7 +976,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 	vector<double>log_mpl_pro_node_j( sub_qp );
 
 	vector<double> rates( sub_qp );
-	rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+	rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 
 //-- main loop for birth-death MCMC sampling algorithm --------------------------------------------|
 	GetRNGstate();
@@ -939,7 +986,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
@@ -951,7 +998,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 						
 			#pragma omp parallel for
 			for( int i = 0; i < pxp ; i++ )
-				if( G[i] ) p_links_Cpp[i] += weight_C;
+				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
@@ -960,8 +1007,8 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 // ---- Updating graph based on selected edges ----------------------------------------------------|
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
 			G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
@@ -979,8 +1026,8 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			if( size_node[ selected_edge_i ] > 0 )
 			{	
@@ -1000,7 +1047,7 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 			}	
 			log_mpl_binary_parallel( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 
-			local_rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_space, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+			local_rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_prior, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 		}
 // ------------------------------------------------------------------------------------------------|
 	} 
@@ -1009,28 +1056,28 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], int
 
 	#pragma omp parallel for
 	for( int i = 0; i < pxp; i++ ) 
-		p_links[i] = p_links_Cpp[i] / sum_weights;
+		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
 }
     
 // ------------------------------------------------------------------------------------------------|
 // birth-death MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], int g_space[], double *g_prior, int data[], int freq_data[], int *length_f_data, double *alpha_ijl, int *n, int *p, 
-			 int all_graphs[], double all_weights[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
-			 int *multi_update , int *print )
+void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], 
+            int data[], int freq_data[], int *length_f_data, double *alpha_ijl, int *n, int *p, 
+            int all_graphs[], double all_weights[], 
+            char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
+            int *multi_update , int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print, multi_update_C = *multi_update;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, count_all_g = *counter_all_g;
 	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	
 	double sum_weights = 0.0, weight_C, sum_rates;
     double alpha_jl = 2 * *alpha_ijl;   
 	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
 	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
-	//double ratio_g_prior = *g_prior / ( 1 - *g_prior );
-	double log_ratio_g_prior = log( static_cast<double>( *g_prior / ( 1 - *g_prior ) ) );
 	bool this_one;
 
 	int qp = dim * ( dim - 1 ) / 2;
@@ -1043,7 +1090,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 
 	// Caclulating the log_likelihood for the current graph G
@@ -1058,7 +1105,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -1068,19 +1115,30 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 				
 		log_mpl_binary_parallel( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 	}
-	
+
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] == 1 )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 	int size_index = multi_update_C;
@@ -1090,7 +1148,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 	vector<double>log_mpl_pro_node_j( sub_qp );
 
 	vector<double> rates( sub_qp );
-	rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+	rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 
 //-- main loop for birth-death MCMC sampling algorithm --------------------------------------------|
 	GetRNGstate();
@@ -1100,7 +1158,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
@@ -1117,23 +1175,23 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
  			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[count_all_g] = weight_C;
+			all_weights[ count_all_g ] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i] += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ] += all_weights[ count_all_g ];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]            = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -1145,8 +1203,8 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 // ---- Updating graph based on selected edges ----------------------------------------------------|
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
 			G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
@@ -1164,8 +1222,8 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			if( size_node[ selected_edge_i ] > 0 )
 			{	
@@ -1185,7 +1243,7 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 			}	
 			log_mpl_binary_parallel( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, mb_conf, data_mb, &size_bit );
 
-			local_rates_gm_mpl_binary( &rates[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_space, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
+			local_rates_gm_mpl_binary( &rates[0], &log_ratio_g_prior[0], &log_mpl_pro_node_i[0], &log_mpl_pro_node_j[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, g_prior, &size_node[0], data, freq_data, &length_freq_data, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
 		}
 // ------------------------------------------------------------------------------------------------|
 	} 
@@ -1195,8 +1253,8 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], in
 	#pragma omp parallel for
 	for( int i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
@@ -1225,12 +1283,12 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 	{
 		// data_mb = data[ , mb_node ]          
 		mb_node_x_lf = mb_node[0] * *length_freq_data; 
-		for( i = 0; i < *length_freq_data; i++ ) data_mb[i] = data[ mb_node_x_lf + i ]; 
+		for( i = 0; i < *length_freq_data; i++ ) data_mb[ i ] = data[ mb_node_x_lf + i ]; 
 		//memcpy( &data_mb[0], &data[0] + mb_node_x_lf, sizeof( int ) * *length_freq_data );    
 		
 		size_mb_conf = max_range_nodes[ mb_node[0] ] + 1;            
 		// mb_conf = 1:size_mb_conf;      
-		for( j = 0; j < size_mb_conf; j++ ) mb_conf[j] = j;     
+		for( j = 0; j < size_mb_conf; j++ ) mb_conf[ j ] = j;     
 	}	
 	
 	if( *size_node > 1 ) 
@@ -1239,15 +1297,15 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 		cumprod_mb[0] = max_range_nodes[ mb_node[ 0 ] ] + 1;
 		//cumprod_mb   = t( t( c( 1, cumprod( max_range_nodes[ mb_node[ 2:length( mb_node ) ] ] ) ) ) )
 		for( j = 1; j < *size_node; j++ )
-			cumprod_mb[j] = cumprod_mb[ j - 1 ] * ( max_range_nodes[ mb_node[ j ] ] + 1 );
+			cumprod_mb[ j ] = cumprod_mb[ j - 1 ] * ( max_range_nodes[ mb_node[ j ] ] + 1 );
 			
 		//data_mb = c( data[ , mb_node ] %*% cumprod_mb ) 
 		for( i = 0; i < *length_freq_data; i++ )
 			for( j = 0; j < *size_node; j++ )
-				data_mb[i] += cumprod_mb[j] * data[ mb_node[j] * *length_freq_data + i ];
+				data_mb[ i ] += cumprod_mb[ j ] * data[ mb_node[ j ] * *length_freq_data + i ];
 			
 		// mb_conf = unique( data_mb )            
-		 for( i = 0; i < *length_freq_data; i++ ) mb_conf[i] = data_mb[i];
+		 for( i = 0; i < *length_freq_data; i++ ) mb_conf[ i ] = data_mb[ i ];
 		//memcpy( &mb_conf[0], &data_mb[0], sizeof( int ) * *length_freq_data );
 
 		std::sort( mb_conf.begin(), mb_conf.end() );
@@ -1286,7 +1344,7 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 			// mb_conf_count = std::count( data_mb.begin(), data_mb.end(), mb_conf_l );
 			mb_conf_count = 0;
 			for( i = 0; i < *length_freq_data; i++ )
-				if( data_mb[i] == mb_conf_l ) mb_conf_count += freq_data[i];
+				if( data_mb[ i ] == mb_conf_l ) mb_conf_count += freq_data[ i ];
 			
 			// fam_conf_count = node_conf * 0
 			// for( j in 1:max_range_node_j ) fam_conf_count[j] = sum( ( data[ , node ] == j ) * ind )
@@ -1313,14 +1371,15 @@ void log_mpl_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node
 // ------------------------------------------------------------------------------------------------|
 // Computing birth-death rates for dgm_mpl method
 // ------------------------------------------------------------------------------------------------|
-void rates_gm_mpl_dis( double rates[], double curr_log_mpl[], int G[], int index_row[], int index_col[], int *sub_qp, int size_node[], int data[], int freq_data[], 
-                       int *length_freq_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p )
+void rates_gm_mpl_dis( double rates[], double log_ratio_g_prior[], double curr_log_mpl[], int G[], double g_prior[],  
+            int index_row[], int index_col[], int *sub_qp, int size_node[], int data[], int freq_data[], 
+            int *length_freq_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p )
 {
 	int dim = *p;
 	
 	#pragma omp parallel
 	{
-		int i, j, t, nodexdim, count_mb, size_node_i_new, size_node_j_new;
+		int i, j, ij, t, nodexdim, count_mb, size_node_i_new, size_node_j_new;
 		double log_mpl_i_new, log_mpl_j_new, log_rate;
 		
 		int *mb_node_i_new = new int[ dim ];          // For dynamic memory used
@@ -1329,50 +1388,55 @@ void rates_gm_mpl_dis( double rates[], double curr_log_mpl[], int G[], int index
 		#pragma omp for
 		for( int counter = 0; counter < *sub_qp; counter++ )
 		{
-			i = index_row[ counter ];
-			j = index_col[ counter ];
+			i  = index_row[ counter ];
+			j  = index_col[ counter ];
+			ij = j * dim + i;
 
-			if( G[ j * dim + i ] )
-			{ 
-				size_node_i_new = size_node[i] - 1; 
-				size_node_j_new = size_node[j] - 1; 
-
-				if( size_node_i_new > 0 )
-				{	
-					nodexdim = i * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
-				}	
-				
-				if( size_node_j_new > 0 )
-				{						
-					nodexdim = j * dim;
-					count_mb = 0; 
-					for( t = 0; t < dim; t++ ) 
-						if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
-				}	
-			}else{ 
-				size_node_i_new = size_node[i] + 1; 
-				size_node_j_new = size_node[j] + 1; 
-
-				nodexdim = i * dim;
-				count_mb = 0; 
-				for( t = 0; t < dim; t++ ) 
-					if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
-
-				nodexdim = j * dim;
-				count_mb = 0; 
-				for( t = 0; t < dim; t++ ) 
-					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
+			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			{
+    			if( G[ ij ] )
+    			{ 
+    				size_node_i_new = size_node[ i ] - 1; 
+    				size_node_j_new = size_node[ j ] - 1; 
+    
+    				if( size_node_i_new > 0 )
+    				{	
+    					nodexdim = i * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != j ) mb_node_i_new[ count_mb++ ] = t;
+    				}	
+    				
+    				if( size_node_j_new > 0 )
+    				{						
+    					nodexdim = j * dim;
+    					count_mb = 0; 
+    					for( t = 0; t < dim; t++ ) 
+    						if( G[ nodexdim + t ] and t != i ) mb_node_j_new[ count_mb++ ] = t;
+    				}	
+    			}else{ 
+    				size_node_i_new = size_node[ i ] + 1; 
+    				size_node_j_new = size_node[ j ] + 1; 
+    
+    				nodexdim = i * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == j ) mb_node_i_new[ count_mb++ ] = t;
+    
+    				nodexdim = j * dim;
+    				count_mb = 0; 
+    				for( t = 0; t < dim; t++ ) 
+    					if( G[ nodexdim + t ] or t == i ) mb_node_j_new[ count_mb++ ] = t;
+    			}
+    			
+    			log_mpl_dis( &i, mb_node_i_new, &size_node_i_new, &log_mpl_i_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
+    			log_mpl_dis( &j, mb_node_j_new, &size_node_j_new, &log_mpl_j_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
+    																		
+    			log_rate = log_mpl_i_new + log_mpl_j_new - curr_log_mpl[ i ] - curr_log_mpl[ j ];
+    			log_rate = ( G[ ij ] ) ? log_rate - log_ratio_g_prior[ ij ] : log_rate + log_ratio_g_prior[ ij ];
+    			
+    			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;
 			}
-			
-			log_mpl_dis( &i, mb_node_i_new, &size_node_i_new, &log_mpl_i_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
-			log_mpl_dis( &j, mb_node_j_new, &size_node_j_new, &log_mpl_j_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
-																		
-			log_rate = log_mpl_i_new + log_mpl_j_new - curr_log_mpl[i] - curr_log_mpl[j];
-			
-			rates[ counter ] = ( log_rate < 0.0 ) ? exp( log_rate ) : 1.0;			
 		}
 		
 		delete[] mb_node_i_new;
@@ -1384,12 +1448,12 @@ void rates_gm_mpl_dis( double rates[], double curr_log_mpl[], int G[], int index
 // birth-death MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for Bayesian model averaging (MA)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data[], int freq_data[], int *length_f_data, 
+void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], int data[], int freq_data[], int *length_f_data, 
                int max_range_nodes[], double *alpha_ijl, int *n, int *p, double p_links[], int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print, iteration = *iter, burn_in = *burnin, copy_n = *n;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p, pxp = dim * dim;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
 	double sum_weights = 0.0, weight_C, sum_rates;
 	
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
@@ -1399,7 +1463,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 
 	// Caclulating the log_likelihood for the current graph G
@@ -1408,7 +1472,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -1418,20 +1482,31 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 				
 		log_mpl_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 	}
-	
+
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -1443,7 +1518,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		rates_gm_mpl_dis( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
+		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -1459,7 +1534,7 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 						
 			#pragma omp parallel for
 			for( int i = 0; i < pxp ; i++ )
-				if( G[i] ) p_links_Cpp[i] += weight_C;
+				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
@@ -1505,22 +1580,24 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 
 	#pragma omp parallel for
 	for( int i = 0; i < pxp; i++ )
-		p_links[i] = p_links_Cpp[i] / sum_weights;
+		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
 }
        
 // ------------------------------------------------------------------------------------------------|
 // birth-death MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int data[], int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
-			 int all_graphs[], double all_weights[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *print )
+void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int data[], 
+                int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
+                int all_graphs[], double all_weights[], 
+                char *sample_graphs[], double graph_weights[], int *size_sample_g, int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, count_all_g = 0;
 	int index_selected_edge, selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
 	int qp = dim * ( dim - 1 ) / 2;
+	
 	double sum_weights = 0.0, weight_C, sum_rates;
 	bool this_one;
 
@@ -1533,7 +1610,7 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 	
 	// Caclulating the log_likelihood for the current graph G
@@ -1541,7 +1618,7 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	vector<double>curr_log_mpl( dim );
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -1552,18 +1629,29 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		log_mpl_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 	}
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -1575,7 +1663,7 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		rates_gm_mpl_dis( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
+		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
 		
 		// Selecting an edge based on birth and death rates
 		select_edge( &rates[0], &index_selected_edge, &sum_rates, &sub_qp );
@@ -1595,23 +1683,23 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[count_all_g] = weight_C;
+			all_weights[ count_all_g ] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i] += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ] += all_weights[ count_all_g ];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]            = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -1660,8 +1748,8 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	#pragma omp parallel for
 	for( int i = 0; i < size_sample_graph; i++ ) 
 	{
-		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
@@ -1671,13 +1759,15 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 // birth-death MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for Bayesian model averaging (MA)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_space[], int data[], int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
-			 double p_links[], int *multi_update, int *print )
+void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], 
+            int data[], int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
+            double p_links[], int *multi_update, int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, multi_update_C = *multi_update;
 	int selected_edge_i, selected_edge_j, selected_edge_ij;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p, pxp = dim * dim;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	
 	double sum_weights = 0.0, weight_C, sum_rates;
 
 	vector<double> p_links_Cpp( pxp, 0.0 ); 
@@ -1687,7 +1777,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 
 	// Caclulating the log_likelihood for the current graph G
@@ -1696,7 +1786,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -1707,19 +1797,30 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 		log_mpl_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 	}
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	int qp = dim * ( dim - 1 ) / 2;
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -1734,7 +1835,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		rates_gm_mpl_dis( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
+		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
@@ -1746,7 +1847,7 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 						
 			#pragma omp parallel for
 			for( int i = 0; i < pxp ; i++ )
-				if( G[i] ) p_links_Cpp[i] += weight_C;
+				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
@@ -1755,8 +1856,8 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
 			G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
@@ -1797,22 +1898,24 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], int g_spac
 
 	#pragma omp parallel for
 	for( int i = 0; i < pxp; i++ ) 
-		p_links[i] = p_links_Cpp[i] / sum_weights;
+		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
 }
     
 // ------------------------------------------------------------------------------------------------|
 // birth-death MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_space[], int data[], int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
-			 int all_graphs[], double all_weights[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
-			 int *multi_update , int *print )
+void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], 
+            int data[], int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
+            int all_graphs[], double all_weights[], 
+            char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
+            int *multi_update , int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print, multi_update_C = *multi_update;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, count_all_g = *counter_all_g;
 	int selected_edge_i, selected_edge_j, selected_edge_ij, size_sample_graph = *size_sample_g;
-	int nodexdim, count_mb, t, i, j, counter, dim = *p;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	
 	double sum_weights = 0.0, weight_C, sum_rates;
 	bool this_one;
 
@@ -1826,7 +1929,7 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 
 	// Caclulating the log_likelihood for the current graph G
@@ -1835,7 +1938,7 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -1845,19 +1948,30 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 				
 		log_mpl_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 	}
-	
+
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );
 
@@ -1872,7 +1986,7 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 		
 //----- STEP 1: calculating birth and death rates -------------------------------------------------|
 				
-		rates_gm_mpl_dis( &rates[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
+		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
@@ -1888,23 +2002,23 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 			weight_C = 1.0 / sum_rates;
 			
 			string_g = string( char_g.begin(), char_g.end() );	
-			all_weights[count_all_g] = weight_C;
+			all_weights[ count_all_g ] = weight_C;
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i] += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ] += all_weights[ count_all_g ];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]            = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -1916,8 +2030,8 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
 		{
-			selected_edge_i = index_row[ index_selected_edges[i] ];
-			selected_edge_j = index_col[ index_selected_edges[i] ];
+			selected_edge_i = index_row[ index_selected_edges[ i ] ];
+			selected_edge_j = index_col[ index_selected_edges[ i ] ];
 			
 			selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
 			G[ selected_edge_ij ] = 1 - G[ selected_edge_ij ];
@@ -1959,8 +2073,8 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 	#pragma omp parallel for
 	for( int i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
-		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
@@ -1970,8 +2084,9 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], int g_spa
 // ------------------------------------------------------------------------------------------------|
 // Computing alpha (probability of acceptness) in RJ-MCMC algorithm for dgm_mpl method
 // ------------------------------------------------------------------------------------------------|
-void log_alpha_rjmcmc_gm_mpl_dis( double *log_alpha_ij, int *i, int *j, double curr_log_mpl[], int G[], int size_node[], int data[], int freq_data[], 
-                       int *length_freq_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p )
+void log_alpha_rjmcmc_gm_mpl_dis( double *log_alpha_ij, double log_ratio_g_prior[], int *i, int *j, 
+            double curr_log_mpl[], int G[], int size_node[], int data[], int freq_data[], 
+            int *length_freq_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p )
 {
 	int t, nodexdim, count_mb, dim = *p, size_node_i_new, size_node_j_new;
 	double log_mpl_i_new, log_mpl_j_new;
@@ -1979,7 +2094,9 @@ void log_alpha_rjmcmc_gm_mpl_dis( double *log_alpha_ij, int *i, int *j, double c
 	vector<int>mb_node_i_new( dim );     
 	vector<int>mb_node_j_new( dim );     
 	
-	if( G[ *j * dim + *i ] )
+	int ij = *j * dim + *i;
+	    
+	if( G[ ij ] )
 	{ 
 		size_node_i_new = size_node[ *i ] - 1; 
 		size_node_j_new = size_node[ *j ] - 1; 
@@ -2018,23 +2135,26 @@ void log_alpha_rjmcmc_gm_mpl_dis( double *log_alpha_ij, int *i, int *j, double c
 	log_mpl_dis( j, &mb_node_j_new[0], &size_node_j_new, &log_mpl_j_new, data, freq_data, length_freq_data, max_range_nodes, alpha_ijl, n );		
 																
 	*log_alpha_ij = log_mpl_i_new + log_mpl_j_new - curr_log_mpl[ *i ] - curr_log_mpl[ *j ];
+	*log_alpha_ij = ( G[ ij ] ) ? *log_alpha_ij - log_ratio_g_prior[ ij ] : *log_alpha_ij + log_ratio_g_prior[ ij ];
+	
 }			
    
 // ------------------------------------------------------------------------------------------------|
 // Reversible Jump MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for Bayesian model averaging (MA)
 // ------------------------------------------------------------------------------------------------|
-void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data[], int freq_data[], int *length_f_data, 
-               int max_range_nodes[], double *alpha_ijl, int *n, int *p, double p_links[], int *print )
+void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], 
+                int data[], int freq_data[], int *length_f_data, 
+                int max_range_nodes[], double *alpha_ijl, int *n, int *p, double p_links[], int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n;
 	int selected_edge, selected_edge_i, selected_edge_j;
 	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	int qp = dim * ( dim - 1 ) / 2;
+	
 	double log_alpha_ij;
 	
-	int qp = dim * ( dim - 1 ) / 2;
-
 	vector<double>p_links_Cpp( pxp, 0.0 ); 
 
 	// Counting size of notes
@@ -2042,7 +2162,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 	
 	// Caclulating the log_likelihood for the current graph G
@@ -2050,7 +2170,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 	vector<double>curr_log_mpl( dim );
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -2061,18 +2181,29 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 		log_mpl_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 	}
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of selected edge 
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 //-- main loop for RJ-MCMC sampling algorithm -----------------------------------------------------|
@@ -2089,7 +2220,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 
 //----- STEP 1: calculating log_alpha_ij ----------------------------------------------------------|		
 				
-		log_alpha_rjmcmc_gm_mpl_dis( &log_alpha_ij, &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
+		log_alpha_rjmcmc_gm_mpl_dis( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
 		
 //----- End of calculating log_alpha_ij -----------------------------------------------------------|		
 		  		
@@ -2097,10 +2228,10 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
 			ij    = selected_edge_j * dim + selected_edge_i;
-			G[ij] = 1 - G[ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[ij];
+			G[ ij ] = 1 - G[ ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ ij ];
 
-			if( G[ij] )
+			if( G[ ij ] )
 			{ 
 				++size_node[ selected_edge_i ]; 
 				++size_node[ selected_edge_j ]; 
@@ -2132,7 +2263,7 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 //----- Saving result -----------------------------------------------------------------------------|
 		if( i_mcmc >= burn_in )
 			for( i = 0; i < pxp ; i++ )
-				p_links_Cpp[i] += G[i];
+				p_links_Cpp[ i ] += G[ i ];
 //----- End of saving result ----------------------------------------------------------------------|				
 	} 
 	PutRNGstate();
@@ -2145,18 +2276,20 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], int g_space[], int data
 // Reversible Jump MCMC for Graphical models for discrete data with marginal pseudo-likelihood  
 // it is for maximum a posterior probability estimation (MAP)
 // ------------------------------------------------------------------------------------------------|
-void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int data[], int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
-			 int all_graphs[], double all_weights[], 
-			 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *print )
+void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int data[], 
+            int freq_data[], int *length_f_data, int max_range_nodes[], double *alpha_ijl, int *n, int *p, 
+            int all_graphs[], double all_weights[], 
+            char *sample_graphs[], double graph_weights[], int *size_sample_g, int *print )
 {
 	int length_freq_data = *length_f_data, print_c = *print;
 	int iteration = *iter, burn_in = *burnin, copy_n = *n, count_all_g = 0;
 	int selected_edge, selected_edge_i, selected_edge_j, size_sample_graph = *size_sample_g;
-	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p;
+	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
+	int qp = dim * ( dim - 1 ) / 2;
+	
 	double log_alpha_ij;
 	bool this_one;
 	
-	int qp = dim * ( dim - 1 ) / 2;
 	vector<char> char_g( qp );              // char string_g[pp];
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
@@ -2166,7 +2299,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	for( i = 0; i < dim; i++ )
 	{
 		nodexdim = i * dim;
-		for( j = 0; j < dim; j++ ) size_node[i] += G[ nodexdim + j ];
+		for( j = 0; j < dim; j++ ) size_node[ i ] += G[ nodexdim + j ];
 	}
 	
 	// Caclulating the log_likelihood for the current graph G
@@ -2175,7 +2308,7 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 
 	for( i = 0; i < dim; i++ ) 
 	{ 
-		if( size_node[i] > 0 )
+		if( size_node[ i ] > 0 )
 		{	
 			nodexdim = i * dim;
 			count_mb = 0;   
@@ -2186,18 +2319,29 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 		log_mpl_dis( &i, &mb_node[0], &size_node[i], &curr_log_mpl[i], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n );
 	}
 
+	vector<double> log_ratio_g_prior( pxp );	
+	for( j = 1; j < dim; j++ )
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = j * dim + i;
+	        log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
+	    }
+	    
 	// For finding the index of rates 
 	vector<int>index_row( qp );
 	vector<int>index_col( qp );
 	counter = 0;
 	for( j = 1; j < dim; j++ )
-		for( i = 0; i < j; i++ )
-			if( g_space[ j * dim + i ] )
-			{
-				index_row[ counter ] = i;
-				index_col[ counter ] = j;
-				counter++;
-			}
+	    for( i = 0; i < j; i++ )
+	    {
+	        ij = g_prior[ j * dim + i ];
+	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        {
+	            index_row[ counter ] = i;
+	            index_col[ counter ] = j;
+	            counter++;
+	        }
+	    }
 	int sub_qp = counter;
 
 //-- main loop for Reversible Jump MCMC sampling algorithm ----------------------------------------|
@@ -2214,18 +2358,18 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 
 //----- STEP 1: calculating log_alpha_ij ----------------------------------------------------------|		
 				
-		log_alpha_rjmcmc_gm_mpl_dis( &log_alpha_ij, &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
+		log_alpha_rjmcmc_gm_mpl_dis( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
 		
 //----- End of calculating log_alpha_ij -----------------------------------------------------------|		
 		  		
 		// Selecting an edge and updating G (graph)
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
 		{
-			ij    = selected_edge_j * dim + selected_edge_i;
-			G[ij] = 1 - G[ij];
-			G[selected_edge_i * dim + selected_edge_j] = G[ij];
+			ij      = selected_edge_j * dim + selected_edge_i;
+			G[ ij ] = 1 - G[ ij ];
+			G[ selected_edge_i * dim + selected_edge_j ] = G[ ij ];
 
-			if( G[ij] )
+			if( G[ ij ] )
 			{ 
 				++size_node[ selected_edge_i ]; 
 				++size_node[ selected_edge_j ]; 
@@ -2266,19 +2410,19 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 			
 			this_one = false;
 			for( i = 0; i < size_sample_graph; i++ )
-				if( sample_graphs_C[i] == string_g )
+				if( sample_graphs_C[ i ] == string_g )
 				{
-					graph_weights[i]++;           // += all_weights[count_all_g];
-					all_graphs[count_all_g] = i;
+					graph_weights[ i ]++;           // += all_weights[count_all_g];
+					all_graphs[ count_all_g ] = i;
 					this_one = true;
 					break;
 				} 
 			
 			if( !this_one || size_sample_graph == 0 )
 			{
-				sample_graphs_C[size_sample_graph] = string_g;
-				graph_weights[size_sample_graph]   = all_weights[count_all_g];
-				all_graphs[count_all_g]            = size_sample_graph; 
+				sample_graphs_C[ size_sample_graph ] = string_g;
+				graph_weights[ size_sample_graph ]   = all_weights[ count_all_g ];
+				all_graphs[ count_all_g ]            = size_sample_graph; 
 				size_sample_graph++;				
 			}
 			
@@ -2292,8 +2436,8 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], int g_space[], int dat
 	#pragma omp parallel for
 	for( int i = 0; i < size_sample_graph; i++ ) 
 	{
-		sample_graphs_C[i].copy( sample_graphs[i], qp, 0 );
-		sample_graphs[i][qp] = '\0';
+		sample_graphs_C[ i ].copy( sample_graphs[ i ], qp, 0 );
+		sample_graphs[ i ][ qp ] = '\0';
 	}
 	
 	*size_sample_g = size_sample_graph;
