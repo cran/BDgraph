@@ -16,7 +16,6 @@
 \alias{ log_mpl_binary }
 
 \alias{ detect_cores }
-\alias{ check.os }
 
 \alias{ sample_ug }
 \alias{ generate_clique_factors }
@@ -54,16 +53,20 @@ traceplot    Trace plot of graph size
 Whenever using this package, please cite as
 \preformatted{
 Mohammadi R. and Wit, E. C. (2018). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 2.52, 
+Graphical Models using Birth-Death MCMC, R package version 2.53, 
 https://cran.r-project.org/package=BDgraph
 }
 }
 
 \author{
-	Reza Mohammadi [aut, cre], Ernst Wit [aut, cre], and Adrian Dobra [ctb]
-	
+
+	Reza Mohammadi \cr
+	Amsterdam Business School \cr
+	University of Amsterdam
+
 	Maintainer: Reza Mohammadi \email{a.mohammadi@uva.nl}
 }
+
 
 \references{
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
@@ -87,7 +90,7 @@ Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2(1):
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215
 }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{compare}}, and \code{\link{rgwish}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{compare}}, \code{\link{rgwish}} }
 
 \examples{
 \dontrun{

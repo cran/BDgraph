@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,16 +8,16 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Graph generator                                                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
 {
     if( p < 2 ) stop( "'p' must be more than 1" )
     if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
 
-    #--- build the graph structure ----------------------------------------------------------------|
+    # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( graph == "random" )
     {
         G <- matrix( 0, p, p )
@@ -158,7 +158,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         }        
     }
         
-    #--- graph visualization ----------------------------------------------------------------------|
+    # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( vis == TRUE )
     {
         graph_ig <- igraph::graph.adjacency( G, mode = "undirected", diag = FALSE )
@@ -172,9 +172,9 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     return( G )
 }
 
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "graph" from graph.sim function
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 plot.graph = function( x, main = NULL, layout = layout.circle, ... )
 {
     true_graph = as.matrix( x )

@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,10 +8,10 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     To select the graph in which the edge posterior probabilities are more than "cut" value      |
 #     OR if cut is NULL to select the best graph ( graph with the highest posterior probability )  |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 {

@@ -26,13 +26,11 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Adrian Dobra, and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph.sim}} }
+\seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph.sim}} }
 
 \examples{
-\dontrun{
 # Generating multivariate normal data from a 'random' graph 
 data.sim <- bdgraph.sim( n = 20, p = 10, vis = TRUE )
    
 print( data.sim )
-}
 }

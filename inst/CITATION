@@ -16,39 +16,42 @@ citEntry( entry = "Manual",
 citEntry( entry = "Article",
 	title       = "BDgraph: An R Package for Bayesian Structure Learning in Graphical Models",
 	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
-	textVersion = paste( "Mohammadi, A. and Wit, E. C. (2017). BDgraph: An R Package for Bayesian Structure Learning in Graphical Models. arXiv preprint arXiv:1501.05108." ),
 	year        = "2017",
 	journal     = "arXiv preprint arXiv:1501.05108",
+	textVersion = paste( "Mohammadi, A. and Wit, E. C. (2017). BDgraph: An R Package for Bayesian Structure Learning in Graphical Models. arXiv preprint arXiv:1501.05108." ),
+	header      = "To cite general use of BDgraph in publications use:",
 )
 
 citEntry( entry = "Article",
 	title       = "Bayesian Structure Learning in Sparse Gaussian Graphical Models",
 	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
-	textVersion = paste( "Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models. Bayesian Analysis 10(1), 109-138." ),
 	year        = "2015",
 	journal     = "Bayesian Analysis",
 	volume      = "10",
 	number      = "1",
 	pages       = "109-138",
+	textVersion = paste( "Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models. Bayesian Analysis 10(1), 109-138." ),
+	header      = "To cite the methodological part of Bayesian graphical models may want to use:",
 )
 
 citEntry( entry = "Article",
 	title       = "Loglinear model selection and human mobility",
 	author      = personList( as.person( "Adrian Dobra" ), as.person( "Reza Mohammadi" ) ),
-	textVersion = paste( "Dobra, A. and Mohammadi, R. (2018). Loglinear model selection and human mobility. Annals of Applied Statistics, 12(2):815-845." ),
 	year        = "2018",
 	journal     = "Annals of Applied Statistics",
 	volume      = "12",
 	number      = "2",
 	pages       = "815-845",
+	textVersion = paste( "Dobra, A. and Mohammadi, R. (2018). Loglinear model selection and human mobility. Annals of Applied Statistics, 12(2):815-845." ),
+	header      = "To cite applications of graphical models in highdimensional problems you may want to use:",
 )
 
 citEntry( entry = "Article",
 	title       = "The ratio of normalizing constants for Bayesian graphical Gaussian model selection",
 	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Helene Massam" ), as.person( "Gerard Letac" ) ),
-	textVersion = paste( "Mohammadi, A., Massam, H., and Letac, G. (2017). The ratio of normalizing constants for Bayesian graphical Gaussian model selection. arXiv preprint arXiv:1706.04416." ),
 	year        = "2017",
 	journal     = "arXiv preprint arXiv:1706.04416",
+	textVersion = paste( "Mohammadi, A., Massam, H., and Letac, G. (2017). The ratio of normalizing constants for Bayesian graphical Gaussian model selection. arXiv preprint arXiv:1706.04416." ),
 )
 
 

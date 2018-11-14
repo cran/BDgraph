@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,24 +8,18 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     BDMCMC algorithm for graphical models based on marginal pseudo-likelihood                    |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
-					iter = 5000, burnin = iter / 2, g.start = "empty", 
-					g.prior = 0.5, multi.update = NULL, alpha = 0.5, 
-					save.all = FALSE, print = 1000, cores = NULL, operator = "or" )
+					iter = 5000, burnin = iter / 2, g.prior = 0.5, g.start = "empty", 
+					jump = NULL, alpha = 0.5, save = FALSE, print = 1000, 
+					cores = NULL, operator = "or" )
 {
-    BDgraph::check.os( os = 2 )	
-    
-    machine_cores = BDgraph::detect_cores()
-    
-    if( is.null( cores ) )  cores = min( 7, machine_cores )
-    if( cores == "all" )    cores = machine_cores
-    
-    tmp   <- .C( "check_nthread", cores = as.integer( cores ), PACKAGE = "BDgraph" )
-    cores <- tmp $ cores
+    num_machine_cores = BDgraph::detect_cores()
+    if( is.null( cores ) ) cores = num_machine_cores - 1
+    if( cores == "all" )   cores = num_machine_cores
     
     .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
     
@@ -106,7 +100,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	G[ lower.tri( G, diag( TRUE ) ) ] <- 0
 	G  = G + t( G )
 	
-	if( save.all == TRUE )
+	if( save == TRUE )
 	{
 		qp1           = ( p * ( p - 1 ) / 2 ) + 1
 		string_g      = paste( c( rep( 0, qp1 ) ), collapse = '' )
@@ -119,7 +113,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		p_links = matrix( 0, p, p )
 	}
 
-	if( ( save.all == TRUE ) && ( p > 50 & iter > 20000 ) )
+	if( ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
 	{
 		cat( "  WARNING: Memory needs to run this function is around " )
 		print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
@@ -127,14 +121,13 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	
 	last_graph = matrix( 0, p, p )
 
-	if( ( is.null( multi.update ) ) && ( p > 10 & iter > ( 5000 / p ) ) )
-		multi.update = floor( p / 10 )
+	if( ( is.null( jump ) ) && ( p > 10 & iter > ( 5000 / p ) ) )
+		jump = floor( p / 10 )
 	
-	if( is.null( multi.update ) ) multi.update = 1
-	multi_update = multi.update
+	if( is.null( jump ) ) jump = 1
 	
-	if( ( p < 10 ) && ( multi_update > 1 ) )      cat( " WARNING: for the cases p < 10, multi.update must be 1 " )
-	if( multi_update > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: multi.update must be smaller " )
+	if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1 " )
+	if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller " )
 	
 	if( algorithm != "hc" )
 	{
@@ -142,8 +135,8 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	    cat( mes, "\r" )
 	}
 	
-## ---- main BDMCMC algorithms implemented in C++ -------------------------------------------------|
-	if( save.all == TRUE )
+	# - - - main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - - - - - - - - - - -|
+	if( save == TRUE )
 	{
 		if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
 		{
@@ -153,7 +146,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						as.integer(print), PACKAGE = "BDgraph" )
 		}
     
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "ggm_bdmcmc_mpl_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p),
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
@@ -161,13 +154,13 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						as.integer(print), PACKAGE = "BDgraph" )
 		}
     
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			counter_all_g = 0
 			result = .C( "ggm_bdmcmc_mpl_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-						as.integer(multi_update), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm" ) && ( algorithm == "rjmcmc" ) )
@@ -179,7 +172,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						as.integer(print), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
+		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p),
@@ -188,7 +181,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						as.integer(print), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
+		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_binary_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), as.integer(n), as.integer(p),
@@ -197,24 +190,24 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						as.integer(print), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
+		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			counter_all_g = 0
 			result = .C( "dgm_bdmcmc_mpl_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-						as.integer(multi_update), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}
       
-		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
+		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			counter_all_g = 0
 			result = .C( "dgm_bdmcmc_mpl_binary_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), as.integer(n), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-						as.integer(multi_update), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}
       
 	}else{
@@ -225,16 +218,16 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						 p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
 		}
 		
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "ggm_bdmcmc_mpl_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
 						 p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
 		}
 		
-		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
+		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			result = .C( "ggm_bdmcmc_mpl_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
-						p_links = as.double(p_links), as.integer(multi_update), as.integer(print), PACKAGE = "BDgraph" )
+						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}				
 
 		if( ( method == "dgm" ) && ( algorithm == "rjmcmc" ) )
@@ -244,49 +237,49 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
+		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), 
 						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( multi_update == 1 ) )
+		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_binary_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), 
 						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
 		}
 
-		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
+		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p), 
-						p_links = as.double(p_links), as.integer(multi_update), as.integer(print), PACKAGE = "BDgraph" )
+						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}				
 
-		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( multi_update != 1 ) )
+		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_binary_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior),  
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), as.integer(n), as.integer(p), 
-						p_links = as.double(p_links), as.integer(multi_update), as.integer(print), PACKAGE = "BDgraph" )
+						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}				
 	}
-## ------------------------------------------------------------------------------------------------|
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	if( algorithm != "hc" )
 	{
 		last_graph             = matrix( result $ G, p, p )
 		colnames( last_graph ) = colnames_data[1:p]
    
-		if( save.all == TRUE )
+		if( save == TRUE )
 		{
 			size_sample_g = result $ size_sample_g
 			sample_graphs = result $ sample_graphs[ 1 : size_sample_g ]
 			graph_weights = result $ graph_weights[ 1 : size_sample_g ]
 			all_graphs    = result $ all_graphs + 1
 			all_weights   = result $ all_weights	
-			if( ( algorithm != "rjmcmc" ) & ( multi_update != 1 ) )
+			if( ( algorithm != "rjmcmc" ) & ( jump != 1 ) )
 			{ 
 				all_weights = all_weights[ 1 : ( result $ counter_all_g ) ]
 				all_graphs  = all_graphs[  1 : ( result $ counter_all_g ) ] 
@@ -311,7 +304,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		colnames( selected_graph ) = colnames_data[1:p]
 		output = selected_graph
 	}
-## ------------------------------------------------------------------------------------------------|
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	
 	class( output ) = "bdgraph"
 	return( output )   

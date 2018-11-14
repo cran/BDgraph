@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 //     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
 //                                                                                                 |
 //     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
   
 #ifndef rgwish_H
 #define rgwish_H

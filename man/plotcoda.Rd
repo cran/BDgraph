@@ -12,7 +12,7 @@ It can be used for monitoring the convergence of the sampling algorithms, BDMCMC
 
 \arguments{
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
   }
   
   \item{thin}{ An option for getting fast result for a cumulative plot according to part of the iteration.}
@@ -44,14 +44,14 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{traceplot}} }
 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'circle' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
   
-bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0 , save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0 , save = TRUE )
    
 plotcoda( bdgraph.obj )  
 }

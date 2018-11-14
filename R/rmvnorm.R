@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,9 +8,9 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Data generator from multivarate normal distribution                                          |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), sigma = diag( length( mean ) ) )
 {
@@ -22,7 +22,7 @@ rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), sigma = dia
     if( length( mean ) == 1 ) mean <- rep( mean, p )
     if( length( mean ) != nrow( sigma ) ) stop( "mean and sigma have non-conforming size" )
     
-    #--- generate multivariate normal data ----------------------------------------------------|
+    # - - generate multivariate normal data - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     chol_sig <- chol( sigma )
     z        <- matrix( stats::rnorm( p * n ), p, n )
     data     <- t( chol_sig ) %*% z + mean

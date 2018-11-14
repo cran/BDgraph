@@ -31,8 +31,7 @@ export( bdgraph,
 		print.sim, 
 		plot.sim,
 		
-		detect_cores,
-		check.os
+		detect_cores
 	   )
 
 S3method( "summary", "bdgraph" )

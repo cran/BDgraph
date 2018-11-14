@@ -38,7 +38,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{
@@ -49,7 +49,7 @@ bdgraph.obj <- bdgraph( data = data.sim )
    
 summary( bdgraph.obj )
    
-bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
    
 summary( bdgraph.obj )
    

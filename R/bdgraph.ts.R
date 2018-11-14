@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,27 +8,21 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     BDMCMC algorithm for time series                                                             |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Nlength is the length of the time series                                                     |
 #     data is the aggregate periodogram Pk, which is arranged as                                   |
 #     a large p x ( Nlength * p ) matrix [ P1, P2, ... , PNlength ]                                |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
-                       g.start = "empty", g.prior = 0.5, prior.df = rep( 3, Nlength ), 
-                       save.all = FALSE, print = 500, cores = NULL )
+                       g.prior = 0.5, df.prior = rep( 3, Nlength ), g.start = "empty", 
+                       save = FALSE, print = 500, cores = NULL )
 {
-    BDgraph::check.os( os = 2 )	
-    
-    machine_cores = BDgraph::detect_cores()
-    
-    if( is.null( cores ) )  cores = min( 7, machine_cores )
-    if( cores == "all" )    cores = machine_cores
-    
-    tmp   <- .C( "check_nthread", cores = as.integer( cores ), PACKAGE = "BDgraph" )
-    cores <- tmp $ cores
+    num_machine_cores = BDgraph::detect_cores()
+    if( is.null( cores ) ) cores = num_machine_cores - 1
+    if( cores == "all" )   cores = num_machine_cores
     
     .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
     
@@ -62,7 +56,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
     
     K      = W
     sigma  = K
-    b      = prior.df
+    b      = df.prior
     b_star = b + n
     Ws     = W + P
     
@@ -129,7 +123,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
         }	
     }
     
-    if( save.all == TRUE )
+    if( save == TRUE )
     {
         qp1           = ( p * ( p - 1 ) / 2 ) + 1
         string_g      = paste( rep( 0, qp1 ), collapse = '' )
@@ -143,7 +137,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
         p_links = 0 * G
     }
     
-    if( ( save.all == TRUE ) && ( p > 50 & iter > 20000 ) )
+    if( ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
     {
         cat( "  WARNING: Memory needs to run this function is around " )
         print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
@@ -160,7 +154,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
     mes <- paste( c( iter, " iteration is started.                    " ), collapse = "" )
     #cat( mes, "\r" )
     
-    if ( save.all == TRUE )
+    if ( save == TRUE )
     {
         result = .C( "bdmcmc_map_for_multi_dim", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(Ls), r_K = as.double(r_K), 
         i_K = as.double(i_K), as.integer(p), as.integer(Nlength), r_sigma = as.double(r_sigma), i_sigma = as.double(i_sigma), 
@@ -184,7 +178,7 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
     last_i_K = result $ i_K
     last_K   = matrix( complex( 1, last_r_K, last_i_K ), p, p * Nlength )
     
-    if( save.all == TRUE )
+    if( save == TRUE )
     {
         status = result $ exit
         

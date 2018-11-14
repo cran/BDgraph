@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 //     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
@@ -8,13 +8,13 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
 //                                                                                                 |
 //     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
   
 #include "rgwish.h"
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // sampling from Wishart distribution // Ts = chol( solve( Ds ) )
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rwish_c( double Ts[], double K[], int *b, int *p )
 {
 	int dim = *p, pxp = dim * dim, bK = *b;
@@ -23,7 +23,7 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
 	vector<double> psi( pxp, 0.0 ); 
 
-	// ---- Sample values in Psi matrix -----------------------------------------------------------|
+	// - -  Sample values in Psi matrix - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
 	GetRNGstate();
 	//#pragma omp parallel for
 	for( int i = 0; i < dim; i++ )
@@ -35,7 +35,7 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 		for( int i = 0; i < j; i++ )
 			psi[ j * dim + i ] = norm_rand();
 	PutRNGstate();
-	// --------------------------------------------------------------------------------------------|
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
     	// C = psi %*% Ts   I used   psi = psi %*% Ts
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
@@ -46,9 +46,9 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 	F77_NAME(dgemm)( &transT, &transN, &dim, &dim, &dim, &alpha, &psi[0], &dim, &psi[0], &dim, &beta, K, &dim );
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // G is adjacency matrix which has zero in its diagonal // threshold = 1e-8
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rgwish_c( int G[], double Ts[], double K[], int *b, int *p, double *threshold )
 {
 	int info, i, j, l, size_node, one = 1, dim = *p, pxp = dim * dim;	
@@ -93,11 +93,10 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p, double *thresho
 					{
 						sigma_start_N_i[ l ] = sigma_start[ i * dim + j ]; 
 						N_i[ l++ ]           = j;
-					}
-					else
+					}else
 						beta_star[ j ] = 0.0; 
 				}
-				// --------------------------------------------------------------------------------|
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 				sub_matrix( &sigma[0], &sigma_N_i[0], &N_i[0], &size_node, &dim );
 					
@@ -150,9 +149,9 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p, double *thresho
 	inverse( &sigma[0], K, &dim );
 }
      
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // rgwish ONLY for inside of MCMC algorithm
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sigma[], int *b_star, 
 					int *p, double *threshold,
 					double sigma_start[], double inv_C[], double beta_star[], double sigma_i[], 
@@ -164,12 +163,12 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	
-	// STEP 1: sampling from wishart distributions
-	// ---- Sample values in Psi matrix -----------------------------------------------------------|
+	// - - STEP 1: sampling from wishart distributions  - - - - - - - - - - - - - - - - - - - - - -|
+	// - -  Sample values in Psi matrix
 	//GetRNGstate();
 	#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
-		sigma_start[ i * dim1 ] = sqrt( Rf_rgamma( ( bKdim - i ) / 2.0, 2.0 ) ); // i * dim1 = i * dim + i
+		sigma_start[ i * dim1 ] = sqrt( Rf_rgamma( ( bKdim - i ) * 0.5, 2.0 ) ); // i * dim1 = i * dim + i
 		//sigma_start[i * dim1] = sqrt( rchisq( bKdim - i ) ); // i * dim1 = i * dim + i
 
 	#pragma omp parallel for
@@ -180,7 +179,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 			sigma_start[ i * dim + j ] = 0.0;
 		}
 	//PutRNGstate();
-	// --------------------------------------------------------------------------------------------|
+	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	
 	// C = psi %*% Ts   I used psi = psi %*% Ts   Now is  sigma_start = sigma_start %*% Ts
 	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &sigma_start[0], &dim );
@@ -227,7 +226,7 @@ int counter = 0;
 					else
 						beta_star[ j ] = 0.0; 
 				}
-				// --------------------------------------------------------------------------------|
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 				sub_matrix_upper( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 					
@@ -295,7 +294,7 @@ int counter = 0;
 	
 	//inverse( &sigma_start[0], K, &dim );
 	// creating an identity matrix
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for( i = 0; i < dim; i++ )
 		for( int j = 0; j < dim; j++ )
 			K[ j * dim + i ] = ( i == j );
@@ -304,14 +303,15 @@ int counter = 0;
 	F77_NAME(dposv)( &upper, &dim, &dim, &sigma_start[0], &dim, K, &dim, &info );
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Part of function "gnorm"
 // which is for calculating Normalizing constant of G-Wishart distribution 
 // based on Monto Carlo algorithm
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, int *p, double f_T[] )
 {
 	int iter, i, j, ij, h, r, mc_iter = *mc, dim = *p, pxp = dim * dim, b_c = *b;
+	
 	double sumPsi, sumPsiH, sumPsiHi, sumPsiHj;
 	double max_numeric_limits_ld = numeric_limits<double>::max() / 1000;
 	double min_numeric_limits_ld = numeric_limits<double>::min() * 1000;
@@ -369,9 +369,7 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 			// checking Inf values
 			if( f_T[ iter ] == R_PosInf ) f_T[ iter ] = max_numeric_limits_ld;			
 		} 
-	}
-	else
-	{
+	}else{
 		for( iter = 0; iter < mc_iter; iter++ ) 
 		{
 			for( i = 0; i < dim; i++ )

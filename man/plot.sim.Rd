@@ -13,7 +13,7 @@
   
   \item{main}{ Graphical parameter (see plot).}
   
-  \item{layout}{The vertex placement algorithm which is according to \pkg{igraph} package. }
+  \item{layout}{The vertex placement algorithm which is according to \code{R} package \code{\link[igraph]{igraph}}. }
   
   \item{\dots}{System reserved (no specific usage).}
 }
@@ -33,13 +33,11 @@ Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayes
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{\code{\link{bdgraph.sim}}}
+\seealso{ \code{ \link{graph.sim}}, \link{bdgraph.sim} }
 
 \examples{
-\dontrun{
 # Generating synthetic multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 10, p = 15 )
   
 plot( data.sim )
-}
 }

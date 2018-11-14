@@ -22,16 +22,16 @@ plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL,
   
   \item{bdgraph.obj}{ 
         An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-        It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+        It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
         It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links. }
   
   \item{bdgraph.obj2, 
         bdgraph.obj3,
         bdgraph.obj4 }{ 
             An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-            It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+            It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
             It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
             It is for comparing two different approaches. }
  
@@ -56,7 +56,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, and \code{\link{compare}} }
+\seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
 
 \examples{
 \dontrun{

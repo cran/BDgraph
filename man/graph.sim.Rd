@@ -45,13 +45,13 @@ Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov n
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph}}, and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
-\dontrun{
 # Generating a 'hub' graph 
 adj <- graph.sim( p = 8, graph = "scale-free" )
+
 plot( adj )
+
 adj
-}
 }

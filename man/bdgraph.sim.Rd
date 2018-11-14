@@ -23,7 +23,7 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
      \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}). 
     }
   \item{n}{The number of samples required. Note that for the case \code{n = 0}, only graph is generated. }
-  \item{type}{Type of data with four options \code{"Gaussian"} (default), \code{"non-Gaussian"}, \code{"discrete"}, and \code{"mixed"}.
+  \item{type}{Type of data with four options \code{"Gaussian"} (default), \code{"non-Gaussian"}, \code{"discrete"}, \code{"mixed"}, and \code{"binary"}.
 	  For option \code{"Gaussian"}, data are generated from multivariate normal distribution.
 	  For option \code{"non-Gaussian"}, data are transfered multivariate normal distribution to continuous multivariate non-Gaussian distribution.
 	  For option \code{"discrete"}, data are transfered from multivariate normal distribution to discrete multivariat distribution.
@@ -70,7 +70,7 @@ Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov n
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph}}, and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

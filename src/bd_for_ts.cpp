@@ -1,24 +1,28 @@
-// ------------------------------------------------------------------------------------------------|
-//     This file is part of BDgraph package.
-//
-//     BDgraph is free software: you can redistribute it and/or modify it under
-//     the terms of the GNU General Public License as published by the Free
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.
-//
-//     Authors contact information:
-//     Lang Liu:            liulang13@mails.tsinghua.edu.cn
-//     Nicholas Foti:       nfoti@uw.edu
-//     Alex Tank:           atank18@gmail.com
-//     Reza Mohammadi: a.mohammadi@uva.nl or a.mohammadi@rug.nl
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
+//                                                                                                 |
+//     This file is part of BDgraph package.                                                       |
+//                                                                                                 |
+//     BDgraph is free software: you can redistribute it and/or modify it under                    |
+//     the terms of the GNU General Public License as published by the Free                        |
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
+//                                                                                                 |
+//     Authors contact information:                                                                |
+//     Lang Liu:            liulang13@mails.tsinghua.edu.cn                                        |
+//     Nicholas Foti:       nfoti@uw.edu                                                           |
+//     Alex Tank:           atank18@gmail.com                                                      |
+//     Reza Mohammadi:      a.mohammadi@uva.nl                                                     |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+
 #include "MyLapack.h"
 #include "matrix.h"
 
 extern "C" {
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // sampling from COMPLEX Wishart distribution
 // Ls = t( chol( solve( Ds ) ) )
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 {
 	int i2p, ip, i, j, dim = *p, bK = *b, n = bK + dim, p2 = 2 * dim, pxn = dim * n, p2xn = 2 * pxn, pxp = dim * dim;
@@ -33,13 +37,13 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	//Rcomplex *csigma = new Rcomplex[ pxp ];
 	//Rcomplex *Ind    = new Rcomplex[ pxp ];
 
-	// ---- Sample values in Joint matrix ---
+	// - -  Sample values in Joint matrix - -
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
 			joint[ j * p2 + i ] = norm_rand();
 	PutRNGstate();
-	// ------------------------------------
+	// - - - - - - - - - - - - - - - - - - 
 
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	// C = Ls %*% joint   I used   joint = Ls %*% joint
@@ -73,8 +77,9 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	delete[] Y;
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // sampling from COMPLEX G-Wishart distribution
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 {
 	int i, j, k, s, ij, ji, i2p, ip, l, size_node_i, info, one = 1, dim = *p, p2 = 2*dim, pxp = dim * dim, bK = *b, n = bK + dim, pxn = dim * n, p2xn = 2 * pxn;
@@ -91,13 +96,13 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 	Rcomplex *csigma = new Rcomplex[ pxp ];
 	Rcomplex *Ind    = new Rcomplex[ pxp ];
 
-	// ---- Sample values in Joint matrix ---
+	// - -  Sample values in Joint matrix - -
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
 			joint[ j * p2 + i ] = norm_rand();
 	PutRNGstate();
-	// ------------------------------------
+	// - - - - - - - - - - - - - - - - - - 
 
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	// C = Ls %*% joint   I used   joint = Ls %*% joint
@@ -109,6 +114,7 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 		memcpy( X + ip, &joint[ i2p ], sizeof( double ) * dim );
 		memcpy( Y + ip, &joint[ i2p + dim ], sizeof( double ) * dim );
 	}
+	
 	// The real part of K_start = X %*% t(X) + Y %*% t(Y)
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &X[0], &dim, &X[0], &dim, &beta_0, &r_sigma_start[0], &dim );
 	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &n, &alpha, &Y[0], &dim, &Y[0], &dim, &alpha, &r_sigma_start[0], &dim );
@@ -131,8 +137,8 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 			Ind[ j * dim + k ].r = ( j == k );
 		}
 
-	F77_NAME(zpotrf)( &upper, &dim, csigma, &dim, &info ); // Remark: csigma will be changed
-	zpotrs( &upper, &dim, &dim, csigma, &dim, Ind, &dim, &info ); //sigma = inv(K)
+	F77_NAME(zpotrf)( &upper, &dim, csigma, &dim, &info );        // Remark: csigma will be changed
+	zpotrs( &upper, &dim, &dim, csigma, &dim, Ind, &dim, &info ); // sigma = inv(K)
 
 	for( j = 0; j < pxp; j++ )
 	{
@@ -182,14 +188,12 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 						r_sigma_start_N_i_2[ l ] = r_sigma_start[ ji ];
 						i_sigma_start_N_i[ l ]   = i_sigma_start[ ji ];
 						N_i[ l++ ] = j;
-					}
-					else
-					{
+					}else{
 						r_beta_star[ j ] = 0.0;
 						i_beta_star[ j ] = 0.0;
 					}
 				}
-				// -------------------------------------------------------------
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 				sub_matrix( &r_sigma[0], &r_sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 				sub_matrix( &i_sigma[0], &i_sigma_N_i[0], &N_i[0], &size_node_i, &dim );
@@ -262,9 +266,7 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 					r_sigma[ ji ] = r_sigma_i[ j ];
 					i_sigma[ ji ] = i_sigma_i[ j ];
 				}
-			}
-			else
-			{
+			}else{
 				for( j = 0; j < i; j++ )
 				{
 					ij   = j * dim + i;
@@ -319,11 +321,12 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 	delete[] Y;
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // rgwish ONLY for inside of MCMC algorithm
 // Ls is the cholesky of the covariance matrix of (X;Y) -- sigma = Ls %*% Ls*
 // Input (value matters) -- G, size_node, Ls, b_star, p
 // Output -- K, r_sigma, i_sigma
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r_sigma[], double i_sigma[], Rcomplex *csigma, Rcomplex *Ind, int *b_star, int *p,
 					double r_sigma_start[], double i_sigma_start[], double X[], double Y[], double r_beta_star[], double i_beta_star[], double joint[], double r_sigma_i[],
 					double i_sigma_i[], vector<double> &r_sigma_start_N_i, vector<double> &r_sigma_start_N_i_2, vector<double> &i_sigma_start_N_i, vector<double> &r_sigma_N_i, vector<double> &r_sigma_N_i_2,
@@ -335,14 +338,14 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	double max_diff = 1.0, r_diff, i_diff;
 	char transT  = 'T', transN = 'N', side = 'L', upper = 'U', lower = 'L';
 
-	// STEP 1: sampling from complex wishart distributions
-	// ---- Sample values in Joint matrix ---
+	// - - STEP 1: sampling from complex wishart distributions - - - - - - - - - - - - - - - - - - |
+	// - -  Sample values in Joint matrix - -
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
 			joint[ j * p2 + i ] = norm_rand();
 	PutRNGstate();
-	// ------------------------------------
+	// - - - - - - - - - - - - - - - - - - 
 
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	// C = Ls %*% joint   I used   joint = Ls %*% joint
@@ -410,18 +413,16 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 					ji = ip + j;
 					if( G[ ji ] )
 					{
-						r_sigma_start_N_i[ l ] = r_sigma_start[ ji ];
+						r_sigma_start_N_i[ l ]   = r_sigma_start[ ji ];
 						r_sigma_start_N_i_2[ l ] = r_sigma_start[ ji ];
-						i_sigma_start_N_i[ l ] = i_sigma_start[ ji ];
-						N_i[l++] = j;
-					}
-					else
-					{
+						i_sigma_start_N_i[ l ]   = i_sigma_start[ ji ];
+						N_i[ l++ ] = j;
+					}else{
 						r_beta_star[ j ] = 0.0;
 						i_beta_star[ j ] = 0.0;
 					}
 				}
-				// -------------------------------------------------------------
+				// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 				sub_matrix( r_sigma, &r_sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 				sub_matrix( i_sigma, &i_sigma_N_i[0], &N_i[0], &size_node_i, &dim );
@@ -494,9 +495,7 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 					r_sigma[ ij ] = r_sigma_i[ j ];
 					i_sigma[ ij ] = - i_sigma_i[ j ];
 				}
-			}
-			else
-			{
+			}else{
 				for( j = 0; j < i; j++ )
 				{
 					ij   = j * dim + i;
@@ -556,12 +555,13 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 	zpotrs( &upper, &dim, &dim, csigma, &dim, K, &dim, &info );
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 /*
  * birth-death MCMC for time series with Gaussian Graphical models
  * for D = I_p
  * it is for Bayesian model averaging
 */
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], double Ls[], double r_K[], double i_K[], int *p,
 				int *freq, double r_sigma[], double i_sigma[], double r_K_hat[], double i_K_hat[], double p_links[],
 				int *b, int *b_star, double r_Ds[], double i_Ds[], int *print )
@@ -585,7 +585,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 	vector<long double> r_K_hat_Cpp( pxpxT, 0.0 );
 	vector<long double> i_K_hat_Cpp( pxpxT, 0.0 );
 
-	// -- allocation for rgcwish_sigma
+	// - - allocation for rgcwish_sigma
 	Rcomplex *csigma = new Rcomplex[ pxp ];
 	Rcomplex *Ind    = new Rcomplex[ pxp ];
 	Rcomplex *K      = new Rcomplex[ pxp ];
@@ -608,7 +608,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 	vector<double> r_sigma_N_i_2( pxp );         // For dynamic memory used
 	vector<double> i_sigma_N_i( pxp );           // For dynamic memory used
 	vector<int> N_i( dim );                      // For dynamic memory used
-	// ----------------------------
+	// - - - - - - - - - - - - - - 
 
 	// Counting size of nodes
 	vector<int> size_node( dim, 0 );      // degrees of vertex
@@ -649,13 +649,13 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 		}
 
 	GetRNGstate();
-	// main loop for birth-death MCMC sampling algorithm ----------------------|
+	// - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - |
 	bool pri = TRUE;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( "\n Iteration  %d                 \n", i_mcmc + 1 );
 
-		// STEP 1: calculating birth and death rates --------------------------|
+		// - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - |
 		// Initialize log_rates for each iteration
 		for( t = 0; t < qp; t++ )
 			log_rates[ t ] = 0.0;
@@ -675,6 +675,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 			if ( log_rates[ t ] > max_log )
 				max_log = log_rates[ t ];
 		}
+		
 		for( t = 0; t < qp; t++ ) // Substract max_log from each log_rate
 		{
 		  	sub_log_rates[ t ] = log_rates[ t ] - max_log;
@@ -689,6 +690,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 				// }
 		  // 	}
 		}
+		
 		//debug if( i_mcmc >= 0 ) Rprintf( "\n" );
 		max_rate = exp( max_log );
 		if ( !R_FINITE( max_rate ) ) // If max_rate is too large
@@ -725,7 +727,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 		//if ( sum_rates < thres && i_mcmc < burn_in)
 			//i_mcmc = burn_in;
 
-		// saving result ------------------------------------------------------|
+		// - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -748,7 +750,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 
 			//debug Rprintf( "weight_C: %Le \n", weight_C);
 			sum_weights += weight_C;
-		} // End of saving result ---------------------------------------------|
+		} // - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 		// Updating G (graph) based on selected edge
 		selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
@@ -764,7 +766,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 			--size_node[ selected_edge_j ];
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|
+		// - - STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - |
 		int itera = 0;
 		for( t = 0; t < T; t++ )
 		{
@@ -790,7 +792,7 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 				pri = FALSE;
 			}
 		}
-	} // End of MCMC sampling algorithm ---------------------------------------|
+	} // - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	PutRNGstate();
 
 	//#pragma omp parallel for
@@ -808,12 +810,13 @@ void bdmcmc_for_multi_dim( int *iter, int *burnin, int G[], double g_prior[], do
 	delete[] K;
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 /*
  * birth-death MCMC for time series with Gaussian Graphical models
  * for case D = I_p
  * it is for maximum a posterior probability estimation (MAP)
 */
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], double r_K[], double i_K[], int *p,
 			   int *freq, double r_sigma[], double i_sigma[], int all_graphs[], double all_weights[], double r_K_hat[],
 			   double i_K_hat[], char *sample_graphs[], double graph_weights[], int *size_sample_g, int *exit,
@@ -832,7 +835,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	int pxpxT = pxp * T, txpxp, n = dim, max_b_star = 0;
 	bool useful;
 
-	double r_Dsjj, i_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, r_sigmaj11, i_sigmaj11;
+	double r_Dsjj, r_Dsij, i_Dsij, sum_weights = 0.0, r_sum_diag, r_K022, i_K022, r_a11, r_sigmaj11, i_sigmaj11;
 	double mod_Dsjj, mod_a11, coef, r_temp, nu_star, sum_rates, G_prior, common_factor = 1.0;
 	double alpha = 1.0, beta_0 = 0.0, dmone = -1.0;
 	char transT = 'T', transN = 'N';
@@ -908,7 +911,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	vector<double> r_K12xK22_inv( p2x2 );
 	vector<double> i_K12xK22_inv( p2x2 );
 
-	// ---- for rgcwish_sigma
+	// - -  for rgcwish_sigma
 	Rcomplex *csigma = new Rcomplex[ pxp ];
 	Rcomplex *Ind    = new Rcomplex[ pxp ];
 	Rcomplex *K      = new Rcomplex[ pxp ];
@@ -931,12 +934,12 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 	vector<double> r_sigma_N_i_2( pxp );         // For dynamic memory used
 	vector<double> i_sigma_N_i( pxp );           // For dynamic memory used
 	vector<int> N_i( dim );                      // For dynamic memory used
-	// ----------------------------
+	// - - - - - - - - - - - - - - 
 
 	double max_numeric_limits_ld = std::numeric_limits<double>::max() / 10000;
 
 	GetRNGstate();
-	// main loop for birth-death MCMC sampling algorithm for time series ----------------------|
+	// - - main loop for birth-death MCMC sampling algorithm for time series - - - - - - - - - - - |
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % 1000 == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 );
@@ -958,16 +961,16 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		for( j = 0; j < qp; j++ )
 			is_infinite[ j ] = 0;   // Record if the rate of edge j is infinite
 
-		for( t = 0; t < T; t++ ) // The loop for the frequencies
+		for( t = 0; t < T; t++ )   // The loop for the frequencies
 		{
 			txpxp   = t * pxp;
 			counter = 0;
-			// STEP 1: calculating birth and death rates --------------------------|
+			// - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - |
 			for( j = 1; j < dim; j++ )
 			{
 				jj     = j * dim + j + txpxp;
 				r_Dsjj = r_Ds[ jj ];
-				i_Dsjj = i_Ds[ jj ];
+				//i_Dsjj = i_Ds[ jj ];
 
 				r_sigmaj11 = r_sigma[ jj ];        // sigma[j, j]
 				i_sigmaj11 = i_sigma[ jj ];
@@ -996,7 +999,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					r_Dsij = r_Ds[ ij ];
 					i_Dsij = i_Ds[ ij ];
 
-					// For (i,j) = 0 ----------------------------------------------|
+					// - - For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 					sub_row_mins( &r_K[txpxp], &r_Kj12[0], &j, &dim );    // K12 = K[j, -j]
 					Hsub_row_mins( &i_K[txpxp], &i_Kj12[0], &j, &dim );   // K12 = K[j, -j]
 					r_Kj12[ i ] = 0.0;                         // K12[ i ] = 0
@@ -1012,7 +1015,8 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &r_Kj12[0], &p1, &alpha, &r_K022, &one );
 					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta_0, &i_K022, &one );
 					F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &r_Kj12[0], &p1, &dmone, &i_K022, &one );
-					// For (i,j) = 1 ----------------------------------------------|
+					
+					// - - For (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 					sub_rows_mins( &r_K[txpxp], &r_K12[0], &i, &j, &dim );  // K12 = K[e, -e]
 					Hsub_rows_mins( &i_K[txpxp], &i_K12[0], &i, &j, &dim );  // K12 = K[e, -e]
 
@@ -1052,7 +1056,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta_0, &i_K121[0], &two );
 					F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &r_K12[0], &two, &dmone, &i_K121[0], &two );
 
-					// Finished (i,j) = 1------------------------------------------|
+					// - - Finished (i,j) = 1- - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 					r_a11      = r_K[ i * dim + i + txpxp ] - r_K121[0]; //k_ii - k_ii^1
 					r_sum_diag = r_Dsjj * ( r_K022 - r_K121[3] ) - ( r_Dsij * r_K121[1] - i_Dsij * i_K121[1] ) - ( r_Dsij * r_K121[2] + i_Dsij * i_K121[2] ); //tr(D*(K0-K1))
@@ -1102,7 +1106,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 		selected_edge_i = index_rates_row[ index_selected_edge ];
 		selected_edge_j = index_rates_col[ index_selected_edge ];
 
-		// saving result ------------------------------------------------------|
+		// - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 		if( i_mcmc >= burn_in )
 		{
 			if( sum_rates == 0 )
@@ -1114,11 +1118,11 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 					i_K_hat[ t ] = i_K[ t ];
 				}
 
-				string_g = string( char_g.begin(), char_g.end() ); // The adjacent matrix of G
+				string_g = string( char_g.begin(), char_g.end() );  // The adjacent matrix of G
 				all_weights[ counterallG ] = max_numeric_limits_ld;
 
 				this_one = false;
-				for ( i = 0; i < size_sample_graph ; i++ ) // Check whether G appeared before
+				for ( i = 0; i < size_sample_graph ; i++ )  // Check whether G appeared before
 					if( sample_graphs_C[ i ] == string_g )
 					{
 						graph_weights[ i ] = all_weights[ counterallG ];
@@ -1147,9 +1151,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 				delete[] K;
 
 				return;
-			}
-			else
-			{
+			}else{
 				if( !useful && sum_rates < 1 ) // Set the first huge sum_rates as the common_factor and multiply it when calculating
 				{							   // K_hat_Cpp, p_links_Cpp and sum_weights to avoid overflow
 					common_factor = sum_rates;
@@ -1186,7 +1188,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 				counterallG++;
 				sum_weights += 1.0 * ( common_factor / sum_rates );
 			}
-		} // End of saving result ---------------------------------------------|
+		} // End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 		// If sum_rates = 0, we consider the graph in this state is the true graph
 		if( sum_rates == 0 )
@@ -1219,7 +1221,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 			--size_node[ selected_edge_j ];
 		}
 
-		// STEP 2: Sampling from G-Wishart for new graph ----------------------|
+		// - - STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - |
 		for( t = 0; t < T; t++ )
 		{
 			txpxp = t * pxp;
@@ -1237,7 +1239,7 @@ void bdmcmc_map_for_multi_dim( int *iter, int *burnin, int G[], double Ls[], dou
 				i_K[ k + txpxp ] = K[ k ].i;
 			}
 		}
-	} // End of MCMC sampling algorithm ---------------------------------------|
+	} // - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	PutRNGstate();
 
 	for( i = 0; i < size_sample_graph; i++ )

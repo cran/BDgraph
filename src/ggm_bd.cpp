@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 //     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
@@ -8,17 +8,17 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
 //                                                                                                 |
 //     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 #include "matrix.h"
 #include "rgwish.h"
 
 extern "C" {
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // birth-death MCMC for Gaussian Graphical models  
 // for case D = I_p 
 // it is for Bayesian model averaging (MA)
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
                     int *p, double *threshold, double K_hat[], double p_links[],
 			        int *b, int *b_star, double Ds[], int *print )
@@ -41,7 +41,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 	vector<int> N_i( dim );                  // For dynamic memory used
-	// ----------------------------
+	// - - - - - - - - - - - - - - 
 	
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -87,13 +87,13 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
    
-//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
+//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//----- STEP 1: calculating birth and death rates -------------------------------------------------|		
+//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
@@ -102,7 +102,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//----- saving result -----------------------------------------------------------------------------|	
+//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -116,7 +116,7 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 			
 			sum_weights += weight_C;
 		} 
-//----- End of saving result ----------------------------------------------------------------------|	
+//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
 			
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
@@ -132,11 +132,11 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 			--size_node[ selected_edge_j ]; 
 		}
 
-//------ STEP 2: Sampling from G-Wishart for new graph --------------------------------------------|
+//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
+//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
@@ -146,11 +146,11 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 	}
 }
        
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // birth-death MCMC for Gaussian Graphical models  
 // for case D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
                     int *p, double *threshold, int all_graphs[], double all_weights[], double K_hat[], 
                     char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -175,7 +175,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 	vector<int> N_i( dim );                  // For dynamic memory used
-	// ----------------------------
+	// - - - - - - - - - - - - - - 
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -226,13 +226,13 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
+//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//----- STEP 1: calculating birth and death rates -------------------------------------------------|		
+//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 		
@@ -241,7 +241,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//----- saving result -----------------------------------------------------------------------------|	
+//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -278,7 +278,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//----- End of saving result ----------------------------------------------------------------------|	
+//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
     			
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
@@ -294,11 +294,11 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			--size_node[ selected_edge_j ]; 
 		}
 
-//------ STEP 2: Sampling from G-Wishart for new graph --------------------------------------------|
+//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
+//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
@@ -314,11 +314,11 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 		K_hat[ i ] /= sum_weights;
 }
         
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Multiple birth-death MCMC for Gaussian Graphical models  
 // for D = I_p 
 // it is for Bayesian model averaging
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
                             double K[], int *p, double *threshold, double K_hat[], double p_links[],
                             int *b, int *b_star, double Ds[], int *multi_update, int *print )
@@ -340,7 +340,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 	vector<int> N_i( dim );                  // For dynamic memory used
-	// ----------------------------
+	// - - - - - - - - - - - - - - 
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -392,20 +392,20 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
-//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
+//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//----- STEP 1: calculating birth and death rates -------------------------------------------------|		
+//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//----- Saving result -----------------------------------------------------------------------------|	
+//- - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -419,7 +419,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 			
 			sum_weights += weight_C;
 		} 
-//----- End of saving result ----------------------------------------------------------------------|	
+//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
 
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
@@ -441,11 +441,11 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 			}		
 		}
 
-//------ STEP 2: Sampling from G-Wishart for new graph --------------------------------------------|
+//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
+//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
@@ -455,11 +455,11 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 	}
 }
     
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Multiple birth-death MCMC for Gaussian Graphical models  
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
                 double K[], int *p, double *threshold, int all_graphs[], double all_weights[], double K_hat[], 
                 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
@@ -483,7 +483,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prio
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 	vector<int> N_i( dim );                  // For dynamic memory used
-	// ----------------------------
+	// - - - - - - - - - - - - - - 
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -537,20 +537,20 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prio
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
-//-- Main loop for birth-death MCMC ---------------------------------------------------------------| 
+//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//----- STEP 1: calculating birth and death rates -------------------------------------------------|		
+//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 				
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//----- Saving result -----------------------------------------------------------------------------|	
+//- - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -587,7 +587,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prio
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//----- End of saving result ----------------------------------------------------------------------|	
+//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
 			
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
@@ -609,11 +609,11 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prio
 			}		
 		}
 
-//------ STEP 2: Sampling from G-Wishart for new graph --------------------------------------------|
+//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC --------------------------------------------------------| 
+//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 

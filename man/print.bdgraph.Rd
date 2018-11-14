@@ -32,7 +32,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

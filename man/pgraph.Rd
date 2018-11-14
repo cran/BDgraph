@@ -7,13 +7,13 @@
 Provides the estimated posterior probabilities for the most likely graphs or a specific graph.
 }
 
-\usage{ pgraph( bdgraph.obj, number.g = 4, adj_g = NULL ) }
+\usage{ pgraph( bdgraph.obj, number.g = 4, adj = NULL ) }
 
 \arguments{
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
   \item{number.g}{ The number of graphs with the highest posterior probabilities to be shown.
-            This option is ignored if \code{'adj_g'} is specified. }
-  \item{adj_g}{ An adjacency matrix corresponding to a graph structure. It is an upper triangular matrix in which 
+            This option is ignored if \code{'adj'} is specified. }
+  \item{adj}{ An adjacency matrix corresponding to a graph structure. It is an upper triangular matrix in which 
             \eqn{a_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{a_{ij}=0}.
             It also can be an object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}. }
 }
@@ -38,17 +38,17 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 6, vis = TRUE )
    
-bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
    
 # Estimated posterior probability of the true graph
-pgraph( bdgraph.obj, adj_g = data.sim )
+pgraph( bdgraph.obj, adj = data.sim )
    
 # Estimated posterior probability of first and second graphs with highest probabilities
 pgraph( bdgraph.obj, number.g = 2 )

@@ -11,7 +11,7 @@ Provides the estimated posterior link probabilities for all possible links in th
 
 \arguments{
   \item{bdgraph.obj}{An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
   }
 
   \item{round}{ A value for rounding all probabilities to the specified number of decimal places. }
@@ -36,7 +36,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{\code{\link{bdgraph}} and \code{\link{bdgraph.mpl}}}
+\seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}}
 
 \examples{
 \dontrun{

@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,9 +8,9 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Sampling from COMPLEX G-Wishart distribution                                                 |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 {
@@ -44,8 +44,8 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
 	if( nrow( D ) != p ) stop( "Dimension of matrix G and D must be the same." )
 		
 	inv_D = solve( D )
-	row1  = cbind( Re(inv_D), -Im(inv_D) )
-	row2  = cbind( Im(inv_D), Re(inv_D) )
+	row1  = cbind( Re( inv_D ), -Im(inv_D) )
+	row2  = cbind( Im( inv_D ), Re(inv_D) )
 	sig   = rbind( row1, row2 ) / 2
 	Ls    = t( chol(sig) )
 	K     = matrix( 0, p, p )

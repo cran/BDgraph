@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,16 +8,16 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     For discrete data: to transfer raw data for the algorithm                                    |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 transfer = function( r_data )
 {
 	if( class( r_data ) == "sim" ) r_data <- r_data $ data
   
-	n    = dim( r_data )[1]
-	p    = dim( r_data )[2]
+	n    = dim( r_data )[ 1 ]
+	p    = dim( r_data )[ 2 ]
 	data = matrix( 0, nrow = n, ncol = p + 1 )
 	size_unique_data = 0
 	

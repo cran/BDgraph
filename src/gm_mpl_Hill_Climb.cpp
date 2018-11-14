@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 //     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
@@ -8,14 +8,14 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
 //                                                                                                 |
 //     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 #include "matrix.h"
 
 extern "C" {
-// ------------------------------------------------------------------------------------------------| 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing the Marginal pseudo-likelihood for HC algorithm and binary data
-// ------------------------------------------------------------------------------------------------| 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
                   int data[], int freq_data[], int *length_freq_data, 
                   double *alpha_ijl, int *n )
@@ -143,9 +143,9 @@ void log_mpl_binary_hc( int *node, int mb_node[], int *size_node, double *log_mp
 	}
 }
     
-// ------------------------------------------------------------------------------------------------| 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Parallel function to compute the Marginal pseudo-likelihood for BINARY data
-// ------------------------------------------------------------------------------------------------| 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
                   int data[], int freq_data[], int *length_freq_data, 
                   double *alpha_ijl, int *n )
@@ -244,9 +244,9 @@ void log_mpl_binary_parallel_hc( int *node, int mb_node[], int *size_node, doubl
 	}
 }
     	
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing the Marginal pseudo-likelihood for discrete data
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_mpl_hc_dis( int *node, int mb_node[], int *size_node, double *log_mpl_node, 
                   int data[], int freq_data[], int *length_freq_data, 
                   int max_range_nodes[], double *alpha_ijl, int *n )

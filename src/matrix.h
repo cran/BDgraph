@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 //     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
@@ -8,7 +8,7 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
 //                                                                                                 |
 //     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 #ifndef matrix_H
 #define matrix_H
@@ -62,7 +62,7 @@ extern "C" {
 								double sigma[], double K[], double sigma_dmh[], 
 								double K_dmh[], int *b, int *p );
 				            
-// -------------- NEW for Lang codes --------------------------------------------------------------|
+// - - - - - - - NEW for Lang codes - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	// For Hermitian matrix
 	void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p );
 		  
@@ -73,7 +73,7 @@ extern "C" {
 	void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p );
 	
 	void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] );
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	
 	void scale_free( int *G, int *p );
 	

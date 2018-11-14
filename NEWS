@@ -1,7 +1,7 @@
 
-|--------------------------------------------------------------------------------------------------|
-|    >>>>> BDgraph NEWS                                                                            |
-|--------------------------------------------------------------------------------------------------|
+|- - - - - - - - - - - - - - - - - - -- - - - - - - - - - - |
+|               > > >  BDgraph NEWS  < < <                  |
+|- - - - - - - - - - - - - - - - - - -- - - - - - - - - - - |
 
 - CHANGES IN VERSION 2.19
 
@@ -87,6 +87,16 @@
 	* Bug fixed for "bdgraph.ts()" function.
 	* Data set "churn" is added.
 
+- CHANGES IN VERSION 2.53
 
+	* Files "configure" and "configure.ac" are removed and 
+	    files "Makevars" and "Makevars.win" are modified accordingly.
+
+	* In function "bdgraph()", "bdgraph.mpl()", and "bdgraph.ts()" 
+	    option "save.all" is changed to "save".
+	* In function "bdgraph()" and "bdgraph.mpl()", option "multi.update" is changed to "jump".
+	* In function "bdgraph()" and "bdgraph.ts()", option "prior.df" is changed to "df.prior".
+	
+	* In function "pgraph()", option "adj_g" is changed to "adj".
 
 

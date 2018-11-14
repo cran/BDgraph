@@ -13,9 +13,9 @@ or graph with the highest posterior probability. }
   
   \item{cut}{ Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; See the examples. } 
 
-  \item{number.g}{ The number of graphs with the highest probabilities. This option works for the case running function \code{bdgraph()} with option \code{save.all = TRUE}; See the examples. }
+  \item{number.g}{ The number of graphs with the highest probabilities. This option works for the case running function \code{bdgraph()} with option \code{save = TRUE}; See the examples. }
   
-  \item{layout}{The vertex placement algorithm which is according to \pkg{igraph} package. }
+  \item{layout}{The vertex placement algorithm which is according to \code{R} package \code{\link[igraph]{igraph}}. }
   
   \item{\dots}{System reserved (no specific usage).}
 }
@@ -34,7 +34,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{
@@ -45,7 +45,7 @@ bdgraph.obj <- bdgraph( data = data.sim )
    
 plot( bdgraph.obj )
    
-bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
    
 plot( bdgraph.obj, number.g = 4 )
   

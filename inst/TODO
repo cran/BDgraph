@@ -3,6 +3,8 @@ To do list: June 22 2018
 -------------------------
 
 	- adding option "weight = FALSE" to function "compare()"
+	
+	- adding function "link2adj" and "adj2link"
 
 	- Writing a vignettes with title:
 	   "An Introduction to the BDgraph Package for Bayesian Graphical Models" 
@@ -11,5 +13,7 @@ To do list: June 22 2018
     
     - working on bergm idea
     
+    - adding function for bayes factor case
+   
     
  

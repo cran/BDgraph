@@ -46,6 +46,8 @@ Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gauss
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
+\seealso{ \code{\link{rgwish}}, \code{\link{rwish}} }
+
 \examples{
 \dontrun{
 # adj.g: adjacency matrix of graph with 3 nodes and 2 links

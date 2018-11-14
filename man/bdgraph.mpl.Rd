@@ -9,8 +9,8 @@
 \usage{
 bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE, 
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
-             g.start = "empty", g.prior = 0.5, 
-             multi.update = NULL, alpha = 0.5, save.all = FALSE, 
+             g.prior = 0.5, g.start = "empty", 
+             jump = NULL, alpha = 0.5, save = FALSE, 
              print = 1000, cores = NULL, operator = "or" )
 }
 
@@ -43,24 +43,26 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{iter}{   The number of iteration for the sampling algorithm. }
 	\item{burnin}{ The number of burn-in iteration for the sampling algorithm. }
 
-	\item{g.start}{
-		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
-		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
-		It also could be an object with \code{S3} class \code{"bdgraph"} or \code{"ssgraph"}; 
-		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
-	} 
 	\item{g.prior}{
 		For determining the prior distribution of each edge in the graph. 
 		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
 		or an (\eqn{p \times p}) matrix with elements between \eqn{0} and \eqn{1}.
 	}
-	\item{multi.update}{
+	
+	\item{g.start}{
+		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
+		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
+		It also could be an object with \code{S3} class \code{"bdgraph"} of package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of package \code{\link[ssgraph]{ssgraph}}; 
+		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
+	} 
+
+	\item{jump}{
 		It is only for the BDMCMC algorithm (\code{algorithm = "bdmcmc"}).
 		It is for simultaneously updating multiple links at the same time to update graph in the BDMCMC algorithm.
 	}	
 	\item{alpha}{ Value of the hyper parameter of Dirichlet, which is a prior distribution. }
 	
-	\item{save.all}{
+	\item{save}{
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}
@@ -77,7 +79,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	
 	\item{p_links}{ An upper triangular matrix which corresponds the estimated posterior probabilities of all possible links. }
 	
-	For the case "save.all = TRUE" is returned:
+	For the case "save = TRUE" is returned:
 
 	\item{sample_graphs}{ A vector of strings which includes the adjacency matrices of visited graphs after burn-in.}
 	\item{graph_weights}{ A vector which includes the waiting times of visited graphs after burn-in. }
@@ -102,18 +104,16 @@ Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Adrian Dobra, and Johan Pensar }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, \code{\link{compare}} }
 
 \examples{
-\dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 70, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim( n = 70, p = 5, size = 7, vis = TRUE )
    
-bdgraph.obj <- bdgraph.mpl( data = data.sim )
+bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 500 )
   
 summary( bdgraph.obj )
    
-# To compare our result with true graph
+# To compare the result with true graph
 compare( data.sim, bdgraph.obj, main = c( "True graph", "BDgraph" ) )
-}
 }

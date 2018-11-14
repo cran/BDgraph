@@ -13,7 +13,7 @@ or a graph with the highest posterior probability; see examples.
 
 \arguments{
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from function \code{ssgraph} from \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from function \code{\link[ssgraph]{ssgraph}} from \code{R} package \code{\link[ssgraph]{ssgraph}}.
 					  It also can be  an (\eqn{p \times p}) matrix in which each element of the matrix response to the weight of the links.
 					}
 					
@@ -37,7 +37,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{
@@ -48,7 +48,7 @@ bdgraph.obj <- bdgraph( data = data.sim )
    
 select( bdgraph.obj )
   
-bdgraph.obj <- bdgraph( data = data.sim, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
   
 select( bdgraph.obj )
   

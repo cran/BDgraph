@@ -8,8 +8,6 @@ Check these declarations against the C/Fortran source code.
 /* .C calls */
 extern void bdmcmc_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void bdmcmc_map_for_multi_dim(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void check_nthread(void *);
-extern void check_os(void *);
 extern void dgm_bdmcmc_mpl_binary_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_binary_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void dgm_bdmcmc_mpl_binary_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -64,8 +62,6 @@ extern void transfer_data(void *, void *, void *, void *, void *);
 static const R_CMethodDef CEntries[] = {
     {"bdmcmc_for_multi_dim",                   (DL_FUNC) &bdmcmc_for_multi_dim,                   19},
     {"bdmcmc_map_for_multi_dim",               (DL_FUNC) &bdmcmc_map_for_multi_dim,               22},
-    {"check_nthread",                          (DL_FUNC) &check_nthread,                           1},
-    {"check_os",                               (DL_FUNC) &check_os,                                1},
     {"dgm_bdmcmc_mpl_binary_ma",               (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma,               12},
     {"dgm_bdmcmc_mpl_binary_ma_multi_update",  (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma_multi_update,  13},
     {"dgm_bdmcmc_mpl_binary_map",              (DL_FUNC) &dgm_bdmcmc_mpl_binary_map,              16},

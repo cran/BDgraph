@@ -44,7 +44,7 @@ Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Lang Liu, Nicholas Foti, Alex Tank and Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{rgwish}} and \code{\link{rwish}} }
+\seealso{ \code{\link{rgwish}}, \code{\link{rwish}} }
 
 \examples{
 \dontrun{

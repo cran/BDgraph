@@ -72,21 +72,13 @@ int zpotrs( char *uplo, int *n, int *nrhs, Rcomplex *a, int *lda, Rcomplex *b, i
     if( ! upper && ! F77_NAME(lsame)( uplo, &low ) ) 
     {
 		*info = -1;
-    } 
-    else if( *n < 0 ) 
-    {
+    }else if( *n < 0 ){
 		*info = -2;
-    } 
-    else if( *nrhs < 0 ) 
-    {
+    }else if( *nrhs < 0 ){
 		*info = -3;
-    } 
-    else if( *lda < std::max( 1, *n ) ) 
-    {
+    }else if( *lda < std::max( 1, *n ) ){
 		*info = -5;
-    } 
-    else if( *ldb < std::max( 1, *n ) ) 
-    {
+    }else if( *ldb < std::max( 1, *n ) ){
 		*info = -7;
     }
     

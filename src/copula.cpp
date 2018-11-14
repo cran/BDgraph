@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 //     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
@@ -8,14 +8,14 @@
 //     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
 //                                                                                                 |
 //     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
   
 #include "copula.h"
    
 extern "C" {
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating mean for copula function
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int *j, int *n, int *p )
 {
 	int k, dim = *p, number = *n, row = *i, col = *j;
@@ -30,9 +30,9 @@ void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int
 	*mu_ij = - mu * *sigma;
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating bounds for copula function
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
 	int kj, ij, row = *i, col = *j;
@@ -55,9 +55,9 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
 	*ub = upper_b;	
 }
  
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // copula part
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int *p )
 {
     int number = *n, dim = *p, dimp1 = dim + 1, i, j, jxn;
@@ -90,9 +90,9 @@ void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int 
     //PutRNGstate();
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating bounds for copula function with missing data 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
 	int kj, ij, row = *i, col = *j;
@@ -118,9 +118,9 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
 	*ub = upper_b;		
 }
  
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // copula part for missing data
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, int *p )
 {
     int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
@@ -159,9 +159,9 @@ void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, i
     //PutRNGstate();
 }
     
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating Ds = D + S for the BDMCMC sampling algorithm
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
 {
 	int gcgm_check = *gcgm, dim = *p, pxp = dim * dim;
@@ -180,9 +180,9 @@ void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], 
 	for( int i = 0; i < pxp ; i++ ) Ds[ i ] = D[ i ] + S[ i ];		
 }
 
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating Ts = chol( solve( Ds ) ) for the BDMCMC sampling algorithm
-// ------------------------------------------------------------------------------------------------|
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p )
 {
 	int dim = *p, pxp = dim * dim;

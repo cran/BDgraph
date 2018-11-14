@@ -3,16 +3,15 @@
 
 #include <Rconfig.h>
 
-#if defined(_OPENMP) && __GNUG__ && defined(__linux__)
-#define __PARALLEL__ true
-#else
-#define __PARALLEL__ false
-#endif
+//#if defined(_OPENMP) //&& __GNUG__ && defined(__linux__)
+//#ifdef _OPENMP
+//    #define __PARALLEL__ true
+//#else
+//    #define __PARALLEL__ false
+//#endif
 
-#if __PARALLEL__
-#define __NO_PARALLEL__ false
-#else
-#define __NO_PARALLEL__ true
+#ifdef _OPENMP
+    #include <omp.h>
 #endif
 
 #include <R.h>
@@ -26,10 +25,6 @@
 #include <R_ext/Arith.h>     // for the special values like NA, NaN  
 
 #include <R_ext/Visibility.h>
-
-#if __PARALLEL__
-#include <omp.h>
-#endif
 
 #include <sstream>
 #include <string>            // std::string, std::to_string

@@ -43,10 +43,11 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{rgwish}} and \code{\link{rgcwish}} }
+\seealso{ \code{\link{gnorm}}, \code{\link{rgwish}}, \code{\link{rgcwish}} }
 
 \examples{
 sample <- rwish( n = 3, p = 5, b = 3, D = diag( 5 ) )
+
 round( sample, 2 )  
 }
 

@@ -53,7 +53,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{rwish}} and \code{\link{rgcwish}} }
+\seealso{ \code{\link{gnorm}}, \code{\link{rwish}}, \code{\link{rgcwish}} }
 
 \examples{
 # Generating a 'circle' graph as a non-decomposable graph

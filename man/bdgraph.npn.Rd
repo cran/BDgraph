@@ -32,7 +32,7 @@ Zhao, T. and Liu, H. (2012). The \pkg{huge} Package for High-dimensional Undirec
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{bdgraph.sim}} and \code{\link{bdgraph}} }
+\seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

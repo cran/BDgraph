@@ -15,16 +15,16 @@
 	}
   \item{bdgraph.obj}{
         An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
-        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-        It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.       
+        It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
         It also can be an adjacency matrix corresponding to an estimated graph. 
         }
   
   \item{bdgraph.obj2,
         bdgraph.obj3}{ 
             An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
-            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
-            It also can be an object of \code{S3} class \code{"select"}, from the function \code{huge.select} of \code{R} package \pkg{huge}.
+            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+            It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
             It also can be an adjacency matrix corresponding to an estimated graph. 
             It is for comparing two different approaches. }
 					  
@@ -56,7 +56,7 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 }
 \author{Reza Mohammadi \email{a.mohammadi@uva.nl}, Antonio Abbruzzo, and Ivan Vujacic}
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}} and \code{\link{select}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{plotroc}} }
 
 \examples{
 \dontrun{

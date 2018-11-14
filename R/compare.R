@@ -1,4 +1,4 @@
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
@@ -8,9 +8,9 @@
 #     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     This function reports below measures to assess the performance of estimated graphs:          |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # True positive:  number of correctly estimated links.                                             |
 # True negative:  number of true non-existing links which is correctly estimated.                  |
 # False positive: number of links which are not in the true graph, but are incorrectly estimated.  |
@@ -19,7 +19,7 @@
 # Specificity:    Specificity value reaches.                                                       |
 # Sensitivity:    Sensitivity value reaches.                                                       |
 # MCC:            Matthews Correlation Coefficients (MCC).                                         |
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
                     main = NULL, vis = FALSE ) 
@@ -148,9 +148,9 @@ compare = function( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NU
 	return( round( result, 3 ) )
 }
     
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #    To compare measures the performance of estimated graphs based on true graph
-## ------------------------------------------------------------------------------------------------|
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 compute_measures = function( G, est_G ) 
 {
 	upper_G     = G[     upper.tri( G     ) ]

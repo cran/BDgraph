@@ -12,7 +12,7 @@ It is a tool for monitoring the convergence of the sampling algorithms, BDMCMC a
 
 \arguments{
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{ssgraph} of \code{R} package \pkg{ssgraph}.
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
   }
   \item{acf}{ Visualize the autocorrelation functions for graph size. }
   \item{pacf}{ Visualize the partial autocorrelations for graph size. }
@@ -34,14 +34,14 @@ Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayes
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}} and \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link{plotcoda}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
    
-bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0, save.all = TRUE )
+bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0, save = TRUE )
    
 traceplot( bdgraph.obj )
    

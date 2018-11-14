@@ -7,8 +7,8 @@
 }
 \usage{
 bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2, 
-            g.start = "empty", g.prior = 0.5, prior.df = rep( 3, Nlength ), 
-            save.all = FALSE, print = 500, cores = NULL )
+            g.prior = 0.5, df.prior = rep( 3, Nlength ), g.start = "empty", 
+            save = FALSE, print = 500, cores = NULL )
 }
 
 \arguments{
@@ -22,6 +22,16 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	\item{iter}{The number of iteration for the sampling algorithm.}
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
+	\item{g.prior}{
+		For determining the prior distribution of each edge in the graph. 
+		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
+		or an (\eqn{p \times p}) matrix with elements between \eqn{0} and \eqn{1}.
+	}
+		
+	\item{df.prior}{
+		The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b,D)}, which is a prior distribution of the precision matrix in each frequency.
+	}
+
 	\item{g.start}{
 		Corresponds to a starting point of the graph. It could be \code{"empty"} (default) and \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
@@ -29,16 +39,7 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 		with this option we could run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
 
-	\item{g.prior}{
-		For determining the prior distribution of each edge in the graph. 
-		There are two options: a single value between \eqn{0} and \eqn{1} (e.g. \eqn{0.5} as a noninformative prior) 
-		or an (\eqn{p \times p}) matrix with elements between \eqn{0} and \eqn{1}.
-	}
-		
-	\item{prior.df}{
-		The degree of freedom for complex G-Wishart distribution, \eqn{CW_G(b,D)}, which is a prior distribution of the precision matrix in each frequency.
-	}
-	\item{save.all}{
+	\item{save}{
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}	
@@ -57,7 +58,7 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	
 	\item{K_hat}{ The posterior estimation of the precision matrix. }
 
-	For the case "save.all = TRUE" is returned:
+	For the case "save = TRUE" is returned:
 
 	\item{sample_graphs}{ A vector of strings which includes the adjacency matrices of visited graphs after burn-in.}
 	\item{graph_weights}{ A vector which includes the waiting times of visited graphs after burn-in. }
@@ -86,7 +87,7 @@ Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constan
 
 \author{ Lang Liu, Nicholas Foti, Alex Tank and Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, and \code{\link{compare}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, \code{\link{compare}} }
 
 \examples{
 \dontrun{
