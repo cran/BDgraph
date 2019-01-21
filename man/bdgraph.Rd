@@ -8,10 +8,9 @@
 	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
-bdgraph( data, n = NULL, method = "ggm", not.cont = NULL, 
-         algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
-         g.prior = 0.5, df.prior = 3, g.start = "empty", 
-         jump = NULL, save = FALSE, print = 1000, 
+bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
+         burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
+         g.start = "empty", jump = NULL, save = FALSE, print = 1000, 
          cores = NULL, threshold = 1e-8 )
 }
 
@@ -32,8 +31,6 @@ bdgraph( data, n = NULL, method = "ggm", not.cont = NULL,
 		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, discrete, or mixed dataset).
 	}
 	
-	\item{not.cont}{ For the case \code{method = "gcgm"}, a vector with binary values in which \eqn{1} for not continuous variables. }
-
 	\item{algorithm}{
 		A character with two options \code{"bdmcmc"} (default) and \code{"rjmcmc"}. 
 		Option \code{"bdmcmc"} is based on birth-death MCMC algorithm.
@@ -42,6 +39,8 @@ bdgraph( data, n = NULL, method = "ggm", not.cont = NULL,
 	
 	\item{iter}{The number of iteration for the sampling algorithm.}
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
+
+	\item{not.cont}{ For the case \code{method = "gcgm"}, a vector with binary values in which \eqn{1} for not continuous variables. }
 
 	\item{g.prior}{
 		For determining the prior distribution of each edge in the graph. 
@@ -102,9 +101,9 @@ Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Baye
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645
 
-Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
+Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416v2} 
 
-Mohammadi, A., Massam H., and Letac, G. (2017). The ratio of normalizing constants for Bayesian graphical Gaussian model selection, \emph{arXiv preprint arXiv:1706.04416} 
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 
 Mohammadi, A. and Dobra A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 }

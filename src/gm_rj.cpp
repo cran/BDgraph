@@ -79,7 +79,7 @@ void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *se
 		nu_star += G[*selected_edge_i * dim + k] * G[*selected_edge_j * dim + k];
 	nu_star = 0.5 * nu_star;
 
-	//*log_alpha_ij = 0.5 * ( log( static_cast<double>( 2.0 ) ) + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
+	// *log_alpha_ij = 0.5 * ( log( static_cast<double>( 2.0 ) ) + log( static_cast<double>( Dsjj ) ) - log( static_cast<double>( a11 ) ) ) + 
 	*log_alpha_ij = - log_ratio_g_prior[ ij ] + 0.5 * log( 2.0 * Dsjj / a11 ) + 
 			  lgammafn( nu_star + 0.5 ) - lgammafn( nu_star ) - 0.5 * ( Dsij * Dsij * a11 / Dsjj  + sum_diag );
 
@@ -214,7 +214,7 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 // - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 	}  
 	PutRNGstate();
-// -- End of main loop for reversible jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - End of main loop for reversible jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - | 
 }
     
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -239,7 +239,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 
 	bool this_one;
 
-	// -- allocation for log_alpha_ij 
+	// - - - allocation for log_alpha_ij 
 	vector<double> K121( 4 ); 
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
@@ -252,7 +252,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 	vector<double> sigma11_inv( 4 );                     // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
-	// - -  for rgwish_sigma 
+	// - - for rgwish_sigma 
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
 	vector<double> beta_star( dim ); 
@@ -300,7 +300,7 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-// - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
+// - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -419,7 +419,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 	vector<double> sigma11_inv( 4 );                     // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
-	// - -  for rgwish_sigma 
+	// - - for rgwish_sigma  - - - - - - - - - 
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
 	vector<double> beta_star( dim ); 
@@ -427,11 +427,11 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 	vector<int> N_i( dim );                  // For dynamic memory used
-	// - -  for copula - - - - - - - - - - - - 
+	// - - for copula  - - - - - - - - - - - - 
 	vector<double> S( pxp ); 
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
-	// - - - - - - - - - - - - - - 
+	// - - - - - - - - - - - - - - - - - - - -
 
 	vector<double> sigma( pxp ); 
 	vector<double> copyK( pxp ); 
@@ -471,7 +471,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-// - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
+// - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -528,7 +528,7 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 // - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 	}  
 	PutRNGstate();
-// -- End of main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - End of main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - | 
 }
     
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -553,7 +553,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 	string string_g;
 	vector<string> sample_graphs_C( iteration - burn_in );
 	
-	// -- allocation for log_alpha_ij 
+	// - - - allocation for log_alpha_ij 
 	vector<double> K121( 4 ); 
 	vector<double> Kj12( p1 );              // K[j, -j]
 	vector<double> sigmaj12( p1 );          // sigma[-j, j]  
@@ -566,7 +566,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 	vector<double> sigma11_inv( 4 );                     // inv( sigma[e, e] )
 	vector<double> sigma21xsigma11_inv( p2x2 ); 
 	vector<double> K12xK22_inv( p2x2 );   
-	// - -  for rgwish_sigma 
+	// - - for rgwish_sigma - - - - - - - - -
 	vector<double> sigma_start( pxp ); 
 	vector<double> inv_C( pxp ); 
 	vector<double> beta_star( dim ); 
@@ -574,11 +574,11 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 	vector<double> sigma_start_N_i( dim );   // For dynamic memory used
 	vector<double> sigma_N_i( pxp );         // For dynamic memory used
 	vector<int> N_i( dim );                  // For dynamic memory used
-	// - -  for copula - - - - - - - - - - - - 
+	// - - for copula - - - - - - - - - - - - 
 	vector<double> S( pxp ); 
 	vector<double> inv_Ds( pxp ); 
 	vector<double> copy_Ds( pxp ); 
-	// - - - - - - - - - - - - - - 
+	// - - - - - - - - - - -- - - - - - - - -
 	vector<char> char_g( qp );              // char string_g[pp];
 	
 	vector<double> sigma( pxp ); 
@@ -625,7 +625,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|		
+// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
 		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
@@ -644,7 +644,7 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
                       &K12xK22_inv[0], &Kj12xK22_inv[0], &sigma11_inv[0], &sigma21xsigma11_inv[0],  
                       b, &dim );
 
-// - - - End of calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|		
+// - - - End of calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |		
 		
 		// Selecting an edge and updating G (graph)
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )

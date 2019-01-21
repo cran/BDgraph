@@ -18,16 +18,16 @@ extern "C" {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int *j, int *n, int *p )
 {
-	int k, dim = *p, number = *n, row = *i, col = *j;
-	double mu = 0.0;
-	
-	for( k = 0; k < col; k++ ) 
-		mu += Z[ k * number + row ] * K[ col * dim + k ];
-
-	for( k = col + 1; k < dim; k++ ) 
-		mu += Z[ k * number + row ] * K[ col * dim + k ];
-
-	*mu_ij = - mu * *sigma;
+    int k, dim = *p, number = *n, row = *i, col = *j, jxp = col * dim;
+    double mu = 0.0;
+    
+    for( k = 0; k < col; k++ ) 
+        mu += Z[ k * number + row ] * K[ jxp + k ];
+    
+    for( k = col + 1; k < dim; k++ ) 
+        mu += Z[ k * number + row ] * K[ jxp + k ];
+    
+    *mu_ij = - mu * *sigma;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

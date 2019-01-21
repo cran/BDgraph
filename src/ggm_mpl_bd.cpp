@@ -274,7 +274,7 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	// calculating all the birth and death rates 
 	rates_ggm_mpl( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], &copyS[0], &copy_n, &dim );
 
-//-- main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - |
+// - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -285,7 +285,7 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//- - - Saving result- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|
+// - - - Saving result- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -296,7 +296,7 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 			
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 
 		// Updating G (graph) based on selected edge
 		selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
@@ -337,7 +337,7 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	} 
 	PutRNGstate();
-// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
@@ -422,7 +422,7 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[],
 	// calculating all the birth and death rates 
 	rates_ggm_mpl( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], &copyS[0], &copy_n, &dim );
 
-//-- main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - |
+// - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -433,7 +433,7 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[],
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//- - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+// - - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 		if( i_mcmc >= burn_in )
 		{
@@ -468,7 +468,7 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[],
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 			
 		// Updating G (graph) based on selected edge
 		selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
@@ -508,7 +508,7 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[],
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	} 
 	PutRNGstate();
-// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 
@@ -591,20 +591,20 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
-//-- main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - |
+// - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|
+// - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		rates_ggm_mpl( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, &index_row[0], &index_col[0], &sub_qp, &size_node[0], &copyS[0], &copy_n, &dim );
 		
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//- - - Saving result- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|
+// - - - Saving result- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -615,9 +615,9 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 			
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 
-//- - - Updating graph based on selected edges - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - Updating graph based on selected edges - - - - - - - - - - - - - - - - - - - - - - - - - -|
 		for ( i = 0; i < size_index; i++ )
 		{
 			selected_edge_i = index_row[ index_selected_edges[ i ] ];
@@ -668,7 +668,7 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	} 
 	PutRNGstate();
-// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ ) 
@@ -754,7 +754,7 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 	int size_index = multi_update_C;
 	vector<int> index_selected_edges( multi_update_C );
 
-// -- main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - ---|
+// - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
@@ -767,7 +767,7 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//- - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+// - - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -801,9 +801,9 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 
-//- - - Updating graph based on selected edges - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - Updating graph based on selected edges - - - - - - - - - - - - - - - - - - - - - - - - - -|
 		for ( i = 0; i < size_index; i++ )
 		{
 			selected_edge_i = index_row[ index_selected_edges[ i ] ];
@@ -854,7 +854,7 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	} 
 	PutRNGstate();
-// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
@@ -991,23 +991,23 @@ void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	    }
     int sub_qp = counter;
 
-//-- main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - |
+// - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//- - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - --|		
+// - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
 		selected_edge_i = index_row[ selected_edge ];
 		selected_edge_j = index_col[ selected_edge ];
 
-//- - - STEP 1: calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|		
+// - - - STEP 1: calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		log_alpha_rjmcmc_ggm_mpl( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, &size_node[0], &copyS[0], &copy_n, &dim );
 		
-//- - - End of calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|		
+// - - - End of calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |		
 		  		
 		// Selecting an edge and updating G (graph)
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
@@ -1058,7 +1058,7 @@ void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	} 
 	PutRNGstate();
-// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	memcpy( &p_links[0], &p_links_Cpp[0], sizeof( double ) * pxp );    
 }
@@ -1136,7 +1136,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], doub
 	    }
 	int sub_qp = counter;
 
-// -- main loop for RJ-MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - main loop for RJ-MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -1152,7 +1152,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], doub
 
 		log_alpha_rjmcmc_ggm_mpl( &log_alpha_ij, &log_ratio_g_prior[0], &selected_edge_i, &selected_edge_j, &curr_log_mpl[0], G, &size_node[0], &copyS[0], &copy_n, &dim );
 		
-// - - - End of calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|		
+// - - - End of calculating log_alpha_ij - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |		
 		  		
 		// Selecting an edge and updating G (graph)
 		if( log( static_cast<double>( unif_rand() ) ) < log_alpha_ij )
@@ -1194,7 +1194,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], doub
 		//log_mpl_dis( &size_node[ selected_edge_j ], data, freq_data, &length_freq_data, max_range_nodes, &mb_node[0], alpha_ijl, &curr_log_mpl[ selected_edge_j ], &selected_edge_j, &copy_n, &dim );	
 		log_mpl( &selected_edge_j, &mb_node[0], &size_node[ selected_edge_j ], &curr_log_mpl[ selected_edge_j ], &copyS[0], &S_mb_node[0], &copy_n, &dim );
 
-//- - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+// - - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -1227,7 +1227,7 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], doub
 // - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 	} 
 	PutRNGstate();
-// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+// - - - End of MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	#pragma omp parallel for
 	for( i = 0; i < size_sample_graph; i++ ) 

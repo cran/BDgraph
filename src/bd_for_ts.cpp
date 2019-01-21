@@ -37,13 +37,13 @@ void rcwish_c( double Ls[], Rcomplex *K, int *b, int *p )
 	//Rcomplex *csigma = new Rcomplex[ pxp ];
 	//Rcomplex *Ind    = new Rcomplex[ pxp ];
 
-	// - -  Sample values in Joint matrix - -
+	// - - Sample values in Joint matrix - - -
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
 			joint[ j * p2 + i ] = norm_rand();
 	PutRNGstate();
-	// - - - - - - - - - - - - - - - - - - 
+	// - - - - - - - - - - - - - - - - - - - - 
 
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	// C = Ls %*% joint   I used   joint = Ls %*% joint
@@ -96,13 +96,13 @@ void rgcwish_c( int G[], double Ls[], Rcomplex *K, int *b, int *p )
 	Rcomplex *csigma = new Rcomplex[ pxp ];
 	Rcomplex *Ind    = new Rcomplex[ pxp ];
 
-	// - -  Sample values in Joint matrix - -
+	// - - Sample values in Joint matrix - - - -
 	GetRNGstate();
 	for( j = 0; j < n; j++ )
 		for( i = 0; i < p2; i++ )
 			joint[ j * p2 + i ] = norm_rand();
 	PutRNGstate();
-	// - - - - - - - - - - - - - - - - - - 
+	// - - - - - - - - - - - - - - - - - - - - -
 
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
 	// C = Ls %*% joint   I used   joint = Ls %*% joint
@@ -523,16 +523,6 @@ void rgcwish_sigma( int G[], int size_node[], double Ls[], Rcomplex *K, double r
 		}
 		//max[*iter - 1] = max_diff;
 	}
-
-	// if ( *iter == 1000 )
-	// {
-	// 	Rprintf( "max_diffs are: " );
-	// 	for (k = 980; k < 1000; k++)
-	// 	{
-	// 		Rprintf("%f, ", max[ k ]);
-	// 	}
-	// 	Rprintf( "\n" );
-	// }
 
 	memcpy( &r_sigma_start[0], r_sigma, sizeof( double ) * pxp );
 	memcpy( &i_sigma_start[0], i_sigma, sizeof( double ) * pxp );

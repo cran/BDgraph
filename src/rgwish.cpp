@@ -23,7 +23,7 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
 	vector<double> psi( pxp, 0.0 ); 
 
-	// - -  Sample values in Psi matrix - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---|
+	// - - - Sample values in Psi matrix - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
 	//#pragma omp parallel for
 	for( int i = 0; i < dim; i++ )

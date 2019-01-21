@@ -475,7 +475,7 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 
 		while( upper_bound - lower_bound > 1 )
 		{
-			//if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
+			// if ( rates[position] > random_value ) { upper_bound = position; } else { lower_bound = position; }     
 			( cumulative_rates[ position ] > random_value ) ? upper_bound = position : lower_bound = position;     
 			
 			position = ( lower_bound + upper_bound ) / 2;
@@ -567,7 +567,7 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			
 			// K121 = K12xK22_inv %*% K21													
 			F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
-			// Finished (i,j) = 1- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+			// Finished (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 			a11      = K[ i * dim1 ] - K121[ 0 ];	
 			sum_diag = Dsjj * ( K022 - K121[ 3 ] ) - Ds[ ij ] * ( K121[ 1 ] + K121[ 2 ] );
@@ -680,7 +680,7 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 			r_Dsij = r_Ds[ ij ];
 			i_Dsij = i_Ds[ ij ];
 
-			// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - |	
+			// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 			sub_row_mins( &r_K[0], &r_Kj12[0], &j, &dim );   // Kj12 = K[j, -j]
 			Hsub_row_mins( &i_K[0], &i_Kj12[0], &j, &dim );  
 			r_Kj12[ i ] = 0.0;                             // Kj12[1,i] = 0
@@ -697,7 +697,7 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &i_K022, &one );
 			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &r_Kj12[0], &p1, &dmone, &i_K022, &one );
 
-			// For (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - |
+			// For (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 			sub_rows_mins( &r_K[0], &r_K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
 			Hsub_rows_mins( &i_K[0], &i_K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
 			
@@ -735,7 +735,8 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &r_K12[0], &two, &alpha, &r_K121[0], &two );
 			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta, &i_K121[0], &two );
 			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &r_K12[0], &two, &dmone, &i_K121[0], &two );											
-			// Finished (i,j) = 1- - - - - - - - - - - - - - - - - - - - --|
+			// Finished (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+			
 			nu_star = b1;
 			for( k = 0; k < dim; k++ ) // nu_star = b + sum( Gf[,i] * Gf[,j] )
 				nu_star += G[ i * dim + k ] * G[ j * dim + k ]; 

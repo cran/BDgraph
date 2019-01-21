@@ -1,19 +1,11 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <Rconfig.h>
-
-//#if defined(_OPENMP) //&& __GNUG__ && defined(__linux__)
-//#ifdef _OPENMP
-//    #define __PARALLEL__ true
-//#else
-//    #define __PARALLEL__ false
-//#endif
-
 #ifdef _OPENMP
     #include <omp.h>
 #endif
 
+#include <Rconfig.h>
 #include <R.h>
 #include <Rmath.h>
 #include <R_ext/Print.h>

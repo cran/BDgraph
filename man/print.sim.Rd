@@ -21,7 +21,7 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
 
-Mohammadi, A., Massam H., and Letac, G. (2017). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416} 
+Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416v2} 
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Adrian Dobra, and Ernst Wit }

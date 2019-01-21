@@ -86,13 +86,13 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
+// - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
@@ -104,7 +104,7 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -117,7 +117,7 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 			
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 			
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
@@ -133,11 +133,11 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 			--size_node[ selected_edge_j ]; 
 		}
 
-//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	for( i = 0; i < pxp; i++ )
 	{	
@@ -220,13 +220,13 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
+// - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
@@ -238,7 +238,7 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -275,7 +275,7 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 			
 		// Updating G (graph) based on selected edge
 		selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
@@ -291,11 +291,11 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 			--size_node[ selected_edge_j ]; 
 		}
 
-//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
@@ -382,13 +382,13 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 
-//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
+// - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
@@ -398,7 +398,7 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -411,7 +411,7 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 			
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
@@ -433,11 +433,11 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 			}		
 		}
 
-//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	for( i = 0; i < pxp; i++ )
 	{	
@@ -522,13 +522,13 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-//- - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
+// - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
 		rgwish_sigma( G, &size_node[0], Ti, &K_dmh[0], &sigma_dmh[0], &b1, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
@@ -538,7 +538,7 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_
 		// Selecting multiple edges based on birth and death rates
 		select_multi_edges( &rates[0], &index_selected_edges[0], &size_index, &sum_rates, &multi_update_C, &sub_qp );
 
-//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -575,7 +575,7 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 			
 		// Updating graph based on selected edges
 		for ( i = 0; i < size_index; i++ )
@@ -597,11 +597,11 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_
 			}		
 		}
 
-//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	}  
 	PutRNGstate();
-//-- End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{
@@ -675,13 +675,13 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
 		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
 		
-		// STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - ---| 
+		// STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - -| 
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		randomEdge = static_cast<int>( unif_rand() * qp );
 
@@ -724,7 +724,7 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 
 		//alpha_ij = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );
 		alpha_ij = ( G[ ij ] ) ? ( logH_ij - logI_p ) - log_ratio_g_prior[ ij ] : ( logI_p - logH_ij ) + log_ratio_g_prior[ ij ];
-		// - - - -  End of calculating alpha - - - - - - - - - - - - - - - - - - - - - - - - - - --|
+		// - - - -  End of calculating alpha - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 		  		
 		// Selecting an edge and updating G (graph)
 		if( log( static_cast<double>( unif_rand() ) ) < alpha_ij )
@@ -742,20 +742,20 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 			}
 		}
 
-//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
-//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 			for( i = 0; i < pxp ; i++ )
 			{
 				K_hat[ i ] += K[ i ];
 				p_links[ i ] += G[ i ];
 			}	
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 	}  
 	PutRNGstate();
-//-- End of main MCMC loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - - End of main MCMC loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 }
                    
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -825,7 +825,7 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-//-- Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - ---| 
+// - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
@@ -875,7 +875,7 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 
 		//alpha_ij = ( G[ij] ) ? ( logH_ij - logI_p ) : ( logI_p - logH_ij );
 		alpha_ij = ( G[ ij ] ) ? ( logH_ij - logI_p ) - log_ratio_g_prior[ ij ] : ( logI_p - logH_ij ) + log_ratio_g_prior[ ij ];
-		// - - - -  End of calculating alpha - - - - - - - - - - - - - - - - - - - - - - - - - - --|
+		// - - - -  End of calculating alpha - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 		  		
 		// Selecting an edge and updating G (graph)
 		if( log( static_cast<double>( unif_rand() ) ) < alpha_ij )
@@ -893,10 +893,10 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 			}
 		}
 
-//- - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - -- STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 
-//- - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		if( i_mcmc >= burn_in )
 		{
 			for( i = 0; i < pxp ; i++ ) K_hat[ i ] += K[ i ];	
@@ -923,10 +923,10 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 			
 			count_all_g++; 
 		} 
-//- - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 	}  
 	PutRNGstate();
-//-- End of main MCMC loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - - End of main MCMC loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 
 	{

@@ -12,10 +12,10 @@
 #     Main function of BDgraph package: BDMCMC algorithm for graphical models                      |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-bdgraph = function( data, n = NULL, method = "ggm", not.cont = NULL, algorithm = "bdmcmc", 
-					iter = 5000, burnin = iter / 2, g.prior = 0.5, df.prior = 3, g.start = "empty", 
-					jump = NULL, save = FALSE, print = 1000, cores = NULL,
-					threshold = 1e-8 )
+bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
+                    burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
+                    g.start = "empty", jump = NULL, save = FALSE, print = 1000, 
+                    cores = NULL, threshold = 1e-8 )
 {
     num_machine_cores = BDgraph::detect_cores()
     if( is.null( cores ) ) cores = num_machine_cores - 1

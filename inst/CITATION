@@ -43,15 +43,28 @@ citEntry( entry = "Article",
 	number      = "2",
 	pages       = "815-845",
 	textVersion = paste( "Dobra, A. and Mohammadi, R. (2018). Loglinear model selection and human mobility. Annals of Applied Statistics, 12(2):815-845." ),
-	header      = "To cite applications of graphical models in highdimensional problems you may want to use:",
+	header      = "To cite applications of discrete graphical models in highdimensional problems you may want to use:",
 )
 
 citEntry( entry = "Article",
 	title       = "The ratio of normalizing constants for Bayesian graphical Gaussian model selection",
-	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Helene Massam" ), as.person( "Gerard Letac" ) ),
-	year        = "2017",
+	author      = personList( as.person( "Gerard Letac" ), as.person( "Helene Massam" ), as.person( "Reza Mohammadi" ) ),
+	year        = "2018",
 	journal     = "arXiv preprint arXiv:1706.04416",
-	textVersion = paste( "Mohammadi, A., Massam, H., and Letac, G. (2017). The ratio of normalizing constants for Bayesian graphical Gaussian model selection. arXiv preprint arXiv:1706.04416." ),
+	textVersion = paste( "Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, arXiv preprint arXiv:1706.04416v2." ),
 )
+
+citEntry( entry = "Article",
+	title       = "Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models",
+	author      = personList( as.person( "A. Mohammadi" ), as.person( "F. Abegaz" ), as.person( "E. van den Heuvel" ), as.person( "E. C. Wit" ) ),
+	year        = "2017",
+	journal     = "Journal of the Royal Statistical Society: Series C (Applied Statistics)",
+	volume      = "66",
+	number      = "3",
+	pages       = "629-645",
+	textVersion = paste( "Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models. Journal of the Royal Statistical Society: Series C, 66(3):629-645." ),
+	header      = "To cite the methodological part of Bayesian Gaussian Copula graphical models may want to use:",
+)
+
 
 

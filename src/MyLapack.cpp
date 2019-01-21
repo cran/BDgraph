@@ -95,9 +95,7 @@ int zpotrs( char *uplo, int *n, int *nrhs, Rcomplex *a, int *lda, Rcomplex *b, i
 
 		// Solve U*X = B, overwriting B with X.
 		F77_NAME(ztrsm)( &left_m, &up, &nt, &nu, n, nrhs, &c_b1, &a[a_offset], lda, &b[b_offset], ldb );
-    } 
-    else 
-    {
+    }else{
 		// Solve A*X = B where A = L*L'.   
 		// Solve L*X = B, overwriting B with X.
 		F77_NAME(ztrsm)( &left_m, &low, &nt, &nu, n, nrhs, &c_b1, &a[a_offset], lda, &b[b_offset], ldb );
