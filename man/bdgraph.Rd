@@ -4,7 +4,7 @@
 \title{	Search algorithm in graphical models }
 \description{
 	As the main function of the \pkg{BDgraph} package, 
-	this function consists of several sampling algorithms for Bayesian model determination in undirected graphical models. % based on birth-death MCMC method. 
+	this function consists of several MCMC sampling algorithms for Bayesian model determination in undirected graphical models. % based on birth-death MCMC method. 
 	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{

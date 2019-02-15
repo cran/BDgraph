@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -15,13 +15,13 @@
 graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
 {
     if( p < 2 ) stop( "'p' must be more than 1" )
-    if( prob < 0 | prob > 1 ) stop( "'prob' must be between zero and one" )
-
+    if( ( sum( prob < 0 ) + sum( prob > 1 ) ) != 0 ) stop( "'prob' must be between 0 and 1" )
+ 
+    G <- matrix( 0, p, p )
+    
     # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( graph == "random" )
     {
-        G <- matrix( 0, p, p )
-        
         if( is.null( size ) )
         {
             G[ upper.tri( G ) ] <- stats::rbinom( p * ( p - 1 ) / 2, 1, prob )
@@ -31,8 +31,6 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
             smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
             G[ upper.tri( G ) ][smp] <- 1
         }
-        
-        G <- G + t( G )
     }
     
     if( graph == "cluster" )
@@ -44,13 +42,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
             if( !is.null( size ) )   class = length( size )
             if( length( prob ) > 1 ) class = length( prob )
             if( is.null( class ) )   class = max( 2, ceiling( p / 20 ) )
-            
-            if( !is.null( size ) )
-            {
-                class <- length( size )
-            }else{
-                class <- max( 2, ceiling( p / 20 ) )
-            }
+            #if( !is.null( size ) ) class <- length( size ) else class <- max( 2, ceiling( p / 20 ) )
         }
         
         g.large <- p %% class
@@ -59,18 +51,16 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         n.large <- n.small + 1
         vp      <- c( rep( n.small, g.small ), rep( n.large, g.large ) )
         
-        G       <- matrix( 0, p, p )
-        
         if( is.null( size ) )
         {
-            # if( prob < 0 | prob > 1 ) stop( " 'prob' must be between zero and one" )
+            if( length( prob ) != class ) prob = rep( prob, class )
             
             for( i in 1 : class )
             {
-                tmp <- if( i == 1 ) ( 1 : vp[1] ) else ( ( sum( vp[1 : (i-1)] ) + 1 ) : sum( vp[1:i] ) )
-                gg                <- matrix( 0, vp[i], vp[i] )
-                gg[upper.tri(gg)] <- stats::rbinom( vp[i] * ( vp[i] - 1 ) / 2, 1, prob )
-                G[tmp, tmp]       <- gg
+                tmp <- if( i == 1 ) ( 1 : vp[ 1 ] ) else ( ( sum( vp[ 1 : ( i - 1 ) ] ) + 1 ) : sum( vp[ 1 : i ] ) )
+                gg                <- matrix( 0, vp[ i ], vp[ i ] )
+                gg[ upper.tri( gg ) ] <- stats::rbinom( vp[ i ] * ( vp[ i ] - 1 ) / 2, 1, prob[ i ] )
+                G[ tmp, tmp ]       <- gg
             }
         }else{
             if( class != length( size ) )  stop( " Number of graph sizes is not match with number of clusters" )
@@ -85,31 +75,66 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
                 G[tmp, tmp]            <- gg
             }
         }
+    }
+    
+    if( graph == "scale-free" )
+    {
+        resultGraph = .C( "scale_free", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
+        G = matrix( resultGraph $ G, p, p ) 
         
-        G <- G + t( G )	   
+        #j = sample( 1:p, 1 )
+        #for( i in ( c( 1:p )[ -j ] ) ) { G[ i, j ] = 1; G[ j, i ] = 1 }
+    }
+    
+    if( ( graph == "lattice" ) | ( graph == "grid" ) )
+    {
+        if( is.null( size ) )
+        {
+            length_row = round( sqrt( p ) )
+            length_col = round( sqrt( p ) )
+        }else{
+            if( length( size ) == 1 )
+            {
+                length_row = size
+                length_col = size
+            }else{
+                length_row = size[ 1 ]
+                length_col = size[ 2 ]
+            } 
+        }
+        
+        for( row in 1:length_row )
+        {
+            for( col in 1:length_col )
+            {
+                if( ( row != length_row ) & ( col != length_col ) )
+                    G[ col + ( row - 1 ) * length_col, c( col + ( row - 1 ) * length_col + 1, col + row * length_col ) ] = 1
+                if( ( row == length_row ) & ( col != length_col ) )
+                    G[ col + ( row - 1 ) * length_col, col + ( row - 1 ) * length_col + 1 ] = 1
+                if( ( row != length_row ) & ( col == length_col ) )
+                    G[ col + ( row - 1 ) * length_col, col + row * length_col ] = 1
+            }
+        }
     }
     
     if( graph == "hub" )
     {
-        # partition variables
-        if( is.null( class ) ) class <- ceiling( p / 20 ) 
+        if( is.null( size ) ) size = ceiling( p / 20 ) 
+
+        hub = sample( 1:p, size = size, replace = FALSE )
         
-        # partition variables into groups
-        g.large <- p %% class
-        g.small <- class - g.large
-        n.small <- floor( p / class )
-        n.large <- n.small + 1
-        g.list  <- c( rep( n.small, g.small ), rep( n.large, g.large ) )
-        g.ind   <- rep( c( 1:class ), g.list )
-        
-        G <- matrix( 0, p, p )
-        
-        for( i in 1:class )
+        for( i in 1:size )
         {
-            tmp              <- which( g.ind == i )
-            G[ tmp[1], tmp ] <- 1
-            G[ tmp, tmp[1] ] <- 1
+            G[ hub[ i ],  ] <- 1
+            G[ , hub[ i ] ] <- 1
         }
+    }
+
+    if( graph == "star" )
+    {
+        hub = sample( 1:p, size = 1, replace = FALSE )
+        G[ hub,  ] <- 1
+        G[ , hub ] <- 1
     }
     
     if( graph == "circle" )
@@ -118,46 +143,11 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         
         G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
         G[ 1, p ] <- 1
-        G[ p, 1 ] <- 1
     }
     
-    if( graph == "scale-free" )
-    {
-        G = matrix( 0, p, p )
-        resultGraph = .C( "scale_free", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
-        G = matrix( resultGraph $ G, p, p ) 
-        
-        j = sample( 1:p, 1 )
-        
-        for( i in ( c( 1:p )[ -j ] ) )
-        {
-            G[ i, j ] = 1
-            G[ j, i ] = 1
-        }
-    }
-    
-    if( ( graph == "lattice" ) | ( graph == "grid" ) )
-    {
-        G = matrix( 0, p, p )
-        sp = floor( sqrt( p ) )
-        
-        for( row in 1:( sp - 1 ) )
-        {
-            for( col in 1:( sp - 1 ) )
-            {
-                node = ( row - 1 ) * sp + col
-                G[ node, node + 1  ] = 1
-                G[ node, node + sp ] = 1
-            }
-            
-            node = sp * row
-            G[ node, node + sp ] = 1
-            
-            node = sp * ( sp - 1 ) + row
-            G[ node, node + 1 ] = 1
-        }        
-    }
-        
+    G[ lower.tri( G, diag = T ) ] = 0
+    G = G + t( G )
+
     # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( vis == TRUE )
     {
@@ -171,7 +161,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     class( G ) <- "graph"
     return( G )
 }
-
+   
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "graph" from graph.sim function
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

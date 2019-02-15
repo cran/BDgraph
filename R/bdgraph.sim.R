@@ -51,7 +51,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     } 
 	
     # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-    if( sum( graph == c( "fixed", "AR1", "AR2", "star" ) ) == 0 )
+    if( sum( graph == c( "fixed", "AR1", "AR2" ) ) == 0 )
 		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class )
 
     if( graph == "AR1" )
@@ -73,15 +73,6 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
         G = 1 * ( abs( K ) > 0.02 ) 
     }
     
-    if( graph == "star" )
-    {
-        K                 <- diag( p )
-        K[ 1, ( 2 : p ) ] <- 0.1
-        K[ ( 2 : p ), 1 ] <- 0.1
-        
-        G = 1 * ( abs( K ) > 0.02 ) 
-    }
-
 	# - - generate multivariate data according to the graph structure - - - - - - - - - - - - - - -|
 	if( n != 0 )
 	{

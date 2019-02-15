@@ -5,7 +5,7 @@
 
 \description{
 Simulating undirected graph structures, including 
-\code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"hub"}, \code{"circle"}, and \code{"lattice"}. 
+\code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, and \code{"circle"}.
 }
 
 \usage{
@@ -14,8 +14,8 @@ graph.sim( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis 
 
 \arguments{
   \item{p}{The number of variables (nodes).}
-  \item{graph}{The undirected graph structure with option \code{"random"}, \code{"cluster"}, \code{"scale-free"}, 
-               \code{"hub"}, \code{"circle"}, and \code{"lattice"}. 
+  \item{graph}{ The undirected graph with options 
+                \code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, and \code{"circle"}. 
                It also could be an adjacency matrix corresponding to a graph structure (an upper triangular matrix in which 
                \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}). 
     }

@@ -5,7 +5,7 @@
 
 \description{
 Simulating multivariate distributions with different types of underlying graph structures, including 
-\code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"hub"}, \code{"fixed"}, \code{"circle"}, \code{"AR(1)"}, \code{"AR(2)"}, \code{"star"}, and \code{"lattice"}. 
+\code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, \code{"circle"}, \code{"AR(1)"}, and \code{"AR(2)"}.
 Based on the underling graph structure, it generates four different types of datasets, including \emph{multivariate Gaussian}, \emph{non-Gaussian}, \emph{discrete}, or \emph{mixed} data. 
 This function can be used also for only simulating graphs by option \code{n=0}, as a default. 
 }
@@ -18,7 +18,9 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
 
 \arguments{
   \item{p}{The number of variables (nodes).}
-  \item{graph}{The graph structure with option \code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"hub"}, \code{"fixed"}, \code{"circle"}, \code{"AR(1)"}, \code{"AR(2)"}, \code{"star"}, and \code{"lattice"}. 
+  \item{graph}{The graph structure with options 
+                \code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, \code{"circle"}, 
+                 \code{"AR(1)"}, and \code{"AR(2)"}.
      It also could be an adjacency matrix corresponding to a graph structure (an upper triangular matrix in which 
      \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}). 
     }
