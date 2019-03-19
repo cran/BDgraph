@@ -38,6 +38,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		A character with two options \code{"bdmcmc"} (default) and \code{"rjmcmc"}. 
 		Option \code{"bdmcmc"} is based on birth-death MCMC algorithm.
 		Option \code{"rjmcmc"} is based on reverible jump MCMC algorithm.
+		Option \code{"hc"}     is based on hill-climbing algorithm; this algorithm is only for discrete data which \code{method = "dgm"} or \code{method = "dgm-binary"}.
 	}
 	
 	\item{iter}{   The number of iteration for the sampling algorithm. }
@@ -52,7 +53,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{g.start}{
 		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
-		It also could be an object with \code{S3} class \code{"bdgraph"} of package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of package \code{\link[ssgraph]{ssgraph}}; 
+		It also could be an object with \code{S3} class \code{"bdgraph"} of \code{R} package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of \code{R} package \code{\link[ssgraph]{ssgraph}}; 
 		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
 
@@ -69,7 +70,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }
 	\item{cores}{ The number of cores to use for parallel execution. 
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
-	   The default is to use "all" CPU cores of the computer.
+	   %The default is to use "all" CPU cores of the computer.
 	   }	
 	\item{operator}{ A character with two options \code{"or"} (default) and \code{"and"}. It is for hill-climbing algorithm. }	   	
 }

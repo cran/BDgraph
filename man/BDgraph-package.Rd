@@ -26,36 +26,7 @@
 \title{ Bayesian Structure Learning in Graphical Models }
 
 \description{
-The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, discrete, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models literature, including Mohammadi and Wit (2015), Mohammadi et al. (2017), Dobra and Mohammadi (2018), and Letac et al. (2018). The computationally intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}, to speed up the computations. Besides, the package contains several functions for simulation and visualization, as well as three multivariate datasets taken from the literature.
-}
-\details{
-The package includes the following main functions: 
-
-\preformatted{
-bdgraph      Search algorithm in graphical models
-bdgraph.mpl  Search algorithm in graphical models using marginal pseudo-likehlihood
-bdgraph.sim  Graph data simulation 
-graph.sim    Graph simulation
-bdgraph.ts   Search algorithm in time series graphical models
-bdgraph.npn  Nonparametric transfer 
-compare      Graph structure comparison 
-plinks       Estimated posterior link probabilities
-plotcoda     Convergence plot
-plotroc      ROC plot
-rgwish       Sampling from G-Wishart distribution
-rwish        Sampling from Wishart distribution
-select       Graph selection
-traceplot    Trace plot of graph size
-}
-}
-
-\section{How to cite this package}{
-Whenever using this package, please cite as
-\preformatted{
-Mohammadi R. and Wit, E. C. (2019). BDgraph: Bayesian Structure Learning in 
-Graphical Models using Birth-Death MCMC, R package version 2.55, 
-https://cran.r-project.org/package=BDgraph
-}
+The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, discrete, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models literature, including Mohammadi and Wit (2015), Mohammadi et al. (2017), Dobra and Mohammadi (2018), and Letac et al. (2018). The computationally intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}, to speed up the computations. Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature.
 }
 
 \author{

@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
+//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -158,7 +158,7 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	{	
 		ixp = i * pdim;
 		
-		A12[ i + i ]     = A[ ixp + sub0 ];
+		A12[ i + i     ] = A[ ixp + sub0 ];
 		A12[ i + i + 1 ] = A[ ixp + sub1 ];
 	
 		for( j = 0; j < sub0; j++ )
@@ -168,14 +168,14 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 		{
 			ij = ixp + j;
 			A22[ ( j - 1 ) * p2 + i ] = A[ ij ];
-			A22[ i * p2 + j - 1 ]   = A[ ij ];
+			A22[ i * p2 + j - 1     ] = A[ ij ];
 		}
 		
 		for( j = sub1 + 1; j < pdim; j++ )
 		{
 			ij = ixp + j;
 			A22[ ( j - 2 ) * p2 + i ] = A[ ij ];
-			A22[ i * p2 + j - 2 ]   = A[ ij ];
+			A22[ i * p2 + j - 2     ] = A[ ij ];
 		}
 	}
  
@@ -211,8 +211,8 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
    
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
-// retrieves A11_inv(2x2), A21((p-2)x2), and A22((p-2)x(p-2))
-// Like A11_inv=inv( A[e, e] ), A21=A[-e, e], and A22=A[-e, -e] in R
+// retrieves A11_inv ( 2 x 2 ), A21 ( ( p - 2 ) x 2 ), and A22 ( ( p - 2 ) x ( p - 2 ) )
+// Like A11_inv=inv ( A[ e, e ] ), A21 = A[ -e, e ], and A22 = A[ -e, -e ] in R
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[], int *row, int *col, int *p )
 {
@@ -229,7 +229,7 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 	A11_inv[ 2 ]   = A11_inv[ 1 ];
 	A11_inv[ 3 ]   = a11 / det_A11;
 	
-	int size_sub0 = sizeof( double ) * sub0;
+	int size_sub0      = sizeof( double ) * sub0;
 	int size_sub1_sub0 = sizeof( double ) * ( sub1 - sub0_plus );
 	int size_pdim_sub0 = sizeof( double ) * ( pdim - sub1_plus );
 	
@@ -323,12 +323,10 @@ void cholesky( double A[], double U[], int *p )
 }
   
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//  Determinant of symmetric possitive-definite matrix 
-//      ^^^^^^^^^^^^^^^^^^^  WARNING: Matrix you pass is overwritten ^^^^^^^^^^^^^^^^^^^
-//  For any symmetric PD Matrix D, we have:
-//                |D| ) = |T| ^ 2
-//  where T is the cholesky decomposition of D. Thus, |T| = \prod_{i = 1}^p T_{ii}
-//  which makes this quite easy.
+//  Determinant of a symmetric possitive-definite matrix ( A )
+//       > > > > > > > > >  WARNING: Matrix you pass is overwritten < < < < < < < < < 
+//  For any symmetric PD Matrix A, we have: |A| = |T| ^ 2, where T is cholesky decomposition of A. 
+//  Thus, |T| = \prod_{i = 1}^p T_{ii}.
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void determinant( double A[], double *det_A, int *p )
 {
@@ -338,7 +336,7 @@ void determinant( double A[], double *det_A, int *p )
 	F77_NAME(dpotrf)( &uplo, &dim, &A[0], &dim, &info );	
 
 	double result = 1;
-	for( int i = 0; i < dim; i++ ) result *= A[i * dim1];
+	for( int i = 0; i < dim; i++ ) result *= A[ i * dim1 ];
 	
 	*det_A = result * result;
 }
@@ -358,10 +356,9 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 	
 	*sum_rates = cumulative_rates[ qp_star - 1 ];
 	
-	GetRNGstate();
-	double random_value = *sum_rates * unif_rand();
-	//double random_value = Rf_runif( 0.0, *sum_rates );
-	PutRNGstate();
+	// GetRNGstate();
+	double random_value = *sum_rates * unif_rand(); // Rf_runif( 0.0, *sum_rates );
+	// PutRNGstate();
 
 	//int counter = 0;
 	//while( random_value > cumulative_rates[ counter ] )	++counter;
@@ -398,10 +395,9 @@ void select_edge_ts( long double rates[], int *index_selected_edge, long double 
 	
 	*sum_rates = cumulative_rates[ qp_star - 1 ];
 	
-	GetRNGstate();
-	long double random_value = *sum_rates * unif_rand();
-	//double random_value = Rf_runif( 0.0, *sum_rates );
-	PutRNGstate();
+	// GetRNGstate();
+	long double random_value = *sum_rates * unif_rand();  // Rf_runif( 0.0, *sum_rates );
+	// PutRNGstate();
 
 	//int counter = 0;
 	//while( random_value > cumulative_rates[ counter ] )	++counter;
@@ -542,8 +538,8 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
 			
 			// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
-			sub_row_mins( &K[0], &Kj12[0], &j, &dim );   // Kj12 = K[j, -j]  
-			Kj12[ i ] = 0.0;                         // Kj12[1,i] = 0
+			sub_row_mins( &K[0], &Kj12[0], &j, &dim );  // Kj12 = K[j, -j]  
+			Kj12[ i ] = 0.0;                            // Kj12[1,i] = 0
 
 			// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
 			F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
@@ -928,8 +924,7 @@ void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int 
 }
      	
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-// NEW for lang codes
-// for Hermitian matrix
+// NEW for Lang codes for Hermitian matrix
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
@@ -1025,8 +1020,8 @@ void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *r
 		ixp = i * pdim;
 		i1 = i - 1;
 
-		A12[ i + i - 2] = A[ ixp + sub0 ];
-		A12[ i + i - 1] = A[ ixp + sub1 ];
+		A12[ i + i - 2 ] = A[ ixp + sub0 ];
+		A12[ i + i - 1 ] = A[ ixp + sub1 ];
 
 		memcpy( A22 + i1 * p2,            A + ixp,            sizeof( double ) * sub0 );
 		memcpy( A22 + i1 * p2 + sub0,     A + ixp + sub0 + 1, sizeof( double ) * ( sub1 - sub0 - 1 ) );

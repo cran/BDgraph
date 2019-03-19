@@ -40,7 +40,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{iter}{The number of iteration for the sampling algorithm.}
 	\item{burnin}{The number of burn-in iteration for the sampling algorithm.}
 
-	\item{not.cont}{ For the case \code{method = "gcgm"}, a vector with binary values in which \eqn{1} for not continuous variables. }
+	\item{not.cont}{ For the case \code{method = "gcgm"}, a vector with binary values in which \eqn{1} indicates not continuous variables. }
 
 	\item{g.prior}{
 		For determining the prior distribution of each edge in the graph. 
@@ -55,7 +55,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{g.start}{
 		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
-		It also could be an object with \code{S3} class \code{"bdgraph"} of package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of package \code{\link[ssgraph]{ssgraph}}; 
+		It also could be an object with \code{S3} class \code{"bdgraph"} of \code{R} package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of \code{R} package \code{\link[ssgraph]{ssgraph}}; 
 		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
 
@@ -70,7 +70,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }	
 	\item{cores}{ The number of cores to use for parallel execution. 
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
-	   The default is to use "all" CPU cores of the computer.
+	   %The default is to use "all" CPU cores of the computer.
     }	
     \item{threshold}{ The threshold value for the convergence of sampling algorithm from G-Wishart for the precision matrix.}
 }

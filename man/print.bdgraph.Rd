@@ -9,13 +9,11 @@ or graph with the highest posterior probability.
 It provides adjacency matrix, size and posterior probability of the selected graph.
 }
 
-\usage{\method{print}{bdgraph}( x, round = 2, ... )}
+\usage{\method{print}{bdgraph}( x, ... )}
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
-  \item{round}{A value to round the probabilities to the specified number of decimal places.}
- 
-  \item{\dots}{System reserved (no specific usage). }
+  \item{x}{     An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
+  \item{\dots}{ System reserved (no specific usage). }
 }
 
 \references{

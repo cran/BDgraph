@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -51,7 +51,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     } 
 	
     # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-    if( sum( graph == c( "fixed", "AR1", "AR2" ) ) == 0 )
+    if( sum( graph == c( "fixed", "AR1", "AR2", "circle" ) ) == 0 )
 		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class )
 
     if( graph == "AR1" )
@@ -60,7 +60,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
         
         for( i in 1 : ( p - 1 ) )
             for( j in ( i + 1 ) : p )
-                sigma[i, j] = ( 0.7 ) ^ abs( i - j )
+                sigma[ i, j ] = ( 0.7 ) ^ abs( i - j )
             
             sigma = sigma + t( sigma ) + diag( p )
             K     = solve( sigma )
@@ -73,7 +73,16 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
         G = 1 * ( abs( K ) > 0.02 ) 
     }
     
-	# - - generate multivariate data according to the graph structure - - - - - - - - - - - - - - -|
+    if( graph == "circle" )
+    {
+        K         <- stats::toeplitz( c( 1, 0.5, rep( 0, p - 2 ) ) )
+        K[ 1, p ] <- 0.4
+        K[ p, 1 ] <- 0.4
+        
+        G = 1 * ( abs( K ) > 0.02 ) 
+    }
+    
+    # - - generate multivariate data according to the graph structure - - - - - - - - - - - - - - -|
 	if( n != 0 )
 	{
 		if( !is.null( sigma ) ) K <- solve( sigma )   

@@ -99,4 +99,26 @@
 	
 	* In function "pgraph()", option "adj_g" is changed to "adj".
 
+- CHANGES IN VERSION 2.56
+
+	* In function "rgwish()", "rgcwish()" and "gnorm()", option "adj.g" is changed to "adj".
+	
+	* In function "compare()", option "sim.obj"      is changed to "target".
+	* In function "compare()", option "bdgraph.obj"  is changed to "est".
+	* In function "compare()", option "bdgraph.obj2" is changed to "est2".
+	* In function "compare()", option "bdgraph.obj3" is changed to "est3".
+
+	* In function "plotroc()", option "sim.obj"      is changed to "target".
+	* In function "plotroc()", option "bdgraph.obj"  is changed to "est".
+	* In function "plotroc()", option "bdgraph.obj2" is changed to "est2".
+	* In function "plotroc()", option "bdgraph.obj3" is changed to "est3".
+	* In function "plotroc()", option "bdgraph.obj4" is changed to "est4".
+	
+	* Bug fixed for "bdgraph()" function with option "method = gcgm".
+	* Function "summary.bdgraph", "plot.bdgraph", and "print.bdgraph" are modified.
+	
+
+
+
+
 

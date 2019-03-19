@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012-2018 Reza Mohammadi                                                      |
+//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -13,7 +13,7 @@
 #include "rgwish.h"
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-// sampling from Wishart distribution // Ts = chol( solve( Ds ) )
+// sampling from Wishart distribution, in which Ts = chol( solve( Ds ) )
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rwish_c( double Ts[], double K[], int *b, int *p )
 {
@@ -133,15 +133,15 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p, double *thresho
 			} 
 		}
 
-		mean_diff = fabs( static_cast<double>( sigma[0] - sigma_last[0] ) );
+		mean_diff = fabs( static_cast<double>( sigma[ 0 ] - sigma_last[ 0 ] ) );
 		for( i = 1; i < pxp; i++ )
 		    mean_diff += fabs( static_cast<double>( sigma[ i ] - sigma_last[ i ] ) );
 		mean_diff /= pxp;
 
-//		max_diff = fabs( static_cast<double>( sigma[0] - sigma_last[0] ) );
+//		max_diff = fabs( static_cast<double>( sigma[ 0 ] - sigma_last[ 0 ] ) );
 //		for( i = 1; i < pxp; i++ )
 //		{
-//			temp = fabs( static_cast<double>( sigma[i] - sigma_last[i] ) );
+//			temp = fabs( static_cast<double>( sigma[ i ] - sigma_last[ i ] ) );
 //			if( temp > max_diff ) max_diff = temp; 
 //		}		
 	}
@@ -201,7 +201,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 //	double temp, max_diff = 1.0, threshold_c = *threshold;
 	double mean_diff = 1.0, threshold_c = *threshold;
-int counter = 0;
+    int counter = 0;
 	while( ( mean_diff > threshold_c ) and ( counter < 5000 ) )
 	{
 		counter++;

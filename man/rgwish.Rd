@@ -8,14 +8,14 @@ Generates random matrices, distributed according to the G-Wishart distribution w
 Note this fuction works for both non-decomposable and decomposable graphs. 
 }
 
-\usage{ rgwish( n = 1, adj.g = NULL, b = 3, D = NULL, threshold = 1e-8 ) }
+\usage{ rgwish( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 ) }
 
 \arguments{
   \item{n}{The number of samples required. }
-  \item{adj.g}{
+  \item{adj}{
     The adjacency matrix corresponding to the graph structure which can be non-decomposable or decomposable. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-    \code{adj.g} could be an object of class \code{"graph"}, from function \code{\link{graph.sim}}.
+    \code{adj} could be an object of class \code{"graph"}, from function \code{\link{graph.sim}}.
     It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
     It also could be an object of class \code{"bdgraph"}, from functions \code{\link{bdgraph.mpl}} or \code{\link{bdgraph}}.
     }
@@ -57,13 +57,13 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 
 \examples{
 # Generating a 'circle' graph as a non-decomposable graph
-adj.g <- graph.sim( p = 5, graph = "circle" )
-adj.g    # adjacency of graph with 5 nodes
+adj <- graph.sim( p = 5, graph = "circle" )
+adj    # adjacency of graph with 5 nodes
   
-sample <- rgwish( n = 1, adj.g = adj.g, b = 3, D = diag( 5 ) )
+sample <- rgwish( n = 1, adj = adj, b = 3, D = diag( 5 ) )
 round( sample, 2 ) 
 
-sample <- rgwish( n = 5, adj.g = adj.g )
+sample <- rgwish( n = 5, adj = adj )
 round( sample, 2 )  
 }
 

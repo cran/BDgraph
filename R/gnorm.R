@@ -16,38 +16,54 @@
 #     likelihood in nondecomposable Gaussian graphical models, Biometrika, 92(2):317-335           |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-gnorm = function( adj.g, b = 3, D = diag( ncol( adj.g ) ), iter = 100 )
+gnorm = function( adj, b = 3, D = diag( ncol( adj ) ), iter = 100 )
 {
-	if ( b < 3 )           stop( "Parameter 'b' must be more than 2" )
-	if( is.null( adj.g ) ) stop( "Adjacency matrix should be determined" )
+	if ( b < 3 )         stop( "Parameter 'b' must be more than 2." )
+	if( is.null( adj ) ) stop( "Adjacency matrix must be determined." )
 
-    G <- unclass( adj.g )
+    G <- unclass( adj )
     G <- as.matrix( G )
-	if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'G' must be 0 or 1" )
+    p <- nrow( G )
+
+    if( p != ncol( G ) ) stop( "Adjacency matrix must be a square matrix." )
+    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'G' must be 0 or 1." )
 
 	G[ lower.tri( G, diag = TRUE ) ] <- 0
 
-	p       = nrow( G )
 	Ti      = chol( solve( D ) )
 	H       = Ti / t( matrix( rep( diag( Ti ), p ), p, p ) )
 	check_H = identical( H, diag( p ) ) * 1
 
-	nu  = rowSums( G )
-	f_T = c( rep( 0, iter ) )
-
-    # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - - - - - - - - - - - |
-	result = .C( "log_exp_mc", as.integer( G ), as.integer( nu ), as.integer( b ), as.double( H ), as.integer( check_H ), 
-	              as.integer( iter ), as.integer( p ), f_T = as.double( f_T ), PACKAGE = "BDgraph" )
-	f_T    = c( result $ f_T )
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
-	
-	log_Ef_T = log( mean( exp( - f_T / 2 ) ) )
-
+	nu         = rowSums( G )
 	size_graph = sum( G )
-	c_dT = ( size_graph / 2 ) * log( pi ) + ( p * b / 2 + size_graph ) * log( 2 ) +
-	          sum( lgamma( ( b + nu ) / 2 ) ) + sum( ( b + nu + colSums( G ) ) * log( diag( Ti ) ) )
-	  
-	logIg = c_dT + log_Ef_T
+    	
+	# For the case, G is a full graph
+	if( size_graph == ( p * ( p - 1 ) / 2 ) )
+	{
+	    logIg = ( size_graph / 2 ) * log( pi ) + ( p * ( b + p - 1 ) / 2 ) * log( 2 ) +
+	        sum( lgamma( ( b + nu ) / 2 ) ) - ( ( b + p - 1 ) / 2 ) * log( det( D ) )
+	}
+	
+	# For the case, G is an empty graph
+	if( size_graph == 0 )
+	    logIg = ( p * b / 2 ) * log( 2 ) + p * lgamma( b / 2 ) - ( b / 2 ) * sum( log( diag( D ) ) )
+	    
+	if( ( size_graph != ( p * ( p - 1 ) / 2 ) ) & ( size_graph != 0 ) )
+	{   # For the case G is NOT full graph
+    	# - -  Monte Carlo glorithm which is implemented in C++ - - - - - - - - - - - - - - - - - - - -|
+    	f_T = c( rep( 0, iter ) )
+    	result = .C( "log_exp_mc", as.integer( G ), as.integer( nu ), as.integer( b ), as.double( H ), as.integer( check_H ), 
+    	              as.integer( iter ), as.integer( p ), f_T = as.double( f_T ), PACKAGE = "BDgraph" )
+    	
+    	f_T      = c( result $ f_T )
+    	log_Ef_T = log( mean( exp( - f_T / 2 ) ) )
+    	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+    	
+    	c_dT = ( size_graph / 2 ) * log( pi ) + ( p * b / 2 + size_graph ) * log( 2 ) +
+    	    sum( lgamma( ( b + nu ) / 2 ) ) + sum( ( b + nu + colSums( G ) ) * log( diag( Ti ) ) )
+    	
+    	logIg = c_dT + log_Ef_T
+	}
 	
 	return( logIg ) 
 }

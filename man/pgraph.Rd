@@ -19,7 +19,7 @@ Provides the estimated posterior probabilities for the most likely graphs or a s
 }
 
 \value{
-\item{ selected_g }{ The graphs with the highest posterior probabilities.}
+\item{ selected_g }{ the adjacency matrices which corresponding to the graphs with the highest posterior probabilities.}
 
 \item{ prob_g }{ A vector of the posterior probabilities of the graphs corresponding to \code{'selected\_g'}.}
 }

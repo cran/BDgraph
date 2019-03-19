@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -213,3 +213,4 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
     class( output ) = "bdgraph"
     return( output )   
 }
+   

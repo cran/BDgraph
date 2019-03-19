@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -40,7 +40,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 
 	if( is.data.frame( g.prior ) ) g.prior <- data.matrix( g.prior )
 	if( class( g.prior ) == "dtCMatrix" ) g.prior = as.matrix( g.prior )
-	if( ( class( g.prior ) == "bdgraph" ) | ( class( g.prior ) == "ssgraph" ) ) g.prior <- as.matrix( BDgraph::plinks( g.prior ) )
+	if( ( class( g.prior ) == "bdgraph" ) | ( class( g.prior ) == "ssgraph" ) ) g.prior <- BDgraph::plinks( g.prior )
 	
 	if( !is.matrix( g.prior ) )
 	{

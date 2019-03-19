@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -9,7 +9,7 @@
 #                                                                                                  |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Computing probability of all possible links                                                  |
+#     Computing posterior probabilities of all possible links                                      |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 plinks = function( bdgraph.obj, round = 2, burnin = NULL )
@@ -60,6 +60,6 @@ plinks = function( bdgraph.obj, round = 2, burnin = NULL )
     if( class( bdgraph.obj ) == "ssgraph" )
         p_links = bdgraph.obj $ p_links        
         
-	return( Matrix::Matrix( round( p_links, round ) ) )
+	return( round( p_links, round ) )
 }
-      
+          

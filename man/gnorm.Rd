@@ -8,11 +8,11 @@ Calculates log of the normalizing constant of G-Wishart distribution based on th
 }
 
 \usage{
-gnorm( adj.g, b = 3, D = diag( ncol( adj.g ) ), iter = 100 )
+gnorm( adj, b = 3, D = diag( ncol( adj ) ), iter = 100 )
 }
 
 \arguments{
-  \item{adj.g}{
+  \item{adj}{
 The adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which 
 \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
 otherwise \eqn{a_{ij}=0}{aij = 0}.
@@ -50,12 +50,12 @@ Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gauss
 
 \examples{
 \dontrun{
-# adj.g: adjacency matrix of graph with 3 nodes and 2 links
-adj.g <- matrix( c( 0, 0, 1,
-                    0, 0, 1,
-                    0, 0, 0 ), 3, 3, byrow = TRUE )		                
+# adj: adjacency matrix of graph with 3 nodes and 2 links
+adj <- matrix( c( 0, 0, 1,
+                  0, 0, 1,
+                  0, 0, 0 ), 3, 3, byrow = TRUE )		                
    
-gnorm( adj.g, b = 3, D = diag( 3 ) )
+gnorm( adj, b = 3, D = diag( 3 ) )
 }
 }
 

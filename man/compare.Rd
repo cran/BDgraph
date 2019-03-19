@@ -5,29 +5,24 @@
 
 \description{ This function provides several measures to assess the performance of the graphical structure learning. }
 
-\usage{ compare( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
-          main = NULL, vis = FALSE ) }
+\usage{ compare( target, est, est2 = NULL, est3 = NULL, main = NULL, vis = FALSE ) }
 
 \arguments{
-  \item{sim.obj}{
-	An object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
-	It also can be the adjacency matrix corresponding to the true graph structure.
+  \item{target}{
+    An adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+	It can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
 	}
-  \item{bdgraph.obj}{
-        An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
-        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.       
-        It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
-        It also can be an adjacency matrix corresponding to an estimated graph. 
+  \item{est,
+        est2,
+        est3}{
+        An adjacency matrix corresponding to an estimated graph. 
+        It can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+        It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+        It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
+        Options \code{est2} \code{est3} are for comparing two or more different approaches.
         }
-  
-  \item{bdgraph.obj2,
-        bdgraph.obj3}{ 
-            An object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
-            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
-            It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
-            It also can be an adjacency matrix corresponding to an estimated graph. 
-            It is for comparing two different approaches. }
-					  
+ 
   \item{main}{ A character vector giving the names for the result table. }
   
   \item{vis}{ Visualize the true graph and estimated graph structures. } 
@@ -65,10 +60,10 @@ data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
     
 # Running sampling algorithm based on GGMs 
 sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
-
+   
 # Comparing the results
 compare( data.sim, sample.ggm, main = c( "True", "GGM" ), vis = TRUE )
-    
+      
 # Running sampling algorithm based on GCGMs
 sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 

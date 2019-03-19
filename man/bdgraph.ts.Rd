@@ -47,7 +47,7 @@ bdgraph.ts( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
 	
 	\item{cores}{ The number of cores to use for parallel execution. 
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
-	   The default is to use "all" CPU cores of the computer.
+	   %The default is to use "all" CPU cores of the computer.
     }	
 }
 

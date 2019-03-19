@@ -8,33 +8,28 @@ Draws the ROC curve according to the true graph structure for object of \code{S3
 }
 
 \usage{ 
-plotroc( sim.obj, bdgraph.obj, bdgraph.obj2 = NULL, bdgraph.obj3 = NULL, 
-         bdgraph.obj4 = NULL, cut = 20, smooth = FALSE, label = TRUE, 
-         main = "ROC Curve" ) 
+plotroc( target, est, est2 = NULL, est3 = NULL, est4 = NULL, 
+         cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" ) 
 }
 
 \arguments{
-  \item{sim.obj}{
-	An object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
-	It also can be the adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and
-	\eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+  \item{target}{
+    An adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+	It can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
   }
   
-  \item{bdgraph.obj}{ 
-        An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-        It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
-        It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
-        It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links. }
-  
-  \item{bdgraph.obj2, 
-        bdgraph.obj3,
-        bdgraph.obj4 }{ 
-            An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-            It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
-            It also can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
-            It also can be an upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
-            It is for comparing two different approaches. }
- 
+  \item{est,
+        est2,
+        est3,
+        est4}{
+        An upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
+        It can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+        It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+        It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
+        Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
+        }
+
   \item{cut}{ Number of cut points.}
   
   \item{smooth}{ Logical: for smoothing the ROC curve.} 

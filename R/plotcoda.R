@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -16,8 +16,8 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 {
     if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
     {
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
     }else{
         stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()'" )
     }
@@ -65,6 +65,7 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 		     xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
 	if ( is.null( main ) ) main = "Trace of the Posterior Probabilities of the Links"
-	graphics::title( main = main, cex.main = 1.5 )
+	graphics::title( main = main, cex.main = 1.2 )
 }
-    
+      
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

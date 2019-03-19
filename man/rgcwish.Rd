@@ -7,14 +7,14 @@
 Generates random matrices, distributed according to the complex G-Wishart distribution with parameters b and D, \eqn{CW_G(b, D)}.
 }
 
-\usage{ rgcwish( n = 1, adj.g = NULL, b = 3, D = NULL ) }
+\usage{ rgcwish( n = 1, adj = NULL, b = 3, D = NULL ) }
 
 \arguments{
   \item{n}{The number of samples required. }
-  \item{adj.g}{
+  \item{adj}{
     The adjacency matrix corresponding to the graph structure which can be non-decomposable or decomposable. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-    \code{adj.g} could be an object of class \code{"graph"}, from function \code{\link{graph.sim}}.
+    \code{adj} could be an object of class \code{"graph"}, from function \code{\link{graph.sim}}.
     It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.
     It also could be an object of class \code{"bdgraph"}, from functions \code{\link{bdgraph.mpl}} or \code{\link{bdgraph}}.
     }
@@ -49,10 +49,10 @@ Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating a 'circle' graph as a non-decomposable graph
-adj.g <- graph.sim( p = 5, graph = "circle" )
-adj.g    # adjacency of graph with 5 nodes
+adj <- graph.sim( p = 5, graph = "circle" )
+adj    # adjacency of graph with 5 nodes
    
-sample <- rgcwish( n = 3, adj.g = adj.g, b = 3, D = diag(5) )
+sample <- rgcwish( n = 3, adj = adj, b = 3, D = diag( 5 ) )
 round( sample, 2 )  
 }
 }

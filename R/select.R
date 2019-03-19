@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -41,24 +41,25 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 			sample_graphs <- bdgraph.obj $ sample_graphs
 			graph_weights <- bdgraph.obj $ graph_weights
 			
-			indG_max     <- sample_graphs[ which( graph_weights == max( graph_weights ) )[1] ]
-			vec_G        <- c( rep( 0, p * ( p - 1 ) / 2 ) )
+			indG_max <- sample_graphs[ which( graph_weights == max( graph_weights ) )[1] ]
+			vec_G    <- c( rep( 0, p * ( p - 1 ) / 2 ) )
 			vec_G[ which( unlist( strsplit( as.character( indG_max ), "" ) ) == 1 ) ] <- 1
 
-			dimlab       <- colnames( bdgraph.obj $ last_graph )
-			selected_g   <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
+			dimlab     <- colnames( bdgraph.obj $ last_graph )
+			selected_g <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
 			selected_g[ upper.tri(selected_g) ] <- vec_G
 		}else{
 		    
 			if ( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' must be between ( 0, 1 )." )
-			p_links                = as.matrix( BDgraph::plinks( bdgraph.obj ) )
+			
+		    p_links                   = BDgraph::plinks( bdgraph.obj )
 			p_links[ p_links > cut ]  = 1
 			p_links[ p_links <= cut ] = 0
-			selected_g          = p_links
+			selected_g                = p_links
 		}
 	}else{
 		if( is.null( cut ) ) cut = 0.5
-		if( ( cut < 0 ) || ( cut > 1 ) ) stop( "Value of 'cut' must be between ( 0, 1 )." )
+		if( ( cut < 0 ) || ( cut > 1 ) ) stop( " Value of 'cut' must be between ( 0, 1 )." )
 		
 		selected_g                   = 0 * p_links
 		selected_g[ p_links >  cut ] = 1

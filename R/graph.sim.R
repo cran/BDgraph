@@ -139,13 +139,13 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     
     if( graph == "circle" )
     {
-        if( p < 2 ) stop( "For 'circle' graph, 'p' must be more than 2" )
+        if( p < 3 ) stop( "For 'circle' graph, 'p' must be more than 2" )
         
         G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
         G[ 1, p ] <- 1
     }
     
-    G[ lower.tri( G, diag = T ) ] = 0
+    G[ lower.tri( G, diag = TRUE ) ] = 0
     G = G + t( G )
 
     # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|

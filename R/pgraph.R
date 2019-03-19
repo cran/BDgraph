@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -33,7 +33,7 @@ pgraph = function( bdgraph.obj, number.g = 4, adj = NULL )
 			vec_g[ which( unlist( strsplit( as.character( indG_i ), "" ) ) == 1 ) ] <- 1
 			list_g[[i]] <- matrix( 0, p, p )
 			list_g[[i]][ upper.tri( list_g[[i]] ) ] <- vec_g
-			list_g[[i]] <- Matrix::Matrix( list_g[[i]], sparse = TRUE )
+			#list_g[[i]] <- Matrix::Matrix( list_g[[i]], sparse = TRUE )
 		}
 
 		return( list( selected_g = list_g, prob_g = sort_gWeights[ 1 : number.g ] / sum( graph_weights ) ) )

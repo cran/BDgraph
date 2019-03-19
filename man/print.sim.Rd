@@ -24,7 +24,7 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416v2} 
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Adrian Dobra, and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
 \seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph.sim}} }
 

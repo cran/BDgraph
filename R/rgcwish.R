@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2018  Reza Mohammadi                                                    |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
 #                                                                                                  |
 #     This file is part of BDgraph package.                                                        |
 #                                                                                                  |
@@ -12,16 +12,21 @@
 #     Sampling from COMPLEX G-Wishart distribution                                                 |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
+rgcwish = function( n = 1, adj = NULL, b = 3, D = NULL )
 {
-	if( b <= 2 )           stop( "For complex G-Wishart distribution parameter 'b' must be more than 2" )
-	if( is.null( adj.g ) ) stop( "Adjacency matrix must be determined" )
+	if( b <= 2 )         stop( "For complex G-Wishart distribution parameter 'b' must be more than 2" )
+	if( is.null( adj ) ) stop( "Adjacency matrix must be determined" )
     
-    if( is.matrix( adj.g )          ) G <- unclass( adj.g )
-    #if( class( adj.g ) == "graph"   ) G <- unclass( adj.g )
-    if( class( adj.g ) == "sim"     ) G <- adj.g $ G
-    if( class( adj.g ) == "bdgraph" ) G <- BDgraph::select( adj.g ) 
-    if( class( adj.g ) == "ssgraph" ) G <- BDgraph::select( adj.g ) 
+    if( is.matrix( adj )          ) G <- unclass( adj )
+  # if( class( adj ) == "graph"   ) G <- unclass( adj )
+    if( class( adj ) == "sim"     ) G <- adj $ G
+    if( class( adj ) == "bdgraph" ) G <- BDgraph::select( adj ) 
+    if( class( adj ) == "ssgraph" ) G <- BDgraph::select( adj ) 
+    
+    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'adj' must be 0 or 1" )
+    
+    G <- as.matrix( G )
+    diag( G ) = 0
     
     if( !isSymmetric( G ) )
     {
@@ -29,12 +34,6 @@ rgcwish = function( n = 1, adj.g = NULL, b = 3, D = NULL )
         G  = G + t( G )
     }
     
-    
-	if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'adj.g' must be 0 or 1" )
-
-	G <- as.matrix( G )
-	diag( G ) = 0
-	
 	p <- nrow( G )  
 	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
 	
