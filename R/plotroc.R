@@ -19,10 +19,10 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
     {
         if( ( sum( target == 0 ) + sum( target == 1 ) ) != ( nrow( target ) ^ 2 ) ) stop( "Element of 'target' must be 0 or 1" )
         G = target
-    }else{
-        if( class( target ) == "sim"   ) G <- unclass( target $ G ) 
-        if( class( target ) == "graph" ) G <- unclass( target ) 
     }
+
+    if( class( target ) == "sim"   ) G <- unclass( target $ G ) 
+    if( class( target ) == "graph" ) G <- unclass( target ) 
     
     G[ lower.tri( G, diag = TRUE ) ] = 0
     

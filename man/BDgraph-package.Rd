@@ -50,7 +50,7 @@ Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constan
 
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
 
-Dobra, A., et al. (2011). Copula Gaussian graphical models and their application to modeling functional disability data, \emph{The Annals of Applied Statistics}, 5(2A):969-93
+Dobra, A. and Lenkoski, A. (2011). Copula Gaussian graphical models and their application to modeling functional disability data, \emph{The Annals of Applied Statistics}, 5(2A):969-93
 
 Dobra, A., et al. (2011). Bayesian inference for general Gaussian graphical models with application to multivariate lattice data. \emph{Journal of the American Statistical Association}, 106(496):1418-33
 

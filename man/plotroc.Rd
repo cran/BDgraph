@@ -4,7 +4,7 @@
 \title{ ROC plot }
 
 \description{
-Draws the ROC curve according to the true graph structure for object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
+Draws the receiver operating characteristic (ROC) curve according to the true graph structure for object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
 }
 
 \usage{ 
@@ -30,11 +30,10 @@ plotroc( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
         Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
         }
 
-  \item{cut}{ Number of cut points.}
-  
+  \item{cut   }{ Number of cut points.}
   \item{smooth}{ Logical: for smoothing the ROC curve.} 
-  \item{label}{ Logical: for adding legend to the ROC plot.} 
-  \item{main}{ An overall title for the plot.} 
+  \item{label }{ Logical: for adding legend to the ROC plot.} 
+  \item{main  }{ An overall title for the plot.} 
 }
 
 \references{
@@ -67,6 +66,6 @@ plotroc( data.sim, bdgraph.obj )
 bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 # Comparing the resultss
 plotroc( data.sim, bdgraph.obj, bdgraph.obj2, label = FALSE )
-legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1,2 ), col = c( "black", "red" ) )   
+legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1, 2 ), col = c( "black", "red" ) )   
 }
 }

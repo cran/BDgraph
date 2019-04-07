@@ -27,7 +27,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
 	
 	if( class( data ) == "sim" )
 	{
-	    not.cont <- data $ not.cont
+	    not.cont <- data $ not.cont  # Do not change the order of these links
 	    data     <- data $ data
 	}
 	
@@ -512,8 +512,9 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 		    
 		    # - - - plot posterior distribution of graph
 		    graph_prob = graph_weights / sum_gWeights
-			graphics::plot( x = 1 : length( graph_weights ), y = graph_prob, type = "h", main = "Posterior probability of graphs",
-				 ylab = "Pr(graph|data)", xlab = "graph", ylim = c( 0, max( graph_prob ) ) )
+			graphics::plot( x = 1 : length( graph_weights ), y = graph_prob, type = "h", col = "gray60", 
+			                main = "Posterior probability of graphs", ylab = "Pr(graph|data)", 
+			                xlab = "graph", ylim = c( 0, max( graph_prob ) ) )
 			
 			# - - - plot posterior distribution of graph size
 			sizesample_graphs = sapply( sample_graphs, function( x ) length( which( unlist( strsplit( as.character( x ), "" ) ) == 1 ) ) )
@@ -522,13 +523,18 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 
 			for( i in 1 : length( xx ) ) weightsg[ i ] <- sum( graph_weights[ which( sizesample_graphs == xx[ i ] ) ] )
 
-			graphics::plot( x = xx, y = weightsg / sum_gWeights, type = "h", main = "Posterior probability of graphs size", ylab = "Pr(graph size|data)", xlab = "Graph size" )
+			prob_zg = weightsg / sum_gWeights
+			graphics::plot( x = xx, y = prob_zg, type = "h", col = "gray10",
+			                main = "Posterior probability of graphs size", 
+			                ylab = "Pr(graph size|data)", xlab = "Graph size",
+			                ylim = c( 0, max( prob_zg ) ) )
 
 			# - - - plot trace of graph size
 			all_graphs     = object $ all_graphs
 			sizeall_graphs = sizesample_graphs[ all_graphs ]
 			  
-			graphics::plot( x = 1 : length( all_graphs ), sizeall_graphs, type = "l", main = "Trace of graph size", ylab = "Graph size", xlab = "Iteration" )
+			graphics::plot( x = 1 : length( all_graphs ), sizeall_graphs, type = "l", col = "gray40", 
+			                main = "Trace of graph size", ylab = "Graph size", xlab = "Iteration" )
 
 			graphics::par( op )
 		}

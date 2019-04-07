@@ -5,7 +5,10 @@
 
 \description{ This function provides several measures to assess the performance of the graphical structure learning. }
 
-\usage{ compare( target, est, est2 = NULL, est3 = NULL, main = NULL, vis = FALSE ) }
+\usage{ 
+compare( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL, 
+         vis = FALSE ) 
+}
 
 \arguments{
   \item{target}{
@@ -15,29 +18,30 @@
 	}
   \item{est,
         est2,
-        est3}{
+        est3,
+        est4}{
         An adjacency matrix corresponding to an estimated graph. 
         It can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
         It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
-        Options \code{est2} \code{est3} are for comparing two or more different approaches.
+        Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
         }
  
   \item{main}{ A character vector giving the names for the result table. }
-  
-  \item{vis}{ Visualize the true graph and estimated graph structures. } 
+  \item{vis }{ Visualize the true graph and estimated graph structures. } 
 }
 
 \value{
-	\item{True positive}{  The number of correctly estimated links.}
-	\item{True negative}{  The number of true non-existing links which is correctly estimated.}
+	\item{True positive }{ The number of correctly estimated links.}
+	\item{True negative }{ The number of true non-existing links which is correctly estimated.}
 	\item{False positive}{ The number of links which they are not in the true graph, but are incorrectly estimated.}
 	\item{False negative}{ The number of links which they are in the true graph, but are not estimated.}
-	\item{F1-score}{       A weighted average of the \code{"positive predictive"} and \code{"true positive rate"}. The F1-score value reaches its best value at 1 and worst score at 0.}
-	\item{Specificity}{    The Specificity value reaches its best value at 1 and worst score at 0.}
-	\item{Sensitivity}{    The Sensitivity value reaches its best value at 1 and worst score at 0.}
-	\item{MCC}{            The Matthews Correlation Coefficients (MCC) value reaches its best value at 1 and worst score at 0.}
+	\item{F1-score      }{ A weighted average of the \code{"positive predictive"} and \code{"true positive rate"}. The F1-score value reaches its best value at 1 and worst score at 0.}
+	\item{Specificity   }{ The Specificity value reaches its best value at 1 and worst score at 0.}
+	\item{Sensitivity   }{ The Sensitivity value reaches its best value at 1 and worst score at 0.}
+	\item{MCC           }{ The Matthews Correlation Coefficients (MCC) value reaches its best value at 1 and worst score at 0.}
 }
+
 \references{
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
