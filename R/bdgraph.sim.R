@@ -199,14 +199,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
     # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( vis == TRUE )
-    {
-        true_graph = as.matrix( G )
-        graphG <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
-        
-        if( p < 20 ) size = 10 else size = 2
-        igraph::plot.igraph( graphG, layout = igraph::layout.circle, main = "Graph structure", 
-                     vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
-    }
+        BDgraph::plot.graph( G, main = "Graph structure" )
     
 	class( simulation ) <- "sim"
 	return( simulation )
@@ -240,13 +233,9 @@ print.sim = function( x, ... )
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "sim" from bdgraph.sim function
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-plot.sim = function( x, main = NULL, layout = layout.circle, ... )
+plot.sim = function( x, ... )
 {
-    true_graph = as.matrix( x $ G )
-    if( is.null( main ) ) main = "Graph structure"
-  	g_igraph <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
-	
-  	igraph::plot.igraph( g_igraph, main = main, layout = layout, ... )
+    BDgraph::plot.graph( x, ... )
 }		
        
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -325,5 +314,6 @@ calc_joint_dist = function( ug, clique_factors )
 	return( joint_dist )	
 }
     
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 

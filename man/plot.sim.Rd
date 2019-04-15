@@ -5,15 +5,11 @@
 
 \description{ Visualizes structure of the true graph. }
 \usage{
-\method{plot}{sim}( x, main = NULL, layout = layout.circle, ... )
+\method{plot}{sim}( x, ... )
 }
 
 \arguments{
   \item{x}{ An object of \code{S3} class \code{"sim"}, from function \code{\link{bdgraph.sim}}.  }
-  
-  \item{main}{ Graphical parameter (see plot).}
-  
-  \item{layout}{The vertex placement algorithm which is according to \code{R} package \code{\link[igraph]{igraph}}. }
   
   \item{\dots}{System reserved (no specific usage).}
 }

@@ -17,20 +17,17 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 					jump = NULL, alpha = 0.5, save = FALSE, print = 1000, 
 					cores = NULL, operator = "or" )
 {
-    num_machine_cores = BDgraph::detect_cores()
-    if( is.null( cores ) ) cores = num_machine_cores - 1
-    if( cores == "all" )   cores = num_machine_cores
+    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in" )
+    burnin = floor( burnin )
+    if( print > iter ) print = iter
     
-    .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+    cores = BDgraph::get_cores( cores = cores )
     
-	burnin = floor( burnin )
-	
 	if( class( data ) == "sim" ) data <- data $ data
 	colnames_data = colnames( data )
 
 	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( " Data should be a matrix or dataframe" )
 	if( is.data.frame( data ) ) data <- data.matrix( data )
-	if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in" )
 	
 	if( any( is.na( data ) ) ) stop( " This method does not deal with missing values. You could try bdgraph() function with option method = gcgm" )	
 		
@@ -38,20 +35,6 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	if( p < 3 ) stop( " Number of variables/nodes ('p') must be more than 2" )
 	if( is.null( n ) ) n <- nrow( data )
 
-	if( is.data.frame( g.prior ) ) g.prior <- data.matrix( g.prior )
-	if( class( g.prior ) == "dtCMatrix" ) g.prior = as.matrix( g.prior )
-	if( ( class( g.prior ) == "bdgraph" ) | ( class( g.prior ) == "ssgraph" ) ) g.prior <- BDgraph::plinks( g.prior )
-	
-	if( !is.matrix( g.prior ) )
-	{
-	    if( ( g.prior <= 0 ) | ( g.prior >= 1 ) ) stop( " 'g.prior' must be between 0 and 1" )
-	    g.prior = matrix( g.prior, p, p )
-	}else{
-	    if( ( nrow( g.prior ) != p ) | ( ncol( g.prior ) != p ) ) stop( " 'g.prior' and 'data' have non-conforming size" )
-	    if( any( g.prior < 0 ) || any( g.prior > 1 ) ) stop( " Element of 'g.prior', as a matrix, must be between 0 and 1" )
-	}
-	g_prior = g.prior
-	
 	if( method == "ggm" ) 
 	{
 		if( isSymmetric( data ) )
@@ -81,24 +64,8 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	if( method == "dgm-binary" )
 		if( ( min( data ) != 0 ) || ( max( data ) != 1 ) ) stop( " For the case 'method = dgm-binary', data must be binary 0 or 1" )
 	
-	if( ( class( g.start ) == "bdgraph" ) | ( class( g.start ) == "ssgraph" ) ) G = g.start $ last_graph
-	if( ( class( g.start ) == "sim"     ) | ( class( g.start ) == "graph"   ) ) G = unclass( g.start $ G )
-
-	if( class( g.start ) == "character" && g.start == "empty" ) G = matrix( 0, p, p )
-	if( class( g.start ) == "character" && g.start == "full"  )	G = matrix( 1, p, p )
-	if( is.matrix( g.start ) ) 
-	{
-	    if( ( sum( g.start == 0 ) + sum( g.start == 1 ) ) != ( p * p ) ) stop( " Element of 'g.start', as a matrix, must be 0 or 1" )
-	    G = g.start
-	}
-	
-	if( ( nrow( G ) != p ) | ( ncol( G ) != p ) ) stop( " 'g.start' and 'data' have non-conforming size" )
-
-	G[ g_prior == 1 ] = 1
-	G[ g_prior == 0 ] = 0
-
-	G[ lower.tri( G, diag( TRUE ) ) ] <- 0
-	G  = G + t( G )
+	g_prior = BDgraph::get_g_prior( g.prior = g.prior, p = p )
+	G       = BDgraph::get_g_start( g.start = g.start, g_prior = g_prior, p = p )
 	
 	if( save == TRUE )
 	{
@@ -301,7 +268,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		if( method == "dgm-binary" )
 			selected_graph = hill_climb_mpl_binary( data = data, freq_data = freq_data, n = n, alpha = alpha, operator = operator )			
 		
-		colnames( selected_graph ) = colnames_data[1:p]
+		colnames( selected_graph ) = colnames_data[ 1:p ]
 		output = selected_graph
 	}
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
@@ -310,3 +277,4 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	return( output )   
 }
            
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

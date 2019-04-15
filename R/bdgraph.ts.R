@@ -20,17 +20,14 @@ bdgraph.ts = function( data, Nlength = NULL, n, iter = 1000, burnin = iter / 2,
                        g.prior = 0.5, df.prior = rep( 3, Nlength ), g.start = "empty", 
                        save = FALSE, print = 500, cores = NULL )
 {
-    num_machine_cores = BDgraph::detect_cores()
-    if( is.null( cores ) ) cores = num_machine_cores - 1
-    if( cores == "all" )   cores = num_machine_cores
-    
-    .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
-    
+    if( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
     burnin = floor( burnin )
+    if( print > iter ) print = iter
+    
+    cores = BDgraph::get_cores( cores = cores )
     
     if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data should be a matrix or dataframe" )
     if( is.data.frame( data ) ) data <- data.matrix( data )
-    if( iter <= burnin )   stop( "Number of iteration must be more than number of burn-in" )
     
     if( any( is.na( data ) ) ) stop( "This method does not deal with missing value" )
     

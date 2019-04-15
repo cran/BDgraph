@@ -1,6 +1,6 @@
 Package: BDgraph
-Version: 2.57
-Date: 2019-04-07
+Version: 2.58
+Date: 2019-04-15
 Title: Bayesian Structure Learning in Graphical Models using
         Birth-Death MCMC
 Author: Reza Mohammadi [aut, cre] <https://orcid.org/0000-0001-9538-0648>, 
@@ -15,5 +15,5 @@ Imports: igraph
 License: GPL (>= 2)
 Repository: CRAN
 NeedsCompilation: yes
-Packaged: 2019-04-06 23:21:35 UTC; reza
-Date/Publication: 2019-04-07 04:22:42 UTC
+Packaged: 2019-04-15 14:46:58 UTC; reza
+Date/Publication: 2019-04-15 15:25:42 UTC

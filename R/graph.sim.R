@@ -150,13 +150,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
 
     # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( vis == TRUE )
-    {
-        graph_ig <- igraph::graph.adjacency( G, mode = "undirected", diag = FALSE )
-        
-        if( p < 20 ) size = 10 else size = 2
-        igraph::plot.igraph( graph_ig, layout = igraph::layout.circle, main = "Graph structure", 
-                     vertex.color = "white", vertex.size = size, vertex.label.color = 'black' )
-    }
+        BDgraph::plot.graph( G, main = "Graph structure" )
     
     class( G ) <- "graph"
     return( G )
@@ -165,12 +159,18 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "graph" from graph.sim function
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-plot.graph = function( x, main = NULL, layout = layout.circle, ... )
+plot.graph = function( x, cut = 0.5, mode = "undirected", diag = FALSE, main = NULL, 
+                       vertex.color = "white", vertex.label.color = 'black', ... )
 {
-    true_graph = as.matrix( x )
-    if( is.null( main ) ) main = "Graph structure"
-    g_igraph <- igraph::graph.adjacency( true_graph, mode = "undirected", diag = FALSE )
+    #if( is.null( main ) ) main = "Graph structure"
+    #vertex.size = ifelse( p < 20, 15, 2 )
     
-    igraph::plot.igraph( g_igraph, main = main, layout = layout, ... )
+    graph = BDgraph::get_graph( x, cut = cut )
+    
+    graph_ig <- igraph::graph.adjacency( graph, mode = mode, diag = diag )
+    
+    igraph::plot.igraph( graph_ig, main = main, vertex.color = vertex.color, 
+                         vertex.label.color = vertex.label.color, ... )
 }		
 
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

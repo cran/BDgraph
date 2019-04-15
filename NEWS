@@ -116,7 +116,18 @@
 	
 	* Bug fixed for "bdgraph()" function with option "method = gcgm".
 	* Function "summary.bdgraph", "plot.bdgraph", and "print.bdgraph" are modified.
+
+- CHANGES IN VERSION 2.57
+
+	* In function "compare()" option "est4" is added.
 	
+- CHANGES IN VERSION 2.58
+
+	* Bug fixed for "compare()" function.
+	* Function  "get_graph()" is added to the package and used inside function "compare()".
+	* Function  "get_g_prior()", "get_g_start()", "get_S_n_p()", and "get_K_start()" are 
+	    added to the package and used inside function "bdgraph()".
+
 
 
 

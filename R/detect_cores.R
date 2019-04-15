@@ -1,3 +1,4 @@
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 detect_cores = function( all.tests = FALSE, logical = TRUE ) 
 {
 	if( .Platform $ OS.type == "windows" )
@@ -6,7 +7,7 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 		{
 			res <- Sys.getenv( "NUMBER_OF_PROCESSORS", "1" )
 			as.numeric( res )
-		} else {
+		}else{
 			x = system( "WMIC CPU Get DeviceID,NumberOfCores", intern = TRUE )
 			sum( utils::read.table( text = x, header = TRUE ) $ NumberOfCores )
 		}
@@ -14,19 +15,19 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 		systems = list(
 
 			linux =
-				if ( logical )
+				if( logical )
 					"grep processor /proc/cpuinfo 2>/dev/null | wc -l"
 				else
 					"cat /proc/cpuinfo | grep 'cpu cores'| uniq | cut -f2 -d:",
 
 			darwin =
-				if ( logical )
+				if( logical )
 					"/usr/sbin/sysctl -n hw.logicalcpu 2>/dev/null"
 				else
 					"/usr/sbin/sysctl -n hw.physicalcpu 2>/dev/null",
 
 			solaris =
-				if ( logical )
+				if( logical )
 					"/usr/sbin/psrinfo -v | grep 'Status of.*processor' | wc -l"
 				else
 					"/bin/kstat -p -m cpu_info | grep :core_id | cut -f2 | uniq | wc -l",
@@ -54,3 +55,14 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 	}		
 }
    
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+get_cores = function( cores = NULL )
+{
+    num_machine_cores = BDgraph::detect_cores()
+    if( is.null( cores ) ) cores = num_machine_cores - 1
+    if( cores == "all" )   cores = num_machine_cores
+    
+    .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+    
+    return( cores )
+}

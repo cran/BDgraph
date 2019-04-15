@@ -6,7 +6,7 @@
 \description{ Visualizes structure of the selected graphs which could be a graph with links for which their estimated posterior probabilities are greater than 0.5
 or graph with the highest posterior probability. }
 
-\usage{ \method{plot}{bdgraph}( x, cut = 0.5, number.g = NULL, layout = layout.circle, ... ) }
+\usage{ \method{plot}{bdgraph}( x, cut = 0.5, number.g = NULL, ... ) }
 
 \arguments{
   \item{x}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. }
@@ -14,8 +14,6 @@ or graph with the highest posterior probability. }
   \item{cut}{ Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; See the examples. } 
 
   \item{number.g}{ The number of graphs with the highest probabilities. This option works for the case running function \code{bdgraph()} with option \code{save = TRUE}; See the examples. }
-  
-  \item{layout}{The vertex placement algorithm which is according to \code{R} package \code{\link[igraph]{igraph}}. }
   
   \item{\dots}{System reserved (no specific usage).}
 }

@@ -1,7 +1,5 @@
 useDynLib( BDgraph, .registration = TRUE )
 
-importFrom( "igraph", "layout.circle" )
-
 export( bdgraph,
 		bdgraph.mpl,
 		bdgraph.ts,
@@ -25,13 +23,22 @@ export( bdgraph,
 		gnorm,
 		rmvnorm,
 		
-		print.bdgraph, 
-		plot.bdgraph, 
 		summary.bdgraph,
-		print.sim, 
+		plot.bdgraph, 
+		print.bdgraph, 
+
+		plot.graph, 
+
 		plot.sim,
+		print.sim, 
 		
-		detect_cores
+		detect_cores,
+		get_graph,
+		get_g_prior,
+		get_g_start,
+		get_K_start,
+		get_S_n_p,
+		get_cores
 	   )
 
 S3method( "summary", "bdgraph" )

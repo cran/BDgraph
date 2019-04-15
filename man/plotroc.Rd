@@ -48,7 +48,7 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
 \seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
 

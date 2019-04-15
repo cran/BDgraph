@@ -63,3 +63,4 @@ plinks = function( bdgraph.obj, round = 2, burnin = NULL )
 	return( round( p_links, round ) )
 }
           
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

@@ -123,13 +123,13 @@ bdgraph.obj <- bdgraph( data = data.sim, iter = 1000 )
 summary( bdgraph.obj )
    
 # To compare our result with true graph
-compare( data.sim, bdgraph.obj, main = c( "True graph", "BDgraph" ) )
+compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ) )
    
 # Running algorithm with starting points from previous run
 bdgraph.obj2 <- bdgraph( data = data.sim, g.start = bdgraph.obj )
     
 compare( data.sim, bdgraph.obj, bdgraph.obj2, 
-         main = c( "True graph", "Frist run", "Second run" ) )
+         main = c( "Target", "Frist run", "Second run" ) )
 
 # --- Example 2
 # Generating mixed data from a 'scale-free' graph

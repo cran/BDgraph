@@ -5,6 +5,13 @@
 \alias{ compute_tp_fp }
 \alias{ compute_measures }
 
+\alias{ get_graph }
+\alias{ get_g_prior }
+\alias{ get_g_start }
+\alias{ get_K_start }
+\alias{ get_S_n_p }
+\alias{ get_cores }
+
 \alias{ hill_climb_mpl }
 \alias{ local_mb_hc }
 \alias{ global_hc }
@@ -76,7 +83,7 @@ bdgraph.obj <- bdgraph( data = data.sim, iter = 5000 )
 summary( bdgraph.obj )
 
 # To compare the result with true graph
-compare( data.sim, bdgraph.obj, main = c( "True graph", "BDgraph" ), vis = TRUE )
+compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
 
 # Running algorithm based on GGMs and marginal pseudo-likelihood
 bdgraph.obj_mpl <- bdgraph.mpl( data = data.sim, iter = 5000 )
@@ -85,7 +92,7 @@ summary( bdgraph.obj_mpl )
 
 # To compare the results of both algorithms with true graph
 compare( data.sim, bdgraph.obj, bdgraph.obj_mpl, 
-         main = c( "True graph", "BDgraph", "BDgraph_mpl" ), vis = TRUE )
+         main = c( "Target", "BDgraph", "BDgraph_mpl" ), vis = TRUE )
 }
 }
 

@@ -5,15 +5,20 @@
 
 \description{ Visualizes structure of the graph. }
 \usage{
-\method{plot}{graph}( x, main = NULL, layout = layout.circle, ... )
+\method{plot}{graph}( x, cut = 0.5, mode = "undirected", diag = FALSE, main = NULL, 
+                      vertex.color = "white", vertex.label.color = 'black', ... )
 }
 
 \arguments{
-  \item{x}{ An object of \code{S3} class \code{"graph"}, from function \code{\link{graph.sim}}.  }
+  \item{x}{   An object of \code{S3} class \code{"graph"}, from function \code{\link{graph.sim}}.  }
+  \item{cut}{ This option is for the case where input 'x' is the object of class "bdgraph" or "ssgraph". Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links. } 
   
+  \item{mode}{ Type of graph which is according to \code{R} package \code{\link[igraph]{igraph}}.}
+  \item{diag}{ Logical which is according to \code{R} package \code{\link[igraph]{igraph}}.}
   \item{main}{ Graphical parameter (see plot).}
   
-  \item{layout}{The vertex placement algorithm which is according to \code{R} package \code{\link[igraph]{igraph}}. }
+  \item{vertex.color}{ The vertex color which is according to \code{R} package \code{\link[igraph]{igraph}}. }
+  \item{vertex.label.color}{ The vertex label color which is according to \code{R} package \code{\link[igraph]{igraph}}. }
   
   \item{\dots}{System reserved (no specific usage).}
 }
@@ -31,7 +36,7 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
 \seealso{\code{\link{graph.sim}}, \code{\link{bdgraph.sim}}}
 
