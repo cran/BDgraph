@@ -39,7 +39,7 @@ definite matrix, a realization of the complex G-Wishart distribution, \eqn{CW_G(
 \references{
 Tank, A., Foti, N., and Fox, E. (2015). Bayesian Structure Learning for Stationary Time Series, \emph{arXiv preprint arXiv:1505.03131}
 
-Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
+Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 
 }
 
 \author{ Lang Liu, Nicholas Foti, Alex Tank and Reza Mohammadi \email{a.mohammadi@uva.nl} }

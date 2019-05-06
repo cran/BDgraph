@@ -1,4 +1,16 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+get_cores = function( cores = NULL )
+{
+    num_machine_cores = BDgraph::detect_cores()
+    if( is.null( cores ) ) cores = num_machine_cores - 1
+    if( cores == "all" )   cores = num_machine_cores
+    
+    .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+    
+    return( cores )
+}
+
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 detect_cores = function( all.tests = FALSE, logical = TRUE ) 
 {
 	if( .Platform $ OS.type == "windows" )
@@ -56,13 +68,4 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 }
    
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-get_cores = function( cores = NULL )
-{
-    num_machine_cores = BDgraph::detect_cores()
-    if( is.null( cores ) ) cores = num_machine_cores - 1
-    if( cores == "all" )   cores = num_machine_cores
-    
-    .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
-    
-    return( cores )
-}
+   

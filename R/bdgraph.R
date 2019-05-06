@@ -341,7 +341,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         if( ( algorithm == "rjmcmc" ) | ( algorithm == "rj-dmh" ) )
         {
             p_links = p_links / ( iter - burnin )
-            K_hat   = K_hat / ( iter - burnin )
+            K_hat   = K_hat   / ( iter - burnin )
         }
         p_links[ lower.tri( p_links ) ] = 0
         output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K )
@@ -418,8 +418,6 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
 {
-    if( ( cut < 0 ) || ( cut > 1 ) ) stop( " Value of 'cut' must be between 0 and 1." )
-    
  	if( is.null( number.g ) )
 	{
 	    BDgraph::plot.graph( x, cut = cut, sub = paste0( "Edge posterior probability = ", cut ), ... )

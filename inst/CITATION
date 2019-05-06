@@ -1,70 +1,18 @@
-citHeader( "To cite package 'BDgraph' in publications use:" )
+bibentry(bibtype = "Article",
+  title        = "{BDgraph}: An {R} Package for {B}ayesian Structure Learning in Graphical Models",
+  author       = c(person(given = "Reza",
+                          family = "Mohammadi",
+                          email = "a.mohammadi@uva.nl"),
+                   person(given = c("Ernst", "C."),
+                          family = "Wit",
+                          email = "e.c.wit@rug.nl")),
+  journal      = "Journal of Statistical Software",
+  year         = "2019",
+  volume       = "89",
+  number       = "3",
+  pages        = "1--30",
+  doi          = "10.18637/jss.v089.i03",
 
-     ## R >= 2.8.0 passes package metadata to citation().
-     if( !exists( "meta" ) || is.null( meta ) ) meta <- packageDescription( "pgmm" )
-     year <- sub( ".*( 2[[:digit:]]{3} )-.*", "\\1", meta$Date )
-     vers <- paste( "R package version", meta$Version )
-
-citEntry( entry = "Manual",
-	title       = "BDgraph: Bayesian Structure Learning in Graphical Models using Birth-Death MCMC",
-	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
-	year        = year,
-	note        = vers,
-	textVersion = paste( "Mohammadi, R. and Wit, E. C. (", year, "). BDgraph: Bayesian Structure Learning in Graphical Models using Birth-Death MCMC.", vers, ".", sep="" )
+  header       = "To cite BDgraph in publications use:"
 )
-
-citEntry( entry = "Article",
-	title       = "BDgraph: An R Package for Bayesian Structure Learning in Graphical Models",
-	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
-	year        = "2017",
-	journal     = "arXiv preprint arXiv:1501.05108",
-	textVersion = paste( "Mohammadi, A. and Wit, E. C. (2017). BDgraph: An R Package for Bayesian Structure Learning in Graphical Models. arXiv preprint arXiv:1501.05108." ),
-	header      = "To cite general use of BDgraph in publications use:",
-)
-
-citEntry( entry = "Article",
-	title       = "Bayesian Structure Learning in Sparse Gaussian Graphical Models",
-	author      = personList( as.person( "Reza Mohammadi" ), as.person( "Ernst C. Wit" ) ),
-	year        = "2015",
-	journal     = "Bayesian Analysis",
-	volume      = "10",
-	number      = "1",
-	pages       = "109-138",
-	textVersion = paste( "Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models. Bayesian Analysis 10(1), 109-138." ),
-	header      = "To cite the methodological part of Bayesian graphical models may want to use:",
-)
-
-citEntry( entry = "Article",
-	title       = "Loglinear model selection and human mobility",
-	author      = personList( as.person( "Adrian Dobra" ), as.person( "Reza Mohammadi" ) ),
-	year        = "2018",
-	journal     = "Annals of Applied Statistics",
-	volume      = "12",
-	number      = "2",
-	pages       = "815-845",
-	textVersion = paste( "Dobra, A. and Mohammadi, R. (2018). Loglinear model selection and human mobility. Annals of Applied Statistics, 12(2):815-845." ),
-	header      = "To cite applications of discrete graphical models in highdimensional problems you may want to use:",
-)
-
-citEntry( entry = "Article",
-	title       = "The ratio of normalizing constants for Bayesian graphical Gaussian model selection",
-	author      = personList( as.person( "Gerard Letac" ), as.person( "Helene Massam" ), as.person( "Reza Mohammadi" ) ),
-	year        = "2018",
-	journal     = "arXiv preprint arXiv:1706.04416",
-	textVersion = paste( "Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, arXiv preprint arXiv:1706.04416v2." ),
-)
-
-citEntry( entry = "Article",
-	title       = "Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models",
-	author      = personList( as.person( "A. Mohammadi" ), as.person( "F. Abegaz" ), as.person( "E. van den Heuvel" ), as.person( "E. C. Wit" ) ),
-	year        = "2017",
-	journal     = "Journal of the Royal Statistical Society: Series C (Applied Statistics)",
-	volume      = "66",
-	number      = "3",
-	pages       = "629-645",
-	textVersion = paste( "Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models. Journal of the Royal Statistical Society: Series C, 66(3):629-645." ),
-	header      = "To cite the methodological part of Bayesian Gaussian Copula graphical models may want to use:",
-)
-
-
 

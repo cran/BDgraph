@@ -100,7 +100,7 @@ Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayes
 
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215
 
-Mohammadi, A. and Wit, E. C. (2017). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{arXiv preprint arXiv:1501.05108v5} 
+Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Adrian Dobra, and Johan Pensar }
