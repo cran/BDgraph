@@ -56,3 +56,6 @@ sample <- rgcwish( n = 3, adj = adj, b = 3, D = diag( 5 ) )
 round( sample, 2 )  
 }
 }
+
+\keyword{Wishart}
+\keyword{ distribution }

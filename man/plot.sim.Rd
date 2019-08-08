@@ -35,3 +35,5 @@ data.sim <- bdgraph.sim( n = 10, p = 15 )
   
 plot( data.sim )
 }
+
+\keyword{hplot}

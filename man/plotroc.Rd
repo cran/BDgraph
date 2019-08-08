@@ -69,3 +69,6 @@ plotroc( data.sim, bdgraph.obj, bdgraph.obj2, label = FALSE )
 legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1, 2 ), col = c( "black", "red" ) )   
 }
 }
+
+\keyword{hplot}
+

@@ -55,3 +55,6 @@ plot( adj )
 
 adj
 }
+
+\keyword{ simulation }
+\keyword{graphs}

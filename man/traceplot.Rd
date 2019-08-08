@@ -48,3 +48,5 @@ traceplot( bdgraph.obj )
 traceplot( bdgraph.obj, acf = TRUE, pacf = TRUE )
 }
 }
+
+\keyword{hplot}

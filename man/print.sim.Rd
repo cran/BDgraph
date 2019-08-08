@@ -34,3 +34,5 @@ data.sim <- bdgraph.sim( n = 20, p = 10, vis = TRUE )
    
 print( data.sim )
 }
+
+\keyword{print}

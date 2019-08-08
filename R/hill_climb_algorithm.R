@@ -226,7 +226,7 @@ log_mpl_disrete = function( node, mb_node, data, freq_data, max_range_nodes, p, 
 	result = .C( "log_mpl_dis", as.integer(node), as.integer(mb_node), as.integer(size_node), 
 	            log_mpl_node = as.double(log_mpl_node), as.integer(data), as.integer(freq_data), 
 	            as.integer(length_freq_data), as.integer(max_range_nodes), as.double(alpha), 
-	            as.integer(n), as.integer(p), PACKAGE = "BDgraph" )
+	            as.integer(n), PACKAGE = "BDgraph" )
 	
 	log_mpl_node = result $ log_mpl_node
 	

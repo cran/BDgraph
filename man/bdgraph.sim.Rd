@@ -94,3 +94,6 @@ plot( graph.sim )
 graph.sim $ G
 }
 }
+
+\keyword{ datagen }
+\keyword{ simulation }

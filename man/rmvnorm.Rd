@@ -32,3 +32,5 @@ sigma <- matrix( c( 4, 2,
 sample <- rmvnorm( n = 500, mean = mean, sigma = sigma )
 plot( sample )
 }
+
+\keyword{ distribution }

@@ -118,3 +118,7 @@ summary( bdgraph.obj )
 # To compare the result with true graph
 compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ) )
 }
+
+\keyword{sampling algorithms}
+\keyword{structure learning}
+\keyword{iteration}

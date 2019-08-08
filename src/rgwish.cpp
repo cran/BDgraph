@@ -281,7 +281,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 //					temp     = fabs( static_cast<double>( sigma[ ij ] ) );
 //					max_diff = ( temp > max_diff ) ? temp : max_diff; 					
 
-					sigma[ ij ]     = 0.0;
+					sigma[ ij     ] = 0.0;
 					sigma[ ip + j ] = 0.0;				
 				}
 			} 
@@ -292,15 +292,15 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	memcpy( &sigma_start[0], sigma, sizeof( double ) * pxp );	 	
 	
-	//inverse( &sigma_start[0], K, &dim );
+	inverse( &sigma_start[0], K, &dim );
 	// creating an identity matrix
 	//#pragma omp parallel for
-	for( i = 0; i < dim; i++ )
-		for( int j = 0; j < dim; j++ )
-			K[ j * dim + i ] = ( i == j );
+	//for( i = 0; i < dim; i++ )
+	//	for( int j = 0; j < dim; j++ )
+	//		K[ j * dim + i ] = ( i == j );
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
-	F77_NAME(dposv)( &upper, &dim, &dim, &sigma_start[0], &dim, K, &dim, &info );
+	//F77_NAME(dposv)( &upper, &dim, &dim, &sigma_start[0], &dim, K, &dim, &info );
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

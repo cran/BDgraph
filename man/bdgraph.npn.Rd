@@ -51,3 +51,5 @@ bdgraph.npn( data, npn = "shrunken" )
 bdgraph.npn( data, npn = "skeptic" )
 }
 }
+
+\keyword{data preprocessing}

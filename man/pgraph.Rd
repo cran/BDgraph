@@ -54,3 +54,5 @@ pgraph( bdgraph.obj, adj = data.sim )
 pgraph( bdgraph.obj, number.g = 2 )
 }
 }
+
+\keyword{structure learning}

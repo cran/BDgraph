@@ -59,3 +59,5 @@ gnorm( adj, b = 3, D = diag( 3 ) )
 }
 }
 
+\keyword{Wishart}
+\keyword{iteration}

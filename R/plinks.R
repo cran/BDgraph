@@ -14,6 +14,9 @@
 
 plinks = function( bdgraph.obj, round = 2, burnin = NULL )
 {
+    if( ( class( bdgraph.obj ) != "bdgraph" ) && ( class( bdgraph.obj ) != "ssgraph" ) )
+        stop( "'bdgraph.obj' must be an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
+    
     if( class( bdgraph.obj ) == "bdgraph" )
     {
         if( is.null( bdgraph.obj $ sample_graphs ) )

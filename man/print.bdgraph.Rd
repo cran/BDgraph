@@ -42,3 +42,5 @@ bdgraph.obj <- bdgraph( data = data.sim )
 print( bdgraph.obj )
 }
 }
+
+\keyword{print}

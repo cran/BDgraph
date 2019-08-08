@@ -50,7 +50,7 @@ extern void ggm_rjmcmc_mpl_ma(void *, void *, void *, void *, void *, void *, vo
 extern void ggm_rjmcmc_mpl_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void log_exp_mc(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void log_mpl_binary_parallel_hc(void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void log_mpl_dis(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void log_mpl_dis(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void omp_set_num_cores(void *);
 extern void rcwish_c(void *, void *, void *, void *);
 extern void rgcwish_c(void *, void *, void *, void *, void *);
@@ -104,7 +104,7 @@ static const R_CMethodDef CEntries[] = {
     {"ggm_rjmcmc_mpl_map",                     (DL_FUNC) &ggm_rjmcmc_mpl_map,                     13},
     {"log_exp_mc",                             (DL_FUNC) &log_exp_mc,                              8},
     {"log_mpl_binary_parallel_hc",             (DL_FUNC) &log_mpl_binary_parallel_hc,              9},
-    {"log_mpl_dis",                            (DL_FUNC) &log_mpl_dis,                            11},
+    {"log_mpl_dis",                            (DL_FUNC) &log_mpl_dis,                            10},
     {"omp_set_num_cores",                      (DL_FUNC) &omp_set_num_cores,                       1},
     {"rcwish_c",                               (DL_FUNC) &rcwish_c,                                4},
     {"rgcwish_c",                              (DL_FUNC) &rgcwish_c,                               5},

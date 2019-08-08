@@ -36,6 +36,15 @@
 The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, discrete, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models literature, including Mohammadi and Wit (2015), Mohammadi et al. (2017), Dobra and Mohammadi (2018), and Letac et al. (2018). The computationally intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}, to speed up the computations. Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature.
 }
 
+\section{How to cite this package}{
+To cite \pkg{BDgraph} in publications use:
+\preformatted{
+Mohammadi, R. and Wit, E. C. (2019). BDgraph: An R Package for Bayesian 
+Structure Learning in Graphical Models, Journal of Statistical Software, 
+89(3):1-30. doi:10.18637/jss.v089.i03
+}
+}
+
 \author{
 
 	Reza Mohammadi \cr
@@ -45,9 +54,8 @@ The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian struc
 	Maintainer: Reza Mohammadi \email{a.mohammadi@uva.nl}
 }
 
-
 \references{
-Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 
+Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30. 
 
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
 
@@ -96,4 +104,4 @@ compare( data.sim, bdgraph.obj, bdgraph.obj_mpl,
 }
 }
 
-\keyword{ Package, BDgraph, Bayesian Structure Learning, Gaussian Graphical Models, Gaussian Copula Graphical Models, BDMCMC, G-Wishart, Marginal Pseudo-likelihood }
+\keyword{package}

@@ -56,3 +56,5 @@ bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0 , save = TRUE 
 plotcoda( bdgraph.obj )  
 }
 }
+
+\keyword{hplot}

@@ -153,3 +153,8 @@ summary( bdgraph.obj )
 compare( G0, bdgraph.obj, vis = TRUE )
 }
 }
+
+\keyword{sampling algorithms}
+\keyword{structure learning}
+\keyword{iteration}
+\keyword{ts}

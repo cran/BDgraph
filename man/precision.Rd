@@ -1,13 +1,13 @@
-\name{plinks}
-\alias{plinks}
+\name{precision}
+\alias{precision}
 
-\title{ Estimated posterior link probabilities }
+\title{ Estimated precision matrix }
 
 \description{ 
-Provides the estimated posterior link probabilities for all possible links in the graph.
+Provides the estimated precision matrix.
 }
 
-\usage{ plinks( bdgraph.obj, round = 2, burnin = NULL ) }
+\usage{ precision( bdgraph.obj, round = 2 ) }
 
 \arguments{
   \item{bdgraph.obj}{An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
@@ -15,11 +15,10 @@ Provides the estimated posterior link probabilities for all possible links in th
   }
 
   \item{round}{ A value for rounding all probabilities to the specified number of decimal places. }
-  \item{burnin}{ The number of burn-in iteration to scape.  }
 }
 
 \value{
-\item{p_links}{ An upper triangular matrix which corresponds the estimated posterior probabilities for all possible links.}
+\item{K_hat}{ A matrix which corresponds the estimated precision matrix.}
 }
 
 \references{
@@ -34,19 +33,21 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}}
+\seealso{\code{\link{bdgraph}}, \code{\link{covariance}}, \code{\link{plinks}}}
 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'circle' graph
 data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
 
-bdgraph.obj   <- bdgraph( data = data.sim, iter = 10000 )
+bdgraph.obj   <- bdgraph( data = data.sim )
 
-plinks( bdgraph.obj, round = 2 )
+precision( bdgraph.obj ) # Estimated precision matrix
+  
+data.sim $ K   # True precision matrix
 }
 }
 
-\keyword{structure learning}
+\keyword{parameter learning}

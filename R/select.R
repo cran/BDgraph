@@ -21,6 +21,9 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 	    p_links = unclass( bdgraph.obj )
 		p       = ncol( p_links )
 	}else{
+	    if( ( class( bdgraph.obj ) != "bdgraph" ) && ( class( bdgraph.obj ) != "ssgraph" ) )
+	        stop( "'bdgraph.obj' must be a matrix or an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
+	    
 	    if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
 	        p_links = bdgraph.obj $ p_links
 	    

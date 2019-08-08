@@ -6,6 +6,8 @@ export( bdgraph,
 
 		transfer,
 		plinks,
+		precision,
+		covariance,
 		select,
 		pgraph,
 		graph.sim,

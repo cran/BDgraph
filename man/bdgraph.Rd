@@ -142,3 +142,7 @@ summary( bdgraph.obj )
 compare( data.sim, bdgraph.obj )
 }	  
 }
+
+\keyword{sampling algorithms}
+\keyword{structure learning}
+\keyword{iteration}

@@ -124,11 +124,14 @@
 - CHANGES IN VERSION 2.58
 
 	* Bug fixed for "compare()" function.
-	* Function  "get_graph()" is added to the package and used inside function "compare()".
-	* Function  "get_g_prior()", "get_g_start()", "get_S_n_p()", "get_K_start()", and "get_cores()" 
+	* Function "get_graph()" is added to the package and used inside function "compare()".
+	* Function "get_g_prior()", "get_g_start()", "get_S_n_p()", "get_K_start()", and "get_cores()" 
 	    are added to the package and used inside function "bdgraph()".
 
-- CHANGES IN VERSION 2.59
+- CHANGES IN VERSION 2.60
+
+	* Function "precision()"  is added to the package.
+	* Function "covariance()" is added to the package.
 
 
 

@@ -50,3 +50,6 @@ plot( bdgraph.obj, number.g = 4 )
 plot( bdgraph.obj, cut = 0.4 )
 }
 }
+
+\keyword{hplot}
+

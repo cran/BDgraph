@@ -46,3 +46,6 @@ adj <- graph.sim( p = 10, graph = "random" )
 plot( adj )
 adj
 }
+
+\keyword{hplot}
+

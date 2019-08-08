@@ -19,7 +19,7 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
         if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
         if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
     }else{
-        stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()'" )
+        stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
     }
     
 	sample_graphs     = bdgraph.obj $ sample_graphs

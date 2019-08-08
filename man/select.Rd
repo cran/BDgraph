@@ -56,3 +56,5 @@ select( bdgraph.obj )
 select( bdgraph.obj, cut = 0.5, vis = TRUE )
 }
 }
+
+\keyword{structure learning}
