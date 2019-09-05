@@ -1,7 +1,7 @@
 
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-|                   > > >  BDgraph NEWS  < < <                              |
-| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
+|                   > >  BDgraph NEWS  < <                            |
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  
 
 - CHANGES IN VERSION 2.19
 
@@ -132,6 +132,14 @@
 
 	* Function "precision()"  is added to the package.
 	* Function "covariance()" is added to the package.
+
+- CHANGES IN VERSION 2.61
+
+	* Bug fixed related to the C stack by Fortran functions.
+	* Function "bf()"       is added to the package.
+	* Function "adj2link()" is added to the package.
+	* Function "link2adj()" is added to the package.
+	* Function "bdgraph.ts()" is removed.
 
 
 

@@ -75,3 +75,6 @@ sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 compare( data.sim, sample.ggm, sample.gcgm, main = c( "True", "GGM", "GCGM" ), vis = TRUE )
 }
 }
+
+\keyword{structure learning}
+

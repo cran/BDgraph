@@ -22,7 +22,7 @@ or a graph with the highest posterior probability; see examples.
   \item{vis}{ Visualize the selected graph structure. }
 }
 
-\value{	\item{G}{ An adjacency matrix corresponding to the selected graph.} }
+\value{	An adjacency matrix corresponding to the selected graph.}
 
 \references{
 Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 

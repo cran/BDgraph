@@ -40,14 +40,14 @@ void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *se
 	// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
 	// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
 	double sigmajj_inv = - 1.0 / sigma[jj];
-	F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
+	F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 FCONE );
 		
 	// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 	sub_row_mins( K, &Kj12[0], selected_edge_j, &dim );   // Kj12 = K[j, -j]  
 	Kj12[ *selected_edge_i ] = 0.0;                         // Kj12[1,i] = 0
 
 	// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
-	F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+	F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one FCONE );
 	
 	// K022 = Kj12xK22_inv %*% t(Kj12)
 	double K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
@@ -58,16 +58,16 @@ void log_alpha_rjmcmc( double *log_alpha_ij, double log_ratio_g_prior[], int *se
 	sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], selected_edge_i, selected_edge_j, &dim );
 
 	// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
-	F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+	F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 FCONE FCONE );
 
 	// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
-	F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
+	F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 FCONE FCONE );
 
 	// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
-	F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+	F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two FCONE FCONE );  
 	
 	// K121 = K12xK22_inv %*% K21													
-	F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
+	F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two FCONE FCONE );		
 	// Finished (i,j) = 1- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 	double a11      = K[*selected_edge_i * dim1] - K121[0];	

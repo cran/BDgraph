@@ -1,6 +1,6 @@
-% \VignetteIndexEntry{BDgraph: An R Package for Bayesian Structure Learning in Graphical Models}
+% \VignetteIndexEntry{An Introduction to the BDgraph Package for Bayesian Graphical Models}
 % \VignetteKeywords{Bayesian structure learning, Gaussian graphical models, Gaussian copula, Covariance selection, Birth-death process, G-Wishart, BDgraph}
-% \VignettePackage{package BDgraph}
+% \VignettePackage{BDgraph}
 
 \documentclass[a4paper]{article}
 \usepackage{hyperref}

@@ -25,9 +25,7 @@ graph.sim( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis 
   \item{vis}{Visualize the true graph structure.}
 }
 
-\value{
-	\item{G}{The adjacency matrix corresponding to the simulated graph structure, as an object with \code{S3} class \code{"graph"}.}
-}
+\value{ The adjacency matrix corresponding to the simulated graph structure, as an object with \code{S3} class \code{"graph"}.}
 
 \references{
 Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 

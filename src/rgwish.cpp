@@ -39,11 +39,11 @@ void rwish_c( double Ts[], double K[], int *b, int *p )
 
     	// C = psi %*% Ts   I used   psi = psi %*% Ts
 	// dtrmm (SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA, B, LDB)
-	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &psi[0], &dim );
+	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &psi[0], &dim FCONE FCONE FCONE FCONE );
 
 	// K = t(C) %*% C 
 	// LAPACK function to compute  C := alpha * A * B + beta * C																				
-	F77_NAME(dgemm)( &transT, &transN, &dim, &dim, &dim, &alpha, &psi[0], &dim, &psi[0], &dim, &beta, K, &dim );
+	F77_NAME(dgemm)( &transT, &transN, &dim, &dim, &dim, &alpha, &psi[0], &dim, &psi[0], &dim, &beta, K, &dim FCONE FCONE );
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -101,11 +101,11 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p, double *thresho
 				sub_matrix( &sigma[0], &sigma_N_i[0], &N_i[0], &size_node, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
-				F77_NAME(dposv)( &uplo, &size_node, &one, &sigma_N_i[0], &size_node, &sigma_start_N_i[0], &size_node, &info );
+				F77_NAME(dposv)( &uplo, &size_node, &one, &sigma_N_i[0], &size_node, &sigma_start_N_i[0], &size_node, &info FCONE );
 
 				for( j = 0; j < size_node; j++ ) beta_star[ N_i[ j ] ] = sigma_start_N_i[ j ];
 				
-				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &sigma[0], &dim, &beta_star[0], &dim, &beta, &sigma_start_i[0], &dim );
+				F77_NAME(dgemm)( &transN, &transN, &dim, &one, &dim, &alpha, &sigma[0], &dim, &beta_star[0], &dim, &beta, &sigma_start_i[0], &dim FCONE FCONE );
 				
 				for( j = 0; j < i; j++ )
 				{
@@ -182,7 +182,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 	
 	// C = psi %*% Ts   I used psi = psi %*% Ts   Now is  sigma_start = sigma_start %*% Ts
-	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &sigma_start[0], &dim );
+	F77_NAME(dtrmm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, Ts, &dim, &sigma_start[0], &dim FCONE FCONE FCONE FCONE );
 
 	side = 'L';
 	// creating an identity matrix
@@ -192,10 +192,10 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 			inv_C[ j * dim + i ] = ( i == j );	
 	
 	// op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
-	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &inv_C[0], &dim );
+	F77_NAME(dtrsm)( &side, &upper, &transN, &transN, &dim, &dim, &alpha, &sigma_start[0], &dim, &inv_C[0], &dim FCONE FCONE FCONE FCONE );
  
 	// sigma_start = inv_C %*% t( inv_C )  																				
-	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &dim, &alpha, &inv_C[0], &dim, &inv_C[0], &dim, &beta, &sigma_start[0], &dim );
+	F77_NAME(dgemm)( &transN, &transT, &dim, &dim, &dim, &alpha, &inv_C[0], &dim, &inv_C[0], &dim, &beta, &sigma_start[0], &dim FCONE FCONE );
 
 	memcpy( sigma, &sigma_start[0], sizeof( double ) * pxp ); 
 	
@@ -231,12 +231,12 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 				sub_matrix_upper( sigma, &sigma_N_i[0], &N_i[0], &size_node_i, &dim );
 					
 				// A * X = B   for   sigma_start_N_i := (sigma_N_i)^{-1} * sigma_start_N_i
-				F77_NAME(dposv)( &upper, &size_node_i, &one, &sigma_N_i[0], &size_node_i, &sigma_start_N_i[0], &size_node_i, &info );
+				F77_NAME(dposv)( &upper, &size_node_i, &one, &sigma_N_i[0], &size_node_i, &sigma_start_N_i[0], &size_node_i, &info FCONE );
 
 				for( j = 0; j < size_node_i; j++ ) beta_star[ N_i[ j ] ] = sigma_start_N_i[ j ];
 	
 				// sigma_i = sigma %*% beta_star
-				F77_NAME(dsymv)( &side, &dim, &alpha, sigma, &dim, &beta_star[0], &one, &beta, &sigma_i[0], &one );
+				F77_NAME(dsymv)( &side, &dim, &alpha, sigma, &dim, &beta_star[0], &one, &beta, &sigma_i[0], &one FCONE );
 				
 				memcpy( sigma + ip, sigma_i, sizeof( double ) * i );	
 				

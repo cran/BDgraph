@@ -164,7 +164,7 @@ void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], 
 	// S <- t(Z) %*% Z; NOTE, I'm using Ds instead of S, for saving memory
 	double alpha = 1.0, beta  = 0.0;
 	char transA = 'T', transB = 'N';
-	F77_NAME(dgemm)( &transA, &transB, &dim, &dim, n, &alpha, Z, n, Z, n, &beta, &S[0], &dim );		
+	F77_NAME(dgemm)( &transA, &transB, &dim, &dim, n, &alpha, Z, n, Z, n, &beta, &S[0], &dim FCONE FCONE );		
 	
     #pragma omp parallel for
 	for( int i = 0; i < dim * dim; i++ ) 

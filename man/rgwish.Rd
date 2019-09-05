@@ -53,7 +53,7 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{gnorm}}, \code{\link{rwish}}, \code{\link{rgcwish}} }
+\seealso{ \code{\link{gnorm}}, \code{\link{rwish}} }
 
 \examples{
 # Generating a 'circle' graph as a non-decomposable graph

@@ -16,7 +16,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 
 \arguments{
 	\item{data}{
-	There are two options: (1) an (\eqn{n \times p}) matrix or a \code{data.frame} corresponding to the data, 
+	There are two options: (1) an (\eqn{n \times p}) \code{matrix} or a \code{data.frame} corresponding to the data, 
 	(2) an (\eqn{p \times p}) covariance matrix as \eqn{S=X'X} which \eqn{X} is the data matrix 
 	(\eqn{n} is the sample size and \eqn{p} is the number of variables). 
 	It also could be an object of class \code{"sim"}, from function \code{\link{bdgraph.sim}}.

@@ -8,11 +8,10 @@
 \usage{ transfer( r_data ) }
 
 \arguments{
-  \item{r_data}{ An (\eqn{n \times p}{n x p}) matrix or a \code{data.frame} corresponding to the data (\eqn{n} is the sample size and \eqn{p} is the number of variables). }
+  \item{r_data}{ An (\eqn{n \times p}{n x p}) \code{matrix} or a \code{data.frame} corresponding to the data (\eqn{n} is the sample size and \eqn{p} is the number of variables). }
 }
 
-\value{
-\item{data}{ An (\eqn{n \times p+1}) matrix of transferred data, in which the last column is the frequency of duplicated rows. }
+\value{ An (\eqn{n \times p+1}) matrix of transferred data, in which the last column is the frequency of duplicated rows.
 }
 
 \references{

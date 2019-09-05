@@ -17,9 +17,7 @@ Provides the estimated covariance matrix.
   \item{round}{ A value for rounding all probabilities to the specified number of decimal places. }
 }
 
-\value{
-\item{cov}{ A matrix which corresponds the estimated covariance matrix.}
-}
+\value{ A matrix which corresponds the estimated covariance matrix.}
 
 \references{
 Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 

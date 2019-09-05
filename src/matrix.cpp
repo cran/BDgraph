@@ -288,7 +288,7 @@ void inverse( double A[], double A_inv[], int *p )
 			A_inv[ j * dim + i ] = ( i == j );
 	
 	// LAPACK function: computes solution to A * X = B, where A is symmetric positive definite matrix
-	F77_NAME(dposv)( &uplo, &dim, &dim, A, &dim, A_inv, &dim, &info );
+	F77_NAME(dposv)( &uplo, &dim, &dim, A, &dim, A_inv, &dim, &info FCONE );
 }
     
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -314,7 +314,7 @@ void cholesky( double A[], double U[], int *p )
 	
 	memcpy( U, A, sizeof( double ) * dim * dim );	
 	
-	F77_NAME(dpotrf)( &uplo, &dim, U, &dim, &info );	
+	F77_NAME(dpotrf)( &uplo, &dim, U, &dim, &info FCONE );	
 	
 	#pragma omp parallel for
 	for( int i = 0; i < dim; i++ )
@@ -333,7 +333,7 @@ void determinant( double A[], double *det_A, int *p )
 	char uplo = 'U';
 	int info, dim = *p, dim1 = dim + 1;
 	
-	F77_NAME(dpotrf)( &uplo, &dim, &A[0], &dim, &info );	
+	F77_NAME(dpotrf)( &uplo, &dim, &A[0], &dim, &info FCONE );	
 
 	double result = 1;
 	for( int i = 0; i < dim; i++ ) result *= A[ i * dim1 ];
@@ -535,14 +535,14 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
 			// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
 			sigmajj_inv = - 1.0 / sigma[ jj ];
-			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 );
+			F77_NAME(dsyr)( &sideL, &p1, &sigmajj_inv, &sigmaj12[0], &one, &sigmaj22[0], &p1 FCONE );
 			
 			// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 			sub_row_mins( &K[0], &Kj12[0], &j, &dim );  // Kj12 = K[j, -j]  
 			Kj12[ i ] = 0.0;                            // Kj12[1,i] = 0
 
 			// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
-			F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one );
+			F77_NAME(dsymv)( &sideL, &p1, &alpha, &sigmaj22[0], &p1, &Kj12[0], &one, &beta, &Kj12xK22_inv[0], &one FCONE );
 			
 			// K022 = Kj12xK22_inv %*% t(Kj12)
 			K022 = F77_NAME(ddot)( &p1, &Kj12xK22_inv[0], &one, &Kj12[0], &one );			
@@ -553,16 +553,16 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 			sub_matrices_inv( &sigma[0], &sigma11_inv[0], &sigma21[0], &sigma22[0], &i, &j, &dim );
 
 			// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
-			F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &two, &two, &alpha, &sigma21[0], &p2, &sigma11_inv[0], &two, &beta, &sigma21xsigma11_inv[0], &p2 FCONE FCONE );
 
 			// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
-			F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 );
+			F77_NAME(dgemm)( &transN, &transT, &p2, &p2, &two, &alpha1, &sigma21xsigma11_inv[0], &p2, &sigma21[0], &p2, &beta1, &sigma22[0], &p2 FCONE FCONE );
 
 			// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
-			F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two );  
+			F77_NAME(dgemm)( &transT, &transN, &two, &p2, &p2, &alpha, &K21[0], &p2, &sigma22[0], &p2, &beta, &K12xK22_inv[0], &two FCONE FCONE );  
 			
 			// K121 = K12xK22_inv %*% K21													
-			F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two );		
+			F77_NAME(dgemm)( &transN, &transN, &two, &two, &p2, &alpha, &K12xK22_inv[0], &two, &K21[0], &p2, &beta, &K121[0], &two FCONE FCONE );		
 			// Finished (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 			a11      = K[ i * dim1 ] - K121[ 0 ];	
@@ -683,15 +683,15 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 			i_Kj12[ i ] = 0.0;
 
 			// Kj12xK22_inv = Kj12 %*% Kj22_inv
-			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &i12xi22_j[0], &one );
-			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &r_Kj22_inv[0], &p1, &dmone, &i12xi22_j[0], &one );				
-			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &r12xi22_j[0], &one );
-			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &r_Kj22_inv[0], &p1, &alpha, &r12xi22_j[0], &one );				
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &i12xi22_j[0], &one FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &r_Kj22_inv[0], &p1, &dmone, &i12xi22_j[0], &one FCONE FCONE );				
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &r_Kj12[0], &one, &i_Kj22_inv[0], &p1, &beta, &r12xi22_j[0], &one FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &one, &p1, &p1, &alpha, &i_Kj12[0], &one, &r_Kj22_inv[0], &p1, &alpha, &r12xi22_j[0], &one FCONE FCONE );				
 			// K022  <- Kj12 %*% solve( K0[-j, -j] ) %*% t(Kj12) = c
-			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &r_K022, &one );
-			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &r_Kj12[0], &p1, &alpha, &r_K022, &one );
-			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &i_K022, &one );
-			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &r_Kj12[0], &p1, &dmone, &i_K022, &one );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &r_K022, &one FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &r_Kj12[0], &p1, &alpha, &r_K022, &one FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &i12xi22_j[0], &one, &i_Kj12[0], &p1, &beta, &i_K022, &one FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &one, &one, &p1, &alpha, &r12xi22_j[0], &one, &r_Kj12[0], &p1, &dmone, &i_K022, &one FCONE FCONE );
 
 			// For (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 			sub_rows_mins( &r_K[0], &r_K12[0], &i, &j, &dim );  // K12 = K[e, -e]  
@@ -704,15 +704,15 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 			cinverse_2x2( &r_sigma11[0], &i_sigma11[0], &r_sigma11_inv[0], &i_sigma11_inv[0] );
 			
 			// sigma21 %*% sigma11_inv = t(sigma12) %*% sigma11_inv
-			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &r21xr11[0], &p2 );
-			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &i_sigma11_inv[0], &two, &alpha, &r21xr11[0], &p2 );
-			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &i21xr11[0], &p2 );
-			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &i_sigma11_inv[0], &two, &dmone, &i21xr11[0], &p2 );				
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &r21xr11[0], &p2 FCONE FCONE );
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &i_sigma11_inv[0], &two, &alpha, &r21xr11[0], &p2 FCONE FCONE );
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &i_sigma12[0], &two, &r_sigma11_inv[0], &two, &beta, &i21xr11[0], &p2 FCONE FCONE );
+			F77_NAME(dgemm)( &transT, &transN, &p2, &two, &two, &alpha, &r_sigma12[0], &two, &i_sigma11_inv[0], &two, &dmone, &i21xr11[0], &p2 FCONE FCONE );				
 			// sigma2112 = sigma21xsigma11_inv %*% sigma12 = sigma[-e,e] %*% solve(sigma[e,e]) %*% sigma[e,-e]
-			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &i_sigma12[0], &two, &beta, &r_sigma2112[0], &p2 );
-			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &r_sigma12[0], &two, &dmone, &r_sigma2112[0], &p2 );
-			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &i_sigma12[0], &two, &beta, &i_sigma2112[0], &p2 );
-			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &r_sigma12[0], &two, &alpha, &i_sigma2112[0], &p2 );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &i_sigma12[0], &two, &beta, &r_sigma2112[0], &p2 FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &r_sigma12[0], &two, &dmone, &r_sigma2112[0], &p2 FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &r21xr11[0], &p2, &i_sigma12[0], &two, &beta, &i_sigma2112[0], &p2 FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &p2, &p2, &two, &alpha, &i21xr11[0], &p2, &r_sigma12[0], &two, &alpha, &i_sigma2112[0], &p2 FCONE FCONE );
 
 			// solve( K[-e, -e] ) = sigma22 - sigma2112
 			for( k = 0; k < p2xp2 ; k++ ) 
@@ -722,15 +722,15 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 			}
 
 			// K12 %*% K22_inv
-			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &i_K22_inv[0], &p2, &beta, &i12xi22[0], &two );
-			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &r_K22_inv[0], &p2, &dmone, &i12xi22[0], &two );
-			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &i_K22_inv[0], &p2, &beta, &r12xi22[0], &two );
-			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &r_K22_inv[0], &p2, &alpha, &r12xi22[0], &two );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &i_K22_inv[0], &p2, &beta, &i12xi22[0], &two FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &r_K22_inv[0], &p2, &dmone, &i12xi22[0], &two FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &r_K12[0], &two, &i_K22_inv[0], &p2, &beta, &r12xi22[0], &two FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transN, &two, &p2, &p2, &alpha, &i_K12[0], &two, &r_K22_inv[0], &p2, &alpha, &r12xi22[0], &two FCONE FCONE );
 			// K121 <- K[e, -e] %*% solve( K[-e, -e] ) %*% t(K[e, -e]) 		
-			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &i_K12[0], &two, &beta, &r_K121[0], &two );
-			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &r_K12[0], &two, &alpha, &r_K121[0], &two );
-			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta, &i_K121[0], &two );
-			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &r_K12[0], &two, &dmone, &i_K121[0], &two );											
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &i_K12[0], &two, &beta, &r_K121[0], &two FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &r_K12[0], &two, &alpha, &r_K121[0], &two FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &i12xi22[0], &two, &i_K12[0], &two, &beta, &i_K121[0], &two FCONE FCONE );
+			F77_NAME(dgemm)( &transN, &transT, &two, &two, &p2, &alpha, &r12xi22[0], &two, &r_K12[0], &two, &dmone, &i_K121[0], &two FCONE FCONE );											
 			// Finished (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 			
 			nu_star = b1;
@@ -805,14 +805,14 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	// sigma[-j,-j] - ( sigma[-j, j] %*% sigma[j, -j] ) / sigma[j,j]
 	// Kj22_inv <- sigmaj22 = sigmaj22 - sigmaj12 * sigmaj12 / sigmaj11
 	double sigmajj_inv = - 1.0 / sigma[ *selected_edge_j * ( *dim + 1 ) ];
-	F77_NAME(dsyr)( &sideL, p1, &sigmajj_inv, sigmaj12, &one, sigmaj22, p1 );
+	F77_NAME(dsyr)( &sideL, p1, &sigmajj_inv, sigmaj12, &one, sigmaj22, p1 FCONE );
 
 	// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 	sub_row_mins( K, Kj12, selected_edge_j, dim );  // K12 = K[j, -j]  
 	Kj12[ *selected_edge_i ] = 0.0;                       // K12[1,i] = 0
 
 	// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
-	F77_NAME(dsymv)( &sideL, p1, &alpha, &sigmaj22[0], p1, Kj12, &one, &beta, Kj12xK22_inv, &one );
+	F77_NAME(dsymv)( &sideL, p1, &alpha, &sigmaj22[0], p1, Kj12, &one, &beta, Kj12xK22_inv, &one FCONE );
 	
 	// K022 = Kj12xK22_inv %*% t(Kj12)
 	double K022 = F77_NAME(ddot)( p1, Kj12xK22_inv, &one, Kj12, &one );			
@@ -823,16 +823,16 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	sub_matrices_inv( sigma, sigma11_inv, sigma12, sigma22, selected_edge_i, selected_edge_j, dim );
 
 	// sigma21xsigma11_inv = sigma21 %*% sigma11_inv
-	F77_NAME(dgemm)( &transN, &transN, p2, &two, &two, &alpha, sigma12, p2, sigma11_inv, &two, &beta, sigma21xsigma11_inv, p2 );
+	F77_NAME(dgemm)( &transN, &transN, p2, &two, &two, &alpha, sigma12, p2, sigma11_inv, &two, &beta, sigma21xsigma11_inv, p2 FCONE FCONE );
 
 	// sigma22 = sigma22 - sigma21xsigma11_inv %*% t( sigma21 )
-	F77_NAME(dgemm)( &transN, &transT, p2, p2, &two, &alpha1, sigma21xsigma11_inv, p2, sigma12, p2, &beta1, sigma22, p2 );
+	F77_NAME(dgemm)( &transN, &transT, p2, p2, &two, &alpha1, sigma21xsigma11_inv, p2, sigma12, p2, &beta1, sigma22, p2 FCONE FCONE );
 
 	// K12xK22_inv = t( K21 ) %*% K22_inv  here sigam12 = K22_inv
-	F77_NAME(dgemm)( &transT, &transN, &two, p2, p2, &alpha, K12, p2, sigma22, p2, &beta, K12xK22_inv, &two );  
+	F77_NAME(dgemm)( &transT, &transN, &two, p2, p2, &alpha, K12, p2, sigma22, p2, &beta, K12xK22_inv, &two FCONE FCONE );  
 	
 	// K121 = K12xK22_inv %*% K21													
-	F77_NAME(dgemm)( &transN, &transN, &two, &two, p2, &alpha, K12xK22_inv, &two, K12, p2, &beta, K121, &two );		
+	F77_NAME(dgemm)( &transN, &transN, &two, &two, p2, &alpha, K12xK22_inv, &two, K12, p2, &beta, K121, &two FCONE FCONE );		
 	// Finished (i,j) = 1 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	double a11      = K[*selected_edge_i * *dim + *selected_edge_i] - K121[0];	

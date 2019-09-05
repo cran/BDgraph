@@ -17,7 +17,8 @@ get_graph = function( obj_G, cut = 0.5 )
 {
     if( is.matrix( obj_G ) ) 
     {
-        if( ( sum( obj_G == 0 ) + sum( obj_G == 1 ) ) != ( nrow( obj_G ) ^ 2 ) ) stop( "Element of matrix must be 0 or 1" )
+        if( nrow( obj_G ) != ncol( obj_G ) ) stop( "Adjacency matrix must be squere" )
+        if( ( sum( obj_G == 0 ) + sum( obj_G == 1 ) ) != ( ncol( obj_G ) ^ 2 ) ) stop( "Element of matrix must be 0 or 1" )
         G = unclass( obj_G )
     }else{
         if(   class( obj_G ) == "sim"     ) G <- unclass( obj_G $ G ) 

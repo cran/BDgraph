@@ -43,7 +43,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{gnorm}}, \code{\link{rgwish}}, \code{\link{rgcwish}} }
+\seealso{ \code{\link{gnorm}}, \code{\link{rgwish}} }
 
 \examples{
 sample <- rwish( n = 3, p = 5, b = 3, D = diag( 5 ) )

@@ -5,7 +5,8 @@
     #include <omp.h>
 #endif
 
-#include <Rconfig.h>
+#define USE_FC_LEN_T  // For Fortran character strings
+#include <Rconfig.h>  // included by R.h, so define USE_FC_LEN_T early
 #include <R.h>
 #include <Rmath.h>
 #include <R_ext/Print.h>
@@ -27,6 +28,10 @@
 #include <algorithm>         // for transform function
 #include <functional>        // for transform function
 #include <climits>
+
+#ifndef FCONE
+# define FCONE
+#endif
 
 using namespace std;
 

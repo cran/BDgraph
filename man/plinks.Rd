@@ -18,9 +18,7 @@ Provides the estimated posterior link probabilities for all possible links in th
   \item{burnin}{ The number of burn-in iteration to scape.  }
 }
 
-\value{
-\item{p_links}{ An upper triangular matrix which corresponds the estimated posterior probabilities for all possible links.}
-}
+\value{ An upper triangular matrix which corresponds the estimated posterior probabilities for all possible links.}
 
 \references{
 Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 
