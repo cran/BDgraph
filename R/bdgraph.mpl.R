@@ -1,16 +1,16 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     BDMCMC algorithm for graphical models based on marginal pseudo-likelihood                    |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     BDMCMC algorithm for graphical models based on marginal pseudo-likelihood
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.prior = 0.5, g.start = "empty", 
@@ -23,7 +23,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
     
     cores = BDgraph::get_cores( cores = cores )
     
-	if( class( data ) == "sim" ) data <- data $ data
+	if( inherits( data, "sim" ) ) data <- data $ data
 	colnames_data = colnames( data )
 
 	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( " Data should be a matrix or dataframe" )
@@ -102,7 +102,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	    cat( mes, "\r" )
 	}
 	
-	# - - - main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - - - - - - - - - - -|
+	# - - - main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - -|
 	if( save == TRUE )
 	{
 		if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
@@ -232,7 +232,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
 		}				
 	}
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 	if( algorithm != "hc" )
 	{
@@ -271,10 +271,10 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		colnames( selected_graph ) = colnames_data[ 1:p ]
 		output = selected_graph
 	}
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	
 	class( output ) = "bdgraph"
 	return( output )   
 }
            
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

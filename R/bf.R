@@ -1,23 +1,23 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Computing the Bayes factor between two graph structures                                      |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Computing the Bayes factor between two graph structures                  |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bf = function( num, den, bdgraph.obj, log = TRUE )
 {
     G_1 = BDgraph::get_graph( num )
     G_2 = BDgraph::get_graph( den )
     
-    if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
+    if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
         p_links = bdgraph.obj $ p_links
         if( is.null( p_links ) ) p_links = BDgraph::plinks( bdgraph.obj, round = 15 )
@@ -49,7 +49,7 @@ bf = function( num, den, bdgraph.obj, log = TRUE )
     return( bf )
 }
      
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 
 

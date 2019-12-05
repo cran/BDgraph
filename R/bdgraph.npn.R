@@ -1,20 +1,20 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Non-parametric transfer function for non-normal data                                         |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Non-parametric transfer function for non-normal data                     |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 {
-    if( class( data ) == "sim" ) data <- data $ data
+    if( inherits( data, "sim" ) ) data <- data $ data
     
     if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data must be a matrix or dataframe" )	
     if( is.data.frame( data ) ) data = data.matrix( data )
@@ -22,7 +22,7 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 	
 	n <- nrow( data )
 	
-  	# - - - shrinkage transfer - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+  	# - - - shrinkage transfer - - - - - - - - - - - - - - - - - - - - - - - - |
 	
 	if( npn == "shrinkage" )
 	{
@@ -31,7 +31,7 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 		data = t( ( t( data ) - apply( data, 2, mean ) ) / apply( data, 2, stats::sd ) )
 	}
 	
-	# - - - truncation transfer - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+	# - - - truncation transfer - - - - - - - - - - - - - - - - - - - - - - - -|
 	
 	if( npn == "truncation" )
 	{
@@ -41,10 +41,12 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
     	data = data / stats::sd( data[ , 1 ] )
 	}
 
-	# - - - skeptic transfer - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+	# - - - skeptic transfer - - - - - - - - - - - - - - - - - - - - - - - - - |
 	
 	if( npn == "skeptic" ) data = 2 * sin( pi / 6 * stats::cor( data, method = "spearman" ) )
 	
 	return( data )
 }
-    
+ 
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+

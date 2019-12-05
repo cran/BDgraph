@@ -1,20 +1,20 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     To check the convergency of the BDMCMC algorithm                                             |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     To check the convergency of the BDMCMC algorithm                         |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... )
 {
-    if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
+    if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
         if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
         if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
@@ -68,4 +68,4 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	graphics::title( main = main, cex.main = 1.2 )
 }
       
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

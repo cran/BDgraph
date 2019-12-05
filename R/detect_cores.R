@@ -1,4 +1,15 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+
 get_cores = function( cores = NULL )
 {
     num_machine_cores = BDgraph::detect_cores()
@@ -10,7 +21,7 @@ get_cores = function( cores = NULL )
     return( cores )
 }
 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 detect_cores = function( all.tests = FALSE, logical = TRUE ) 
 {
 	if( .Platform $ OS.type == "windows" )
@@ -67,5 +78,4 @@ detect_cores = function( all.tests = FALSE, logical = TRUE )
 	}		
 }
    
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-   
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

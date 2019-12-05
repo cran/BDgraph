@@ -1,16 +1,16 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Main function of BDgraph package: BDMCMC algorithm for graphical models                      |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Main function of BDgraph package: BDMCMC algorithm for graphical models  |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
                     burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
@@ -86,7 +86,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     mes <- paste( c( iter, " iteration is started.                    " ), collapse = "" )
     cat( mes, "\r" )
     
-    # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - - - - - - - - - - - |
+    # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - |
     if( save == TRUE )
     {
         if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
@@ -313,7 +313,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
         }	
     }
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     
     K_hat      = matrix( result $ K_hat, p, p, dimnames = list( colnames_data, colnames_data ) ) 
     last_graph = matrix( result $ G    , p, p, dimnames = list( colnames_data, colnames_data ) )
@@ -351,9 +351,9 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     return( output )   
 }
 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Summary for "bdgraph" boject                                                                  |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    Summary for "bdgraph" boject                                              |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 {
     K_hat      = object $ K_hat
@@ -413,9 +413,9 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 		return( list( selected_g = selected_g, p_links = round( p_links, round ), K_hat = round( K_hat, round ) ) )
 }  
    
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Plot function for "bdgraph" boject                                                            |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    Plot function for "bdgraph" boject                                        |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
 {
  	if( is.null( number.g ) )
@@ -455,9 +455,9 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
     }
 }
      
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Print function for "bdgraph" boject                                                           |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    Print function for "bdgraph" boject                                       |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 print.bdgraph = function( x, ... )
 {
 	p_links = x $ p_links
@@ -471,7 +471,7 @@ print.bdgraph = function( x, ... )
     print( round( p_links, 2 ) )
 } 
      
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 
 

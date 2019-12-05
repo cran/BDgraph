@@ -1,16 +1,16 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Graph generator                                                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Graph generator                                                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
 {
@@ -19,7 +19,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
  
     G <- matrix( 0, p, p )
     
-    # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+    # - - build the graph structure - - - - - - - - - - - - - - - - - - - - -  |
     if( graph == "random" )
     {
         if( is.null( size ) )
@@ -156,9 +156,9 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     return( G )
 }
    
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "graph" from graph.sim function
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 plot.graph = function( x, cut = 0.5, mode = "undirected", diag = FALSE, main = NULL, 
                        vertex.color = "white", vertex.label.color = 'black', ... )
 {
@@ -173,4 +173,4 @@ plot.graph = function( x, cut = 0.5, mode = "undirected", diag = FALSE, main = N
                          vertex.label.color = vertex.label.color, ... )
 }		
 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

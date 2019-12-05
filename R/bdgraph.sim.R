@@ -1,16 +1,16 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Data generator according to the graph structure                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Data generator according to the graph structure                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian", 
 						prob = 0.2, size = NULL, mean = 0, class = NULL, 
@@ -50,7 +50,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 	    graph <- "fixed"
     } 
 	
-    # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+    # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - -|
     if( sum( graph == c( "fixed", "AR1", "AR2", "circle" ) ) == 0 )
 		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class )
 
@@ -82,7 +82,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
         G = 1 * ( abs( K ) > 0.02 ) 
     }
     
-    # - - generate multivariate data according to the graph structure - - - - - - - - - - - - - - -|
+    # - - generate multivariate data according to the graph structure - - - - -|
 	if( n != 0 )
 	{
 		if( !is.null( sigma ) ) K <- solve( sigma )   
@@ -93,7 +93,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			diag( G ) <- 0
 			if( is.null( sigma ) ) sigma <- solve( K )	
 		}else{ 
-			# - - Generate precision matrix according to the graph structure - - - - - - - - - - - |
+			# - - Generate precision matrix according to the graph structure - |
 		    if( !isSymmetric( D ) ) stop( " Matrix 'D' must be positive definite" )
 		   
 		    Ti        = chol( solve( D ) )
@@ -109,10 +109,10 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			sigma = solve( K )
 		}
 		
-		# - - generate multivariate normal data - - - - - - - - - - - - - - - - - - - - - - - - - -|
+		# - - generate multivariate normal data - - - - - - - - - - - - - - - -|
 		d <- BDgraph::rmvnorm( n = n, mean = mean, sigma = sigma )
 		
-		# - - generate multivariate mixed data - - - - - - - - - - - - - - - - - - - - - - - - - - |
+		# - - generate multivariate mixed data - - - - - - - - - - - - - - - - |
 		not.cont = numeric( p )
 
 		if( type == "mixed" )
@@ -148,7 +148,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			not.cont[ c( ( 3 * ps + 1 ):( 4 * ps ) ) ] = 1
 		}
 
-		# - - generate multivariate continuous non-Gaussian data - - - - - - - - - - - - - - - - - |
+		# - - generate multivariate continuous non-Gaussian data - - - - - - - |
 		if( type == "non-Gaussian" )
 		{
 			# generating multivariate continuous non-Gaussian data  
@@ -156,7 +156,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			d    <- stats::qexp( p = prob, rate = 10 )
 		}
 
-		# - - generate multivariate discrete data - - - - - - - - - - - - - - - - - - - - - - - - -|
+		# - - generate multivariate discrete data - - - - - - - - - - - - - - -|
 		if( type == "discrete" )
 		{
 		    not.cont[ 1:p ] = 1
@@ -189,7 +189,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		}
 	}
 	
-	# - - Saving the result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+	# - - Saving the result - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	if( n != 0 )
 	{
 		simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont )
@@ -197,7 +197,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		simulation <- list( G = G, graph = graph )		
 	}
 
-    # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+    # - - graph visualization - - - - - - - - - - - - - - - - - - - - - - - - -|
     if( vis == TRUE )
         BDgraph::plot.graph( G, main = "Graph structure" )
     
@@ -205,9 +205,9 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 	return( simulation )
 }
     
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # Print function for simulation data
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 print.sim = function( x, ... )
 {
 	p <- ncol( x $ G )
@@ -230,17 +230,17 @@ print.sim = function( x, ... )
 	}
 }
     
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "sim" from bdgraph.sim function
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 plot.sim = function( x, ... )
 {
     BDgraph::plot.graph( x, ... )
 }		
        
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # Function for exact sampling from binary data
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 sample_ug = function( n = 1, ug = diag( 3 ), clique_factors = NULL )
 {
 	p = ncol( ug ) # p smaller than 17 check
@@ -258,7 +258,7 @@ sample_ug = function( n = 1, ug = diag( 3 ), clique_factors = NULL )
 	return( data )
 }
     
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 generate_clique_factors = function( ug )
 {
 	ug[ lower.tri( ug, diag = TRUE ) ] = 0   
@@ -277,7 +277,7 @@ generate_clique_factors = function( ug )
 	return( clique_factors )
 }
     
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 calc_joint_dist = function( ug, clique_factors )
 {
 	p          = ncol( ug )
@@ -314,6 +314,6 @@ calc_joint_dist = function( ug, clique_factors )
 	return( joint_dist )	
 }
     
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 

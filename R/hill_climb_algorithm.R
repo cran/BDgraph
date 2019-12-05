@@ -1,31 +1,30 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     A divide-and-conquer type greedy hill climb algorithm                                        |
-#     for undirected graphcial models with dicrete data                                            |
-#     See "Marginal pseudo-likelihood learning of discrete Markov network structures"              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     The Hill-Climb algorithm ( function "hill_climb_mpl" ) consists for two part:                |
-#     PART 1: Local Marginal Pseudo-likelihood optimization to discovers the Markov                |
-#             blanket of each node ( function "local_mb_hc" ).                                     |
-#     PART 2: Neighborhood search algorithm for global Marginal Pseudo-likelihood                  |
-#             optimization  ( function "global_hc" ).                                              |
-#     See "Marginal pseudo-likelihood learning of Markov network structures" by                    |
-#     Pensar et al. for more details.                                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     INPUT:  * data (n x p) matrix, as discrete data with n observations and p variables.         |
-#               The outcome space of each variable must be in the form 0, 1, ..., r.               |
-#             * alpha: The parameter of the prior distribution                                     |
-#     OUTPUT: * selected_g - adjacency matrix for the selected graph                               |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     A divide-and-conquer type greedy hill climb algorithm                    |
+#     for undirected graphcial models and discrete data.                       |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    The Hill-Climb algorithm (function "hill_climb_mpl") consists for two part:   
+#     PART 1: Local Marginal Pseudo-likelihood optimization to discovers the 
+#             Markov blanket of each node ( function "local_mb_hc" ).                
+#     PART 2: Neighborhood search algorithm for global Marginal Pseudo-likelihood  
+#             optimization  ( function "global_hc" ).                               
+#     See "Marginal pseudo-likelihood learning of Markov network structures" by     
+#     Pensar et al. for more details.                                              
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     INPUT:  * data (nxp) matrix, as discrete data with n observations and p variables. 
+#               The outcome space of each variable must be in the form 0, 1, ..., r.   
+#             * alpha: The parameter of the prior distribution                        
+#     OUTPUT: * selected_G - adjacency matrix for the selected graph                  
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, operator = "or" )
 {
@@ -56,9 +55,10 @@ hill_climb_mpl = function( data, freq_data, n, max_range_nodes, alpha = 0.5, ope
     return( selected_G )
 }
    
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Local Marginal Pseudo-likelihood optimization to discovers the Markov blanket of each node
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    Local Marginal Pseudo-likelihood optimization to discovers the Markov 
+#    blanket of each node
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 local_mb_hc = function( node, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
 {
 	temp            = seq_len( p )
@@ -116,9 +116,9 @@ local_mb_hc = function( node, data, freq_data, max_range_nodes, p, n, alpha = 0.
 	return( mb_hat )
 }
    
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # Neighborhood search algorithm for global Marginal Pseudo-likelihood optimization 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
 {
 	print( "PART 2, running global search algorithm" )
@@ -212,9 +212,9 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 	return( ug )
 }
     
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # Computing the Marginal pseudo-likelihood for discrete data 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 log_mpl_disrete = function( node, mb_node, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
 {
 	length_freq_data = length( freq_data )
@@ -233,6 +233,7 @@ log_mpl_disrete = function( node, mb_node, data, freq_data, max_range_nodes, p, 
 	return( log_mpl_node )
 }
      
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 
 

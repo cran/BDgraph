@@ -1,16 +1,16 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     To plot ROC curve                                                                            |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     To plot ROC curve                                                        |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, 
                     cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" )
@@ -21,8 +21,8 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
         G = target
     }
 
-    if( class( target ) == "sim"   ) G <- unclass( target $ G ) 
-    if( class( target ) == "graph" ) G <- unclass( target ) 
+    if( inherits( target, "sim" )   ) G <- unclass( target $ G ) 
+    if( inherits( target, "graph" ) ) G <- unclass( target ) 
     
     G[ lower.tri( G, diag = TRUE ) ] = 0
     
@@ -75,9 +75,9 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
     }   
 }
 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Function to compute tp ( true possitive ) and fp ( false possitive ) for ROC plot
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    Function to compute tp (true possitive) and fp (false possitive) for ROC plot
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 compute_tp_fp = function( G, est, cut, smooth )
 {
     p           = nrow( G )
@@ -85,7 +85,7 @@ compute_tp_fp = function( G, est, cut, smooth )
     sum_edges   = sum( upper_G )
     sum_no_dges = p * ( p - 1 ) / 2 - sum_edges
     
-    if( ( class( est ) == "bdgraph" ) | ( class( est ) == "ssgraph" ) )
+    if( ( inherits( est, "bdgraph" ) ) | ( inherits( est, "ssgraph" ) ) )
     {
         p_links = est $ p_links
         if( is.null( p_links ) ) p_links = BDgraph::plinks( est, round = 15 )
@@ -97,7 +97,7 @@ compute_tp_fp = function( G, est, cut, smooth )
         p_links = est
     }
     
-    if( class( est ) != "huge" )
+    if( !inherits( est, "huge" ) )
     {
         tp = c( 1, rep( 0, cut ) )
         fp = tp
@@ -116,7 +116,7 @@ compute_tp_fp = function( G, est, cut, smooth )
         }
     }
     
-    if( class( est ) == "huge" )
+    if( inherits( est, "huge" ) )
     {
         path = est $ path
         tp   = numeric( length( path ) )
@@ -145,4 +145,4 @@ compute_tp_fp = function( G, est, cut, smooth )
     return( list( tp = tp, fp = fp ) )
 }
 
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

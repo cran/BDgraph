@@ -1,17 +1,18 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     To select the graph in which the edge posterior probabilities are more than "cut" value      |
-#     OR if cut is NULL to select the best graph ( graph with the highest posterior probability )  |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     To select the graph in which the edge posterior probabilities are more 
+#     than "cut" value OR if cut is NULL to select the best graph ( graph with 
+#     the highest posterior probability )  
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 {
@@ -21,14 +22,14 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 	    p_links = unclass( bdgraph.obj )
 		p       = ncol( p_links )
 	}else{
-	    if( ( class( bdgraph.obj ) != "bdgraph" ) && ( class( bdgraph.obj ) != "ssgraph" ) )
+	    if( ( !inherits( bdgraph.obj, "bdgraph" ) ) && ( !inherits( bdgraph.obj, "ssgraph" ) ) )
 	        stop( "'bdgraph.obj' must be a matrix or an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
 	    
-	    if( ( class( bdgraph.obj ) == "bdgraph" ) | ( class( bdgraph.obj ) == "ssgraph" ) )
+	    if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
 	        p_links = bdgraph.obj $ p_links
 	    
-	    if( class( bdgraph.obj ) == "bdgraph" ) p = ncol( bdgraph.obj $ last_graph )
-	    if( class( bdgraph.obj ) == "ssgraph" ) p = ncol( bdgraph.obj $ K_hat )
+	    if( inherits( bdgraph.obj, "bdgraph" ) ) p = ncol( bdgraph.obj $ last_graph )
+	    if( inherits( bdgraph.obj, "ssgraph" ) ) p = ncol( bdgraph.obj $ K_hat      )
 	}
   
     if( ( is.null( p_links ) ) && ( is.null( cut ) ) )
@@ -64,4 +65,4 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 	return( selected_g )
 }
        
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

@@ -1,27 +1,27 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Sampling from G-Wishart distribution                                                         |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Sampling from G-Wishart distribution                                     |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
 {
 	if( b <= 2 )         stop( "For G-Wishart distribution parameter 'b' must be more than 2" )
 	if( is.null( adj ) ) stop( "Adjacency matrix must be determined" )
 
-    if( is.matrix( adj )          ) G <- unclass( adj )
-  # if( class( adj ) == "graph"   ) G <- unclass( adj )
-    if( class( adj ) == "sim"     ) G <- adj $ G
-    if( class( adj ) == "bdgraph" ) G <- BDgraph::select( adj ) 
-    if( class( adj ) == "ssgraph" ) G <- BDgraph::select( adj ) 
+    if( is.matrix( adj )           ) G <- unclass( adj )
+  # if( inherits( adj, "graph" )   ) G <- unclass( adj )
+    if( inherits( adj, "sim" )     ) G <- adj $ G
+    if( inherits( adj, "bdgraph" ) ) G <- BDgraph::select( adj ) 
+    if( inherits( adj, "ssgraph" ) ) G <- BDgraph::select( adj ) 
     
     
     if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'adj' must be 0 or 1" )
@@ -68,4 +68,6 @@ rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
 
 	return( samples )   
 }
-  
+
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+

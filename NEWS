@@ -125,8 +125,8 @@
 
 	* Bug fixed for "compare()" function.
 	* Function "get_graph()" is added to the package and used inside function "compare()".
-	* Function "get_g_prior()", "get_g_start()", "get_S_n_p()", "get_K_start()", and "get_cores()" 
-	    are added to the package and used inside function "bdgraph()".
+	* Function "get_g_prior()", "get_g_start()", "get_S_n_p()", "get_K_start()", and 
+	  "get_cores()" are added to the package and used inside function "bdgraph()".
 
 - CHANGES IN VERSION 2.60
 
@@ -141,8 +141,9 @@
 	* Function "link2adj()" is added to the package.
 	* Function "bdgraph.ts()" is removed.
 
+- CHANGES IN VERSION 2.62
 
-
+    * Bug fixed related to the class function; class(.) == *
 
 
 

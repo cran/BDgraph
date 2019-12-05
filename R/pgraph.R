@@ -1,16 +1,16 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Computing the probability of all the possible graphs or one specific graph                   |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Computing the probability of all possible graphs or one specific graph   |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 pgraph = function( bdgraph.obj, number.g = 4, adj = NULL )
 {
@@ -39,8 +39,8 @@ pgraph = function( bdgraph.obj, number.g = 4, adj = NULL )
 		return( list( selected_g = list_g, prob_g = sort_gWeights[ 1 : number.g ] / sum( graph_weights ) ) )
 		
 	}else{
-		if ( class( adj ) == "sim"   ) G <- as.matrix( adj $ G )
-		if ( class( adj ) == "graph" ) G <- unclass( adj )		
+		if ( inherits( adj, "sim"   ) ) G <- as.matrix( adj $ G )
+		if ( inherits( adj, "graph" ) ) G <- unclass( adj )		
 
 		indG   = paste( G[ upper.tri( G ) ], collapse = '' )
 		wh     = which( sample_graphs == indG )
@@ -50,3 +50,4 @@ pgraph = function( bdgraph.obj, number.g = 4, adj = NULL )
 	}
 }
     
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

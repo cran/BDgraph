@@ -1,23 +1,23 @@
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                                    |
-#                                                                                                  |
-#     This file is part of BDgraph package.                                                        |
-#                                                                                                  |
-#     BDgraph is free software: you can redistribute it and/or modify it under                     |
-#     the terms of the GNU General Public License as published by the Free                         |
-#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                    |
-#                                                                                                  |
-#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                              |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Computing posterior probabilities of all possible links                                      |
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Computing posterior probabilities of all possible links                  |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 plinks = function( bdgraph.obj, round = 2, burnin = NULL )
 {
-    if( ( class( bdgraph.obj ) != "bdgraph" ) && ( class( bdgraph.obj ) != "ssgraph" ) )
+    if( ( !inherits( bdgraph.obj, "bdgraph" ) ) && ( !inherits( bdgraph.obj, "ssgraph" ) ) )
         stop( "'bdgraph.obj' must be an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
     
-    if( class( bdgraph.obj ) == "bdgraph" )
+    if( inherits( bdgraph.obj, "bdgraph" ) )
     {
         if( is.null( bdgraph.obj $ sample_graphs ) )
     	{
@@ -60,10 +60,10 @@ plinks = function( bdgraph.obj, round = 2, burnin = NULL )
     	}
     }
 
-    if( class( bdgraph.obj ) == "ssgraph" )
+    if( inherits( bdgraph.obj, "ssgraph" ) )
         p_links = bdgraph.obj $ p_links        
         
 	return( round( p_links, round ) )
 }
           
-## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
