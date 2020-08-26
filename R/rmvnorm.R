@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -15,12 +15,12 @@
 rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), sigma = diag( length( mean ) ) )
 {
     if( !isSymmetric( sigma, tol = sqrt( .Machine$double.eps ), check.attributes = FALSE ) ) 
-        stop( "sigma must be a symmetric matrix" )
+        stop( "sigma must be a symmetric matrix." )
     
     sigma <- as.matrix( sigma )
     p     <- nrow( sigma )
     if( length( mean ) == 1 ) mean <- rep( mean, p )
-    if( length( mean ) != nrow( sigma ) ) stop( "mean and sigma have non-conforming size" )
+    if( length( mean ) != nrow( sigma ) ) stop( "mean and sigma have non-conforming size." )
     
     # - - generate multivariate normal data - - - - - - - - - - - - - - - - - -|
     chol_sig <- chol( sigma )

@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -164,10 +164,14 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 
 // - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
@@ -302,10 +306,14 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 
 // - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 		// STEP 1: selecting edge and calculating alpha
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
@@ -473,10 +481,14 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 
 // - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  		
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
 		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
@@ -621,10 +633,14 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 
 // - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  		
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
 		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );

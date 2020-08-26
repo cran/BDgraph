@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -631,10 +631,14 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], double g_prior[]
 	
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
@@ -792,10 +796,14 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], double g_prior[
  
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
@@ -980,10 +988,14 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], dou
 
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
@@ -1152,10 +1164,14 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], do
 
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		//rates_gm_mpl_binary( &rates[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, &log_ratio_g_prior, alpha_ijl, &alpha_jl, &log_alpha_ijl, &log_alpha_jl, &copy_n, &dim );
@@ -1512,10 +1528,14 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], int d
 
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
@@ -1657,10 +1677,14 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int 
 
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
@@ -1829,10 +1853,14 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
@@ -1980,10 +2008,14 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 
 // - - - main loop for birth-death MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c < multi_update_C ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
 				
 		rates_gm_mpl_dis( &rates[0], &log_ratio_g_prior[0], &curr_log_mpl[0], G, g_prior, &index_row[0], &index_col[0], &sub_qp, &size_node[0], data, freq_data, &length_freq_data, max_range_nodes, alpha_ijl, &copy_n, &dim );
@@ -2208,10 +2240,14 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 
 // - - main loop for RJ-MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		selected_edge   = static_cast<int>( unif_rand() * sub_qp );
@@ -2346,10 +2382,14 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int 
 
 // - - main loop for Reversible Jump MCMC sampling algorithm - - - - - - - - - - - - - - - - - - - |
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		selected_edge   = static_cast<int>( unif_rand() * sub_qp );

@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -88,10 +88,14 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 
 // - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  		
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
@@ -222,10 +226,14 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 
 // - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  			
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
@@ -384,10 +392,14 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 
 // - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	 		
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
@@ -524,10 +536,14 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_
 
 // - - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	 			
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
 
 		// sampling from K and sigma for double Metropolis-Hastings
@@ -677,10 +693,14 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 
 // - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  			
 		// STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - -| 
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		randomEdge = static_cast<int>( unif_rand() * qp );
@@ -827,10 +847,14 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 
 // - - - Main loop for Reversible Jump MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
+	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ) Rprintf( " Iteration  %d                 \n", i_mcmc + 1 ); 
-		
+		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		    ++print_conter;
+		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		}
+	  				
 		// STEP 1: selecting edge and calculating alpha
 		// Randomly selecting one edge: NOTE qp = p * ( p - 1 ) / 2 
 		randomEdge = static_cast<int>( unif_rand() * qp );

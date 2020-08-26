@@ -1,9 +1,9 @@
 \name{transfer}
 \alias{transfer}
 
-\title{ transfer for discrete data }
+\title{ transfer for count data }
 
-\description{ Transfers discrete data, by counting the duplicated rows.  }
+\description{ Transfers count data, by counting the duplicated rows.  }
 
 \usage{ transfer( r_data ) }
 
@@ -26,7 +26,7 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 
 \examples{
 # Generating multivariate binary data from a 'random' graph
-data.sim <- bdgraph.sim( n = 12, p = 4, size = 4, type = "discrete", cut = 2 )
+data.sim <- bdgraph.sim( n = 12, p = 4, size = 4, type = "count", cut = 2 )
 r_data   <- data.sim $ data
 r_data
    

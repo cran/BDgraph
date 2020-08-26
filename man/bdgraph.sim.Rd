@@ -6,14 +6,15 @@
 \description{
 Simulating multivariate distributions with different types of underlying graph structures, including 
 \code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, \code{"circle"}, \code{"AR(1)"}, and \code{"AR(2)"}.
-Based on the underling graph structure, it generates four different types of datasets, including \emph{multivariate Gaussian}, \emph{non-Gaussian}, \emph{discrete}, or \emph{mixed} data. 
+Based on the underling graph structure, it generates different types of \emph{multivariate} data, including \emph{multivariate Gaussian}, \emph{non-Gaussian}, \emph{count}, \emph{mixed}, \emph{binary}, or \emph{discrete Weibull} data. 
 This function can be used also for only simulating graphs by option \code{n=0}, as a default. 
 }
 
 \usage{
 bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2, 
              size = NULL, mean = 0, class = NULL, cut = 4, b = 3,
-             D = diag( p ), K = NULL, sigma = NULL, vis = FALSE )
+             D = diag( p ), K = NULL, sigma = NULL, 
+             q = exp(-1), beta = 1, vis = FALSE )
 }
 
 \arguments{
@@ -25,26 +26,30 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
      \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}). 
     }
   \item{n}{The number of samples required. Note that for the case \code{n = 0}, only graph is generated. }
-  \item{type}{Type of data with four options \code{"Gaussian"} (default), \code{"non-Gaussian"}, \code{"discrete"}, \code{"mixed"}, and \code{"binary"}.
-	  For option \code{"Gaussian"}, data are generated from multivariate normal distribution.
-	  For option \code{"non-Gaussian"}, data are transfered multivariate normal distribution to continuous multivariate non-Gaussian distribution.
-	  For option \code{"discrete"}, data are transfered from multivariate normal distribution to discrete multivariat distribution.
-	  For option \code{"mixed"}, data are transfered from multivariate normal distribution to mixture of 'count', 'ordinal', 'non-Gaussian', 'binary' and 'Gaussian', respectively. 
-	  For option \code{"binary"}, data are generated directly from the joint distribution, in this case \eqn{p} must be less than \eqn{17}. 
+  \item{type}{Type of data with four options \code{"Gaussian"} (default), \code{"non-Gaussian"}, \code{"count"}, \code{"mixed"}, \code{"binary"}, and \code{"dw"}.
+	  For the option \code{"Gaussian"}, data are generated from multivariate normal distribution.
+	  For the option \code{"non-Gaussian"}, data are transfered multivariate normal distribution to continuous multivariate non-Gaussian distribution.
+	  For the option \code{"count"}, data are transfered from multivariate normal distribution to multivariate count data.
+	  For the option \code{"mixed"}, data are transfered from multivariate normal distribution to mixture of 'count', 'ordinal', 'non-Gaussian', 'binary' and 'Gaussian', respectively. 
+	  For the option \code{"binary"}, data are generated directly from the joint distribution, in this case \eqn{p} must be less than \eqn{17}. 
+	  For the option \code{"dw"}, data are transfered from multivariate normal distribution to the discrete Weibull distribution with parameters \code{q} and \code{beta}. 
 	}
 
   \item{prob}{ If \code{graph="random"}, it is the probability that a pair of nodes has a link.}
   \item{size}{The number of links in the true graph (graph size).}
   \item{mean}{A vector specifies the mean of the variables.}
   \item{class}{ If \code{graph="cluster"}, it is the number of classes. }
-  \item{cut}{ If \code{type="discrete"}, it is the number of categories for simulating discrete data.}
+  \item{cut}{ If \code{type="count"}, it is the number of categories for simulating count data.}
  
   \item{b}{The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}.}
   \item{D}{The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. The default is an identity matrix.}
 
-  \item{K}{ If \code{graph="fixed"}, it is a positive-definite symmetric matrix specifies as a true precision matrix. }
+  \item{K}{     If \code{graph="fixed"}, it is a positive-definite symmetric matrix specifies as a true precision matrix. }
   \item{sigma}{ If \code{graph="fixed"}, it is a positive-definite symmetric matrix specifies as a true covariance matrix.}
- 
+
+  \item{q, beta}{ If \code{type="dw"}, they are the parameters of the discrete Weibull distribution with density 
+        \deqn{p(x,q,\beta) = q^{x^{\beta}}-q^{(x+1)^{\beta}}, \quad \forall x = \{ 0, 1, 2, \ldots \}. }  }
+
   \item{vis}{Visualize the true graph structure.}
 }
 

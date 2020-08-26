@@ -15,7 +15,7 @@ or a graph with the highest posterior probability; see examples.
   \item{bdgraph.obj}{ 
   A matrix in which each element response to the weight of the links.
   It can be an object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}.
-  It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+  It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
 					}
 					
   \item{cut}{ Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; see the examples. }  

@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -347,7 +347,8 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 						{
 							sumPsi = 0.0;
 							//sum( psi[ 1 : ( i - 1 ), i ] * psi[ 1 : ( i - 1 ), j ] )
-							for( h = 0; h < ( i - 1 ); h++ )
+							// for( h = 0; h < ( i - 1 ); h++ )
+							for( h = 0; h < i; h++ )
 							{
 								if( sumPsi == R_PosInf ) sumPsi = max_numeric_limits_ld;	
 								if( sumPsi == R_NegInf ) sumPsi = min_numeric_limits_ld;	
@@ -436,4 +437,6 @@ void log_exp_mc( int G[], int nu[], int *b, double H[], int *check_H, int *mc, i
 	}
 	PutRNGstate();	
 } 
+      
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
      

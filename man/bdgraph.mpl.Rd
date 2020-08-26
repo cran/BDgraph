@@ -11,7 +11,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
              g.prior = 0.5, g.start = "empty", 
              jump = NULL, alpha = 0.5, save = FALSE, 
-             print = 1000, cores = NULL, operator = "or" )
+             cores = NULL, operator = "or" )
 }
 
 \arguments{
@@ -28,17 +28,17 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{method}{
 		A character with two options \code{"ggm"} (default), \code{"dgm"} and \code{"dgm-binary"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
-		Option \code{"dgm"} is for discrete graphical models for the data that are discrete.
+		Option \code{"dgm"} is for discrete graphical models for the count data.
 		Option \code{"dgm-binary"} is for discrete graphical models for the data that are binary.
 	}
 
-	\item{transfer}{ For only discrete data which \code{method = "dgm"} or \code{method = "dgm-binary"}. }
+	\item{transfer}{ For only count data which \code{method = "dgm"} or \code{method = "dgm-binary"}. }
 
 	\item{algorithm}{
 		A character with two options \code{"bdmcmc"} (default) and \code{"rjmcmc"}. 
 		Option \code{"bdmcmc"} is based on birth-death MCMC algorithm.
 		Option \code{"rjmcmc"} is based on reverible jump MCMC algorithm.
-		Option \code{"hc"}     is based on hill-climbing algorithm; this algorithm is only for discrete data which \code{method = "dgm"} or \code{method = "dgm-binary"}.
+		Option \code{"hc"}     is based on hill-climbing algorithm; this algorithm is only for count data which \code{method = "dgm"} or \code{method = "dgm-binary"}.
 	}
 	
 	\item{iter}{   The number of iteration for the sampling algorithm. }
@@ -53,7 +53,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	\item{g.start}{
 		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
-		It also could be an object with \code{S3} class \code{"bdgraph"} of \code{R} package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of \code{R} package \code{\link[ssgraph]{ssgraph}}; 
+		It also could be an object with \code{S3} class \code{"bdgraph"} of \code{R} package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}; 
 		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
 
@@ -67,7 +67,6 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}
-	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }
 	\item{cores}{ The number of cores to use for parallel execution. 
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
 	   %The default is to use "all" CPU cores of the computer.

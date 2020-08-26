@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -74,7 +74,7 @@ void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int 
                 
                 get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
                 
-                get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
+                get_bounds( Z, R, &lb, &ub, &i, &j, &number );
                 
                 pnorm_lb     = Rf_pnorm5( lb, mu_ij, sd_j, TRUE, FALSE );
                 pnorm_ub     = Rf_pnorm5( ub, mu_ij, sd_j, TRUE, FALSE );
@@ -84,6 +84,95 @@ void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int 
             }
         }
     }
+}
+    
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+// copula - Discrete Weibull for BDMCMC sampling algorithm
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+void copula_dw( double Z[], double K[], int Y[], double lower_bounds[], double upper_bounds[], 
+                int *n, int *p )
+{
+    int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
+    
+    #pragma omp parallel
+    {	
+        double sigma, sd_j, mu_ij, runif_value, pnorm_lb, pnorm_ub;
+        int i, j;
+        
+        #pragma omp for
+        for( int counter = 0; counter < nxp; counter++ )
+        {   
+            j = counter / number;
+            i = counter % number;
+            
+            sigma = 1.0 / K[ j * dimp1 ]; // 1.0 / K[ j * dim + j ];
+            sd_j  = sqrt( sigma );
+            
+            get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+            
+            pnorm_lb     = Rf_pnorm5( lower_bounds[ counter ], mu_ij, sd_j, TRUE, FALSE );
+            pnorm_ub     = Rf_pnorm5( upper_bounds[ counter ], mu_ij, sd_j, TRUE, FALSE );
+            //runif_value = runif( pnorm_lb, pnorm_ub );
+            runif_value  = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
+            Z[ counter ] = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
+        }
+    }
+}
+   
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+// copula - Discrete Weibull for data with missing values 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+void copula_dw_NA( double Z[], double K[], int Y[], double lower_bounds[], double upper_bounds[], 
+                   int *n, int *p )
+{
+    int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
+    
+    #pragma omp parallel
+    {	
+        double sigma, sd_j, mu_ij, runif_value, pnorm_lb, pnorm_ub;
+        int i, j;
+        
+        #pragma omp for
+        for( int counter = 0; counter < nxp; counter++ )
+        {   
+            j = counter / number;
+            i = counter % number;
+            
+            sigma = 1.0 / K[ j * dimp1 ]; // 1.0 / K[ j * dim + j ];
+            sd_j  = sqrt( sigma );
+            
+            get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
+            
+            if( Y[ counter ] != -1000 ) // here NA values have been replaced by -1000
+            {
+                pnorm_lb     = Rf_pnorm5( lower_bounds[ counter ], mu_ij, sd_j, TRUE, FALSE );
+                pnorm_ub     = Rf_pnorm5( upper_bounds[ counter ], mu_ij, sd_j, TRUE, FALSE );
+                //runif_value = runif( pnorm_lb, pnorm_ub );
+                runif_value  = pnorm_lb + unif_rand() * ( pnorm_ub - pnorm_lb );
+                Z[ counter ] = Rf_qnorm5( runif_value, mu_ij, sd_j, TRUE, FALSE );
+            }else
+                Z[ counter ] = mu_ij + norm_rand() * sd_j;  // rnorm( mu_ij, sd_j );
+        }
+    }
+}
+    
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// Calculating Ds = D + S for the copula-Discrete Weibull in BDMCMC sampling algorithm
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+void get_Ds_dw( double K[], double Z[], int Y[], double lower_bounds[], double upper_bounds[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
+{
+    int dim = *p;
+    
+    ( *gcgm == 0 ) ? copula_dw( Z, K, Y, lower_bounds, upper_bounds, n, &dim ) : copula_dw_NA( Z, K, Y, lower_bounds, upper_bounds, n, &dim );
+    
+    // S <- t(Z) %*% Z; NOTE, I'm using Ds instead of S, for saving memory
+    double alpha = 1.0, beta  = 0.0;
+    char transA = 'T', transB = 'N';
+    F77_NAME(dgemm)( &transA, &transB, &dim, &dim, n, &alpha, Z, n, Z, n, &beta, &S[0], &dim FCONE FCONE );		
+    
+    #pragma omp parallel for
+    for( int i = 0; i < dim * dim; i++ ) 
+        Ds[ i ] = D[ i ] + S[ i ];		
 }
     
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -98,7 +187,7 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
     {
         kj = col * number + k;
        
-        if( R[ kj ] != 0 )
+        if( R[ kj ] != -1000 )  // here NA values have been replaced by -1000 
         {
             if( R[ kj ] < R[ ij ] ) 
                 low_b = max( Z[ kj ], low_b );	
@@ -136,7 +225,7 @@ void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, i
                 
                 get_mean( Z, K, &mu_ij, &sigma, &i, &j, &number, &dim );
                 
-                if( R[ counter ] != 0 )
+                if( R[ counter ] != -1000 ) // here NA values have been replaced by -1000
                 {
                     get_bounds_NA( Z, R, &lb, &ub, &i, &j, &number );
                     

@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -80,7 +80,7 @@ compare = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = N
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 compute_measures = function( G, est_G ) 
 {
-    if( sum( dim( G ) == dim( est_G ) ) != 2 ) stop( " 'target' and 'est' have non-conforming size" )
+    if( sum( dim( G ) == dim( est_G ) ) != 2 ) stop( " 'target' and 'est' have non-conforming size." )
     
     upper_G     = G[     upper.tri( G     ) ]
     upper_est_G = est_G[ upper.tri( est_G ) ]

@@ -12,7 +12,7 @@ It is a tool for monitoring the convergence of the sampling algorithms, BDMCMC a
 
 \arguments{
   \item{bdgraph.obj}{ An object of \code{S3} class \code{"bdgraph"}, from function \code{\link{bdgraph}}. 
-					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
   }
   \item{acf}{ Visualize the autocorrelation functions for graph size. }
   \item{pacf}{ Visualize the partial autocorrelations for graph size. }

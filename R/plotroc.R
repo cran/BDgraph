@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -17,10 +17,10 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
 {
     if( is.matrix( target ) ) 
     {
-        if( ( sum( target == 0 ) + sum( target == 1 ) ) != ( nrow( target ) ^ 2 ) ) stop( "Element of 'target' must be 0 or 1" )
+        if( ( sum( target == 0 ) + sum( target == 1 ) ) != ( nrow( target ) ^ 2 ) ) stop( "Elements of 'target' must be 0 or 1." )
         G = target
     }
-
+    
     if( inherits( target, "sim" )   ) G <- unclass( target $ G ) 
     if( inherits( target, "graph" ) ) G <- unclass( target ) 
     
@@ -34,7 +34,9 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
     graphics::plot( NA, type = "l", col = "black", cex.lab = 1.3, cex.main = 2, cex.axis = 1.2,
                     main = main, xlab = "False Postive Rate", ylab = "True Postive Rate", 
                     ylim = c( 0, 1 ), xlim = c( 0, 1 ) )
-    graphics::points( x = fp, y = tp, type = "l", col = "black", lty = 1, lw = 2 )
+    graphics::points( x = fp, y = tp, type = "l", col = 1, lty = 1, lw = 2 )
+    
+    if( ( length( label ) == 1 ) && ( label == TRUE ) ) label = c( "est" )
     
     if( !is.null( est2 ) )
     {
@@ -42,7 +44,8 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
         fp_2         = output_tp_fp $ fp
         tp_2         = output_tp_fp $ tp
         
-        graphics::points( x = fp_2, y = tp_2, type = "l", col = "blue", lty = 2, lw = 2 )
+        graphics::points( x = fp_2, y = tp_2, type = "l", col = 2, lty = 2, lw = 2 )
+        if( ( length( label ) == 1 ) && ( label != FALSE ) ) label = c( label, "est2" )
     }
     
     if( !is.null( est3 ) )
@@ -51,7 +54,8 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
         fp_3         = output_tp_fp $ fp
         tp_3         = output_tp_fp $ tp
         
-        graphics::points( x = fp_3, y = tp_3, type = "l", col = "green", lty = 3, lw = 2 )
+        graphics::points( x = fp_3, y = tp_3, type = "l", col = 3, lty = 3, lw = 2 )
+        if( ( length( label ) == 2 ) ) label = c( label, "est3" )
     }
     
     if( !is.null( est4 ) )
@@ -60,23 +64,16 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
         fp_4         = output_tp_fp $ fp
         tp_4         = output_tp_fp $ tp
         
-        graphics::points( x = fp_4, y = tp_4, type = "l", col = "red", lty = 4, lw = 2 )
+        graphics::points( x = fp_4, y = tp_4, type = "l", col = 4, lty = 4, lw = 2 )
+        if( ( length( label ) == 3 ) ) label = c( label, "est3" )
     }
     
-    if( ( length( label ) == 1 ) && ( label == TRUE ) )
-    { 
-        if( !is.null( est2 ) && is.null( est3 ) )  graphics::legend( "bottomright", c( "est", "est2" ), lty = 1:2, col = c( "black", "blue" ), lwd = c( 2, 2 ), cex = 1.5 )
-        if( !is.null( est3 ) && is.null( est4 ) )  graphics::legend( "bottomright", c( "est", "est2", "est3" ), lty = 1:3, col = c( "black", "blue", "green" ), lwd = c( 2, 2 ), cex = 1.5 )
-        if( !is.null( est4 ) ) graphics::legend( "bottomright", c( "est", "est2", "est3", "est4" ), lty = 1:4, col = c( "black", "blue", "green", "red" ), lwd = c( 2, 2 ), cex = 1.5 )
-    }else if( label != FALSE ){
-        if( !is.null( est2 ) && is.null( est3 ) )  graphics::legend( "bottomright", label, lty = 1:2, col = c( "black", "blue" ), lwd = c( 2, 2 ), cex = 1.5 )
-        if( !is.null( est3 ) && is.null( est4 ) )  graphics::legend( "bottomright", label, lty = 1:3, col = c( "black", "blue", "green" ), lwd = c( 2, 2 ), cex = 1.5 )
-        if( !is.null( est4 ) ) graphics::legend( "bottomright", label, lty = 1:4, col = c( "black", "blue", "green", "red" ), lwd = c( 2, 2 ), cex = 1.5 )
-    }   
+    if( any( label != FALSE ) ) 
+        graphics::legend( "bottomright", label, lty = 1:length( label ), col = 1:length( label ), lwd = c( 2, 2 ), cex = 1.5 )
 }
-
+    
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Function to compute tp (true possitive) and fp (false possitive) for ROC plot
+# Function to compute tp (true possitive) and fp (false possitive) for ROC plot
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 compute_tp_fp = function( G, est, cut, smooth )
 {
@@ -93,7 +90,7 @@ compute_tp_fp = function( G, est, cut, smooth )
     
     if( is.matrix( est ) )
     {
-        if( any( est < 0 ) || any( est > 1 ) ) stop( " Values of 'est' must be between ( 0, 1 )." )
+        if( any( est < 0 ) || any( est > 1 ) ) stop( " Elements of 'est' must be between ( 0, 1 )." )
         p_links = est
     }
     
@@ -144,5 +141,5 @@ compute_tp_fp = function( G, est, cut, smooth )
     
     return( list( tp = tp, fp = fp ) )
 }
-
+  
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

@@ -1,27 +1,27 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
-//                                                                                                 |
-//     This file is part of BDgraph package.                                                       |
-//                                                                                                 |
-//     BDgraph is free software: you can redistribute it and/or modify it under                    |
-//     the terms of the GNU General Public License as published by the Free                        |
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
-//                                                                                                 |
-//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+//                                                                              |
+//     This file is part of BDgraph package.                                    |
+//                                                                              |
+//     BDgraph is free software: you can redistribute it and/or modify it under |
+//     the terms of the GNU General Public License as published by the Free     |
+//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+//                                                                              |
+//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 
 #include "matrix.h"
 #include "rgwish.h"
 #include "copula.h"
 
 extern "C" {
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 // birth-death MCMC for Gaussian copula Graphical models  
 // for D = I_p 
 // it is for Bayesian model averaging
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
-            int *p, double *threshold, double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+void gcgm_dw_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+            int *p, double *threshold, double Z[], int Y[], double lower_bounds[], double upper_bounds[], int *n, int *gcgm,
             double K_hat[], double p_links[], int *b, int *b_star, double D[], double Ds[], int *print )
 {
 	int print_c = *print, iteration = *iter, burn_in = *burnin;
@@ -86,7 +86,7 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
+// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - | 
 	GetRNGstate();
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -95,10 +95,10 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 		    ++print_conter;
 		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
 		}
-  
-// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
+
+// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - |		
 		
-		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds_dw( K, Z, Y, lower_bounds, upper_bounds, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
@@ -162,14 +162,14 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 	}
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 // birth-death MCMC for Gaussian copula Graphical models  
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+void gcgm_dw_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
                     int *p, double *threshold, 
-                    double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                    double Z[], int Y[], double lower_bounds[], double upper_bounds[], int *n, int *gcgm,
                     int all_graphs[], double all_weights[], double K_hat[], 
                     char *sample_graphs[], double graph_weights[], int *size_sample_g,
                     int *b, int *b_star, double D[], double Ds[], int *print )
@@ -247,10 +247,10 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 		    ++print_conter;
 		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
 		}
-  
+
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
-		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds_dw( K, Z, Y, lower_bounds, upper_bounds, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
@@ -343,14 +343,14 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 		K_hat[ i ] /= sum_weights;
 }
        
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 // Multiple birth-death MCMC for Gaussian copula Graphical models  
 // for D = I_p 
 // it is for Bayesian model averaging
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+void gcgm_dw_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
                         double K[], int *p, double *threshold, 
-                        double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                        double Z[], int Y[], double lower_bounds[], double upper_bounds[], int *n, int *gcgm,
                         double K_hat[], double p_links[],
                         int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
 {
@@ -428,10 +428,10 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prio
 		    ++print_conter;
 		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
 		}
-  
+	  	
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
-		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds_dw( K, Z, Y, lower_bounds, upper_bounds, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
@@ -499,14 +499,14 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prio
 	}
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 // Multiple birth-death MCMC for Gaussian copula Graphical models  
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+void gcgm_dw_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
                     double K[], int *p, double *threshold, 
-                    double Z[], int R[], int not_continuous[], int *n, int *gcgm,
+                    double Z[], int Y[], double lower_bounds[], double upper_bounds[], int *n, int *gcgm,
                     int all_graphs[], double all_weights[], double K_hat[], 
                     char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
                     int *b, int *b_star, double D[], double Ds[], int *multi_update, int *print )
@@ -589,10 +589,10 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_pri
 		    ++print_conter;
 		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
 		}
-   		
+	  	
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
-		get_Ds( K, Z, R, not_continuous, D, Ds, &S[0], gcgm, n, &dim );
+		get_Ds_dw( K, Z, Y, lower_bounds, upper_bounds, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );
 
 		for( j = 1; j < dim; j++ )
@@ -691,3 +691,5 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_pri
 }
        
 } // End of exturn "C"
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+

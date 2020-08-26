@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -15,7 +15,7 @@
 adj2link = function( adj )
 {
     G = BDgraph::get_graph( adj )
-    if( sum( G ) == 0 ) print( " 'adj' has no link " )
+    if( sum( G ) == 0 ) print( " 'adj' has no link. " )
     p = ncol( G )
     
     links = vector()

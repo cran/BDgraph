@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,33 +14,32 @@
 
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.prior = 0.5, g.start = "empty", 
-					jump = NULL, alpha = 0.5, save = FALSE, print = 1000, 
+					jump = NULL, alpha = 0.5, save = FALSE, 
 					cores = NULL, operator = "or" )
 {
-    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in" )
+    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in." )
     burnin = floor( burnin )
-    if( print > iter ) print = iter
-    
+     
     cores = BDgraph::get_cores( cores = cores )
     
 	if( inherits( data, "sim" ) ) data <- data $ data
 	colnames_data = colnames( data )
 
-	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( " Data should be a matrix or dataframe" )
+	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( " Data should be a matrix or dataframe." )
 	if( is.data.frame( data ) ) data <- data.matrix( data )
 	
-	if( any( is.na( data ) ) ) stop( " This method does not deal with missing values. You could try bdgraph() function with option method = gcgm" )	
+	if( any( is.na( data ) ) ) stop( " This method does not deal with missing values. You could try bdgraph() function with option method = gcgm." )	
 		
 	p <- ncol( data )
-	if( p < 3 ) stop( " Number of variables/nodes ('p') must be more than 2" )
+	if( p < 3 ) stop( " Number of variables/nodes ('p') must be more than 2." )
 	if( is.null( n ) ) n <- nrow( data )
 
 	if( method == "ggm" ) 
 	{
 		if( isSymmetric( data ) )
 		{
-			if ( is.null( n ) ) stop( " Please specify the number of observations 'n'" )
-			cat( " Input is identified as the covriance matrix. \n" )
+			if ( is.null( n ) ) stop( " Please specify the number of observations 'n'." )
+			cat( " Input is identified as the covariance matrix. \n" )
 			S <- data
 		}else{
  			S <- t( data ) %*% data
@@ -93,14 +92,13 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	
 	if( is.null( jump ) ) jump = 1
 	
-	if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1 " )
-	if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller " )
+	if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1. " )
+	if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller. " )
 	
 	if( algorithm != "hc" )
-	{
-	    mes <- paste( c( iter, " iteration is started.                    " ), collapse = "" )
-	    cat( mes, "\r" )
-	}
+		cat( paste( c( iter, " MCMC sampling ... in progress: \n" ), collapse = "" ) ) 
+
+    print = floor( iter / 20 )
 	
 	# - - - main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - -|
 	if( save == TRUE )

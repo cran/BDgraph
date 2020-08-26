@@ -10,7 +10,7 @@
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
          burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
-         g.start = "empty", jump = NULL, save = FALSE, print = 1000, 
+         g.start = "empty", jump = NULL, save = FALSE, 
          cores = NULL, threshold = 1e-8 )
 }
 
@@ -28,7 +28,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{method}{
 		A character with two options \code{"ggm"} (default) and \code{"gcgm"}. 
 		Option \code{"ggm"} is for Gaussian graphical models based on Gaussianity assumption.
-		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, discrete, or mixed dataset).
+		Option \code{"gcgm"} is for Gaussian copula graphical models for the data that not follow Gaussianity assumption (e.g. continuous non-Gaussian, count, or mixed dataset).
 	}
 	
 	\item{algorithm}{
@@ -55,7 +55,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	\item{g.start}{
 		Corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, \code{"empty"} (default), or \code{"full"}. 
 		Option \code{"empty"} means the initial graph is an empty graph and \code{"full"} means a full graph. 
-		It also could be an object with \code{S3} class \code{"bdgraph"} of \code{R} package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of \code{R} package \code{\link[ssgraph]{ssgraph}}; 
+		It also could be an object with \code{S3} class \code{"bdgraph"} of \code{R} package \code{\link[BDgraph]{BDgraph}} or the class \code{"ssgraph"} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}; 
 		this option can be used to run the sampling algorithm from the last objects of previous run (see examples).     
 	} 
 
@@ -67,7 +67,6 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		Logical: if FALSE (default), the adjacency matrices are NOT saved. 
 		If TRUE, the adjacency matrices after burn-in are saved.
 	}
-	\item{print}{ Value to see the number of iteration for the MCMC algorithm. }	
 	\item{cores}{ The number of cores to use for parallel execution. 
 	   The case \code{cores="all"} means all CPU cores to use for parallel execution. 
 	   %The default is to use "all" CPU cores of the computer.

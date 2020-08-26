@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2019  Reza Mohammadi                                                   |
+//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
 //                                                                                                 |
 //     This file is part of BDgraph package.                                                       |
 //                                                                                                 |
@@ -21,7 +21,13 @@ extern "C" {
 	void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n );
 
 	void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int *p );
-	 
+	
+	void copula_dw( double Z[], double K[], int Y[], double lower_bounds[], double upper_bounds[], int *n, int *p );
+	    
+    void copula_dw_NA( double Z[], double K[], int Y[], double lower_bounds[], double upper_bounds[], int *n, int *p );
+
+    void get_Ds_dw( double K[], double Z[], int Y[], double lower_bounds[], double upper_bounds[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p );
+	    
 	void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n );
 
 	void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, int *p );

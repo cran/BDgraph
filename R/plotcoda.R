@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -16,10 +16,10 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 {
     if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE." )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE." )
     }else{
-        stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
+        stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'." )
     }
 	
 	if( is.null( thin ) ) thin = ceiling( length( bdgraph.obj $ all_graphs ) / 1000 )
@@ -64,7 +64,7 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	graphics::matplot( x = thin * ( 1 : length_allG_new ), y = t( result ), type = "l", lty = 1, col = 1,
 		     xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
-	if ( is.null( main ) ) main = "Trace of the Posterior Probabilities of the Links"
+	if ( is.null( main ) ) main = "Trace of the Posterior Probabilities of the Links."
 	graphics::title( main = main, cex.main = 1.2 )
 }
       

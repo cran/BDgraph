@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,8 +14,8 @@
 
 graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
 {
-    if( p < 2 ) stop( "'p' must be more than 1" )
-    if( ( sum( prob < 0 ) + sum( prob > 1 ) ) != 0 ) stop( "'prob' must be between 0 and 1" )
+    if( p < 2 ) stop( "'p' must be more than 1." )
+    if( ( sum( prob < 0 ) + sum( prob > 1 ) ) != 0 ) stop( "'prob' must be between 0 and 1." )
  
     G <- matrix( 0, p, p )
     
@@ -26,7 +26,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         {
             G[ upper.tri( G ) ] <- stats::rbinom( p * ( p - 1 ) / 2, 1, prob )
         }else{
-            if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size must be between zero and p*(p-1)/2" )
+            if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size must be between zero and p*(p-1)/2." )
             
             smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
             G[ upper.tri( G ) ][smp] <- 1
@@ -63,8 +63,8 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
                 G[ tmp, tmp ]       <- gg
             }
         }else{
-            if( class != length( size ) )  stop( " Number of graph sizes is not match with number of clusters" )
-            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( " Total graph sizes must be between zero and p*(p-1)/2" )
+            if( class != length( size ) )  stop( " Number of graph sizes is not match with number of clusters." )
+            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( " Total graph sizes must be between zero and p*(p-1)/2." )
             
             for( i in 1 : class )
             {
@@ -120,6 +120,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     if( graph == "hub" )
     {
         if( is.null( size ) ) size = ceiling( p / 20 ) 
+        if( size < 0 | size > ( p - 1 ) )  stop( "Number of hubs (size) must be between zero and (p-1)" )
 
         hub = sample( 1:p, size = size, replace = FALSE )
         
@@ -139,7 +140,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     
     if( graph == "circle" )
     {
-        if( p < 3 ) stop( "For 'circle' graph, 'p' must be more than 2" )
+        if( p < 3 ) stop( "For 'circle' graph, 'p' must be more than 2." )
         
         G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
         G[ 1, p ] <- 1

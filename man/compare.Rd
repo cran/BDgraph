@@ -22,7 +22,7 @@ compare( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL,
         est4}{
         An adjacency matrix corresponding to an estimated graph. 
         It can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
-        It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph]{ssgraph}} of \code{R} package \code{\link[ssgraph]{ssgraph}}.
+        It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
         It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
         Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
         }

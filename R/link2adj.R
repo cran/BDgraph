@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,14 +14,14 @@
 
 link2adj = function( link, p = NULL )
 {
-    if( !is.matrix( link ) & !is.data.frame( link ) ) stop( " Input 'link' must be a matrix or dataframe" )
+    if( !is.matrix( link ) & !is.data.frame( link ) ) stop( " Input 'link' must be a matrix or dataframe." )
     if( is.data.frame( link ) ) link <- data.matrix( link )
     
-    if( ncol( link ) != 2 ) stop( " Input 'link' must have only 2 columns" )
-    if( nrow( link ) < 1 ) stop( " Input 'link' must have at least one row" )
+    if( ncol( link ) != 2 ) stop( " Input 'link' must have only 2 columns." )
+    if( nrow( link ) < 1  ) stop( " Input 'link' must have at least one row." )
     
     if( !is.null( p ) ) 
-        if( max( link ) > p ) stop( " Value of 'p' is not matched with input 'link'" )
+        if( max( link ) > p ) stop( " Value of 'p' is not matched with input 'link'." )
     
     if( is.null( p ) ) p = max( link )
     

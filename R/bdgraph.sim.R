@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -15,36 +15,37 @@
 bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian", 
 						prob = 0.2, size = NULL, mean = 0, class = NULL, 
 						cut = 4, b = 3, D = diag(p), K = NULL, sigma = NULL, 
-						vis = FALSE )
+						q = exp(-1), beta = 1, vis = FALSE )
 {
-    if( p < 2 )                       stop( " 'p' must be more than 1" )
-    if( ( prob < 0 ) | ( prob > 1 ) ) stop( " Value of 'prob' must be between ( 0, 1 )" )
-    if( cut < 2 )                     stop( " Value of 'cut' must be more than 1" )
-    if( b <= 2 )                      stop( " Value of 'b' must be more than 2" )
+    if( p < 2 )                       stop( " 'p' must be more than 1." )
+    if( ( prob < 0 ) | ( prob > 1 ) ) stop( " Value of 'prob' must be between ( 0, 1 )." )
+    if( cut < 2 )                     stop( " Value of 'cut' must be more than 1." )
+    if( b <= 2 )                      stop( " Value of 'b' must be more than 2." )
     
-    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( " matrices 'graph' and 'K' have non-conforming size" )
+    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( " matrices 'graph' and 'K' have non-conforming size." )
         
-    if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( " Value of 'size' must be between ( 0, p*(p-1)/2 )" )
+    if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( " Value of 'size' must be between ( 0, p*(p-1)/2 )." )
     
     if( is.matrix( K ) )
     {
-        if( !isSymmetric( K ) ) stop( " Matrix 'K' must be positive definite" )
+        if( !isSymmetric( K ) ) stop( " Matrix 'K' must be positive definite." )
         
         graph <- "fixed"
         p     <- nrow( K )
     }
     
-    if( ( type == "discrete" ) & ( cut == 2 ) ) type = "binary"
-    
     if( type == "normal"     ) type = "Gaussian"
     if( type == "non-normal" ) type = "non-Gaussian"
+    if( type == "discrete"   ) type = "count"
+    
+    if( ( type == "count" ) & ( cut == 2 ) ) type = "binary"
     
     if( is.matrix( graph ) )
 	{
         if( !isSymmetric( graph ) ) stop( "Matrix 'graph' must be symmetric" )
 
         p = nrow( graph )
-        if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Element of 'graph', as a matrix, must be 0 or 1." )
+        if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Elements of 'graph', as a matrix, must be 0 or 1." )
         
         G     <- graph
 	    graph <- "fixed"
@@ -94,7 +95,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			if( is.null( sigma ) ) sigma <- solve( K )	
 		}else{ 
 			# - - Generate precision matrix according to the graph structure - |
-		    if( !isSymmetric( D ) ) stop( " Matrix 'D' must be positive definite" )
+		    if( !isSymmetric( D ) ) stop( " Matrix 'D' must be positive definite." )
 		   
 		    Ti        = chol( solve( D ) )
 			diag( G ) = 0
@@ -156,8 +157,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			d    <- stats::qexp( p = prob, rate = 10 )
 		}
 
-		# - - generate multivariate discrete data - - - - - - - - - - - - - - -|
-		if( type == "discrete" )
+		# - - generate multivariate count data - - - - - - - - - - - - - - - - |
+		if( type == "count" )
 		{
 		    not.cont[ 1:p ] = 1
 		    
@@ -178,7 +179,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		{
 		    not.cont[ 1:p ] = 1
 		    
-		    if( p > 16 ) stop( "For type 'binary', number of nodes (p) must be less than 16" )
+		    if( p > 16 ) stop( "For type 'binary', number of nodes (p) must be less than 16." )
 			
 			## Generate clique factors
 			clique_factors = generate_clique_factors( ug = G )
@@ -187,12 +188,40 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			
 			d = d - 1
 		}
+		
+		if( type == "dw" )
+		{
+		    if( length( q    ) == 1 )    q = rep(    q, time = p )
+		    if( length( beta ) == 1 ) beta = rep( beta, time = p )
+
+		    if( length( q    ) != p ) stop( " Length of vector 'q' has non-conforming size with 'p'. " )
+		    if( length( beta ) != p ) stop( " Length of vector 'beta' has non-conforming size with 'p'. " )
+
+		    not.cont[ 1:p ] = 1
+		    
+		    # STEP 2: Generate Continuous Weibull with (q, beta) - - - - - - - -|
+		    Y.star <- matrix( 0, nrow = n, ncol = p )
+		    
+		    shape.c <- beta
+		    scale.c <- exp( -log( -log( q ) ) / beta )
+		    
+		    for( j in 1 : p )
+		        Y.star[ , j ] <- stats::qweibull( stats::pnorm( d[ , j ] ), shape = shape.c[ j ] , scale = scale.c[ j ] )
+		    
+		    # STEP 3: Transform from Continuous Weibull to Discrete Weibull - -|
+		    d = floor( Y.star )
+		}
 	}
 	
 	# - - Saving the result - - - - - - - - - - - - - - - - - - - - - - - - - -|
 	if( n != 0 )
 	{
-		simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont )
+	    if( type != "dw" ){
+		    simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont )
+	    }else{
+	        simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont,
+	                            shape.d = beta, scale.d = q )
+	    }
 	}else{
 		simulation <- list( G = G, graph = graph )		
 	}
@@ -244,7 +273,7 @@ plot.sim = function( x, ... )
 sample_ug = function( n = 1, ug = diag( 3 ), clique_factors = NULL )
 {
 	p = ncol( ug ) # p smaller than 17 check
-	if( p > 16 ) stop( "number of nodes must be smaller than 16" )
+	if( p > 16 ) stop( "number of nodes must be smaller than 16." )
 	ug[ lower.tri( ug, diag = TRUE ) ] = 0
 	if( is.null( clique_factors ) ) clique_factors = generate_clique_factors( ug )
 	

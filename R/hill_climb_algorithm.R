@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -10,7 +10,7 @@
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #     A divide-and-conquer type greedy hill climb algorithm                    |
-#     for undirected graphcial models and discrete data.                       |
+#     for undirected graphcial models and count data.                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #    The Hill-Climb algorithm (function "hill_climb_mpl") consists for two part:   
 #     PART 1: Local Marginal Pseudo-likelihood optimization to discovers the 
@@ -20,7 +20,7 @@
 #     See "Marginal pseudo-likelihood learning of Markov network structures" by     
 #     Pensar et al. for more details.                                              
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     INPUT:  * data (nxp) matrix, as discrete data with n observations and p variables. 
+#     INPUT:  * data ( n x p ) matrix, as a count dataset with n observations and p variables. 
 #               The outcome space of each variable must be in the form 0, 1, ..., r.   
 #             * alpha: The parameter of the prior distribution                        
 #     OUTPUT: * selected_G - adjacency matrix for the selected graph                  
@@ -213,7 +213,7 @@ global_hc = function( G_local, data, freq_data, max_range_nodes, p, n, alpha = 0
 }
     
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-# Computing the Marginal pseudo-likelihood for discrete data 
+# Computing the Marginal pseudo-likelihood for count data 
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 log_mpl_disrete = function( node, mb_node, data, freq_data, max_range_nodes, p, n, alpha = 0.5 )
 {

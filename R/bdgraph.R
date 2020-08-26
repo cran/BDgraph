@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,14 +14,13 @@
 
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
                     burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
-                    g.start = "empty", jump = NULL, save = FALSE, print = 1000, 
+                    g.start = "empty", jump = NULL, save = FALSE, 
                     cores = NULL, threshold = 1e-8 )
 {
-    if( df.prior < 3  ) stop( " 'prior.df' must be >= 3" )
-    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in" )
+    if( df.prior < 3  ) stop( " 'prior.df' must be >= 3." )
+    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in." )
     burnin <- floor( burnin )
-    if( print > iter ) print = iter
-    
+     
     cores = BDgraph::get_cores( cores = cores )
 
     list_S_n_p = BDgraph::get_S_n_p( data = data, method = method, n = n, not.cont = not.cont )
@@ -67,7 +66,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     
     if( ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
     {
-        cat( "  WARNING: Memory needs to run this function is around " )
+        cat( "  WARNING: Memory needs to run this function is around. " )
         print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
     } 
     
@@ -80,12 +79,13 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     
     if( is.null( jump ) ) jump = 1
     
-    if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1 " )
-    if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller " )
+    if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1. " )
+    if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller. " )
     
-    mes <- paste( c( iter, " iteration is started.                    " ), collapse = "" )
-    cat( mes, "\r" )
+    cat( paste( c( iter, " MCMC sampling ... in progress: \n" ), collapse = "" ) ) 
     
+    print = floor( iter / 20 )
+
     # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - |
     if( save == TRUE )
     {
@@ -423,7 +423,7 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
 	    BDgraph::plot.graph( x, cut = cut, sub = paste0( "Edge posterior probability = ", cut ), ... )
 	}else{
 	    
-	    if( is.null( x $ all_graphs ) ) stop( " 'x' must be an object of function 'bdgraph()' with option save = TRUE" )
+	    if( is.null( x $ all_graphs ) ) stop( " 'x' must be an object of function 'bdgraph()' with option save = TRUE." )
 	    
 	    sample_graphs = x $ sample_graphs
 	    graph_weights = x $ graph_weights

@@ -2,8 +2,8 @@
 #include <R_ext/Rdynload.h>
 
 /* FIXME: 
-Check these declarations against the C/Fortran source code.
-*/
+ Check these declarations against the C/Fortran source code.
+ */
 
 /* .C calls */
 extern void dgm_bdmcmc_mpl_binary_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -26,6 +26,10 @@ extern void gcgm_DMH_bdmcmc_map(void *, void *, void *, void *, void *, void *, 
 extern void gcgm_DMH_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_DMH_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_DMH_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_dw_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_dw_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_dw_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void gcgm_dw_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -76,6 +80,10 @@ static const R_CMethodDef CEntries[] = {
     {"gcgm_DMH_bdmcmc_map_multi_update",       (DL_FUNC) &gcgm_DMH_bdmcmc_map_multi_update,       27},
     {"gcgm_DMH_rjmcmc_ma",                     (DL_FUNC) &gcgm_DMH_rjmcmc_ma,                     21},
     {"gcgm_DMH_rjmcmc_map",                    (DL_FUNC) &gcgm_DMH_rjmcmc_map,                    25},
+    {"gcgm_dw_bdmcmc_ma",                      (DL_FUNC) &gcgm_dw_bdmcmc_ma,                      21},
+    {"gcgm_dw_bdmcmc_ma_multi_update",         (DL_FUNC) &gcgm_dw_bdmcmc_ma_multi_update,         22},
+    {"gcgm_dw_bdmcmc_map",                     (DL_FUNC) &gcgm_dw_bdmcmc_map,                     25},
+    {"gcgm_dw_bdmcmc_map_multi_update",        (DL_FUNC) &gcgm_dw_bdmcmc_map_multi_update,        27},
     {"gcgm_rjmcmc_ma",                         (DL_FUNC) &gcgm_rjmcmc_ma,                         20},
     {"gcgm_rjmcmc_map",                        (DL_FUNC) &gcgm_rjmcmc_map,                        24},
     {"ggm_bdmcmc_ma",                          (DL_FUNC) &ggm_bdmcmc_ma,                          14},

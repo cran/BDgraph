@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2019  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,17 +14,17 @@
 
 rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
 {
-	if( b <= 2 )         stop( "For G-Wishart distribution parameter 'b' must be more than 2" )
-	if( is.null( adj ) ) stop( "Adjacency matrix must be determined" )
+	if( b <= 2 )         stop( "Value of parameter 'b' must be more than 2." )
+	if( is.null( adj ) ) stop( "Adjacency matrix must be determined." )
 
     if( is.matrix( adj )           ) G <- unclass( adj )
   # if( inherits( adj, "graph" )   ) G <- unclass( adj )
-    if( inherits( adj, "sim" )     ) G <- adj $ G
+    if( inherits( adj, "sim" )     ) G <- unclass( adj $ G )
     if( inherits( adj, "bdgraph" ) ) G <- BDgraph::select( adj ) 
     if( inherits( adj, "ssgraph" ) ) G <- BDgraph::select( adj ) 
     
     
-    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Element of matrix 'adj' must be 0 or 1" )
+    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Elements of matrix 'adj' must be 0 or 1." )
     
     G <- as.matrix( G )
     diag( G ) <- 0
@@ -36,7 +36,7 @@ rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
     }
 	
 	p <- nrow( G )
-	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
+	if( p < 1 ) stop( "'p' must be more than or equal with 1." )
 	
 	if( is.null( D )      ) D <- diag( p )
 	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite matrix." )
@@ -68,6 +68,6 @@ rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
 
 	return( samples )   
 }
-
+   
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
