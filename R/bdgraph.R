@@ -314,7 +314,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         }	
     }
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
-    
+
     K_hat      = matrix( result $ K_hat, p, p, dimnames = list( colnames_data, colnames_data ) ) 
     last_graph = matrix( result $ G    , p, p, dimnames = list( colnames_data, colnames_data ) )
     last_K     = matrix( result $ K    , p, p )
@@ -343,6 +343,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             p_links = p_links / ( iter - burnin )
             K_hat   = K_hat   / ( iter - burnin )
         }
+        
         p_links[ lower.tri( p_links ) ] = 0
         output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K )
     }
@@ -461,7 +462,9 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
 print.bdgraph = function( x, ... )
 {
 	p_links = x $ p_links
+	
 	if( is.null( p_links ) ) p_links = BDgraph::plinks( x )
+	
 	selected_g = BDgraph::select( p_links, cut = 0.5 )
 
 	cat( paste( "\n Adjacency matrix of selected graph \n" ), fill = TRUE )

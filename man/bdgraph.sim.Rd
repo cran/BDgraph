@@ -75,7 +75,7 @@ Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constan
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Pariya Behrouzi, Veronica Vinciotti, and Ernst Wit }
 
 \seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 

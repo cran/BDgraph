@@ -10,7 +10,7 @@
 
 \arguments{
   \item{adj}{     
-  An adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+  An adjacency matrix corresponding to a graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
 	It can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
 	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
     }

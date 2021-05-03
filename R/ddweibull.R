@@ -1,0 +1,64 @@
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
+#                                                                              |
+#     This file is part of BDgraph package.                                    |
+#                                                                              |
+#     BDgraph is free software: you can redistribute it and/or modify it under |
+#     the terms of the GNU General Public License as published by the Free     |
+#     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+#                                                                              |
+#     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#     The Discrete Weibull Distribution ( Type 1 )                             |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+
+ddweibull = function( x, q = exp( -1 ), beta = 1, zero = TRUE )
+{
+    if( any( x != floor( x ) ) ) stop( " 'x' must be integer" )
+    if( max( q ) > 1 | min( q ) < 0 ) stop( " 'q' must be between 0 and 1" )
+    if( min( beta ) <= 0 ) stop( " 'beta' must be positive" )
+    
+    if( zero == FALSE ) x = x - 1
+    
+    return( q ^ x ^ beta - q ^ ( x + 1 ) ^ beta )
+}
+   
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+pdweibull = function( x, q = exp( -1 ), beta = 1, zero = TRUE )
+{
+    if( max( q ) > 1 | min( q ) < 0 ) stop( " 'q' must be between 0 and 1" )
+    if( min( beta ) <= 0 ) stop( " 'beta' must be positive" )
+    
+    if( zero == FALSE ) x = x - 1
+    
+    return( 1 - q ^ ( x + 1 ) ^ beta )
+} 
+    
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+qdweibull = function( p, q = exp( -1 ), beta = 1, zero = TRUE )
+{
+    if( max( q ) > 1 | min( q ) < 0 ) stop( " 'q' must be between 0 and 1" )
+    if( min( beta ) <= 0 ) stop( " 'beta' must be positive" )
+    
+    if( zero )
+        ceiling( ( log( 1 - p ) / log( q ) ) ^ ( 1 / beta ) - 1 )
+    else
+        ceiling( ( log( 1 - p ) / log( q ) ) ^ ( 1 / beta ) )
+}
+   
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+rdweibull = function( n, q = exp( -1 ), beta = 1, zero = TRUE )
+{
+    if( max( q ) > 1 | min( q ) < 0 ) stop( " 'q' must be between 0 and 1" )
+    if( min( beta ) <= 0 ) stop( " 'beta' must be positive" )
+    
+    r_unif = stats::runif( n )
+    
+    if( zero )
+        ceiling( ( log( 1 - r_unif ) / log( q ) ) ^ ( 1 / beta ) ) - 1
+    else
+        ceiling( ( log( 1 - r_unif ) / log( q ) ) ^ ( 1 / beta ) )
+}
+    
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+

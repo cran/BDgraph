@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -22,7 +22,9 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     if( cut < 2 )                     stop( " Value of 'cut' must be more than 1." )
     if( b <= 2 )                      stop( " Value of 'b' must be more than 2." )
     
-    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( " matrices 'graph' and 'K' have non-conforming size." )
+    if( inherits( graph, "graph" ) ) graph = unclass( graph )
+    
+    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( " Matrices 'graph' and 'K' have non-conforming size." )
         
     if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( " Value of 'size' must be between ( 0, p*(p-1)/2 )." )
     
@@ -90,9 +92,10 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 
 		if( is.matrix( K ) )
 		{ 
-			G         <- 1 * ( abs( K ) > 0.02 )
-			diag( G ) <- 0
-			if( is.null( sigma ) ) sigma <- solve( K )	
+			G         = 1 * ( abs( K ) > 0.02 )
+			diag( G ) = 0
+			# if( is.null( sigma ) ) sigma <- solve( K )	
+			if( is.null( sigma ) ) sigma = stats::cov2cor( solve( K ) )
 		}else{ 
 			# - - Generate precision matrix according to the graph structure - |
 		    if( !isSymmetric( D ) ) stop( " Matrix 'D' must be positive definite." )
@@ -107,7 +110,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 						 as.integer(b), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
 			
 			K     = matrix( result $ K, p, p ) 		
-			sigma = solve( K )
+			# sigma = solve( K )
+			sigma = stats::cov2cor( solve( K ) )
 		}
 		
 		# - - generate multivariate normal data - - - - - - - - - - - - - - - -|
@@ -191,25 +195,74 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		
 		if( type == "dw" )
 		{
-		    if( length( q    ) == 1 )    q = rep(    q, time = p )
-		    if( length( beta ) == 1 ) beta = rep( beta, time = p )
-
-		    if( length( q    ) != p ) stop( " Length of vector 'q' has non-conforming size with 'p'. " )
-		    if( length( beta ) != p ) stop( " Length of vector 'beta' has non-conforming size with 'p'. " )
-
-		    not.cont[ 1:p ] = 1
-		    
-		    # STEP 2: Generate Continuous Weibull with (q, beta) - - - - - - - -|
-		    Y.star <- matrix( 0, nrow = n, ncol = p )
-		    
-		    shape.c <- beta
-		    scale.c <- exp( -log( -log( q ) ) / beta )
-		    
-		    for( j in 1 : p )
-		        Y.star[ , j ] <- stats::qweibull( stats::pnorm( d[ , j ] ), shape = shape.c[ j ] , scale = scale.c[ j ] )
-		    
-		    # STEP 3: Transform from Continuous Weibull to Discrete Weibull - -|
-		    d = floor( Y.star )
+            if( ( is.matrix( q ) == FALSE )  &  ( is.matrix( beta ) == FALSE) ) #q and beta can be a vector or a number
+            {  
+                if( length( q    ) == 1 ) q    = rep( q, time = p ) 
+                if( length( beta ) == 1 ) beta = rep( beta, time = p )
+                
+                if( length( q    ) != p ) stop( " Length of vector 'q' has non-conforming size with 'p'. "    )
+                if( length( beta ) != p ) stop( " Length of vector 'beta' has non-conforming size with 'p'. " )
+                
+                not.cont[ 1:p ] = 1
+                Y_data <- matrix( c( 0, 1 ), nrow = n, ncol = p )
+                
+                while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
+                {  
+                    #d <- BDgraph::rmvnorm( n = n, mean = mean, sigma = sigma )
+                    d <- tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
+                                             sigma = sigma, lower = rep( -5, length = p ), 
+                                             upper = rep( 5, length = p ) )
+                    
+                    
+                    # STEP 2: Generate Continuous Weibull with (q, beta) - - - - - - - -|
+                    #shape.c <- beta
+                    #scale.c <- exp( -log( -log( q ) ) / beta )
+                    
+                    #for( j in 1 : p ) Y_data[ , j ] <- stats::qweibull( stats::pnorm( d[ , j ] ), shape = shape.c[ j ] , scale = scale.c[ j ] )
+                    for( j in 1 : p ) 
+                        Y_data[ , j ] = BDgraph::qdweibull( stats::pnorm( d[ , j ] ),  q = q[ j ], beta = beta[ j ] , zero = TRUE )		    
+                    #d = Y
+                    
+                    # STEP 3: Transform from Continuous Weibull to Discrete Weibull - -|
+                    #Y_data = floor( Y_data )
+                    cat( "any binary variable", any( apply( Y_data, 2, function( x ) { all( x %in% 0 : 1 ) } ) ), "\n" )
+                    #if(any( apply(Y_data, 2, function(x) { all(x %in% 0:1) })) == TRUE) tmvtnorm::rtmvnorm( n = n, mean = rep(mean, p), sigma = sigma, lower = rep(-5, length = p), upper = rep(5, length = p))
+                }
+            
+                d = Y_data
+            }
+        
+            if( ( is.matrix( q ) == TRUE )  &  ( is.matrix( beta ) == TRUE ) ) # q and beta come from regression 
+            {
+                d <- matrix( 0, nrow = n, ncol = p )
+                Z <- tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
+                                         sigma = sigma, lower = rep( -3, length = p ), 
+                                         upper = rep( 3, length = p ) )
+                pnorm_Z <- stats::pnorm( Z )
+                for( j in 1:p ) 
+                    d[  ,j ] <- BDgraph::qdweibull( pnorm_Z[ ,j ], q = q[ , j ], beta = beta[ , j ] , zero = TRUE )
+            }  
+        }
+		
+		if( type == "NB" )
+		{
+            not.cont[ 1:p ] = 1
+            Y.star <- matrix( c( 0, 1 ), nrow = n, ncol = p )
+            while ( any( apply( Y.star, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
+            {
+                d <- tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), sigma = sigma, 
+                                         lower = rep( -5, length = p ), upper = rep( 5, length = p ) )
+                
+                mu   <- stats::runif( n = p, min = 0.5, max = 5 )
+                size <- stats::runif( n = p, min = 0.1, max = 3 )
+                
+                for(j in 1 : p ) 
+                    Y.star[ , j ] <- stats::qnbinom( stats::pnorm( d[ , j ] ), size = size[ j ], 
+                                                     mu = mu[ j ], lower.tail = TRUE, log.p = FALSE )
+                # cat( "any binary variables ", any( apply( Y , 2, function( x ) { all( x %in% 0:1 ) }) ) , "\n" )
+            }
+            
+            d = Y.star
 		}
 	}
 	

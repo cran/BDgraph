@@ -1,4 +1,5 @@
 \name{rwish}
+
 \alias{rwish}
 
 \title{ Sampling from Wishart distribution }

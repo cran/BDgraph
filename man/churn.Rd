@@ -1,6 +1,8 @@
 \name{churn}
 \alias{churn}
+
 \docType{data}
+
 \title{ Churn data set }
 
 \description{ 

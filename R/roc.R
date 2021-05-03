@@ -9,31 +9,31 @@
 #                                                                              |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Data generator from multivarate normal distribution                      |
+#     Reports the measures to assess the performance of estimated graphs       |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), 
-                    sigma = diag( length( mean ) ) )
+roc = function( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, ... )
 {
-    if( !isSymmetric( sigma, tol = sqrt( .Machine $ double.eps ), check.attributes = FALSE ) ) 
-        stop( " 'sigma' must be a symmetric matrix." )
+    if( is.matrix( actual ) ) 
+        if( ( sum( actual == 0 ) + sum( actual == 1 ) ) != ( nrow( actual ) ^ 2 ) ) stop( "Elements of matrix 'actual' must be 0 or 1." )
     
-    sigma = as.matrix( sigma )
-    p     = nrow( sigma )
+    if( inherits( actual, "sim" ) ) actual = actual $ G
     
-    if( length( mean ) == 1 ) mean <- rep( mean, p )
-    if( length( mean ) != nrow( sigma ) ) stop( " 'mean' and 'sigma' have non-conforming size." )
+    response = actual[ upper.tri( actual ) ]   
     
-    # - - generate multivariate normal data - - - - - - - - - - - - - - - - - -|
+    if( is.matrix( pred ) )
+        if( any( pred < 0 ) || any( pred > 1 ) ) stop( " Elements of matrix 'pred' must be between ( 0, 1 )." )
     
-    chol_sig = chol( sigma )
-    z        = matrix( stats::rnorm( p * n ), p, n )
-    data     = t( chol_sig ) %*% z + mean
-    data     = t( data )
+    if( ( inherits( pred, "bdgraph" ) ) | ( inherits( pred, "ssgraph" ) ) )
+    {
+        pred = pred $ p_links
+        if( is.null( pred ) ) pred = BDgraph::plinks( pred, round = 15 )
+    }
     
-    if( n == 1 ) data = as.vector( data )
-        
-    return( data )
+    predictor = pred[ upper.tri( pred ) ]    
+    
+    pROC::roc( response = response, predictor = predictor, levels = c( 0, 1 ), 
+               quiet = T, smooth = smooth, plot = plot, ... )
 }
    
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

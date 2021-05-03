@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -9,31 +9,20 @@
 #                                                                              |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Data generator from multivarate normal distribution                      |
+#     Compute the sparsity of an adjacency matrix                              |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-rmvnorm = function( n = 10, mean = rep( 0, length = ncol( sigma ) ), 
-                    sigma = diag( length( mean ) ) )
+sparsity = function( adj )
 {
-    if( !isSymmetric( sigma, tol = sqrt( .Machine $ double.eps ), check.attributes = FALSE ) ) 
-        stop( " 'sigma' must be a symmetric matrix." )
+    G = BDgraph::get_graph( adj )
+    p = ncol( G )
     
-    sigma = as.matrix( sigma )
-    p     = nrow( sigma )
+    sum_E = sum( adj ) / 2
+    D     = p * ( p - 1 ) / 2
     
-    if( length( mean ) == 1 ) mean <- rep( mean, p )
-    if( length( mean ) != nrow( sigma ) ) stop( " 'mean' and 'sigma' have non-conforming size." )
+    sparsity_g = sum_E / D
     
-    # - - generate multivariate normal data - - - - - - - - - - - - - - - - - -|
-    
-    chol_sig = chol( sigma )
-    z        = matrix( stats::rnorm( p * n ), p, n )
-    data     = t( chol_sig ) %*% z + mean
-    data     = t( data )
-    
-    if( n == 1 ) data = as.vector( data )
-        
-    return( data )
+    return( sparsity_g )
 }
    
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

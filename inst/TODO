@@ -2,11 +2,13 @@
 To do list: June 22 2018
 -------------------------
 
-	- adding option "weight = FALSE" to function "compare()"
+    - adding option "weight = FALSE" to function "compare()"
 	
-    - adding predit.bdgraph() function
+    - adding predit.bdgraph() function by using formula function
     
     - working on bergm idea
+
+    - in bdgraph.sim() change option data = "count" to "" or "discrete"
     
     
  
