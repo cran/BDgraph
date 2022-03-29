@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -12,11 +12,13 @@
 #     Graph generator                                                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
+graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, 
+                      class = NULL, vis = FALSE, rewire = 0.05 )
 {
-    if( p < 2 ) stop( "'p' must be more than 1." )
-    if( ( sum( prob < 0 ) + sum( prob > 1 ) ) != 0 ) stop( "'prob' must be between 0 and 1." )
- 
+    if( p < 2 ) stop( "'p' must be more than 1" )
+    if( ( prob < 0 ) || ( prob > 1 )    ) stop( "'prob' must be between ( 0, 1 )" )
+    if( ( rewire < 0 ) | ( rewire > 1 ) ) stop( "Value of 'rewire' must be between ( 0, 1 )" )
+
     G <- matrix( 0, p, p )
     
     # - - build the graph structure - - - - - - - - - - - - - - - - - - - - -  |
@@ -26,13 +28,23 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
         {
             G[ upper.tri( G ) ] <- stats::rbinom( p * ( p - 1 ) / 2, 1, prob )
         }else{
-            if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "Graph size must be between zero and p*(p-1)/2." )
+            if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "'size' must be between ( 0,  p * ( p - 1 ) / 2 )" )
             
             smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
-            G[ upper.tri( G ) ][smp] <- 1
+            G[ upper.tri( G ) ][ smp ] <- 1
         }
     }
-    
+
+    if( graph == "smallworld" )
+    {
+        G_igraph = igraph::sample_smallworld( dim = 1, # One dimension
+                                              size = p, # Number of variables
+                                              nei = round( size / p ), # Neighborhood
+                                              p = rewire )   
+        
+        G = as.matrix( igraph::as_adj( G_igraph ) ) # Rewiring probability
+    }
+        
     if( graph == "cluster" )
     {
         # partition variables
@@ -63,23 +75,23 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
                 G[ tmp, tmp ]       <- gg
             }
         }else{
-            if( class != length( size ) )  stop( " Number of graph sizes is not match with number of clusters." )
-            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( " Total graph sizes must be between zero and p*(p-1)/2." )
+            if( class != length( size ) )  stop( "Number of graph sizes is not match with number of clusters" )
+            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( "Total graph sizes must be between ( 0, p * ( p - 1 ) / 2 )" )
             
             for( i in 1 : class )
             {
-                tmp <- if( i == 1 ) ( 1 : vp[1] ) else ( ( sum( vp[1 : (i-1)] ) + 1 ) : sum( vp[1:i] ) )
-                gg  <- matrix( 0, vp[i], vp[i] )
-                smp <- sample( 1 : ( vp[i] * (vp[i] - 1) / 2 ), size[i], replace = FALSE )
-                gg[upper.tri(gg)][smp] <- 1
-                G[tmp, tmp]            <- gg
+                tmp <- if( i == 1 ) ( 1 : vp[ 1 ] ) else ( ( sum( vp[ 1 : ( i - 1 ) ] ) + 1 ) : sum( vp[ 1 : i ] ) )
+                gg  <- matrix( 0, vp[ i ], vp[ i ] )
+                smp <- sample( 1 : ( vp[ i ] * ( vp[ i ] - 1 ) / 2 ), size[ i ], replace = FALSE )
+                gg[ upper.tri( gg ) ][ smp ] <- 1
+                G[ tmp, tmp ]            <- gg
             }
         }
     }
     
     if( graph == "scale-free" )
     {
-        resultGraph = .C( "scale_free", G = as.integer(G), as.integer(p), PACKAGE = "BDgraph" )
+        resultGraph = .C( "scale_free", G = as.integer( G ), as.integer( p ), PACKAGE = "BDgraph" )
         G = matrix( resultGraph $ G, p, p ) 
         
         #j = sample( 1:p, 1 )
@@ -120,7 +132,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     if( graph == "hub" )
     {
         if( is.null( size ) ) size = ceiling( p / 20 ) 
-        if( size < 0 | size > ( p - 1 ) )  stop( "Number of hubs (size) must be between zero and (p-1)" )
+        if( size < 0 | size > ( p - 1 ) )  stop( "'size' must be between ( 0, p - 1 ), for option 'graph = \"hub\"'" )
 
         hub = sample( 1:p, size = size, replace = FALSE )
         
@@ -134,13 +146,13 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
     if( graph == "star" )
     {
         hub = sample( 1:p, size = 1, replace = FALSE )
-        G[ hub,  ] <- 1
-        G[ , hub ] <- 1
+        G[ hub,     ] <- 1
+        G[    , hub ] <- 1
     }
     
     if( graph == "circle" )
     {
-        if( p < 3 ) stop( "For 'circle' graph, 'p' must be more than 2." )
+        if( p < 3 ) stop( "'p' must be more than 2, for option 'graph = \"circle\"'" )
         
         G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
         G[ 1, p ] <- 1
@@ -160,18 +172,34 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL, class =
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # plot for class "graph" from graph.sim function
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-plot.graph = function( x, cut = 0.5, mode = "undirected", diag = FALSE, main = NULL, 
-                       vertex.color = "white", vertex.label.color = 'black', ... )
+
+plot.graph = function( x, cut = 0.5, 
+                       mode = "undirected", diag = FALSE, main = NULL, 
+                       layout = igraph::layout_with_fr, 
+                       vertex.size = 2, 
+                       vertex.color = "orange", 
+                       vertex.frame.color = "orange", 
+                       vertex.label = NULL,
+                       vertex.label.dist = 0.5, 
+                       vertex.label.color = "blue", 
+                       edge.color = "lightblue", ... )
 {
-    #if( is.null( main ) ) main = "Graph structure"
-    #vertex.size = ifelse( p < 20, 15, 2 )
-    
     graph = BDgraph::get_graph( x, cut = cut )
+    
+    if( is.null( vertex.label ) ) vertex.label = colnames( graph )
     
     graph_ig <- igraph::graph.adjacency( graph, mode = mode, diag = diag )
     
-    igraph::plot.igraph( graph_ig, main = main, vertex.color = vertex.color, 
-                         vertex.label.color = vertex.label.color, ... )
+    igraph::plot.igraph( graph_ig, 
+                         main = main, 
+                         layout = layout, 
+                         vertex.size = vertex.size,
+                         vertex.color = vertex.color, 
+                         vertex.frame.color = vertex.frame.color,
+                         vertex.label = vertex.label,
+                         vertex.label.dist = vertex.label.dist, 
+                         vertex.label.color = vertex.label.color,
+                         edge.color = edge.color, ... )
 }		
-
+    
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

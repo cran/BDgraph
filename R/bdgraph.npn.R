@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -16,9 +16,9 @@ bdgraph.npn = function( data, npn = "shrinkage", npn.thresh = NULL )
 {
     if( inherits( data, "sim" ) ) data <- data $ data
     
-    if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data must be a matrix or dataframe." )	
+    if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data must be a matrix or dataframe" )	
     if( is.data.frame( data ) ) data = data.matrix( data )
-    if( any( is.na( data ) ) ) stop( "Data must contain no missing data." ) 
+    if( any( is.na( data ) ) ) stop( "Data must contain no missing values" ) 
 	
 	n <- nrow( data )
 	

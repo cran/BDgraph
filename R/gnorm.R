@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -18,15 +18,15 @@
 
 gnorm = function( adj, b = 3, D = diag( ncol( adj ) ), iter = 100 )
 {
-	if ( b < 3 )         stop( "Parameter 'b' must be more than 2." )
-	if( is.null( adj ) ) stop( "Adjacency matrix must be determined." )
+	if ( b < 3 )         stop( "'b' must be more than 2" )
+	if( is.null( adj ) ) stop( "'adj' must be determined" )
 
     G <- unclass( adj )
     G <- as.matrix( G )
     p <- nrow( G )
 
-    if( p != ncol( G ) ) stop( "Adjacency matrix must be a square matrix." )
-    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Elements of matrix 'G' must be 0 or 1." )
+    if( p != ncol( G ) ) stop( "'adj' must be a square matrix" )
+    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( "Elements of matrix 'adj' must be 0 or 1" )
 
 	G[ lower.tri( G, diag = TRUE ) ] <- 0
 

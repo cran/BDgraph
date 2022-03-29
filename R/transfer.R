@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -21,7 +21,13 @@ transfer = function( r_data )
 	data = matrix( 0, nrow = n, ncol = p + 1 )
 	size_unique_data = 0
 	
-	result = .C( "transfer_data", as.integer(r_data), data = as.integer(data), as.integer(n), as.integer(p), size_unique_data = as.integer(size_unique_data), PACKAGE = "BDgraph" )
+	result = .C( "transfer_data", 
+				 as.integer(r_data), 
+				 data = as.integer(data), 
+				 as.integer(n), 
+				 as.integer(p), 
+				 size_unique_data = as.integer(size_unique_data), 
+				 PACKAGE = "BDgraph" )
 	
 	size_unique_data = result $ size_unique_data
 	

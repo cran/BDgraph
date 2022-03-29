@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -121,7 +121,7 @@ local_mb_hc_binary = function( node, data, freq_data, p, n, alpha = 0.5 )
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 global_hc_binary = function( G_local, data, freq_data, p, n, alpha = 0.5 )
 {
-	print( "PART 2, running global search algorithm." )
+	print( "PART 2, running global search algorithm" )
 
 	ug          = matrix( 0, p, p )
 	n_edges     = sum( G_local ) / 2

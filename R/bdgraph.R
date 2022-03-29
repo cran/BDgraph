@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -17,8 +17,8 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                     g.start = "empty", jump = NULL, save = FALSE, 
                     cores = NULL, threshold = 1e-8 )
 {
-    if( df.prior < 3  ) stop( " 'prior.df' must be >= 3." )
-    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in." )
+    if( df.prior < 3  ) stop( "'prior.df' must be >= 3" )
+    if( iter < burnin ) stop( "'iter' must be higher than 'burnin'" )
     burnin <- floor( burnin )
      
     cores = BDgraph::get_cores( cores = cores )
@@ -389,7 +389,8 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 			xx       <- unique( sizesample_graphs )
 			weightsg <- vector()
 
-			for( i in 1 : length( xx ) ) weightsg[ i ] <- sum( graph_weights[ which( sizesample_graphs == xx[ i ] ) ] )
+			for( i in 1 : length( xx ) ) 
+			    weightsg[ i ] <- sum( graph_weights[ which( sizesample_graphs == xx[ i ] ) ] )
 
 			prob_zg = weightsg / sum_gWeights
 			graphics::plot( x = xx, y = prob_zg, type = "h", col = "gray10",
@@ -401,7 +402,7 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 			all_graphs     = object $ all_graphs
 			sizeall_graphs = sizesample_graphs[ all_graphs ]
 			  
-			graphics::plot( x = 1 : length( all_graphs ), sizeall_graphs, type = "l", col = "gray40", 
+			graphics::plot( x = 1 : length( all_graphs ), sizeall_graphs, type = "l", col = "lightblue", 
 			                main = "Trace of graph size", ylab = "Graph size", xlab = "Iteration" )
 
 			graphics::par( op )
@@ -417,14 +418,34 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #    Plot function for "bdgraph" boject                                        |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
+plot.bdgraph = function( x, cut = 0.5, number.g = NULL, 
+                         main = NULL,
+                         layout = igraph::layout_with_fr, 
+                         vertex.size = 2, 
+                         vertex.color = "orange", 
+                         vertex.frame.color = "orange", 
+                         vertex.label = NULL,
+                         vertex.label.dist = 0.5, 
+                         vertex.label.color = "blue", 
+                         edge.color = "lightblue", ... )
 {
  	if( is.null( number.g ) )
 	{
-	    BDgraph::plot.graph( x, cut = cut, sub = paste0( "Edge posterior probability = ", cut ), ... )
+ 	    sub = paste0( "Edge posterior probability = ", cut )
+ 	    
+	    BDgraph::plot.graph( x, cut = cut, sub = sub, 
+	                         main = main, 
+                             layout = layout, 
+                             vertex.size = vertex.size,
+                             vertex.color = vertex.color, 
+                             vertex.frame.color = vertex.frame.color,
+	                         vertex.label = vertex.label,
+	                         vertex.label.dist = vertex.label.dist, 
+                             vertex.label.color = vertex.label.color,
+                             edge.color = edge.color, ... )
 	}else{
 	    
-	    if( is.null( x $ all_graphs ) ) stop( " 'x' must be an object of function 'bdgraph()' with option save = TRUE." )
+	    if( is.null( x $ all_graphs ) ) stop( "'x' must be an object of 'bdgraph()' function with option 'save = TRUE'" )
 	    
 	    sample_graphs = x $ sample_graphs
 	    graph_weights = x $ graph_weights
@@ -442,6 +463,7 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
 	    for( i in 1 : number.g )
 	    {
 	        if( number.g > 6 ) grDevices::dev.new()  
+	        
 	        indG_i <- sample_graphs[ which( prob_G == sort_prob_G[i] )[1] ]
 	        vec_G  <- 0 * vec_G
 	        vec_G[ which( unlist( strsplit( as.character(indG_i), "" ) ) == 1 ) ] <- 1
@@ -449,7 +471,15 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL, ... )
 	        
 	        main = ifelse( i == 1, "Graph with highest probability", paste( c( i, "th graph" ), collapse = "" ) )
 	        sub  = paste( c( "Posterior probability = ", round( sort_prob_G[i], 6 ) ), collapse = "" )
-	        BDgraph::plot.graph( list_G[[i]], main = main, sub = sub, ... )
+	        
+	        BDgraph::plot.graph( list_G[[i]], main = main, sub = sub, 
+	                             layout = layout, 
+                                 vertex.size = vertex.size,
+                                 vertex.color = vertex.color, 
+                                 vertex.frame.color = vertex.frame.color,
+                                 vertex.label.dist = vertex.label.dist, 
+                                 vertex.label.color = vertex.label.color,
+                                 edge.color = edge.color, ... )
 	    }
 	    
 	    if( number.g > 1 & number.g < 7 ) graphics::par( op )

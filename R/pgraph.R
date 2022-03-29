@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,7 +14,7 @@
 
 pgraph = function( bdgraph.obj, number.g = 4, adj = NULL )
 {
-	if( !is.null( bdgraph.obj $ p_links ) ) stop( "It needs object of 'bdgraph' with option save = TRUE." ) 
+	if( !is.null( bdgraph.obj $ p_links ) ) stop( "It needs object of 'bdgraph' with option 'save = TRUE'" ) 
 	
 	sample_graphs = bdgraph.obj $ sample_graphs
 	graph_weights = bdgraph.obj $ graph_weights

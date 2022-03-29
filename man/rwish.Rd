@@ -11,10 +11,10 @@ Generates random matrices, distributed according to the Wishart distribution wit
 \usage{ rwish( n = 1, p = 2, b = 3, D = diag( p ) ) }
 
 \arguments{
-  \item{n}{ The number of samples required. }
-  \item{p}{ The number of variables (nodes). }
-  \item{b}{ The degree of freedom for Wishart distribution, \eqn{W(b, D)}. }
-  \item{D}{ The positive definite \eqn{(p \times p)} "scale" matrix for Wishart distribution, \eqn{W(b, D)}. 
+  \item{n}{ number of samples required. }
+  \item{p}{ number of variables (nodes). }
+  \item{b}{ degree of freedom for Wishart distribution, \eqn{W(b, D)}. }
+  \item{D}{ positive definite \eqn{(p \times p)} "scale" matrix for Wishart distribution, \eqn{W(b, D)}. 
             The default is an identity matrix. }
 }
 
@@ -27,19 +27,19 @@ which \eqn{b > 2} is the degree of freedom and \eqn{D} is a symmetric positive d
 }
 
 \value{
-A numeric array, say A, of dimension \eqn{(p \times p \times n)}, where each \eqn{A[,,i]}{A[,,i]} is a positive 
+A numeric array, say \eqn{A}, of dimension \eqn{(p \times p \times n)}, where each \eqn{A[,,i]}{A[,,i]} is a positive 
 definite matrix, a realization of the Wishart distribution \eqn{W(b, D)}.
 Note, for the case \eqn{n=1}, the output is a matrix.
 }
 
 \references{
-Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128
+Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2:119-128, \doi{10.1002/sta4.23}
 
-Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 
-Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416v2} 
-
-Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 
+Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+  
+Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30, \doi{10.18637/jss.v089.i03} 
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }

@@ -1,7 +1,11 @@
 useDynLib( BDgraph, .registration = TRUE )
 
+importFrom( "stats", "dnorm" )
+
 export( bdgraph,
 		bdgraph.mpl,
+		bdgraph.dw,
+		bdw.reg,
 
 		transfer,
 		plinks,
@@ -50,12 +54,19 @@ export( bdgraph,
 		get_g_start,
 		get_K_start,
 		get_S_n_p,
-		get_cores
+		get_cores,
+		
+		get_bounds_dw,
+		ddweibull_reg,
+		log_post_cond_dw,
+		near_positive_definite
 	   )
 
 S3method( "summary", "bdgraph" )
 S3method( "plot"   , "bdgraph" )
 S3method( "print"  , "bdgraph" )
-S3method( "plot"   , "sim" )
-S3method( "print"  , "sim" )
-S3method( "plot"   , "graph" )
+
+S3method( "plot" , "sim" )
+S3method( "print", "sim" )
+
+S3method( "plot", "graph" )

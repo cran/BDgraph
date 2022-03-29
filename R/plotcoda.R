@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -16,15 +16,15 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 {
     if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE." )
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( " 'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE." )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
     }else{
-        stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'." )
+        stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
     }
 	
 	if( is.null( thin ) ) thin = ceiling( length( bdgraph.obj $ all_graphs ) / 1000 )
-	if( !is.numeric( thin ) ) stop( " 'thin' must be an number" )
-	if( is.matrix(  thin ) ) stop( " 'thin' must be an number" )
+	if( !is.numeric( thin ) ) stop( "'thin' must be a number" )
+	if( is.matrix(  thin  ) ) stop( "'thin' must be a number" )
 	
 	sample_graphs   = bdgraph.obj $ sample_graphs
 	p               = nrow( bdgraph.obj $ last_graph )
@@ -32,7 +32,7 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	all_weights     = bdgraph.obj $ all_weights
 	all_graphs      = bdgraph.obj $ all_graphs
 
-	allG_new        = all_graphs[ c( thin * ( 1 : floor( length( all_graphs ) / thin ) ) ) ]
+	allG_new        = all_graphs[  c( thin * ( 1 : floor( length( all_graphs  ) / thin ) ) ) ]
 	all_weights_new = all_weights[ c( thin * ( 1 : floor( length( all_weights ) / thin ) ) ) ]
 	length_allG_new = length( allG_new )
 	result          = matrix( 0, qp, length_allG_new )
@@ -41,12 +41,12 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 	for ( g in 1 : length_allG_new )
 	{
 		mes = paste( c( "Calculation ... in progress : ", floor( 100 * g / length_allG_new ), "%" ), collapse = "" )
-		cat(mes, "\r")
+		cat( mes, "\r" )
 		utils::flush.console()	
 
-		which_edge             = which( unlist( strsplit( as.character( sample_graphs[ allG_new[g] ] ), "" ) ) == 1 )
-		vec_result[which_edge] = vec_result[which_edge] + all_weights_new[g]
-		result[ ,g]            = vec_result / sum( all_weights_new[ c( 1 : g ) ] )    	 
+		which_edge               = which( unlist( strsplit( as.character( sample_graphs[ allG_new[ g ] ] ), "" ) ) == 1 )
+		vec_result[ which_edge ] = vec_result[ which_edge ] + all_weights_new[ g ]
+		result[ ,g ]             = vec_result / sum( all_weights_new[ c( 1 : g ) ] )    	 
 	}
 
 	if ( control )

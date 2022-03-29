@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -12,15 +12,16 @@
 #     Compute the sparsity of an adjacency matrix                              |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
+# Compute the proportion of non-links (non-zero elements) in the adj matrix
 sparsity = function( adj )
 {
     G = BDgraph::get_graph( adj )
     p = ncol( G )
     
-    sum_E = sum( adj ) / 2
+    sum_E = sum( G ) / 2
     D     = p * ( p - 1 ) / 2
     
-    sparsity_g = sum_E / D
+    sparsity_g = 1 - sum_E / D
     
     return( sparsity_g )
 }

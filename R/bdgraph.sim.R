@@ -14,23 +14,27 @@
 
 bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian", 
 						prob = 0.2, size = NULL, mean = 0, class = NULL, 
-						cut = 4, b = 3, D = diag(p), K = NULL, sigma = NULL, 
-						q = exp(-1), beta = 1, vis = FALSE )
+						cut = 4, b = 3, D = diag( p ), K = NULL, sigma = NULL, 
+						q = exp( -1 ), beta = 1, vis = FALSE, rewire = 0.05,
+						range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ) )
 {
-    if( p < 2 )                       stop( " 'p' must be more than 1." )
-    if( ( prob < 0 ) | ( prob > 1 ) ) stop( " Value of 'prob' must be between ( 0, 1 )." )
-    if( cut < 2 )                     stop( " Value of 'cut' must be more than 1." )
-    if( b <= 2 )                      stop( " Value of 'b' must be more than 2." )
+    if( p < 2 )                           stop( "'p' must be greater than 1" )
+    if( ( prob < 0 ) | ( prob > 1 ) )     stop( "'prob' must be between ( 0, 1 )" )
+    if( cut < 2 )                         stop( "'cut' must be greater than 1" )
+    if( b <= 2 )                          stop( "'b' must be greater than 2" )
+ 	if( ( rewire < 0 ) | ( rewire > 1 ) ) stop( "'rewire' must be between ( 0, 1 )" )
+    if( length( range.mu ) != 2 )         stop( "'range.mu' must be a vector with length 2" )
+    if( length( range.dispersion ) != 2 ) stop( "'range.dispersion' must be a vector with length 2" )
     
     if( inherits( graph, "graph" ) ) graph = unclass( graph )
     
-    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( " Matrices 'graph' and 'K' have non-conforming size." )
+    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( "'graph' and 'K' have non-conforming size" )
         
-    if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( " Value of 'size' must be between ( 0, p*(p-1)/2 )." )
+    if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( "'size' must be between ( 0, p*(p-1)/2 )" )
     
     if( is.matrix( K ) )
     {
-        if( !isSymmetric( K ) ) stop( " Matrix 'K' must be positive definite." )
+        if( !isSymmetric( K ) ) stop( "'K' must be a positive definite matrix" )
         
         graph <- "fixed"
         p     <- nrow( K )
@@ -38,24 +42,24 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     
     if( type == "normal"     ) type = "Gaussian"
     if( type == "non-normal" ) type = "non-Gaussian"
-    if( type == "discrete"   ) type = "count"
+    #if( type == "discrete"   ) type = "count"
     
-    if( ( type == "count" ) & ( cut == 2 ) ) type = "binary"
+    if( ( type == "categorical" ) & ( cut == 2 ) ) type = "binary"
     
     if( is.matrix( graph ) )
 	{
-        if( !isSymmetric( graph ) ) stop( "Matrix 'graph' must be symmetric" )
+        if( !isSymmetric( graph ) ) stop( "'graph' must be symmetric matrix" )
 
         p = nrow( graph )
-        if( ( sum( graph == 1 ) + sum( graph == 0 ) ) != ( p * p ) ) stop( "Elements of 'graph', as a matrix, must be 0 or 1." )
+        if( ( graph != 0 ) && ( graph != 1 ) ) stop( "Elements of matrix 'graph' must be 0 or 1" )
         
         G     <- graph
 	    graph <- "fixed"
     } 
 	
     # - - build the graph structure - - - - - - - - - - - - - - - - - - - - - -|
-    if( sum( graph == c( "fixed", "AR1", "AR2", "circle" ) ) == 0 )
-		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class )
+    if( !any( graph == c( "fixed", "AR1", "AR2", "circle" ) ) )
+		G <- BDgraph::graph.sim( p = p, graph = graph, prob = prob, size = size, class = class, rewire = rewire )
 
     if( graph == "AR1" )
     {
@@ -98,7 +102,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			if( is.null( sigma ) ) sigma = stats::cov2cor( solve( K ) )
 		}else{ 
 			# - - Generate precision matrix according to the graph structure - |
-		    if( !isSymmetric( D ) ) stop( " Matrix 'D' must be positive definite." )
+		    if( !isSymmetric( D ) ) stop( "'D' must be a positive definite matrix" )
 		   
 		    Ti        = chol( solve( D ) )
 			diag( G ) = 0
@@ -112,6 +116,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			K     = matrix( result $ K, p, p ) 		
 			# sigma = solve( K )
 			sigma = stats::cov2cor( solve( K ) )
+			K = solve( sigma )  
 		}
 		
 		# - - generate multivariate normal data - - - - - - - - - - - - - - - -|
@@ -140,7 +145,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			
 			not.cont[ c( ( ps + 1 ):( 2 * ps ) ) ] = 1
 			
-			# generating non-Guassian data
+			# generating non-Gaussian data
 			col_number     <- c( ( 2 * ps + 1 ):( 3 * ps ) )
 			prob           <- stats::pnorm( d[ , col_number ] )
 			d[,col_number] <- stats::qexp( p = prob, rate = 10 )
@@ -162,12 +167,12 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		}
 
 		# - - generate multivariate count data - - - - - - - - - - - - - - - - |
-		if( type == "count" )
+		if( type == "categorical" )
 		{
 		    not.cont[ 1:p ] = 1
 		    
-			runif_m   <- matrix( stats::runif( cut * p ), nrow = p, ncol = cut )   
-			marginals <- apply( runif_m, 1, function( x ) { stats::qnorm( cumsum( x / sum( x ) )[ -length( x ) ] ) } )
+			runif_m   = matrix( stats::runif( cut * p ), nrow = p, ncol = cut )   
+			marginals = apply( runif_m, 1, function( x ) { stats::qnorm( cumsum( x / sum( x ) )[ -length( x ) ] ) } )
 			if( cut == 2 ) marginals = matrix( marginals, nrow = 1, ncol = p )
 				 
 			for( j in 1:p )
@@ -183,7 +188,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		{
 		    not.cont[ 1:p ] = 1
 		    
-		    if( p > 16 ) stop( "For type 'binary', number of nodes (p) must be less than 16." )
+		    if( p > 16 ) stop( "'p' must be less than 16, for option 'type = \"binary\"'" )
 			
 			## Generate clique factors
 			clique_factors = generate_clique_factors( ug = G )
@@ -193,73 +198,90 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			d = d - 1
 		}
 		
-		if( type == "dw" )
+		if( ( type == "dweibull" ) |( type == "dw" ) )
 		{
-            if( ( is.matrix( q ) == FALSE )  &  ( is.matrix( beta ) == FALSE) ) #q and beta can be a vector or a number
-            {  
-                if( length( q    ) == 1 ) q    = rep( q, time = p ) 
-                if( length( beta ) == 1 ) beta = rep( beta, time = p )
-                
-                if( length( q    ) != p ) stop( " Length of vector 'q' has non-conforming size with 'p'. "    )
-                if( length( beta ) != p ) stop( " Length of vector 'beta' has non-conforming size with 'p'. " )
-                
-                not.cont[ 1:p ] = 1
-                Y_data <- matrix( c( 0, 1 ), nrow = n, ncol = p )
-                
-                while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
-                {  
-                    #d <- BDgraph::rmvnorm( n = n, mean = mean, sigma = sigma )
-                    d <- tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
-                                             sigma = sigma, lower = rep( -5, length = p ), 
-                                             upper = rep( 5, length = p ) )
-                    
-                    
-                    # STEP 2: Generate Continuous Weibull with (q, beta) - - - - - - - -|
-                    #shape.c <- beta
-                    #scale.c <- exp( -log( -log( q ) ) / beta )
-                    
-                    #for( j in 1 : p ) Y_data[ , j ] <- stats::qweibull( stats::pnorm( d[ , j ] ), shape = shape.c[ j ] , scale = scale.c[ j ] )
-                    for( j in 1 : p ) 
-                        Y_data[ , j ] = BDgraph::qdweibull( stats::pnorm( d[ , j ] ),  q = q[ j ], beta = beta[ j ] , zero = TRUE )		    
-                    #d = Y
-                    
-                    # STEP 3: Transform from Continuous Weibull to Discrete Weibull - -|
-                    #Y_data = floor( Y_data )
-                    cat( "any binary variable", any( apply( Y_data, 2, function( x ) { all( x %in% 0 : 1 ) } ) ), "\n" )
-                    #if(any( apply(Y_data, 2, function(x) { all(x %in% 0:1) })) == TRUE) tmvtnorm::rtmvnorm( n = n, mean = rep(mean, p), sigma = sigma, lower = rep(-5, length = p), upper = rep(5, length = p))
-                }
+            if( length( q    ) == 1 ) q    = rep( q   , time = p ) 
+            if( length( beta ) == 1 ) beta = rep( beta, time = p )
+		  
+            # q & beta can be a vector of length p (one for each Y variable)
+            if( is.vector( q    ) && ( length( q    ) != p ) ) stop( "'q', as a vector, has non-conforming size with 'p'"    )
+            if( is.vector( beta ) && ( length( beta ) != p ) ) stop( "'beta', as a vector, has non-conforming size with 'p'" )
             
-                d = Y_data
+            # or an n x p matrix (in the case of covariates)
+            if( is.matrix( q    ) && any( dim( q    ) != c( n, p ) ) ) stop( "'q', as a matrix, has non-conforming size with 'n' and 'p'" )
+            if( is.matrix( beta ) && any( dim( beta ) != c( n, p ) ) ) stop( "'beta', as a matrix, has non-conforming size with 'n' and 'p'" )
+            
+            not.cont[ 1:p ] = 1
+            
+            Y_data <- matrix( c( 0, 1 ), nrow = n, ncol = p )
+            
+            while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
+            {  
+                d = matrix( 0, nrow = n, ncol = p )
+                Z = tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
+                                       sigma = sigma, lower = rep( -5, length = p ), 
+                                       upper = rep( 5, length = p ) )
+                
+                pnorm_Z = stats::pnorm( Z )
+                
+                if( is.matrix( q ) && is.matrix( beta ) )
+                {
+                    for( j in 1 : p ) 
+                        Y_data[  ,j ] = BDgraph::qdweibull( pnorm_Z[ , j ], q = q[ , j ], beta = beta[ , j ], zero = TRUE )
+                }
+                
+                if( is.vector( q ) && is.vector( beta ) )
+                {
+                    for( j in 1 : p ) 
+                        Y_data[ , j ] = BDgraph::qdweibull(pnorm_Z[ , j ],  q = q[ j ], beta = beta[ j ] , zero = TRUE )		    
+                }
+                
+                if( any( apply( Y_data, 2, function( x ) { all( x %in% 0 : 1 ) } ) ) )
+                    cat( " Some of the variables are binary \n" )
             }
-        
-            if( ( is.matrix( q ) == TRUE )  &  ( is.matrix( beta ) == TRUE ) ) # q and beta come from regression 
-            {
-                d <- matrix( 0, nrow = n, ncol = p )
-                Z <- tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
-                                         sigma = sigma, lower = rep( -3, length = p ), 
-                                         upper = rep( 3, length = p ) )
-                pnorm_Z <- stats::pnorm( Z )
-                for( j in 1:p ) 
-                    d[  ,j ] <- BDgraph::qdweibull( pnorm_Z[ ,j ], q = q[ , j ], beta = beta[ , j ] , zero = TRUE )
-            }  
+            
+            d = Y_data
         }
 		
-		if( type == "NB" )
+		if( ( type == "nbinom" ) | ( type == "NB" ) )
 		{
             not.cont[ 1:p ] = 1
             Y.star <- matrix( c( 0, 1 ), nrow = n, ncol = p )
             while ( any( apply( Y.star, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
             {
-                d <- tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), sigma = sigma, 
+                d = tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), sigma = sigma, 
                                          lower = rep( -5, length = p ), upper = rep( 5, length = p ) )
                 
-                mu   <- stats::runif( n = p, min = 0.5, max = 5 )
-                size <- stats::runif( n = p, min = 0.1, max = 3 )
-                
+                #mu   <- stats::runif( n = p, min = 0.5, max = 5 )
+                #size <- stats::runif( n = p, min = 0.1, max = 3 )
+                mu   = stats::runif( n = p, min = range.mu[ 1 ], max = range.mu[ 2 ] )
+                size = stats::runif( n = p, min = range.dispersion[ 1 ], max = range.dispersion[ 2 ] ) 
+    
                 for(j in 1 : p ) 
-                    Y.star[ , j ] <- stats::qnbinom( stats::pnorm( d[ , j ] ), size = size[ j ], 
+                    Y.star[ , j ] = stats::qnbinom( stats::pnorm( d[ , j ] ), size = size[ j ], 
                                                      mu = mu[ j ], lower.tail = TRUE, log.p = FALSE )
                 # cat( "any binary variables ", any( apply( Y , 2, function( x ) { all( x %in% 0:1 ) }) ) , "\n" )
+            }
+            
+            d = Y.star
+		}
+		
+		if( ( type == "pois" ) | ( type == "count" ) )
+		{
+            not.cont[ 1:p ] = 1
+            Y.star = matrix( c( 0, 1 ), nrow = n, ncol = p )
+            
+            while( any( apply( Y.star, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
+            {
+                d = tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), sigma = sigma, 
+                                        lower = rep( -5, length = p ), upper = rep( 5, length = p ) )
+                
+                #lambda = stats::runif( n = p, min = 2, max = 3 )
+                #lambda = stats::runif( n = p, min = 2, max = 5 )
+                lambda = stats::runif( n = p, min = range.mu[ 1 ], max = range.mu[ 2 ] )
+
+                for(j in 1 : p ) 
+                    Y.star[ , j ] = stats::qpois( stats::pnorm( d[ , j ] ), lambda = lambda[ j ],  lower.tail = TRUE, log.p = FALSE )
             }
             
             d = Y.star
@@ -273,7 +295,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		    simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont )
 	    }else{
 	        simulation <- list( G = G, graph = graph, data = d, sigma = sigma, K = K, type = type, not.cont = not.cont,
-	                            shape.d = beta, scale.d = q )
+	                            beta = beta, q = q )
 	    }
 	}else{
 		simulation <- list( G = G, graph = graph )		
@@ -292,24 +314,21 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 print.sim = function( x, ... )
 {
-	p <- ncol( x $ G )
-	
-	if( is.null( x $ type ) )
+	p     = ncol( x $ G )
+	sum_G = sum( x $ G )
+
+	cat( paste( "  graph generated by bdgraph.sim" ), fill = TRUE )
+
+	if( !is.null( x $ type ) )
 	{
-		cat( paste( "  graph generated by bdgraph.sim"                                 ), fill = TRUE )
-		cat( paste( "  Graph type      =", x $ graph                                   ), fill = TRUE )
-		cat( paste( "  Number of nodes =", p                                           ), fill = TRUE )
-		cat( paste( "  Graph size      =", sum( x $ G ) / 2                            ), fill = TRUE )
-		cat( paste( "  Sparsity        =", round( sum( x $ G ) / ( p * ( p - 1 ) ), 4) ), fill = TRUE )		
-	}else{
-		cat( paste( "  Data generated by bdgraph.sim"                                  ), fill = TRUE )
-		cat( paste( "  Data type       =", x $ type                                    ), fill = TRUE )
-		cat( paste( "  Sample size     =", nrow( x $ data )                            ), fill = TRUE )
-		cat( paste( "  Graph type      =", x $ graph                                   ), fill = TRUE )
-		cat( paste( "  Number of nodes =", p                                           ), fill = TRUE )
-		cat( paste( "  Graph size      =", sum( x $ G ) / 2                            ), fill = TRUE )
-		cat( paste( "  Sparsity        =", round( sum( x $ G ) / ( p * ( p - 1 ) ), 4) ), fill = TRUE )
+		cat( paste( "  Data type       =", x $ type         ), fill = TRUE )
+		cat( paste( "  Sample size     =", nrow( x $ data ) ), fill = TRUE )
 	}
+	
+	cat( paste( "  Graph type      =", x $ graph                          ), fill = TRUE )
+	cat( paste( "  Number of nodes =", p                                  ), fill = TRUE )
+	cat( paste( "  Graph size      =", sum_G / 2                          ), fill = TRUE )
+	cat( paste( "  Sparsity        =", round( BDgraph::sparsity( x ), 4 ) ), fill = TRUE )		
 }
     
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -326,9 +345,13 @@ plot.sim = function( x, ... )
 sample_ug = function( n = 1, ug = diag( 3 ), clique_factors = NULL )
 {
 	p = ncol( ug ) # p smaller than 17 check
-	if( p > 16 ) stop( "number of nodes must be smaller than 16." )
+	
+	if( p > 16 ) stop( "number of nodes must be smaller than 16" )
+	
 	ug[ lower.tri( ug, diag = TRUE ) ] = 0
-	if( is.null( clique_factors ) ) clique_factors = generate_clique_factors( ug )
+	
+	if( is.null( clique_factors ) ) 
+	    clique_factors = generate_clique_factors( ug )
 	
 	prob = calc_joint_dist( ug, clique_factors )
 	noc  = length( prob )

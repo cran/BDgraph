@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,8 +14,8 @@
 
 rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
 {
-	if( b <= 2 )         stop( "Value of parameter 'b' must be more than 2." )
-	if( is.null( adj ) ) stop( "Adjacency matrix must be determined." )
+	if( b <= 2 )         stop( "'b' must be more than 2" )
+	if( is.null( adj ) ) stop( "'adj' must be determined" )
 
     if( is.matrix( adj )           ) G <- unclass( adj )
   # if( inherits( adj, "graph" )   ) G <- unclass( adj )
@@ -24,7 +24,8 @@ rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
     if( inherits( adj, "ssgraph" ) ) G <- BDgraph::select( adj ) 
     
     
-    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) stop( " Elements of matrix 'adj' must be 0 or 1." )
+    if( ( sum( G == 0 ) + sum( G == 1 ) ) != ( nrow( G ) ^ 2 ) ) 
+		stop( "Elements of matrix 'adj' must be 0 or 1" )
     
     G <- as.matrix( G )
     diag( G ) <- 0
@@ -36,11 +37,11 @@ rgwish = function( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 )
     }
 	
 	p <- nrow( G )
-	if( p < 1 ) stop( "'p' must be more than or equal with 1." )
+	if( p < 1 ) stop( "'p' must be more than or equal with 1" )
 	
 	if( is.null( D )      ) D <- diag( p )
-	if( !isSymmetric( D ) ) stop( "Matrix 'D' must be positive definite matrix." )
-	if( nrow( D ) != p    ) stop( "Dimension of matrix G and D must be the same." )
+	if( !isSymmetric( D ) ) stop( "'D' must be a positive definite matrix" )
+	if( nrow( D ) != p    ) stop( "'G' and 'D' dimentions differ" )
 	
 	if( p == 1 )
 	    return( rwish( n = n, p = p, b = b, D = D ) )

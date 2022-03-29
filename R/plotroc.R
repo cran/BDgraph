@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -17,7 +17,7 @@ plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
 {
     if( is.matrix( target ) ) 
     {
-        if( ( sum( target == 0 ) + sum( target == 1 ) ) != ( nrow( target ) ^ 2 ) ) stop( "Elements of 'target' must be 0 or 1." )
+        if( ( sum( target == 0 ) + sum( target == 1 ) ) != ( nrow( target ) ^ 2 ) ) stop( "Elements of 'target' must be 0 or 1" )
         G = target
     }
     
@@ -90,7 +90,7 @@ compute_tp_fp = function( G, est, cut, smooth )
     
     if( is.matrix( est ) )
     {
-        if( any( est < 0 ) || any( est > 1 ) ) stop( " Elements of 'est' must be between ( 0, 1 )." )
+        if( any( est < 0 ) || any( est > 1 ) ) stop( "Elements of 'est' must be between ( 0, 1 )" )
         p_links = est
     }
     

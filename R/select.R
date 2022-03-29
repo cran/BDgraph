@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -18,12 +18,12 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 {
 	if( is.matrix( bdgraph.obj ) ) 
 	{
-	    if( any( bdgraph.obj < 0 ) || any( bdgraph.obj > 1 ) ) stop( " Values of 'bdgraph.obj' must be between 0 and 1." )
+	    if( any( bdgraph.obj < 0 ) || any( bdgraph.obj > 1 ) ) stop( "Values of matrix 'bdgraph.obj' must be between 0 and 1" )
 	    p_links = unclass( bdgraph.obj )
 		p       = ncol( p_links )
 	}else{
 	    if( ( !inherits( bdgraph.obj, "bdgraph" ) ) && ( !inherits( bdgraph.obj, "ssgraph" ) ) )
-	        stop( "'bdgraph.obj' must be a matrix or an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'." )
+	        stop( "'bdgraph.obj' must be a matrix or an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
 	    
 	    if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
 	        p_links = bdgraph.obj $ p_links
@@ -46,7 +46,7 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
         selected_g[ upper.tri( selected_g ) ] <- vec_G
     }else{
         if( is.null( cut ) ) cut = 0.5
-        if( ( cut < 0 ) || ( cut > 1 ) ) stop( " Value of 'cut' must be between 0 and 1." )
+        if( ( cut < 0 ) || ( cut > 1 ) ) stop( "'cut' must be between 0 and 1" )
         
         if( is.null( p_links ) ) p_links = BDgraph::plinks( bdgraph.obj, round = 10 )
         

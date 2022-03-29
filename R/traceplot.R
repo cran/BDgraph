@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -16,57 +16,54 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 {
     if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE." )
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option save = TRUE." )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
+
+    	sample_graphs     = bdgraph.obj $ sample_graphs
+        all_graphs        = bdgraph.obj $ all_graphs
+    	graph_weights     = bdgraph.obj $ graph_weights
+    	sizesample_graphs = sapply( sample_graphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )  
+    	sizeall_graphs    = sizesample_graphs[ all_graphs ]
+    	which_G_max       = which( max( graph_weights ) == graph_weights )
+    	size_selected_g   = sizeall_graphs[ which_G_max ] 
+    	
+    	sample_mcmc = sizeall_graphs
+    
+    	if( is.null( main ) ) main = "Trace of graph size"
+    	ylab = "Graph size"
     }else{
-        stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'." )
+        if( !is.vector( bdgraph.obj ) )
+            stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()' or a vector" )
+        
+        sample_mcmc = bdgraph.obj
+        
+        if( is.null( main ) ) main = "Trace of MCMC sample"
+        ylab = ""
     }
     
-	sample_graphs     = bdgraph.obj $ sample_graphs
-    all_graphs        = bdgraph.obj $ all_graphs
-	graph_weights     = bdgraph.obj $ graph_weights
-	sizesample_graphs = sapply( sample_graphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )  
-	sizeall_graphs    = sizesample_graphs[ all_graphs ]
-	which_G_max       = which( max( graph_weights ) == graph_weights )
-	size_selected_g   = sizeall_graphs[ which_G_max ] 
+	if ( acf == FALSE & pacf == FALSE ) op = graphics::par( mfrow = c( 1, 1 ), pty = "s" )
+	if ( acf == TRUE  & pacf == TRUE  ) op = graphics::par( mfrow = c( 2, 2 ), pty = "s" ) 
+	if ( acf == TRUE  & pacf == FALSE ) op = graphics::par( mfrow = c( 1, 2 ), pty = "s" )
+	if ( acf == FALSE & pacf == TRUE  ) op = graphics::par( mfrow = c( 1, 2 ), pty = "s" )
+    
+	x_vec = 1 : length( sample_mcmc )
+	
+	graphics::plot( x = x_vec, 
+	                y = sample_mcmc, 
+	                type = "l", 
+	                main = main, 
+	                col = "lightblue", 
+	                ylab = ylab, 
+	                xlab = "Iteration", ... )
 
-	if( is.null( main ) ) main = "Trace of graph size"
+	if( !is.vector( bdgraph.obj ) )	
+	    graphics::lines( x = x_vec, y = rep( size_selected_g, length( sample_mcmc ) ), 
+	                     col = "blue" )
 	
-	x_vec = 1 : length( all_graphs )
+	if ( acf  == TRUE ) acf(  sample_mcmc, main = "ACF for graph size" )
+	if ( pacf == TRUE ) pacf( sample_mcmc, main = "PACF for graph size" )
 	
-	if ( acf == FALSE & pacf == FALSE )
-	{
-		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, cex.main = 1.5, cex.lab = 1.3, cex.axis = 1.2, ylab = "Graph size", xlab = "Iteration", ... )
-		graphics::abline( h = size_selected_g, col = "red" )	   
-	}
-	
-	if ( acf == TRUE & pacf == TRUE )
-	{
-		op = graphics::par( mfrow = c( 2, 2 ), pty = "s" )  
-		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
-		graphics::abline( h = size_selected_g, col = "red" )	  
-		acf( sizeall_graphs,  main = "ACF for graph size" )
-		pacf( sizeall_graphs, main = "PACF for graph size" )
-		graphics::par( op )
-	}
-	
-	if ( acf == TRUE & pacf == FALSE )
-	{
-		op <- graphics::par( mfrow = c( 1, 2 ), pty = "s" ) 
-		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
-		graphics::abline( h = size_selected_g, col = "red" )	  
-		acf( sizeall_graphs, main = "ACF for graph size" )
-		graphics::par( op )
-	}
-	
-	if ( acf == FALSE & pacf == TRUE )
-	{
-		op <- graphics::par( mfrow = c( 1, 2 ), pty = "s" ) 
-		graphics::plot( x = x_vec, sizeall_graphs, type = "l", main = main, ylab = "Graph size", xlab = "Iteration", ... )
-		graphics::abline( h = size_selected_g, col = "red" )	  
-		pacf( sizeall_graphs, main = "PAIC for graph size" )
-		graphics::par( op )
-	}		
+	graphics::par( op )
 }  
-      
+   
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

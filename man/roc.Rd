@@ -12,20 +12,20 @@
 }
 
 \usage{ 
-roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, ... )
+roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
 }
 
 \arguments{
     \item{pred  }{
-        An adjacency matrix corresponding to an estimated graph. 
-        It can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+        adjacency matrix corresponding to an estimated graph. 
+        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
         It can be a \code{\link{numeric}} or \code{\link{ordered}} vector of the same length than \code{actual}, containing the predicted
   value of each observation.
     }
     
-    \item{actual}{ An adjacency matrix corresponding to the actual graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
+    \item{actual}{ adjacency matrix corresponding to the actual graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
 	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
 	It can be a factor, numeric or character vector of responses (true class), typically encoded with 0 (controls) and 1 (cases).
     Only two classes can be used in a ROC curve. }
@@ -38,6 +38,9 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, ... )
   
   \item{plot}{plot the ROC curve? If \code{TRUE}, additional
     arguments can be passed to \code{\link[pROC:plot.roc]{pROC::plot.roc()}}.
+  }
+  
+  \item{quiet}{if \code{TRUE}, turn off \code{\link{message}}s when \code{direction} and \code{levels} are auto-detected.
   }
   \item{\dots}{ further arguments to be passed to \code{\link[pROC:roc]{pROC::roc()}}. }
 }
@@ -57,24 +60,24 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, ... )
     were removed, a \code{na.action} attribute similar
     to \code{\link{na.omit}} stores the row numbers. 
   }
-  \item{predictor}{the predictor vector converted to numeric as used to build the ROC
+  \item{predictor}{predictor vector converted to numeric as used to build the ROC
     curve. Patients whose response is not \code{\link{\%in\%}} \code{levels} are discarded. If
     \code{NA} values were removed, a \code{na.action} attribute similar
     to \code{\link{na.omit}} stores the row numbers.
   }
-  \item{original.predictor, original.response}{the response and predictor vectors as passed in argument.}
-  \item{levels}{the levels of the response as defined in argument.}
-  \item{controls}{the predictor values for the control observations.}
-  \item{cases}{the predictor values for the cases.}
+  \item{original.predictor, original.response}{response and predictor vectors as passed in argument.}
+  \item{levels}{levels of the response as defined in argument.}
+  \item{controls}{predictor values for the control observations.}
+  \item{cases}{predictor values for the cases.}
   \item{percent}{if the sensitivities, specificities and AUC are
     reported in percent, as defined in argument.
   }
-  \item{direction}{the direction of the comparison, as defined in argument.}
-  \item{fun.sesp}{the function used to compute sensitivities and specificities.
+  \item{direction}{direction of the comparison, as defined in argument.}
+  \item{fun.sesp}{function used to compute sensitivities and specificities.
     Will be re-used in bootstrap operations.}
-  \item{sensitivities}{the sensitivities defining the ROC curve.}
-  \item{specificities}{the specificities defining the ROC curve.}
-  \item{thresholds}{the thresholds at which the sensitivities and
+  \item{sensitivities}{sensitivities defining the ROC curve.}
+  \item{specificities}{specificities defining the ROC curve.}
+  \item{thresholds}{thresholds at which the sensitivities and
     specificities were computed. See below for details.
   }
   \item{call}{how the function was called. See \code{\link{match.call}} for
@@ -88,13 +91,12 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, ... )
 
 \references{
   Tom Fawcett (2006) ``An introduction to ROC analysis''. \emph{Pattern
-    Recognition Letters} \bold{27}, 861--874. DOI:
-  \doi{10.1016/j.patrec.2005.10.010}.
+    Recognition Letters} \bold{27}, 861--874, \doi{10.1016/j.patrec.2005.10.010}
   
   Xavier Robin, Natacha Turck, Alexandre Hainard, \emph{et al.}
   (2011) ``pROC: an open-source package for R and S+ to analyze and
-  compare ROC curves''. \emph{BMC Bioinformatics}, \bold{7}, 77.
-  DOI: \doi{10.1186/1471-2105-12-77}.
+  compare ROC curves''. \emph{BMC Bioinformatics}, \bold{7}, 77, 
+  \doi{10.1186/1471-2105-12-77}.
 }
 
 \author{Reza Mohammadi \email{a.mohammadi@uva.nl}}
@@ -103,24 +105,25 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, ... )
 
 \examples{
 \dontrun{
-set.seed( 100 )
+set.seed( 5 )
 
-# Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+# Generating multivariate normal data from a 'scale-free' graph
+data.sim = bdgraph.sim( n = 200, p = 15, graph = "scale-free", vis = TRUE )
 
-# Running sampling algorithm based on GGMs 
-sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+# Running BDMCMC algorithm 
+sample.bdmcmc = bdgraph( data = data.sim, algorithm = "bdmcmc", iter = 10000 )
 
-# ROC curve for GGM method
-roc.ggm <- roc( pred = sample.ggm, actual = data.sim, plot = TRUE )
+# ROC curve for BDMCMC algorithm 
+roc.bdmcmc = BDgraph::roc( pred = sample.bdmcmc, actual = data.sim, plot = TRUE )
 
-# Running sampling algorithm based on GCGMs
-sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+# Running RJMCMC algorithm
+sample.rjmcmc = bdgraph( data = data.sim, algorithm = "rjmcmc", iter = 10000 )
 
-# ROC curve for GGM and GCGM methods
-roc.gcgm <- roc( pred = sample.gcgm, actual = data.sim, plot = TRUE )
+# ROC curve for RJMCMC algorithm
+roc.rjmcmc = BDgraph::roc( pred = sample.rjmcmc, actual = data.sim, plot = TRUE )
 
-ggroc( list( roc.ggm = roc.ggm, roc.gcgm = roc.gcgm ) )
+# ROC curve for both BDMCMC and RJMCMC algorithms
+pROC::ggroc( list( BDMCMC = roc.bdmcmc, RJMCMC = roc.rjmcmc ) )
 }
 }
 

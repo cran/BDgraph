@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -17,7 +17,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 					jump = NULL, alpha = 0.5, save = FALSE, 
 					cores = NULL, operator = "or" )
 {
-    if( iter < burnin ) stop( " Number of iteration must be more than number of burn-in." )
+    if( iter < burnin ) stop( " 'iter' must be higher than 'burnin'" )
     burnin = floor( burnin )
      
     cores = BDgraph::get_cores( cores = cores )
@@ -25,21 +25,21 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	if( inherits( data, "sim" ) ) data <- data $ data
 	colnames_data = colnames( data )
 
-	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( " Data should be a matrix or dataframe." )
+	if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "Data must be a matrix or dataframe" )
 	if( is.data.frame( data ) ) data <- data.matrix( data )
 	
-	if( any( is.na( data ) ) ) stop( " This method does not deal with missing values. You could try bdgraph() function with option method = gcgm." )	
+	if( any( is.na( data ) ) ) stop( "'bdgraph.mpl()' does not deal with missing values. You could use 'bdgraph()' function with option method = 'gcgm'" )	
 		
 	p <- ncol( data )
-	if( p < 3 ) stop( " Number of variables/nodes ('p') must be more than 2." )
+	if( p < 3 ) stop( "Number of variables/nodes ('p') must be more than 2" )
 	if( is.null( n ) ) n <- nrow( data )
 
 	if( method == "ggm" ) 
 	{
 		if( isSymmetric( data ) )
 		{
-			if ( is.null( n ) ) stop( " Please specify the number of observations 'n'." )
-			cat( " Input is identified as the covariance matrix. \n" )
+			if ( is.null( n ) ) stop( "Please specify the number of observations 'n'" )
+			cat( "Input is identified as the covariance matrix \n" )
 			S <- data
 		}else{
  			S <- t( data ) %*% data
@@ -61,7 +61,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	}
 	
 	if( method == "dgm-binary" )
-		if( ( min( data ) != 0 ) || ( max( data ) != 1 ) ) stop( " For the case 'method = dgm-binary', data must be binary 0 or 1" )
+		if( ( min( data ) != 0 ) || ( max( data ) != 1 ) ) stop( "For the case 'method = \"dgm-binary\"', data must be binary, 0 or 1" )
 	
 	g_prior = BDgraph::get_g_prior( g.prior = g.prior, p = p )
 	G       = BDgraph::get_g_start( g.start = g.start, g_prior = g_prior, p = p )

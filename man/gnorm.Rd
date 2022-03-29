@@ -13,17 +13,17 @@ gnorm( adj, b = 3, D = diag( ncol( adj ) ), iter = 100 )
 
 \arguments{
   \item{adj}{
-The adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which 
+adjacency matrix corresponding to the graph structure. It is an upper triangular matrix in which 
 \eqn{a_{ij}=1}{aij = 1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, 
 otherwise \eqn{a_{ij}=0}{aij = 0}.
 }
-  \item{b}{ The degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. }
+  \item{b}{ degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. }
   
   \item{D}{
-	The positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, 
+	positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, 
 	\eqn{W_G(b,D)}. The default is an identity matrix.
 	}
-  \item{iter}{The number of iteration for the Monte Carlo approximation.}
+  \item{iter}{number of iteration for the Monte Carlo approximation.}
 }
 
 \details{
@@ -35,13 +35,13 @@ Log of the normalizing constant approximation using Monte Carlo method for a G-W
 \value{ Log of the normalizing constant of G-Wishart distribution. }
 
 \references{
-Atay-Kayis, A. and Massam, H. (2005). A monte carlo method for computing the marginal likelihood in nondecomposable Gaussian graphical models, \emph{Biometrika}, 92(2):317-335
+Atay-Kayis, A. and Massam, H. (2005). A monte carlo method for computing the marginal likelihood in nondecomposable Gaussian graphical models, \emph{Biometrika}, 92(2):317-335, \doi{10.1093/biomet/92.2.317}
 
-Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416v2} 
+Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+  
+Uhler, C., et al (2018) Exact formulas for the normalizing constants of Wishart distributions for graphical models, \emph{The Annals of Statistics} 46(1):90-118, \doi{10.1214/17-AOS1543}
 
-Uhler, C., et al (2018) Exact formulas for the normalizing constants of Wishart distributions for graphical models, \emph{The Annals of Statistics} 46(1):90-118
-
-Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }

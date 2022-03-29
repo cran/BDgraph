@@ -29,15 +29,12 @@ rdweibull( n, q = exp( -1 ), beta = 1, zero = TRUE )
 
 \details{
 The discrete Weibull distribution has density given by 
-
 \deqn{
 f(x) = q^{x^\beta} - q^{(x+1)^\beta}, x = 0, 1, 2, \ldots
 }{
 f(x) = q^x^\beta - q^(x+1)^\beta, x = 0, 1, 2, \ldots
 }
-
-And for the case \code{zero} = \code{FALSE}:
-
+For the case \code{zero} = \code{FALSE}:
 \deqn{
 f(x) = q^{(x-1)^\beta} - q^{x^\beta}, x = 1, 2, \ldots
 }{
@@ -45,14 +42,12 @@ f(x) = q^(x-1)^\beta - q^x^\beta, x = 1, 2, \ldots
 }
 
 Cumulative distribution function
-
 \deqn{
 F(x) = 1-q^{(x+1)^\beta}
 }{
 F(x) = 1-q^(x+1)^\beta
 }
-
-And for the case \code{zero} = \code{FALSE}, \code{x+1} should replaced by \code{x}.
+For the case \code{zero} = \code{FALSE}, \code{x+1} should replaced by \code{x}.
 }
 
 \value{
@@ -60,21 +55,25 @@ And for the case \code{zero} = \code{FALSE}, \code{x+1} should replaced by \code
 }
 
 \references{
-Nakagawa, T. and Osaki, S. (1975). The Discrete Weibull Distribution. \emph{IEEE Transactions on Reliability}, R-24, 300-301.
-}
+Nakagawa, T. and Osaki, S. (1975). The Discrete Weibull Distribution. \emph{IEEE Transactions on Reliability}, R-24, 300-301, \doi{10.1109/TR.1975.5214915}
+} 
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Pariya Behrouzi, Veronica Vinciotti }
 
-\examples{
-n <- 1000
-q <- 0.4
-beta <- 0.8
+\seealso{ \code{\link{dweibull}}, \code{\link{bdw.reg}}, \link{bdgraph.dw} }
 
-rdw <- rdweibull( n = n, q = q, beta = beta )
+\examples{
+n    = 1000
+q    = 0.4
+beta = 0.8
+
+set.seed( 7 )
+
+rdw = rdweibull( n = n, q = q, beta = beta )
 
 plot( prop.table( table( rdw ) ), type = "h", col = "gray50" )
 
-x <- 0:max( rdw )
+x = 0:max( rdw )
 
 lines( x, ddweibull( x = x, q = q, beta = beta ), type = "o", col = "blue", lwd = 2 )
 

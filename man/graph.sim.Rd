@@ -5,43 +5,45 @@
 
 \description{
 Simulating undirected graph structures, including 
-\code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, and \code{"circle"}.
+"\code{random}", "\code{cluster}", "\code{scale-free}", "\code{lattice}", "\code{hub}", "\code{star}", and "\code{circle}".
 }
 
 \usage{
-graph.sim( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE )
+graph.sim( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE,
+           rewire = 0.05 )
 }
 
 \arguments{
-  \item{p}{The number of variables (nodes).}
-  \item{graph}{ The undirected graph with options 
-                \code{"random"}, \code{"cluster"}, \code{"scale-free"}, \code{"lattice"}, \code{"hub"}, \code{"star"}, and \code{"circle"}. 
+  \item{p}{number of variables (nodes).}
+  \item{graph}{ undirected graph with options 
+                "\code{random}", "\code{cluster}", "\code{smallworld}", "\code{scale-free}", "\code{lattice}", "\code{hub}", "\code{star}", and "\code{circle}". 
                It also could be an adjacency matrix corresponding to a graph structure (an upper triangular matrix in which 
                \eqn{g_{ij}=1} if there is a link between notes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}). 
     }
-  \item{prob}{ If \code{graph="random"}, it is the probability that a pair of nodes has a link.}
-  \item{size}{The number of links in the true graph (graph size).}
-  \item{class}{ If \code{graph="cluster"}, it is the number of classes. }
-  \item{vis}{Visualize the true graph structure.}
+  \item{prob}{ if \code{graph} = "\code{random}", it is the probability that a pair of nodes has a link.}
+  \item{size}{number of links in the true graph (graph size).}
+  \item{class}{ if \code{graph} = "\code{cluster}", it is the number of classes. }
+  \item{vis}{visualize the true graph structure.}
+  \item{rewire}{rewiring probability for smallworld network. Must be between 0 and 1.}
 }
 
 \value{ The adjacency matrix corresponding to the simulated graph structure, as an object with \code{S3} class \code{"graph"}.}
 
 \references{
-Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30 
+Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30, \doi{10.18637/jss.v089.i03} 
 
-Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 
-Letac, G., Massam, H. and Mohammadi, R. (2018). The Ratio of Normalizing Constants for Bayesian Graphical Gaussian Model Selection, \emph{arXiv preprint arXiv:1706.04416v2} 
+Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+  
+Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645, \doi{10.1111/rssc.12171} 
 
-Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645 
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845, \doi{10.1214/18-AOAS1164}
 
-Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845
-
-Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215
+Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215, \doi{10.1214/16-BA1032}
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Alexander Christensen }
 
 \seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
 

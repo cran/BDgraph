@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -62,12 +62,12 @@ compare = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = N
         row_plot = ifelse( is.null( est2 ), 1, 2 )
         op       = graphics::par( mfrow = c( row_plot, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
         
-        BDgraph::plot.graph( G  , main = main[1] )
-        BDgraph::plot.graph( est, main = main[2] )
+        BDgraph::plot.graph( G  , main = main[ 1 ] )
+        BDgraph::plot.graph( est, main = main[ 2 ] )
 
-        if( !is.null( est2 ) ) BDgraph::plot.graph( est2, main = main[3] )
-        if( !is.null( est3 ) ) BDgraph::plot.graph( est3, main = main[4] )
-        if( !is.null( est4 ) ) BDgraph::plot.graph( est4, main = main[5] )
+        if( !is.null( est2 ) ) BDgraph::plot.graph( est2, main = main[ 3 ] )
+        if( !is.null( est3 ) ) BDgraph::plot.graph( est3, main = main[ 4 ] )
+        if( !is.null( est4 ) ) BDgraph::plot.graph( est4, main = main[ 5 ] )
 
         graphics::par( op )
     }
@@ -80,7 +80,7 @@ compare = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = N
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 compute_measures = function( G, est_G ) 
 {
-    if( sum( dim( G ) == dim( est_G ) ) != 2 ) stop( " 'target' and 'est' have non-conforming size." )
+    if( sum( dim( G ) == dim( est_G ) ) != 2 ) stop( "'target' and 'est' have non-conforming size" )
     
     upper_G     = G[     upper.tri( G     ) ]
     upper_est_G = est_G[ upper.tri( est_G ) ]

@@ -1,11 +1,16 @@
-# **BDgraph** 
+<!-- README.md is generated from NEWS.Rmd. Please edit that file -->
 
-![](https://www.r-pkg.org/badges/version/BDgraph) 
-![](https://www.r-pkg.org/badges/last-release/BDgraph) 
-![](https://cranlogs.r-pkg.org/badges/BDgraph) 
-![](https://cranlogs.r-pkg.org/badges/grand-total/BDgraph) 
+## **BDgraph** NEWS <a href='https://CRAN.R-project.org/package=BDgraph'><img src='man/figures/logo.png' align="right" height="170" /></a>
 
-## **BDgraph** NEWS
+### **BDgraph** Version 2.65
+
+* Function `bdgraph.dw()` is added to the package.
+* Function `bdw.reg()`    is added to the package.
+
+* In functions `graph.sim()` and `bdgraph.sim()` option `graph = "smallworld"` is added.
+* In functions `plot.graph()` and `plot.bdgraph()` options `layout`, `vertex.size`, `vertex.color`, and `vertex.label.dist` are added.
+
+* In function `bdgraph.sim()` options `range.mu` and `range.dispersion` are added.
 
 ### **BDgraph** Version 2.64
 

@@ -11,22 +11,22 @@ conf.mat( pred, actual, cutoff = 0.5, proportion = FALSE,
 
 \arguments{
     \item{pred  }{
-        An adjacency matrix corresponding to an estimated graph. 
-        It can be an object with \code{S3} class \code{"bdgraph"} from function \code{\link{bdgraph}}. 
+        adjacency matrix corresponding to an estimated graph. 
+        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
     }
     
-    \item{actual}{ An adjacency matrix corresponding to the actual graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class \code{"sim"} from function \code{\link{bdgraph.sim}}.
+    \item{actual}{ adjacency matrix corresponding to the actual graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
 	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
 	It can be a factor, numeric or character vector of responses (true class), typically encoded with 0 (controls) and 1 (cases).
     Only two classes can be used in a ROC curve. }
     \item{cutoff}{cutoff value for the case that \code{pred} is vector of probabilites. The default is 0.5. }  
 	\item{proportion}{
-		Logical: FALSE (default) for a confusion matrix with number of cases. 
+		logical: FALSE (default) for a confusion matrix with number of cases. 
 		         TRUE, for a confusion matrix with the proportion of cases.
 	}
-    \item{dnn   }{the names to be given to the dimensions in the result (the dimnames names). }
+    \item{dnn   }{names to be given to the dimensions in the result (the dimnames names). }
     \item{\dots }{further arguments to be passed to \code{table}. }
 }
 

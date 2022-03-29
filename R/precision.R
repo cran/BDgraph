@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2020  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -14,12 +14,12 @@
 precision = function( bdgraph.obj, round = 2 )
 {
     if( ( !inherits( bdgraph.obj, "bdgraph" ) ) && ( !inherits( bdgraph.obj, "ssgraph" ) ) )
-        stop( "'bdgraph.obj' must be an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'." )
+        stop( "'bdgraph.obj' must be an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
     
     K_hat = bdgraph.obj $ K_hat
     
     if( is.null( K_hat ) )			  
-        stop( " Input 'object' must be from functions 'bdgraph()' or 'ssgraph()'." )
+        stop( "Input 'object' must be from functions 'bdgraph()' or 'ssgraph()'" )
 
     return( round( K_hat, round ) )
 
