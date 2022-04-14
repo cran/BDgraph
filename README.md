@@ -22,14 +22,14 @@ install.packages( "BDgraph" )
 ### Loading
 
 ``` r
-require( BDgraph )
+library( BDgraph )
 ```
 
 ## Simple Examples for BDgraph package
 
 To see how to use the functionality of the package:
 
-[https://CRAN.R-project.org/package=BDgraph/vignettes/BDgraph-examples.html](https://CRAN.R-project.org/package=BDgraph/vignettes/BDgraph-examples)
+[https://CRAN.R-project.org/package=BDgraph/vignettes/BDgraph-Examples.html](https://CRAN.R-project.org/package=BDgraph/vignettes/BDgraph-Examples)
 
 See also [Mohammadi and Wit (2019)](https://www.jstatsoft.org/article/view/v089i03).
 

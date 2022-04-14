@@ -97,6 +97,8 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
     if( is.null( q    ) ) if( inherits( data, "sim" ) ) q    = data $ q
     if( is.null( beta ) ) if( inherits( data, "sim" ) ) beta = data $ beta
     
+    if( is.null( pii ) ) pii = rep( 1, p )
+
     if( is.null( q ) & is.null( beta ) )
     {
         if( length( ZI ) == 1 ) ZI = rep( ZI, p )
@@ -149,8 +151,6 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
         }
     
     }
-    
-    if( is.null( pii ) ) pii = rep( 1, p )
     
     b      = df.prior
     b_star = b + n

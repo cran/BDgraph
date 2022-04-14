@@ -1,32 +1,43 @@
 ---
-title: "<center> Simple Examples for BDgraph package <center>"
-author: '<center> Reza Mohammadi (a.mohammadi@uva.nl) <center>'
-date: '<center> `r Sys.Date()` <center>'
+title: "<center> BDgraph with Simple Examples <center>"
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{Example for Data Analysis}
+  %\VignetteIndexEntry{BDgraph with Simple Examples}
 output:
   knitr:::html_vignette:
     number_sections: false
     fig_caption: true
-    toc: true
+    toc: false
     fig_width: 7
     fig_height: 5
     theme: cosmo
     highlight: tango
 ---
 
-```{r setup, include = FALSE}
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{BDgraph with Simple Examples}
+-->
+
+```{r opts, echo = FALSE, message = FALSE, warning = FALSE}
+library( "knitr" )
 knitr::opts_chunk $ set( echo = TRUE )
-   
-library( BDgraph )
-
-library( pROC )    
-
-library( ggplot2 )  
 ```
 
 The `R` package **BDgraph** provides statistical tools for Bayesian structure learning for undirected graphical models with *continuous*, *count*, *binary*, and *mixed data*. The package is implemented the recent improvements in the Bayesian graphical models' literature, including [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi et al. (2017)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171), and [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478). Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature. 
+
+Install caret using
+```{r eval = FALSE}
+install.packages( "BDgraph" )
+```
+
+First, we install **BDgraph** package as well as **pROC** and **ggplot2**
+```{r loadpkg, message = FALSE, warning = FALSE}
+library( BDgraph )
+
+library( pROC )    
+library( ggplot2 )  
+```
 
 Here are two simple examples to show how to use the functionality of the package.
 

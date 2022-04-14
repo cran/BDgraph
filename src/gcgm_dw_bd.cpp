@@ -75,6 +75,7 @@ void gcgm_dw_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 	            counter++;
 	        }
 	    }
+	    
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );	
 
@@ -86,7 +87,7 @@ void gcgm_dw_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - | 
+// - - Main loop for birth-death MCMC  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
 	GetRNGstate();
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -96,7 +97,7 @@ void gcgm_dw_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
 		}
 
-// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - |		
+// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
 		get_Ds_dw( K, Z, Y, lower_bounds, upper_bounds, D, Ds, &S[0], gcgm, n, &dim );
 		get_Ts( Ds, Ts, &inv_Ds[0], &copy_Ds[0], &dim );

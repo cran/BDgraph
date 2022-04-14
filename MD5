@@ -1,9 +1,9 @@
-9c4f0d12582fdc2229bb9aed06f243e9 *DESCRIPTION
+e598ba3ab6f359b1a7209c70b03b208c *DESCRIPTION
 237db5a1c6b8072e25c192b307949212 *NAMESPACE
 605929641112f38cdbca0b1e02855c1d *NEWS.md
 6ddcad557671051813e48426ef9c4b4e *R/adj2link.R
 70f9f32473e160632b32886a2e8f1127 *R/bdgraph.R
-5e1ed01d8e446e5957e9d61c83cef884 *R/bdgraph.dw.R
+2b1ae555fdd5075dd3c9c662cc465be8 *R/bdgraph.dw.R
 9daf16a286ba4ae27db43c47b53771ee *R/bdgraph.mpl.R
 83215c67c73b361254bca251f702e94d *R/bdgraph.npn.R
 d588e5f14c9cb366ae3a2b9c66b5ff72 *R/bdgraph.sim.R
@@ -34,9 +34,9 @@ d561d403bf9741c535fd7498bd1ca556 *R/roc.R
 7a058a6fcd2c10a1ebf2b47d642f67b1 *R/sparsity.R
 99440d79605000ca1c2566604f7ef524 *R/traceplot.R
 d0cf7323d6922bbb0f54fa0e37b9b829 *R/transfer.R
-73e22056962935b54ee0b742cdde52d2 *README.md
+76e0dc691d251f4b7a031c775e7dbb43 *README.md
 5a1c0006f5901feda2ead61fdd4e72b8 *THANKS
-eae617c6795bb67c804b52513ac36921 *build/partial.rdb
+298a85d5e32a9a50140a1b39427d9118 *build/partial.rdb
 694310dff1bd4be3c503c4d23ea4566b *build/vignette.rds
 8196a975ffaa49f915a2c895fedb9725 *data/churn.RData
 a8d3a3a1290e50b7ed525afde3a519dd *data/geneExpression.RData
@@ -44,11 +44,11 @@ a8d3a3a1290e50b7ed525afde3a519dd *data/geneExpression.RData
 8a37e042791c4f5982d0f6a47b751536 *data/surveyData.RData
 a8d9f8d04015dba73da0d18aafca78f6 *inst/CITATION
 d7828f461d88518433ae3055fdf2a195 *inst/TODO
-fc949edcf10bd28fce8a6a7ea03f979f *inst/doc/BDgraph-examples.Rmd
-d722d98a02045d5e65d2859b1f130ce2 *inst/doc/BDgraph-examples.html
+e8c51d56e840008b385695858d36b745 *inst/doc/BDgraph-Examples.Rmd
+9abefd70846495a47f11127d9bc9ee43 *inst/doc/BDgraph-Examples.html
 97c18a6959dc26f7026ce277050dfac6 *inst/doc/BDgraph_examples.R
 805a49b23148683b1955e2ec9ef78419 *inst/doc/vignette.Rnw
-b2c0f564cc9a587ea9dda0068157935d *inst/doc/vignette.pdf
+e940c604c3514eb5c953d84f3c23efc7 *inst/doc/vignette.pdf
 6673affd0e61eabde1923d68c842ece2 *man/BDgraph-package.Rd
 86730ae799eef88f8f735dfccb1335bb *man/adj2link.Rd
 f7aaeaa6f62bc5bcacc1bd896404f64b *man/bdgraph.Rd
@@ -64,7 +64,7 @@ c6287e8fedfd3adcd25033f0a65f7ed1 *man/compare.Rd
 dbcb96d74522cd2bc6921b0ebfb92d17 *man/conf.mat.plot.Rd
 0a1ebccd1e80ff7bded805196ff89ef2 *man/covariance.Rd
 0d9cc6141d709a7b1a43725ddfcedb7c *man/ddweibull.Rd
-877f058db9eeabc05bbdde1b4f58e9d2 *man/figures/logo.png
+9c40f707ddddd80f164bea4a5b29f8f5 *man/figures/logo.png
 fd30023c49c1e15d7c6f6b86fa812556 *man/geneExpression.Rd
 7f98c7e01f6d8806f7da07e2b92c1871 *man/gnorm.Rd
 fddb670a335e4ff3db24d3c57d834a84 *man/graph.sim.Rd
@@ -97,7 +97,7 @@ ee1b1012de31cec1aa466573042dad85 *src/copula.cpp
 cb55d7bd3d81dbd0ee01af5486843e41 *src/copula.h
 17fcce7a29445984b764ec14c5f2899f *src/gcgm_DMH.cpp
 9513c59ad4d3108a2013dd5776ef93c2 *src/gcgm_bd.cpp
-aee7632636d29dba2dfe43663e5a0413 *src/gcgm_dw_bd.cpp
+d8d271e814bcf941d8f1b6ca9382ec1e *src/gcgm_dw_bd.cpp
 95dc32995ff561fc02786bed3750549a *src/ggm_DMH.cpp
 c760812eef01fe52bd6b7e26fe81c4e9 *src/ggm_bd.cpp
 62519fede0e700ccd39184cd92da5450 *src/ggm_mpl_bd.cpp
@@ -110,6 +110,7 @@ d854c6ac567ced622b8758e548590dde *src/matrix.h
 f60d48e8f7fa0eaf1b63330189bed863 *src/rgwish.cpp
 32bf946fa498dadf1374b4f85fca6a2b *src/rgwish.h
 696494cfedb3e3edcdef3d92f55189ce *src/util.h
-fc949edcf10bd28fce8a6a7ea03f979f *vignettes/BDgraph-examples.Rmd
+e8c51d56e840008b385695858d36b745 *vignettes/BDgraph-Examples.Rmd
+9abefd70846495a47f11127d9bc9ee43 *vignettes/BDgraph-Examples.html
 1b4808706a25fc9d18f6814cad711cea *vignettes/BDgraph.pdf
 805a49b23148683b1955e2ec9ef78419 *vignettes/vignette.Rnw
