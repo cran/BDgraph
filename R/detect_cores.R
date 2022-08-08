@@ -10,13 +10,16 @@
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-get_cores = function( cores = NULL )
+get_cores = function( cores = NULL, verbose = TRUE )
 {
+    verbose_core = as.numeric( verbose )
+    
     num_machine_cores = BDgraph::detect_cores()
+    
     if( is.null( cores ) ) cores = num_machine_cores - 1
     if( cores == "all" )   cores = num_machine_cores
     
-    .C( "omp_set_num_cores", as.integer( cores ), PACKAGE = "BDgraph" )
+    .C( "omp_set_num_cores", as.integer( cores ), as.integer( verbose_core ), PACKAGE = "BDgraph" )
     
     return( cores )
 }

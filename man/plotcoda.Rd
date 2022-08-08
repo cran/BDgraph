@@ -8,7 +8,9 @@ Visualizes the cumulative occupancy fractions of all possible links in the graph
 It can be used for monitoring the convergence of the sampling algorithms, BDMCMC and RJMCMC.
 }
 
-\usage{ plotcoda( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... ) }
+\usage{ plotcoda( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, 
+                  verbose = TRUE, ... ) 
+}
 
 \arguments{
   \item{bdgraph.obj}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. 
@@ -20,6 +22,7 @@ It can be used for monitoring the convergence of the sampling algorithms, BDMCMC
   \item{control}{ logical: if TRUE (default) and the number of nodes is greater than 15, then 100 links randomly is selected for visualization. } 
   
   \item{main}{ graphical parameter (see plot). }
+	\item{verbose}{ logical: if TRUE (default), report/print the calculation progress. }	
   
   \item{\dots}{ system reserved (no specific usage). }  
 }

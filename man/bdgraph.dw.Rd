@@ -13,7 +13,7 @@ bdgraph.dw( data, x = NULL, formula = y ~ .,
             ZI = FALSE, iter_bdw = 5000,
             g.start = "empty", jump = NULL, save = FALSE, 
             q = NULL, beta = NULL, pii = NULL,
-            cores = NULL, threshold = 1e-8 )
+            cores = NULL, threshold = 1e-8, verbose = TRUE )
 }
 
 \arguments{
@@ -74,6 +74,7 @@ bdgraph.dw( data, x = NULL, formula = y ~ .,
 	   %The default is to use "all" CPU cores of the computer.
     }	
     \item{threshold}{ threshold value for the convergence of the sampling algorithm from G-Wishart for the precision matrix.}
+	\item{verbose}{ logical: if TRUE (default), report/print the MCMC running time. }	
 }
 
 \value{

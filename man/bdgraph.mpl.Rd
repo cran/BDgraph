@@ -11,7 +11,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
              g.prior = 0.5, g.start = "empty", 
              jump = NULL, alpha = 0.5, save = FALSE, 
-             cores = NULL, operator = "or" )
+             cores = NULL, operator = "or", verbose = TRUE )
 }
 
 \arguments{
@@ -72,6 +72,7 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 	   %The default is to use "all" CPU cores of the computer.
 	   }	
 	\item{operator}{ character with two options "\code{or}" (default) and  "\code{and}". It is for hill-climbing algorithm. }	   	
+	\item{verbose}{ logical: if TRUE (default), report/print the MCMC running time. }	
 }
 
 \value{

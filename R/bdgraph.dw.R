@@ -68,7 +68,7 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
                        ZI = FALSE, iter_bdw = 5000,
                        g.start = "empty",jump = NULL, save = FALSE, 
                        q = NULL, beta = NULL, pii = NULL,
-                       cores = NULL, threshold = 1e-8 )
+                       cores = NULL, threshold = 1e-8, verbose = TRUE )
 {
     if( is.matrix( data ) | is.data.frame( data ) ) 
         if( any( data < 0 ) ) stop( "'data' should not have negative values" )
@@ -76,6 +76,14 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
     if( df.prior < 3  ) stop( "'prior.df' must be >= 3" )
     if( iter < burnin ) stop( "'iter' must be higher than 'burnin'" )
     burnin = floor( burnin )
+    
+    if( is.numeric( verbose ) ){
+        if( ( verbose < 1 ) | ( verbose > 100 ) ) stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+        trace_mcmc = floor( verbose )
+        verbose = TRUE
+    }else{
+        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 2 )
+    }
 
     cores = BDgraph::get_cores( cores = cores )
 
@@ -176,7 +184,7 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
         p_links = matrix( 0, p, p )
     }
     
-    if( ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
+    if( ( verbose == TRUE ) && ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
     {
         cat( "  WARNING: Memory needed to run this function is around " )
         print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
@@ -194,13 +202,12 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
     if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1 " )
     if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller " )
     
-    cat( paste( c( iter, " BDMCMC sampling of graph ... in progress: \n" ), collapse = "" ) ) 
+    if( verbose == TRUE ) 
+        cat( paste( c( iter, " MCMC sampling ... in progress: \n" ), collapse = "" ) ) 
     
     bounds = BDgraph::get_bounds_dw( data = data, q = q, beta = beta, pii = pii, n = n, p = p )
     lower_bounds = bounds $ lower_bounds    
     upper_bounds = bounds $ upper_bounds    
-    
-    print = floor( iter / 20 )
     
     # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - |
     if( save == TRUE )
@@ -212,7 +219,7 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
                          as.double(Z), as.integer(data), as.double(lower_bounds), as.double(upper_bounds), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -223,7 +230,7 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
                          as.double(Z), as.integer(data), as.double(lower_bounds), as.double(upper_bounds), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
     }else{
@@ -233,7 +240,7 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
             result = .C( "gcgm_dw_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(data), as.double(lower_bounds), as.double(upper_bounds), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -241,12 +248,10 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
             result = .C( "gcgm_dw_bdmcmc_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(data), as.double(lower_bounds), as.double(upper_bounds), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
     }
-    
-    cat( "\n" )
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
     
     K_hat      = matrix( result $ K_hat, p, p, dimnames = list( colnames_data, colnames_data ) ) 

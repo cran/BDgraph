@@ -11,7 +11,7 @@
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
          burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
          g.start = "empty", jump = NULL, save = FALSE, 
-         cores = NULL, threshold = 1e-8 )
+         cores = NULL, threshold = 1e-8, verbose = TRUE )
 }
 
 \arguments{
@@ -35,6 +35,8 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 		character with two options "\code{bdmcmc}" (default) and "\code{rjmcmc}". 
 		Option "\code{bdmcmc}" is based on birth-death MCMC algorithm.
 		Option "\code{rjmcmc}" is based on reverible jump MCMC algorithm.
+		Option "\code{bd-dmh}" is based on birth-death MCMC algorithm using double Metropolis Hasting.
+		Option "\code{rj-dmh}" is based on reverible jump MCMC algorithm using double Metropolis Hasting.
 	}
 	
 	\item{iter}{number of iteration for the sampling algorithm.}
@@ -72,6 +74,7 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	   %The default is to use "all" CPU cores of the computer.
     }	
     \item{threshold}{ threshold value for the convergence of sampling algorithm from G-Wishart for the precision matrix.}
+	\item{verbose}{ logical: if TRUE (default), report/print the MCMC running time. }	
 }
 
 \value{

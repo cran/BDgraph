@@ -91,9 +91,9 @@ void ggm_DMH_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  		
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -229,9 +229,9 @@ void ggm_DMH_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  			
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -395,9 +395,9 @@ void ggm_DMH_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 		
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -539,9 +539,9 @@ void ggm_DMH_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 			
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -696,9 +696,9 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  			
 		// STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - -| 
@@ -769,7 +769,7 @@ void ggm_DMH_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], doubl
 		if( i_mcmc >= burn_in )
 			for( i = 0; i < pxp ; i++ )
 			{
-				K_hat[ i ] += K[ i ];
+				K_hat[ i   ] += K[ i ];
 				p_links[ i ] += G[ i ];
 			}	
 // - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
@@ -850,9 +850,9 @@ void ggm_DMH_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], doub
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 		// STEP 1: selecting edge and calculating alpha

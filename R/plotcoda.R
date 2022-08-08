@@ -12,7 +12,7 @@
 #     To check the convergency of the BDMCMC algorithm                         |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... )
+plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, verbose = TRUE, ... )
 {
     if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
@@ -40,9 +40,12 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 
 	for ( g in 1 : length_allG_new )
 	{
-		mes = paste( c( "Calculation ... in progress : ", floor( 100 * g / length_allG_new ), "%" ), collapse = "" )
-		cat( mes, "\r" )
-		utils::flush.console()	
+		if( verbose == TRUE )
+		{
+	        mes = paste( c( "Calculation ... in progress : ", floor( 100 * g / length_allG_new ), "%" ), collapse = "" )
+		    cat( mes, "\r" )
+		    utils::flush.console()	
+		}
 
 		which_edge               = which( unlist( strsplit( as.character( sample_graphs[ allG_new[ g ] ] ), "" ) ) == 1 )
 		vec_result[ which_edge ] = vec_result[ which_edge ] + all_weights_new[ g ]
@@ -56,12 +59,15 @@ plotcoda = function( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, ... 
 			result[ randomLinks, ] = 0
 		}
 	
-	mes = paste( c( "Calculation ... done.                        " ), collapse = "" )
-	cat( mes, "\r" )
-	cat( "\n" )
-	utils::flush.console()
+	if( verbose == TRUE )
+	{
+	    mes = paste( c( "Calculation ... done.                        " ), collapse = "" )
+	    cat( mes, "\r" )
+	    cat( "\n" )
+	    utils::flush.console()
+	}
 
-	graphics::matplot( x = thin * ( 1 : length_allG_new ), y = t( result ), type = "l", lty = 1, col = 1,
+	graphics::matplot( x = thin * ( 1 : length_allG_new ), y = t( result ), type = "l", lty = 1, col = "blue",
 		     xlab = "Iteration", ylab = "Posterior link probability", cex.lab = 1.3, cex.axis = 1.2 )
 		  
 	if ( is.null( main ) ) main = "Trace of the Posterior Probabilities of the Links."

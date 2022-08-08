@@ -279,9 +279,9 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  						
 		// Selecting an edge based on birth and death rates
@@ -431,9 +431,9 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[],
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  						
 		// Selecting an edge based on birth and death rates
@@ -604,9 +604,9 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -771,9 +771,9 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -1012,9 +1012,9 @@ void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -1161,9 +1161,9 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], doub
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		

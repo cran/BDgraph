@@ -15,13 +15,21 @@
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
                     burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
                     g.start = "empty", jump = NULL, save = FALSE, 
-                    cores = NULL, threshold = 1e-8 )
+                    cores = NULL, threshold = 1e-8, verbose = TRUE )
 {
     if( df.prior < 3  ) stop( "'prior.df' must be >= 3" )
     if( iter < burnin ) stop( "'iter' must be higher than 'burnin'" )
     burnin <- floor( burnin )
-     
-    cores = BDgraph::get_cores( cores = cores )
+    
+    if( is.numeric( verbose ) ){
+        if( ( verbose < 1 ) | ( verbose > 100 ) ) stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+        trace_mcmc = floor( verbose )
+        verbose = TRUE
+    }else{
+        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 2 )
+    }
+
+    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
 
     list_S_n_p = BDgraph::get_S_n_p( data = data, method = method, n = n, not.cont = not.cont )
     
@@ -64,9 +72,9 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         p_links = matrix( 0, p, p )
     }
     
-    if( ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
+    if( ( verbose == TRUE ) && ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
     {
-        cat( "  WARNING: Memory needs to run this function is around. " )
+        cat( "  WARNING: Memory needs to run this function is around: " )
         print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
     } 
     
@@ -82,10 +90,9 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1. " )
     if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller. " )
     
-    cat( paste( c( iter, " MCMC sampling ... in progress: \n" ), collapse = "" ) ) 
+    if( verbose == TRUE ) 
+        cat( paste( c( iter, " MCMC sampling ... in progress: \n" ), collapse = "" ) ) 
     
-    print = floor( iter / 20 )
-
     # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - |
     if( save == TRUE )
     {
@@ -94,7 +101,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "ggm_bdmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -103,7 +110,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "ggm_bdmcmc_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
@@ -111,7 +118,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "ggm_rjmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
@@ -122,7 +129,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -134,7 +141,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "rjmcmc" ) )
@@ -145,7 +152,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }	
         
         # for Double Metropolis-Hasting 
@@ -154,7 +161,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "ggm_DMH_bdmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold), 
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "ggm" ) && ( algorithm == "bd-dmh" ) && ( jump != 1 ) )
@@ -163,7 +170,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "ggm_DMH_bdmcmc_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold), 
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "ggm" ) && ( algorithm == "rj-dmh" ) )
@@ -171,7 +178,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "ggm_DMH_rjmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold), 
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bd-dmh" ) && ( jump == 1 ) )
@@ -182,7 +189,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bd-dmh" ) && ( jump != 1 ) )
@@ -194,7 +201,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "rj-dmh" ) )
@@ -205,7 +212,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
                          sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }	
         
     }else{
@@ -214,21 +221,21 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         {
             result = .C( "ggm_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
         {
             result = .C( "ggm_bdmcmc_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }		
         
         if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
         {
             result = .C( "ggm_rjmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
                          K_hat = as.double(K_hat), p_links = as.integer(p_links),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 )  )
@@ -238,7 +245,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "gcgm_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -248,7 +255,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "gcgm_bdmcmc_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "rjmcmc" ) )
@@ -258,7 +265,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "gcgm_rjmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.integer(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }	
         
         # for Double Metropolis-Hasting 
@@ -266,21 +273,21 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         {
             result = .C( "ggm_DMH_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold), 
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "ggm" ) && ( algorithm == "bd-dmh" ) && ( jump != 1 ) )
         {
             result = .C( "ggm_DMH_bdmcmc_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold), 
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }		
         
         if( ( method == "ggm" ) && ( algorithm == "rj-dmh" ) )
         {
             result = .C( "ggm_DMH_rjmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold), 
                          K_hat = as.double(K_hat), p_links = as.integer(p_links),
-                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(Ds), as.double(D), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bd-dmh" ) && ( jump == 1 )  )
@@ -290,7 +297,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "gcgm_DMH_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "bd-dmh" ) && ( jump != 1 ) )
@@ -300,7 +307,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "gcgm_DMH_bdmcmc_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.double(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }
         
         if( ( method == "gcgm" ) && ( algorithm == "rj-dmh" ) )
@@ -310,7 +317,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
             result = .C( "gcgm_DMH_rjmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), as.double(Ti), K = as.double(K), as.integer(p), as.double(threshold),
                          as.double(Z), as.integer(R), as.integer(not_continuous), as.integer(n), as.integer(gcgm_NA),
                          K_hat = as.double(K_hat), p_links = as.integer(p_links),
-                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(print), PACKAGE = "BDgraph" )
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
         }	
     }
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
@@ -321,13 +328,15 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     
     if( save == TRUE )
     {
-        if( algorithm == "rjmcmc" ) K_hat = K_hat / ( iter - burnin )		
+        if( ( algorithm == "rjmcmc" ) | ( algorithm == "rj-dmh" ) )
+            K_hat = K_hat / ( iter - burnin )		
+        
         size_sample_g = result $ size_sample_g
         sample_graphs = result $ sample_graphs[ 1 : size_sample_g ]
         graph_weights = result $ graph_weights[ 1 : size_sample_g ]
         all_graphs    = result $ all_graphs + 1
         all_weights   = result $ all_weights
-        if( ( algorithm != "rjmcmc" ) & ( jump != 1 ) )
+        if( ( jump != 1 ) & ( algorithm != "rjmcmc" ) & ( algorithm != "rj-dmh" ) )
         { 
             all_weights = all_weights[ 1 : ( result $ counter_all_g ) ]
             all_graphs  = all_graphs[  1 : ( result $ counter_all_g ) ] 
@@ -351,7 +360,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     class( output ) = "bdgraph"
     return( output )   
 }
-
+  
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #    Summary for "bdgraph" boject                                              |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

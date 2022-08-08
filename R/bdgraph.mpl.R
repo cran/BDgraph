@@ -15,11 +15,19 @@
 bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorithm = "bdmcmc", 
 					iter = 5000, burnin = iter / 2, g.prior = 0.5, g.start = "empty", 
 					jump = NULL, alpha = 0.5, save = FALSE, 
-					cores = NULL, operator = "or" )
+					cores = NULL, operator = "or", verbose = TRUE )
 {
     if( iter < burnin ) stop( " 'iter' must be higher than 'burnin'" )
     burnin = floor( burnin )
-     
+
+    if( is.numeric( verbose ) ){
+        if( ( verbose < 1 ) | ( verbose > 100 ) ) stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+        trace_mcmc = floor( verbose )
+        verbose = TRUE
+    }else{
+        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 2 )
+    }
+         
     cores = BDgraph::get_cores( cores = cores )
     
 	if( inherits( data, "sim" ) ) data <- data $ data
@@ -95,7 +103,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	if( ( p < 10 ) && ( jump > 1 ) )      cat( " WARNING: the value of jump should be 1. " )
 	if( jump > min( p, sqrt( p * 11 ) ) ) cat( " WARNING: the value of jump should be smaller. " )
 	
-	if( algorithm != "hc" )
+	if( ( verbose == TRUE ) && ( algorithm != "hc" ) )
 		cat( paste( c( iter, " MCMC sampling ... in progress: \n" ), collapse = "" ) ) 
 
     print = floor( iter / 20 )
@@ -108,7 +116,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			result = .C( "ggm_rjmcmc_mpl_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p),
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-						as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
     
 		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
@@ -116,7 +124,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			result = .C( "ggm_bdmcmc_mpl_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p),
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-						as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
     
 		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -125,7 +133,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			result = .C( "ggm_bdmcmc_mpl_map_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-						as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm" ) && ( algorithm == "rjmcmc" ) )
@@ -134,7 +142,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p),
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-						as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
@@ -143,7 +151,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p),
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-						as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
@@ -152,7 +160,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), as.integer(n), as.integer(p),
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
-						as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -162,7 +170,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-						as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
       
 		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
@@ -172,7 +180,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), as.integer(n), as.integer(p), 
 						all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), 
 						sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g), counter_all_g = as.integer(counter_all_g),
-						as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
       
 	}else{
@@ -180,54 +188,54 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		if( ( method == "ggm" ) && ( algorithm == "rjmcmc" ) )
 		{
 			result = .C( "ggm_rjmcmc_mpl_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
-						 p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
+						 p_links = as.double(p_links), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 		
 		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "ggm_bdmcmc_mpl_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
-						 p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
+						 p_links = as.double(p_links), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 		
 		if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			result = .C( "ggm_bdmcmc_mpl_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(S), as.integer(n), as.integer(p), 
-						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+						p_links = as.double(p_links), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}				
 
 		if( ( method == "dgm" ) && ( algorithm == "rjmcmc" ) )
 		{
 			result = .C( "dgm_rjmcmc_mpl_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), 
-						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), 
-						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_binary_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), 
-						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(print), PACKAGE = "BDgraph" )
+						as.integer(n), as.integer(p), p_links = as.double(p_links), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}
 
 		if( ( method == "dgm" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), 
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.integer(max_range_nodes), as.double(alpha), as.integer(n), as.integer(p), 
-						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+						p_links = as.double(p_links), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}				
 
 		if( ( method == "dgm-binary" ) && ( algorithm == "bdmcmc" ) && ( jump != 1 ) )
 		{
 			result = .C( "dgm_bdmcmc_mpl_binary_ma_multi_update", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior),  
 			            as.integer(data), as.integer(freq_data), as.integer(length_f_data), as.double(alpha), as.integer(n), as.integer(p), 
-						p_links = as.double(p_links), as.integer(jump), as.integer(print), PACKAGE = "BDgraph" )
+						p_links = as.double(p_links), as.integer(jump), as.integer(trace_mcmc), PACKAGE = "BDgraph" )
 		}				
 	}
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|

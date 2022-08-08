@@ -167,9 +167,9 @@ void ggm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -309,9 +309,9 @@ void ggm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 		// STEP 1: selecting edge and calculating alpha
@@ -484,9 +484,9 @@ void gcgm_rjmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  		
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -636,9 +636,9 @@ void gcgm_rjmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  		
 // - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		

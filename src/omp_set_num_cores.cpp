@@ -17,12 +17,12 @@
 #endif
 
 extern "C" {
-	void omp_set_num_cores( int *cores ) 
+	void omp_set_num_cores( int *cores, int *verbose_core ) 
 	{
 	    #ifdef _OPENMP
 	        omp_set_num_threads( *cores );
 	    #else
-	        Rprintf( "  This OS does not support multi-threading for the BDgraph package  \n" ); 
+	        if( *verbose_core == 1 ) Rprintf( "  This OS does not support multi-threading for the BDgraph package  \n" ); 
 	    #endif
 	}
 }

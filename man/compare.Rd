@@ -28,7 +28,7 @@ compare( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL,
         }
  
   \item{main}{ character vector giving the names for the result table. }
-  \item{vis }{ visualize the true graph and estimated graph structures. } 
+  \item{vis }{ logical: if TRUE, visualize the true graph and estimated graph structures. } 
 }
 
 \value{

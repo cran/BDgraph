@@ -634,9 +634,9 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], double g_prior[]
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -799,9 +799,9 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], double g_prior[
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -991,9 +991,9 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], dou
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -1167,9 +1167,9 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], do
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -1531,9 +1531,9 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], int d
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -1680,9 +1680,9 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int 
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -1856,9 +1856,9 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -2011,9 +2011,9 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc += size_index )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + size_index ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + size_index ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	 				
 // - - - STEP 1: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |
@@ -2243,9 +2243,9 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		
@@ -2385,9 +2385,9 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int 
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
 	{
-		if( ( i_mcmc + 1 ) % print_c == 0 ){
+		if( ( i_mcmc + 1 ) % ( ( print_c * iteration ) / 100 ) == 0 ){
 		    ++print_conter;
-		    ( print_conter != 20 ) ? Rprintf( "%i%%->", print_conter * 5 ) : Rprintf( " done" );
+		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
 	  				
 // - - - STEP 1: selecting edge and calculating alpha - - - - - - - - - - - - - - - - - - - - - - -|		

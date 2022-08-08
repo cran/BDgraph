@@ -2,6 +2,14 @@
 
 ## **BDgraph** NEWS <a href='https://CRAN.R-project.org/package=BDgraph'><img src='man/figures/logo.png' align="right" height="170" /></a>
 
+### **BDgraph** Version 2.68
+
+* In functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()`, option `verbose` is added.
+* In function `plotcoda()` option `verbose` is added.
+
+* A new file is added to the vignette of package.
+* Bug fixed for `bdgraph()` function with option `method = gcgm` and `algorithm = rj-dmh`.
+
 ### **BDgraph** Version 2.65
 
 * Function `bdgraph.dw()` is added to the package.

@@ -1,0 +1,262 @@
+---
+title: "<center> Introduction to BDgraph <center>"
+author: "Reza Mohammadi (https://orcid.org/0000-0001-9538-0648)"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: true
+    fig_caption: yes
+    fig_width: 3.5
+    fig_height: 3.5
+    dpi: 72
+    dev.args: list(pointsize=11)
+vignette: >
+  %\VignetteIndexEntry{Introduction to BDgraph}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r opts, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk $ set( collapse = TRUE, comment = " ", fig.width = 7, fig.height = 7, fig.align = "center" )
+```
+
+This introduction to the `R` package **BDgraph** is a modified version of [Mohammadi and Wit (2019)](https://www.jstatsoft.org/article/view/v089i03), published in the Journal of Statistical Software.
+
+The `R` package **BDgraph** provides statistical tools for Bayesian structure learning for undirected graphical models with *continuous*, *count*, *binary*, and *mixed data*. The package is implemented the recent improvements in the Bayesian graphical models' literature, including [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi et al. (2017)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171), [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478), and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature. 
+
+# User interface
+
+In the `R` environment, one can access and load the **BDgraph** package by using the following commands:
+
+Install **BDgraph** using
+```{r eval = FALSE}
+install.packages( "BDgraph" )
+
+library( BDgraph )
+```
+
+To speed up computations, we efficiently implement the **BDgraph** package by linking the `C++` code to `R`. The computationally extensive tasks of the package are implemented in parallel in `C++` using **OpenMP**. For the `C++` code, we use the highly optimized LAPACK and BLAS, as linear algebra libraries on systems that provide them. The use of these libraries significantly improves program speed.
+
+We design the **BDgraph** package to provide a Bayesian framework for undirected graph estimation of different types of datasets such as continuous, discrete or mixed data. The package facilitates a pipeline for analysis by four functional modules as follows
+
+```{r pressure, echo = FALSE, out.width = '85%'}
+knitr::include_graphics( "Figure_1.png" )
+```
+
+**Module 1. Data simulation:** Function `bdgraph.sim()` simulates multivariate Gaussian, discrete, binary, and mixed data with different undirected graph structures, including *"random"*, *"cluster"*, *"scale-free"*, *"lattice"*, *"hub"*, *"star"*, *"circle"*, *"AR(1)"*, *"AR(2)"*, and *"fixed"* graphs. Users can determine the sparsity of the graph structure and can generate mixed data, including *"count"*, *"ordinal"*, *"binary"*, *"Gaussian"*, and *"non-Gaussian"* variables. 
+
+**Module 2. Methods:** The function `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()`  provide several estimation methods regarding to the type of data:
+
+* Bayesian graph estimation for the multivariate data that follow the Gaussianity assumption, based on the Gaussian graphical models (GGMs); see [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425).
+* Bayesian graph estimation for multivariate non-Gaussian, discrete, and mixed data, based on Gaussian copula graphical models (GCGMs); see [Mohammadi et al. (2017)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171) and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). 
+* Bayesian graph estimation for multivariate discrete and binary data, based on discrete graphical models (DGMs); see [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478).  
+
+**Module 3. Algorithms:**  The function `bdgraph()` and `bdgraph.mpl()` provide several sampling algorithms:
+
+* Birth-death MCMC (BDMCMC) sampling algorithms desciribed in [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) and [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425).
+* Reversible jump MCMC (RJMCMC) sampling algorithms desciribed in [Dobra et al. (2011)](https://doi.org/10.1198/jasa.2011.tm10465). 
+* Hill-climbing (HC) search algorithm desciribed in [Pensar et al. (2017)](https://doi.org/10.1214/16-ba1032).  
+
+**Module 4. Results:** Includes four types of functions:
+
+* *Graph selection*: The functions `select()`, `plinks()`, and `pgraph()` provide the selected graph, the posterior link inclusion probabilities and the posterior probability of each graph, respectively. 
+* *Convergence check*: The functions `plotcoda()` and `traceplot()` provide several visualization plots to monitor the convergence of the sampling algorithms.
+* *Comparison and goodness-of-fit*: The functions `compare()` and `plotroc()` provide several comparison measures and an ROC plot for  model comparison. 
+* *Visualization*: The plotting functions `plot.bdgraph()` and `plot.sim()` provide visualizations of the simulated data and estimated graphs. 
+
+# The BDgraph environment
+
+The **BDgraph** package provides a set of comprehensive tools related to Bayesian graphical models; we describe below the essential functions available in the package. 
+
+## Posterior sampling
+
+We design the function `bdgraph()`, as the main function of the package, to take samples from the posterior distributions based on both of our Bayesian frameworks (GGMs and GCGMs). By default, the `bdgraph()` function is based on underlying sampling algorithm defined in [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377). Moreover, as an alternative to those BDMCMC sampling algorithms, we implement RJMCMC sampling algorithms for both the Gaussian and non-Gaussian frameworks. By using the following function
+```{r eval = FALSE}
+bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
+         burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
+         g.start = "empty", jump = NULL, save = FALSE, 
+         cores = NULL, threshold = 1e-8, verbose = TRUE )
+```
+
+we obtain a sample from our target joint posterior distribution. `bdgraph()` returns an object of `S3` class type *bdgraph*. The functions `plot()`, `print()`, and `summary()` are working with the object  *bdgraph*. The input `data` can be an ($n \times p$) *matrix* or a *data.frame* or a covariance ($p \times p$) matrix ($n$ is the sample size and $p$ is the dimension); it can also be an object of class *sim*, which is the output of function `bdgraph.sim()`.
+
+The argument `method` determines the type of methods, GGMs, GCGMs. Option *"ggm"* is based on Gaussian graphical models that is designed for multivariate Gaussian data. Option *"gcgm"* is based on the GCGMs that is designed for non-Gaussian data such as, non-Gaussian continuous, discrete or mixed data.
+
+The argument `algorithm` refers the type of sampling algorithms which could be based on BDMCMC or RJMCMC. Option *"bdmcmc"* (as default) is for the BDMCMC sampling algorithms. Option *"rjmcmc"* is for the RJMCMC sampling algorithms, which are alternative algorithms. See [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425). 
+
+The argument `g.start` specifies the initial graph for our sampling algorithm. It could be *"empty"* (default) or *"full"*. Option *"empty"* means the initial graph is an empty graph and *"full"* means a full graph. It also could be an object with `S3` class \code{"bdgraph"}, which allows users to run the sampling algorithm from the last objects of the previous run.     
+
+The argument `jump` determines the number of links that are simultaneously updated in the BDMCMC algorithm. 
+
+For parallel computation in `C++` which is based on  **OpenMP**, user can use argument `cores` which specifies the number of cores to use for parallel execution. 
+
+Note, the package **BDgraph** has two other sampling functions, `bdgraph.mpl()` and `bdgraph.dwl()` which are designed in the similar framework as the function `bdgraph()`. The function `bdgraph.mpl()` is for Bayesian model determination in undirected graphical models based on marginal pseudo-likelihood, for both continuous and discrete variables; For more details see \cite{dobra2018}. The function `bdgraph.dwl()` is for Bayesian model determination for count data; See [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). 
+
+##  Posterior graph selection 
+
+We design the **BDgraph** package in such a way that posterior graph selection can be done based on both Bayesian model averaging (BMA), as default, and maximum a posterior probability (MAP). The functions `select()` and `plinks()` are designed for the objects of class *bdgraph* to provide BMA and MAP estimations for posterior graph selection. 
+
+The function
+```{r eval = FALSE}
+plinks( bdgraph.obj, round = 2, burnin = NULL )
+```
+
+provides estimated posterior link inclusion probabilities for all possible links, which is based on BMA estimation. In cases where the sampling algorithm is based on BDMCMC, these probabilities for all possible links $e=(i,j)$ in the graph can be estimated using a Rao-Blackwellized estimate based on
+\begin{eqnarray}
+\label{posterior-link}
+ Pr( e \in E | data )= \frac{\sum_{t=1}^{N}{1(e \in E^{(t)}) W(K^{(t)}) }}{\sum_{t=1}^{N}{W(K^{(t)})}},
+\end{eqnarray}
+where $N$ is the number of iteration and $W(K^{(t)})$ are the weights of the graph $G^{(t)}$ with the precision matrix $K^{(t)}$.
+
+The function 
+```{r eval = FALSE}
+select( bdgraph.obj, cut = NULL, vis = FALSE )
+```
+provides the inferred graph based on both BMA (as default) and MAP estimators. The inferred graph based on BMA estimation is a graph with links for which the estimated posterior probabilities are greater than a certain cut-point (as default `cut=0.5`). The inferred graph based on MAP estimation is a graph with the highest posterior probability.
+
+Note, for posterior graph selection based on MAP estimation we should save all adjacency matrices by using the option `save = TRUE` in the function `bdgraph()`. Saving all the adjacency matrices could, however, cause memory problems.
+
+##  Convergence check 
+
+In general, convergence in MCMC approaches can be difficult to evaluate. From a theoretical point of view, the sampling distribution will converge to the target joint posterior distribution as the number of iteration increases to infinity. Because we normally have little theoretical insight about how quickly MCMC algorithms converge to the target stationary distribution we therefore rely on post hoc testing of the sampled output. In general, the sample is divided into two parts: a ``burn-in'' part of the sample and the remainder, in which the chain is considered to have converged sufficiently close to the target posterior distribution. Two questions then arise: How many samples are sufficient? How long should the burn-in period be? 
+
+The `plotcoda()` and `traceplot()` are two visualization functions for the objects of class *bdgraph* that make it possible to check the convergence of the search algorithms in **BDgraph**. The function
+```{r eval = FALSE}
+plotcoda( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, 
+          verbose = TRUE, ... )
+```
+provides the trace of estimated posterior probability of all possible links to check convergence of the search algorithms. Option \code{control} is designed for the case where if `control=TRUE` (as default) and the dimension ($p$) is greater than $15$, 
+then $100$ links are randomly selected for visualization.
+
+The function
+```{r eval = FALSE}
+traceplot( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
+```
+provides the trace of graph size to check convergence of the search algorithms. Option `acf` is for visualization of the autocorrelation functions for graph size; option `pacf` visualizes the partial autocorrelations.
+
+## Comparison and goodness-of-fit 
+
+The functions `compare()` and `plotroc()` are designed to evaluate and compare the performance of the selected graph. These functions are particularly useful for simulation studies. With the function 
+```{r eval = FALSE}
+compare( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL, 
+         vis = FALSE ) 
+```
+we can evaluate the performance of the Bayesian methods available in our **BDgraph** package and compare them with alternative approaches. This function provides several measures such as the balanced $F$-score measure, which is defined as follows:
+\begin{eqnarray}
+\label{f1}
+F_1\mbox{-score} = \frac{2 \mbox{TP}}{2 \mbox{TP + FP + FN}},
+\end{eqnarray}
+where TP, FP and FN are the number of true positives, false positives and false negatives, respectively. The $F_1$-score lies between $0$ and $1$, where $1$ stands for perfect identification and $0$ for no true positives.
+
+The function 
+```{r eval = FALSE}
+plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, 
+                    cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" )
+```
+provides a ROC plot for visualization comparison based on the estimated posterior link inclusion probabilities. See also function `roc()` for building a ROC curve specifically for graph structure learning.
+
+## Data simulation 
+
+The function `bdgraph.sim()` is designed to simulate different types of datasets with various graph structures. The function
+```{r eval = FALSE}
+bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2, 
+             size = NULL, mean = 0, class = NULL, cut = 4, b = 3,
+             D = diag( p ), K = NULL, sigma = NULL, 
+             q = exp(-1), beta = 1, vis = FALSE, rewire = 0.05,
+             range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ) )
+```
+can simulate multivariate Gaussian, non-Gaussian, discrete, binary and mixed data with different undirected graph structures, including *"random"*, *"cluster"*, *"scale-free"*, *"lattice"*, *"hub"*, *"star"*, *"circle"*, *"AR(1)"*, *"AR(2)"*, and *"fixed"* graphs. Users can specify the type of multivariate data by option `type` and the graph structure by option `graph`. They can determine the sparsity level of the obtained graph by using option `prob`. With this function users can generate mixed data from *"count"*, *"ordinal"*, *"binary"*, *"Gaussian"* and *"non-Gaussian"* distributions. `bdgraph.sim()` returns an object of the `S3` class type "sim". Functions `plot()` and `print()` work with this object type.
+
+There is another function in the  **BDgraph** package with the name `graph.sim()` which is designed to simulate different types of graph structures. The function
+```{r eval = FALSE}
+graph.sim( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, 
+           vis = FALSE, rewire = 0.05 )
+```
+can simulate different undirected graph structures, including  *"random"*, *"cluster"*, *"scale-free"*, *"lattice"*, *"hub"*, *"star"*, and *"circle"* graphs. Users can specify the type of graph structure by option `graph`. They can determine the sparsity level of the obtained graph by using option `prob`. `bdgraph.sim()` returns an object of the `S3` class type "graph". Functions `plot()` and `print()` work with this object type.
+
+# An example on simulated data
+
+We illustrate the user interface of the **BDgraph** package by use of a simple simulation. By using the function `bdgraph.sim()` we simulate $60$ observations ($n=60$) from a multivariate Gaussian distribution with $8$ variables ($p=8$) and ``scale-free'' graph structure, as below.
+```{r}
+library( BDgraph )
+
+set.seed( 5 )
+
+data.sim <- bdgraph.sim( n = 60, p = 8, graph = "scale-free", type = "Gaussian" )
+round( head( data.sim $ data, 4 ), 2 ) 
+```
+
+Since the generated data are Gaussian, we run the BDMCMC algorithm which is based on Gaussian graphical models. For this we choose `method = "ggm"`, as follows:
+```{r eval = TRUE}
+sample.bdmcmc <- bdgraph( data = data.sim, method = "ggm", algorithm = "bdmcmc", 
+                          iter = 5000, save = TRUE, verbose = FALSE )
+```
+We choose option `save = TRUE` to save the samples in order to check convergence of the algorithm. Running this function takes less than one second, as the computational intensive tasks are performed in `C++` and interfaced with `R`.
+
+Since the function `bdgraph()` returns an object of class `S3`, users can see the summary result as follows
+```{r}
+summary( sample.bdmcmc )
+```
+The summary results are the adjacency matrix of the selected graph (`selected_g`) based on BMA estimation, the estimated posterior probabilities of all possible links (`p_links`) and the estimated precision matrix (`K_hat`).
+
+In addition, the function `summary()` reports a visualization summary of the results as we can see above. At the top-left is the graph with the highest posterior probability. The plot at the top-right gives the estimated posterior probabilities of all the graphs which are visited by the BDMCMC algorithm; it indicates that our algorithm visits more than $2000$ different graphs. The plot at the bottom-left gives the estimated posterior probabilities of the size of the graphs; it indicates that our algorithm visited mainly graphs with sizes between $4$ and $18$ links. At the bottom-right is the trace of our algorithm based on the size of the graphs.
+
+The function `compare()` provides several measures to evaluate the performance of our algorithms and compare them with alternative approaches with respect to the true graph structure. To evaluate the performance of the BDMCMC algorithm and compare it with that of an alternative algorithm, we also run the RJMCMC algorithm under the same conditions as below. 
+```{r}
+sample.rjmcmc <- bdgraph( data = data.sim, method = "ggm", algorithm = "rjmcmc", 
+                          iter = 5000, save = TRUE, verbose = FALSE )
+```
+where the sampling algorithm from the joint posterior distribution is based on the RJMCMC algorithm. 
+
+Users can compare the performance of these two algorithms by using the code
+```{r}
+plotroc( data.sim, sample.bdmcmc, sample.rjmcmc, smooth = TRUE ) 
+```
+which visualizes an ROC plot for both algorithms, BDMCMC and RJMCMC.
+
+We can also compare the performance of those algorithms by using the `compare()` function as follows:
+
+```{r}
+compare( data.sim, sample.bdmcmc, sample.rjmcmc, 
+          main = c( "True graph", "BDMCMC", "RJMCMC" ), vis = TRUE )
+```
+The results show that for this specific simulated example both algorithms have more or less the same performance; See [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) for a comprehensive simulation study.
+
+In this simulation example, we run both BDMCMC and RJMCMC algorithms for $5,000$ iterations, $2,500$ of them as burn-in. To check whether the number of iterations is enough and to monitoring the convergence of our both algorithm, we run
+```{r}
+plotcoda( sample.bdmcmc, verbose = FALSE )
+plotcoda( sample.rjmcmc, verbose = FALSE )
+```
+
+The results indicate that the BDMCMC algorithm converges faster with compare with RJMCMC algorithm. 
+
+# References
+
+Mohammadi, R. and Wit, E. C. (2019). **BDgraph**: An *R* Package for Bayesian Structure Learning in Graphical Models, *Journal of Statistical Software*, 89(3):1-30, [doi:10.18637/jss.v089.i03](https://www.jstatsoft.org/article/view/v089i03). 
+
+Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, *Bayesian Analysis*, 10(1):109-138, [doi:10.1214/14-BA889](https://projecteuclid.org/euclid.ba/1422468425).
+
+Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, *Journal of the American Statistical Association*, [doi:10.1080/01621459.2021.1996377](https://doi.org/10.1080/01621459.2021.1996377) 
+  
+Mohammadi, A., et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, *Journal of the Royal Statistical Society: Series C*, 66(3):629-645, [doi:10.1111/rssc.12171](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171) 
+
+Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, *Annals of Applied Statistics*, 12(2):815-845, [doi:10.1214/18-AOAS1164](https://projecteuclid.org/euclid.aoas/1532743478)
+
+Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learning of microbiota systems from count metagenomic data, *arXiv preprint*, [doi:10.48550/arXiv.2203.10118](https://doi.org/10.48550/arXiv.2203.10118)
+
+Dobra, A. and Lenkoski, A. (2011). Copula Gaussian graphical models and their application to modeling functional disability data, *The Annals of Applied Statistics*, 5(2A):969-93, doi:10.1214/10-AOAS397
+
+Dobra, A., et al. (2011). Bayesian inference for general Gaussian graphical models with application to multivariate lattice data. *Journal of the American Statistical Association*, 106(496):1418-33, doi:10.1198/jasa.2011.tm10465
+
+Mohammadi, A. and Dobra, A. (2017). The `R` Package **BDgraph** for Bayesian Structure Learning in Graphical Models, *ISBA Bulletin*, 24(4):11-16
+
+Lenkoski, A. (2013). A direct sampler for G-Wishart variates, *Stat*, 2(1):119-28, doi:10.1002/sta4.23
+
+Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, *Bayesian Analysis*, 12(4):1195-215, [doi:10.1214/16-BA1032](https://doi.org/10.1214/16-ba1032).
+
+
+
