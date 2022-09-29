@@ -1,21 +1,21 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
-//                                                                                                 |
-//     This file is part of BDgraph package.                                                       |
-//                                                                                                 |
-//     BDgraph is free software: you can redistribute it and/or modify it under                    |
-//     the terms of the GNU General Public License as published by the Free                        |
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
-//                                                                                                 |
-//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//    Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+//                                                                             |
+//    This file is part of BDgraph package.                                    |
+//                                                                             |
+//    BDgraph is free software: you can redistribute it and/or modify it under |
+//    the terms of the GNU General Public License as published by the Free     |
+//    Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.|
+//                                                                             |
+//    Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 #include "matrix.h"
 
 extern "C" {
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing the Marginal pseudo-likelihood
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_mpl( int *node, int mb_node[], int *size_node, double *log_mpl_node, double S[], 
               double S_mb_node[], int *n, int *p )
 {
@@ -50,9 +50,9 @@ void log_mpl( int *node, int mb_node[], int *size_node, double *log_mpl_node, do
 	}	
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing birth-death rates for all the possible edges for ggm_mpl method
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rates_ggm_mpl( double rates[], double log_ratio_g_prior[], double curr_log_mpl[], int G[], 
         int index_row[], int index_col[], int *sub_qp, int size_node[], double S[], int *n, int *p )
 {
@@ -124,9 +124,9 @@ void rates_ggm_mpl( double rates[], double log_ratio_g_prior[], double curr_log_
 	}	
 }			
      
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing birth-death rates for all the possible edges for ggm_mpl method
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void local_rates_ggm_mpl( double rates[], double log_ratio_g_prior[], int *selected_edge_i, int *selected_edge_j, 
             double curr_log_mpl[], int G[], int index_row[], int index_col[], int *sub_qp, 
             int size_node[], double S[], int *n, int *p )
@@ -202,10 +202,10 @@ void local_rates_ggm_mpl( double rates[], double log_ratio_g_prior[], int *selec
 	}	
 }			
      
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // birth-death MCMC for Gaussian Graphical models with marginal pseudo-likelihood  
 // for Bayesian model averaging (MA)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], 
                         double S[], int *n, int *p, double p_links[] , int *print )
 {
@@ -348,10 +348,10 @@ void ggm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
 }
        
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // birth-death MCMC for Gaussian Graphical models with marginal pseudo-likelihood  
 // for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], 
                          double S[], int *n, int *p, int all_graphs[], double all_weights[], 
 			             char *sample_graphs[], double graph_weights[], int *size_sample_g , 
@@ -528,10 +528,10 @@ void ggm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[],
 	*size_sample_g = size_sample_graph;
 }
         
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Multiple birth-death MCMC for Gaussian Graphical models with marginal pseudo-likelihood  
 // for Bayesian model averaging (MA)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], 
                         double S[], int *n, int *p, double p_links[], int *multi_update, int *print )
 {
@@ -687,10 +687,10 @@ void ggm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 		p_links[ i ] = p_links_Cpp[ i ] / sum_weights;
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Multiple birth-death MCMC for Gaussian Graphical models with marginal pseudo-likelihood  
 // for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], 
                 double S[], int *n, int *p, int all_graphs[], double all_weights[], 
                 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
@@ -883,9 +883,9 @@ void ggm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 	*counter_all_g = count_all_g;		
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing alpha (probability of acceptness) in RJ-MCMC algorithm for ggm_mpl method
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_alpha_rjmcmc_ggm_mpl( double *log_alpha_ij, double log_ratio_g_prior[], int *i, int *j, 
                         double curr_log_mpl[], int G[], int size_node[], double S[], int *n, int *p )
 {
@@ -939,10 +939,10 @@ void log_alpha_rjmcmc_ggm_mpl( double *log_alpha_ij, double log_ratio_g_prior[],
 	*log_alpha_ij = ( G[ ij ] ) ? *log_alpha_ij - log_ratio_g_prior[ ij ] : *log_alpha_ij + log_ratio_g_prior[ ij ];
 }			
      
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Reversible Jump MCMC for Gaussian Graphical models with marginal pseudo-likelihood  
 // for Bayesian model averaging (MA)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], 
                         double S[], int *n, int *p, double p_links[] , int *print )
 {
@@ -1083,10 +1083,10 @@ void ggm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	memcpy( &p_links[0], &p_links_Cpp[0], sizeof( double ) * pxp );    
 }
        
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Reversible Jump MCMC for Gaussian Graphical models with marginal pseudo-likelihood  
 // for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], double S[], 
                 int *n, int *p, int all_graphs[], double all_weights[], 
                 char *sample_graphs[], double graph_weights[], int *size_sample_g , int *print )
@@ -1264,3 +1264,4 @@ void ggm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], doub
 }
                  
 } // End of exturn "C"
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

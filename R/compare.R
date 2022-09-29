@@ -12,62 +12,58 @@
 #     Reports the measures to assess the performance of estimated graphs       |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-compare = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL, vis = FALSE ) 
+compare = function( actual, pred, main = NULL, vis = FALSE ) 
 {
-    G   = BDgraph::get_graph( target )
-    est = BDgraph::get_graph( est    )
+    
+    if( !inherits( pred, "list" ) ) pred = list( pred )
+    length_pred = length( pred )
+    
+    G = BDgraph::get_graph( actual )
     
     p = ncol( G )
-    result                 = matrix( 1, 8, 2 )
+    
+    result                 = matrix( 1, 8, length_pred + 1 )
     result[ 1        , 1 ] = sum( G[ upper.tri( G ) == 1 ] )
     result[ 2        , 1 ] = p * ( p - 1 ) / 2 - result[ 1, 1 ]  
     result[ c( 3, 4 ), 1 ] = 0
     
-    result[ , 2 ] = compute_measures( G = G, est_G = est )
-    
-    if( !is.null( est2 ) )
+    for( i in 1:length_pred )
     {
-        est2 = BDgraph::get_graph( est2 )
-        result = cbind( result, compute_measures( G = G, est_G = est2 ) )
-    }
-    
-    if( !is.null( est3 ) )
-    {
-        est3 = BDgraph::get_graph( est3 )
-        result = cbind( result, compute_measures( G = G, est_G = est3 ) )
-    }
-    
-    if( !is.null( est4 ) )
-    {
-        est4 = BDgraph::get_graph( est4 )
-        result = cbind( result, compute_measures( G = G, est_G = est4 ) )
+      est_g = BDgraph::get_graph( pred[[i]] )
+      
+      result[ , i + 1 ] = compute_measures( G = G, est_G = est_g )
     }
     
     result[ is.na( result ) ] = 0
     
-    if( is.null( main ) ) 
-    {
-        main = c( "Target", "estimate1" )
-        if( !is.null( est2 ) ) main = c( main, "estimate2" )
-        if( !is.null( est3 ) ) main = c( main, "estimate3" )
-        if( !is.null( est4 ) ) main = c( main, "estimate4" )
-    }
-    
-    colnames( result ) <- main
     rownames( result ) <- c( "true positive", "true negative", "false positive", "false negative", 
                              "F1-score", "specificity", "sensitivity", "MCC" )
     
+    if( is.null( main ) ) 
+    {
+        main = c( "Actual" )
+        
+        for( i in 1:length_pred )
+            main = c( main, paste0( "pred ", i ) )
+    }
+    
+    colnames( result ) = main
+
     if( vis == TRUE )
     {
-        row_plot = ifelse( is.null( est2 ), 1, 2 )
-        op       = graphics::par( mfrow = c( row_plot, 2 ), pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
+        if( length_pred == 1 ) mfrow = c( 1, 2 )  
+        if( ( length_pred > 1  ) & ( length_pred < 4  ) ) mfrow = c( 2, 2 )  
+        if( ( length_pred > 3  ) & ( length_pred < 6  ) ) mfrow = c( 3, 2 )  
+        if( ( length_pred > 5  ) & ( length_pred < 9  ) ) mfrow = c( 3, 3 )  
+        if( ( length_pred > 8  ) & ( length_pred < 12 ) ) mfrow = c( 4, 3 )  
+        if( ( length_pred > 11 ) & ( length_pred < 16 ) ) mfrow = c( 4, 4 )  
+        
+        op = graphics::par( mfrow = mfrow, pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
         
         BDgraph::plot.graph( G  , main = main[ 1 ] )
-        BDgraph::plot.graph( est, main = main[ 2 ] )
-
-        if( !is.null( est2 ) ) BDgraph::plot.graph( est2, main = main[ 3 ] )
-        if( !is.null( est3 ) ) BDgraph::plot.graph( est3, main = main[ 4 ] )
-        if( !is.null( est4 ) ) BDgraph::plot.graph( est4, main = main[ 5 ] )
+        
+        for( i in 1:length_pred )
+            BDgraph::plot.graph( pred[[i]], main = main[ i + 1 ] )
 
         graphics::par( op )
     }

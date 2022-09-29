@@ -6,7 +6,7 @@
 \description{
 Simulating multivariate distributions with different types of underlying graph structures, including 
 "\code{random}", "\code{cluster}", "\code{smallworld}", "\code{scale-free}", "\code{lattice}", "\code{hub}", "\code{star}", "\code{circle}", "\code{AR(1)}", and "\code{AR(2)}".
-Based on the underlying graph structure, the function generates different types of \emph{multivariate} data, including "\emph{Gaussian}", "\emph{non-Gaussian}", "\emph{categorical}", "\emph{pois}" (Poisson), "\emph{nbinom}" (negative binomial), "\emph{dweibull}" (discrete Weibull), "\emph{binary}", or "\emph{mixed}" data. 
+Based on the underlying graph structure, the function generates different types of \emph{multivariate} data, including "\emph{Gaussian}", "\emph{non-Gaussian}", "\emph{categorical}", "\emph{pois}" (Poisson), "\emph{nbinom}" (negative binomial), "\emph{dweibull}" (discrete Weibull), "\emph{binary}", "\emph{t}" (t-distribution), "\emph{alternative-t}", or "\emph{mixed}" data. 
 This function can be used also for simulating only graphs by setting the option \code{n=0} (default). 
 }
 
@@ -15,7 +15,7 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
              size = NULL, mean = 0, class = NULL, cut = 4, b = 3,
              D = diag( p ), K = NULL, sigma = NULL, 
              q = exp(-1), beta = 1, vis = FALSE, rewire = 0.05,
-             range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ) )
+             range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ), nu = 1 )
 }
 
 \arguments{
@@ -56,6 +56,8 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
   \item{vis}{visualize the true graph structure.}
   \item{rewire}{rewiring probability for smallworld network. Must be between 0 and 1.}
   \item{range.mu, range.dispersion}{if \code{type} = "\code{nbinom}", vector with two elements specifying the range of parameters for the Negative Binomial distribution.}
+    \item{nu}{ if \code{type} = "\code{t}" or "\code{alternative-t}", it is the parameter of the t distribution with density.}
+
 }
 
 \value{

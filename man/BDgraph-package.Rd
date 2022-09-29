@@ -2,6 +2,11 @@
 \alias{BDgraph-package}
 \alias{BDgraph}
 
+\alias{ get_Ds_tgm_R }
+\alias{ get_Ts_R }
+\alias{ update_tu_R }
+\alias{ update_mu_R }
+
 \alias{ compute_tp_fp }
 \alias{ compute_measures }
 
@@ -115,7 +120,7 @@ conf.mat( actual = data.sim, pred = bdgraph.mpl.obj )
 conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
 
 # To compare the results of both algorithms with true graph
-compare( data.sim, bdgraph.obj, bdgraph.mpl.obj, 
+compare( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), 
          main = c( "Target", "BDgraph", "BDgraph_mpl" ), vis = TRUE )
 }
 }

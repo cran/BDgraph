@@ -33,7 +33,7 @@ conf.mat( actual = data.sim, pred = bdgraph.mpl.obj )
 conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
 
 ## ----fig.align = 'center'-----------------------------------------------------
-compare( data.sim, bdgraph.obj, bdgraph.mpl.obj, 
+compare( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), 
          main = c( "Target", "BDgraph", "BDgraph.mpl" ), vis = TRUE )
 
 ## ----fig.align = 'center'-----------------------------------------------------

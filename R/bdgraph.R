@@ -15,18 +15,19 @@
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
                     burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
                     g.start = "empty", jump = NULL, save = FALSE, 
-                    cores = NULL, threshold = 1e-8, verbose = TRUE )
+                    cores = NULL, threshold = 1e-8, verbose = TRUE, nu = 1 )
 {
     if( df.prior < 3  ) stop( "'prior.df' must be >= 3" )
     if( iter < burnin ) stop( "'iter' must be higher than 'burnin'" )
     burnin <- floor( burnin )
     
-    if( is.numeric( verbose ) ){
+    if( is.numeric( verbose ) )
+    {
         if( ( verbose < 1 ) | ( verbose > 100 ) ) stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
         trace_mcmc = floor( verbose )
         verbose = TRUE
     }else{
-        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 2 )
+        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
 
     cores = BDgraph::get_cores( cores = cores, verbose = verbose )
@@ -47,13 +48,30 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         data     = list_S_n_p $ data
         gcgm_NA  = list_S_n_p $ gcgm_NA
     }
-    
+ 
+    if( method == "tgm" )
+    {
+        data = list_S_n_p $ data
+        
+        tu = stats::rgamma( n, shape = nu / 2, rate = nu / 2 )
+        
+        mu = tu %*% data / sum( tu )
+        
+        S = matrix( 0, p, p )
+        
+        for( i in 1:n )	
+        { 
+            d_mu = data[ i, , drop = FALSE ] - mu
+            S    = S + tu[ i ] * t( d_mu ) %*% d_mu	
+        }
+    }
+       
     b      = df.prior
     b_star = b + n
     D      = diag( p )
     Ds     = D + S
     Ts     = chol( solve( Ds ) )
-    Ti     = chol( solve( D ) )   # only for double Metropolic-Hastings algorithms 
+    Ti     = chol( solve( D ) )   # only for double Metropolis-Hastings algorithms 
     
     g_prior = BDgraph::get_g_prior( g.prior = g.prior, p = p )
     G       = BDgraph::get_g_start( g.start = g.start, g_prior = g_prior, p = p )
@@ -96,6 +114,17 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     # - -  main BDMCMC algorithms implemented in C++ - - - - - - - - - - - - - |
     if( save == TRUE )
     {
+        if( ( method == "tgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
+        {
+            result = .C( "tgm_bdmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold),
+                         all_graphs = as.integer(all_graphs), all_weights = as.double(all_weights), K_hat = as.double(K_hat), 
+                         sample_graphs = as.character(sample_graphs), graph_weights = as.double(graph_weights), size_sample_g = as.integer(size_sample_g),
+                         as.integer(b), as.integer(b_star), as.double(D), as.double(Ds), as.integer(trace_mcmc), 
+                         as.double(data), as.integer(n), as.double(nu), as.double(mu), as.double(tu),
+                         PACKAGE = "BDgraph" )
+        }
+
+        
         if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
         {
             result = .C( "ggm_bdmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
@@ -216,7 +245,18 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         }	
         
     }else{
-        
+
+        if( ( method == "tgm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 )  )
+        {
+            
+            # double D[], double data[], int *n, double *nu, double mu[], double tu[]
+             result = .C( "tgm_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), K = as.double(K), as.integer(p), as.double(threshold), 
+                         K_hat = as.double(K_hat), p_links = as.double(p_links),
+                         as.integer(b), as.integer(b_star), as.integer(trace_mcmc), 
+                         as.double(D), as.double(data), as.integer(n), as.double(nu), as.double(mu), as.double(tu),
+                         PACKAGE = "BDgraph" )
+        }
+                
         if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 )  )
         {
             result = .C( "ggm_bdmcmc_ma", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 

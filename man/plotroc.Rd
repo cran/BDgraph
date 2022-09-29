@@ -8,21 +8,18 @@ Draws the receiver operating characteristic (ROC) curve according to the true gr
 }
 
 \usage{ 
-plotroc( target, est, est2 = NULL, est3 = NULL, est4 = NULL, 
-         cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" ) 
+plotroc( actual, pred, cut = 20, smooth = FALSE, label = TRUE, 
+         AUC = TRUE, main = "ROC Curve" ) 
 }
 
 \arguments{
-  \item{target}{
+  \item{actual}{
     adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
 	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
 	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
   }
   
-  \item{est,
-        est2,
-        est3,
-        est4}{
+  \item{pred}{
         upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
         It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
@@ -33,6 +30,7 @@ plotroc( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
   \item{cut   }{ number of cut points.}
   \item{smooth}{ logical: for smoothing the ROC curve.} 
   \item{label }{ logical: for adding legend to the ROC plot.} 
+  \item{AUC}{ logical: to report AUC.} 
   \item{main  }{ overall title for the plot.} 
 }
 
@@ -50,26 +48,24 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{\code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
+\seealso{ \code{\link{roc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
 
 \examples{
 \dontrun{
-# Generating multivariate normal data from a 'random' graph
+# To generate multivariate normal data from a 'random' graph
 data.sim <- bdgraph.sim( n = 30, p = 6, size = 7, vis = TRUE )
    
-# Runing sampling algorithm
+# To Run sampling algorithm
 bdgraph.obj <- bdgraph( data = data.sim, iter = 10000 )
 
-# Comparing the results
+# To compare the results
 plotroc( data.sim, bdgraph.obj )
    
 # To compare the results based on CGGMs approach
 bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 
-# Comparing the resultss
-plotroc( data.sim, bdgraph.obj, bdgraph.obj2, label = FALSE )
-
-legend( "bottomright", c( "GGMs", "GCGMs" ), lty = c( 1, 2 ), col = c( "black", "red" ) )   
+# To Compare the resultss
+plotroc( data.sim, list( bdgraph.obj, bdgraph.obj2 ), label = FALSE )
 }
 }
 

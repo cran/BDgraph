@@ -35,6 +35,13 @@ extern "C" {
 	void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p );
 
 	void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p );
+	
+    void update_tu( double data[], double K[], double tu[], double mu[], double *nu, int *n, int *p );
+
+    void get_Ds_tgm( double data[], double D[], double mu[], double tu[], double Ds[], double S[], int *n, int *p );
+    
+    void update_mu( double data[], double mu[], double tu[], int *n, int *p );
+
 }
 
 #endif

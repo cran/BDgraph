@@ -22,30 +22,29 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL,
     G <- matrix( 0, p, p )
     
     # - - build the graph structure - - - - - - - - - - - - - - - - - - - - -  |
-    if( graph == "random" )
+    if( ( graph == "random" ) | ( graph == "Random" ) )
     {
         if( is.null( size ) )
         {
             G[ upper.tri( G ) ] <- stats::rbinom( p * ( p - 1 ) / 2, 1, prob )
         }else{
-            if( size < 0 | size > p * ( p - 1 ) / 2 )  stop( "'size' must be between ( 0,  p * ( p - 1 ) / 2 )" )
+            if( ( size < 0 ) | ( size > p * ( p - 1 ) / 2 ) )  stop( "'size' must be between ( 0,  p * ( p - 1 ) / 2 )" )
             
             smp <- sample( 1 : ( p * ( p - 1 ) / 2 ), size, replace = FALSE )
             G[ upper.tri( G ) ][ smp ] <- 1
         }
     }
 
-    if( graph == "smallworld" )
+    if( ( graph == "scale-free" ) | ( graph == "Scale-free" ) )
     {
-        G_igraph = igraph::sample_smallworld( dim = 1, # One dimension
-                                              size = p, # Number of variables
-                                              nei = round( size / p ), # Neighborhood
-                                              p = rewire )   
+        resultGraph = .C( "scale_free", G = as.integer( G ), as.integer( p ), PACKAGE = "BDgraph" )
+        G = matrix( resultGraph $ G, p, p ) 
         
-        G = as.matrix( igraph::as_adj( G_igraph ) ) # Rewiring probability
+        #j = sample( 1:p, 1 )
+        #for( i in ( c( 1:p )[ -j ] ) ) { G[ i, j ] = 1; G[ j, i ] = 1 }
     }
-        
-    if( graph == "cluster" )
+    
+    if( ( graph == "cluster" ) | ( graph == "Cluster" ) )
     {
         # partition variables
         if( is.null( class ) )
@@ -76,7 +75,7 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL,
             }
         }else{
             if( class != length( size ) )  stop( "Number of graph sizes is not match with number of clusters" )
-            if( sum( size ) < 0 | sum( size ) > p * ( p - 1 ) / 2 ) stop( "Total graph sizes must be between ( 0, p * ( p - 1 ) / 2 )" )
+            if( ( sum( size ) < 0 ) | ( sum( size ) > p * ( p - 1 ) / 2 ) ) stop( "Total graph sizes must be between ( 0, p * ( p - 1 ) / 2 )" )
             
             for( i in 1 : class )
             {
@@ -89,13 +88,43 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL,
         }
     }
     
-    if( graph == "scale-free" )
+    if( ( graph == "hub" ) | ( graph == "Hub" ) )
     {
-        resultGraph = .C( "scale_free", G = as.integer( G ), as.integer( p ), PACKAGE = "BDgraph" )
-        G = matrix( resultGraph $ G, p, p ) 
+        if( is.null( size ) ) size = ceiling( p / 20 ) 
+        if( ( size < 0 ) | ( size > ( p - 1 ) ) )  stop( "'size' must be between ( 0, p - 1 ), for option 'graph = \"hub\"'" )
+
+        hub = sample( 1:p, size = size, replace = FALSE )
         
-        #j = sample( 1:p, 1 )
-        #for( i in ( c( 1:p )[ -j ] ) ) { G[ i, j ] = 1; G[ j, i ] = 1 }
+        for( i in 1:size )
+        {
+            G[ hub[ i ],  ] <- 1
+            G[ , hub[ i ] ] <- 1
+        }
+    }
+
+    if( ( graph == "star" ) | ( graph == "Star" ) )
+    {
+        hub = sample( 1:p, size = 1, replace = FALSE )
+        G[ hub,     ] <- 1
+        G[    , hub ] <- 1
+    }
+    
+    if( ( graph == "circle" ) | ( graph == "Circle" ) )
+    {
+        if( p < 3 ) stop( "'p' must be more than 2, for option 'graph = \"circle\"'" )
+        
+        G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
+        G[ 1, p ] <- 1
+    }
+
+    if( ( graph == "smallworld" ) | ( graph == "Smallworld" ) | ( graph == "small-world" ) | ( graph == "Small-world" ) )
+    {
+        G_igraph = igraph::sample_smallworld( dim = 1, # One dimension
+                                              size = p, # Number of variables
+                                              nei = round( size / p ), # Neighborhood
+                                              p = rewire )   
+        
+        G = as.matrix( igraph::as_adj( G_igraph ) ) # Rewiring probability
     }
     
     if( ( graph == "lattice" ) | ( graph == "grid" ) )
@@ -127,35 +156,6 @@ graph.sim = function( p = 10, graph = "random", prob = 0.2, size = NULL,
                     G[ col + ( row - 1 ) * length_col, col + row * length_col ] = 1
             }
         }
-    }
-    
-    if( graph == "hub" )
-    {
-        if( is.null( size ) ) size = ceiling( p / 20 ) 
-        if( size < 0 | size > ( p - 1 ) )  stop( "'size' must be between ( 0, p - 1 ), for option 'graph = \"hub\"'" )
-
-        hub = sample( 1:p, size = size, replace = FALSE )
-        
-        for( i in 1:size )
-        {
-            G[ hub[ i ],  ] <- 1
-            G[ , hub[ i ] ] <- 1
-        }
-    }
-
-    if( graph == "star" )
-    {
-        hub = sample( 1:p, size = 1, replace = FALSE )
-        G[ hub,     ] <- 1
-        G[    , hub ] <- 1
-    }
-    
-    if( graph == "circle" )
-    {
-        if( p < 3 ) stop( "'p' must be more than 2, for option 'graph = \"circle\"'" )
-        
-        G         <- stats::toeplitz( c( 0, 1, rep( 0, p - 2 ) ) )
-        G[ 1, p ] <- 1
     }
     
     G[ lower.tri( G, diag = TRUE ) ] = 0

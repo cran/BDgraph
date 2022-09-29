@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2022  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -25,10 +25,10 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
         trace_mcmc = floor( verbose )
         verbose = TRUE
     }else{
-        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 2 )
+        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
          
-    cores = BDgraph::get_cores( cores = cores )
+    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
     
 	if( inherits( data, "sim" ) ) data <- data $ data
 	colnames_data = colnames( data )
@@ -87,12 +87,12 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 		p_links = matrix( 0, p, p )
 	}
 
-	if( ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
-	{
-		cat( "  WARNING: Memory needs to run this function is around " )
-		print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
-	} 
-	
+    if( ( verbose == TRUE ) && ( save == TRUE ) && ( p > 50 & iter > 20000 ) )
+    {
+        cat( "  WARNING: Memory needs to run this function is around: " )
+        print( ( iter - burnin ) * utils::object.size( string_g ), units = "auto" ) 
+    } 
+
 	last_graph = matrix( 0, p, p )
 
 	if( ( is.null( jump ) ) && ( p > 10 & iter > ( 5000 / p ) ) )

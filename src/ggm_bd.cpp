@@ -1,24 +1,24 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
-//                                                                                                 |
-//     This file is part of BDgraph package.                                                       |
-//                                                                                                 |
-//     BDgraph is free software: you can redistribute it and/or modify it under                    |
-//     the terms of the GNU General Public License as published by the Free                        |
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
-//                                                                                                 |
-//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//    Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+//                                                                             |
+//    This file is part of BDgraph package.                                    |
+//                                                                             |
+//   BDgraph is a free software: you can redistribute it and/or modify it      |
+//   under the terms of the GNU General Public License as published by the Free|
+//   Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>. |
+//                                                                             |
+//   Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                           |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 #include "matrix.h"
 #include "rgwish.h"
 
 extern "C" {
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // birth-death MCMC for Gaussian Graphical models  
 // for case D = I_p 
 // it is for Bayesian model averaging (MA)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
                     int *p, double *threshold, double K_hat[], double p_links[],
 			        int *b, int *b_star, double Ds[], int *print )
@@ -150,11 +150,11 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 	}
 }
        
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // birth-death MCMC for Gaussian Graphical models  
 // for case D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double Ts[], double K[], 
                     int *p, double *threshold, int all_graphs[], double all_weights[], double K_hat[], 
                     char *sample_graphs[], double graph_weights[], int *size_sample_g,
@@ -322,11 +322,11 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 		K_hat[ i ] /= sum_weights;
 }
         
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Multiple birth-death MCMC for Gaussian Graphical models  
 // for D = I_p 
 // it is for Bayesian model averaging
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
                             double K[], int *p, double *threshold, double K_hat[], double p_links[],
                             int *b, int *b_star, double Ds[], int *multi_update, int *print )
@@ -467,11 +467,11 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 	}
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Multiple birth-death MCMC for Gaussian Graphical models  
 // for D = I_p 
 // it is for maximum a posterior probability estimation (MAP)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prior[], double Ts[], 
                 double K[], int *p, double *threshold, int all_graphs[], double all_weights[], double K_hat[], 
                 char *sample_graphs[], double graph_weights[], int *size_sample_g, int *counter_all_g,
@@ -647,3 +647,4 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prio
 }
               
 } // End of exturn "C"
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

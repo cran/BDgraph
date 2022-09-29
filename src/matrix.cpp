@@ -1,21 +1,21 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
-//                                                                                                 |
-//     This file is part of BDgraph package.                                                       |
-//                                                                                                 |
-//     BDgraph is free software: you can redistribute it and/or modify it under                    |
-//     the terms of the GNU General Public License as published by the Free                        |
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
-//                                                                                                 |
-//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//    Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+//                                                                             |
+//    This file is part of BDgraph package.                                    |
+//                                                                             |
+//   BDgraph is a free software: you can redistribute it and/or modify it      |
+//   under the terms of the GNU General Public License as published by the Free|
+//   Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>. |
+//                                                                             |
+//   Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                           |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
   
 #include "matrix.h"
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
 // retrieves square sub_matrix B (p_sub x p_sub), dictated by vector sub
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 {
 	int i, j, ixp, subixp, psub = *p_sub, pdim = *p;
@@ -30,10 +30,10 @@ void sub_matrix( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 	}
 }
    
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes symmetric matrix A (p x p) and 
 // retrieves upper part of sub_matrix B (p_sub x p_sub), dictated by vector sub
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_matrix_upper( double A[], double sub_A[], int sub[], int *p_sub, int *p )
 {
 	int i, j, ixp, subixp, psub = *p_sub, pdim = *p;
@@ -48,11 +48,11 @@ void sub_matrix_upper( double A[], double sub_A[], int sub[], int *p_sub, int *p
 	}
 }
    
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
 // retrieves vector sub_A which is 'sub' th row of matrix A, minus 'sub' element
-// Likes A[j, -j] in R
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// Likes A[ j, -j ] in R
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
 	int subj = *sub, pdim = *p, subxp = subj * pdim;
@@ -61,11 +61,11 @@ void sub_row_mins( double A[], double sub_A[], int *sub, int *p )
 	memcpy( sub_A + subj, A + subxp + subj + 1, sizeof( double ) * ( pdim - subj - 1 ) );	
 }
    
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
 // retrieves sub_matrix sub_A(2 x p-2) which is sub rows of matrix A, minus two elements
 // Likes A[(i,j), -(i,j)] in R ONLY FOR SYMMETRIC MATRICES
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col, sub0p = sub0 * pdim, sub1p = sub1 * pdim;
@@ -89,11 +89,11 @@ void sub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 	}
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
 // retrieves sub_matrix sub_A(p-2 x 2) which is sub cols of matrix A, minus two elements
 // Likes A[-(i,j), (i,j)] in R 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_cols_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int subi = *row, subj = *col, pdim = *p, p2 = pdim - 2, subixp = subi * pdim, subjxp = subj * pdim;
@@ -107,11 +107,11 @@ void sub_cols_mins( double A[], double sub_A[], int *row, int *col, int *p )
 	memcpy( sub_A + p2 + subj - 1, A + subjxp + subj + 1, sizeof( double ) * ( pdim - subj - 1 ) );	
 }
    
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes symmatric matrix A (p x p) and 
 // retrieves A12(1x(p-1)) and A22((p-1)x(p-1))
 // Like A12=A[j, -j], and A22=A[-j, -j] in R
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
 	int i, ixpdim, ixp1, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim, mpsub = pdim - psub - 1;
@@ -140,11 +140,11 @@ void sub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 	}
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
 // retrieves A11(2x2), A12(2x(p-2)), and A22((p-2)x(p-2))
 // Like A11=A[e, e], A12=A[e, -e], and A22=A[-e, -e] in R
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
 	int i, j, ixp, ij, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
@@ -209,11 +209,11 @@ void sub_matrices( double A[], double A11[], double A12[], double A22[], int *ro
 	}
 }
    
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Takes square matrix A (p x p) and 
 // retrieves A11_inv ( 2 x 2 ), A21 ( ( p - 2 ) x 2 ), and A22 ( ( p - 2 ) x ( p - 2 ) )
 // Like A11_inv=inv ( A[ e, e ] ), A21 = A[ -e, e ], and A22 = A[ -e, -e ] in R
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[], int *row, int *col, int *p )
 {
 	int i, ixp, ixp2, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
@@ -272,10 +272,10 @@ void sub_matrices_inv( double A[], double A11_inv[], double A21[], double A22[],
 	}
 }
       
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // inverse function for symmetric positive-definite matrices (p x p)
 // WARNING: Matrix you pass is overwritten with the result
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void inverse( double A[], double A_inv[], int *p )
 {
 	int info, dim = *p;
@@ -291,9 +291,9 @@ void inverse( double A[], double A_inv[], int *p )
 	F77_NAME(dposv)( &uplo, &dim, &dim, A, &dim, A_inv, &dim, &info FCONE );
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // inverse function for symmetric (2 x 2)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void inverse_2x2( double B[], double B_inv[] )
 {
 	double detB = B[ 0 ] * B[ 3 ] - B[ 1 ] * B[ 1 ];
@@ -303,10 +303,10 @@ void inverse_2x2( double B[], double B_inv[] )
 	B_inv[ 3 ]  = B[ 0 ] / detB;
 } 
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Cholesky decomposition of symmetric positive-definite matrix
 // A = U' %*% U
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void cholesky( double A[], double U[], int *p )
 {
 	char uplo = 'U';
@@ -322,12 +322,12 @@ void cholesky( double A[], double U[], int *p )
 			U[ j * dim + i ] = 0.0;
 }
   
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//  Determinant of a symmetric possitive-definite matrix ( A )
-//       > > > > > > > > >  WARNING: Matrix you pass is overwritten < < < < < < < < < 
-//  For any symmetric PD Matrix A, we have: |A| = |T| ^ 2, where T is cholesky decomposition of A. 
-//  Thus, |T| = \prod_{i = 1}^p T_{ii}.
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//  Determinant of a symmetric positive-definite matrix ( A )
+//  > > > > > > > > >  WARNING: Matrix you pass is overwritten < < < < < < < < < 
+//  For any symmetric PD Matrix A: |A| = |T| ^ 2, where T is cholesky 
+// decomposition of A. Thus, |T| = \prod_{i = 1}^p T_{ii}.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void determinant( double A[], double *det_A, int *p )
 {
 	char uplo = 'U';
@@ -341,9 +341,9 @@ void determinant( double A[], double *det_A, int *p )
 	*det_A = result * result;
 }
         
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // To select an edge for BDMCMC algorithm  
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void select_edge( double rates[], int *index_selected_edge, double *sum_rates, int *qp )
 {
 	int qp_star = *qp;
@@ -380,9 +380,9 @@ void select_edge( double rates[], int *index_selected_edge, double *sum_rates, i
 	*index_selected_edge = ( cumulative_rates[ position ] < random_value ) ? ++position : position;
 } 
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // select_edge for bd_for_ts
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void select_edge_ts( long double rates[], int *index_selected_edge, long double *sum_rates, int *qp )
 {
 	int qp_star = *qp;
@@ -419,9 +419,9 @@ void select_edge_ts( long double rates[], int *index_selected_edge, long double 
 	*index_selected_edge = ( cumulative_rates[ position ] < random_value ) ? ++position : position;
 } 
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // To simultaneously select multiple edges for BDMCMC algorithm  
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void select_multi_edges( double rates[], int index_selected_edges[], int *size_index, double *sum_rates, int *multi_update, int *qp )
 {
 	int i, qp_star = *qp, qp_star_1 = qp_star - 1;
@@ -492,9 +492,9 @@ void select_multi_edges( double rates[], int index_selected_edges[], int *size_i
 	*sum_rates  = max_bound;
 } 
          
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Parallel Computation for birth-death rates for BD-MCMC algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double Dsijj[],
 				            double sigma[], double K[], int *b, int *p )
 {
@@ -599,9 +599,9 @@ void rates_bdmcmc_parallel( double rates[], double log_ratio_g_prior[], int G[],
 	}
 }
      
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Parallel Computation for birth-death rates for complex BD-MCMC algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp,
 				             double r_Ds[], double i_Ds[], double r_sigma[], double i_sigma[], double r_K[], double i_K[], int *b, int *p )
 {
@@ -785,10 +785,10 @@ void rates_cbdmcmc_parallel( long double log_rates[], double log_ratio_g_prior[]
 	}
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // computing birth/death rate or alpha for element (i,j)
-// it is for double Metropolis-Hasting algorihtms
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// it is for double Metropolis-Hasting algorithms
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i, int *selected_edge_j,
                double Kj12[], double Kj12xK22_inv[], double K12[], double K12xK22_inv[], double K121[], 
                double sigmaj12[], double sigmaj22[], double sigma12[], double sigma22[], double sigma11_inv[], double sigma21xsigma11_inv[],
@@ -808,8 +808,8 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	F77_NAME(dsyr)( &sideL, p1, &sigmajj_inv, sigmaj12, &one, sigmaj22, p1 FCONE );
 
 	// For (i,j) = 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
-	sub_row_mins( K, Kj12, selected_edge_j, dim );  // K12 = K[j, -j]  
-	Kj12[ *selected_edge_i ] = 0.0;                       // K12[1,i] = 0
+	sub_row_mins( K, Kj12, selected_edge_j, dim );   // K12 = K[j, -j]  
+	Kj12[ *selected_edge_i ] = 0.0;                  // K12[1,i] = 0
 
 	// Kj12xK22_inv = Kj12 %*% Kj22_inv here sigmaj22 instead of Kj22_inv
 	F77_NAME(dsymv)( &sideL, p1, &alpha, &sigmaj22[0], p1, Kj12, &one, &beta, Kj12xK22_inv, &one FCONE );
@@ -843,9 +843,9 @@ void log_H_ij( double K[], double sigma[], double *log_Hij, int *selected_edge_i
 	*log_Hij = 0.5 * ( log( *Dsjj / a11 ) + *Dsijj * a11 - sum_diag );
 }    
      
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Parallel Computation for birth-death rates for double BD-MCMC algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int G[], int index_row[], int index_col[], int *sub_qp, double Ds[], double D[],
 				            double sigma[], double K[], double sigma_dmh[], 
 				            double K_dmh[], int *b, int *p )
@@ -923,9 +923,9 @@ void rates_bdmcmc_dmh_parallel( double rates[], double log_ratio_g_prior[], int 
 	}
 }
      	
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // NEW for Lang codes for Hermitian matrix
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
 {
 	int i, l = 0, subj = *sub, pdim = *p, subxp = subj * pdim;
@@ -937,9 +937,9 @@ void Hsub_row_mins( double A[], double sub_A[], int *sub, int *p )
 		sub_A[ l++ ] = -A[ subxp + i ];
 }
       
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // For Hermitian matrix
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 {	
 	int i, l = 0, pdim = *p, sub0 = *row, sub1 = *col, sub0p = sub0 * pdim, sub1p = sub1 * pdim;
@@ -963,9 +963,9 @@ void Hsub_rows_mins( double A[], double sub_A[], int *row, int *col, int *p )
 	}
 }
        
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // sub_matrices1 for Hermitian matrix
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 {
 	int i, ixpdim, pdim = *p, p1 = pdim - 1, psub = *sub, subxp = psub * pdim, mpsub = pdim - psub - 1;
@@ -991,9 +991,9 @@ void Hsub_matrices1( double A[], double A12[], double A22[], int *sub, int *p )
 	}
 }
         
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // sub_matrices for Hermitian matrix
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *row, int *col, int *p )
 {
 	int i, i1, i2, ixp, pdim = *p, p2 = pdim - 2, sub0 = *row, sub1 = *col;
@@ -1042,9 +1042,9 @@ void Hsub_matrices( double A[], double A11[], double A12[], double A22[], int *r
 	}
 }
    
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // inverse function for Hermitian (2 x 2)
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[] )
 {
 	double r_det = r_B[0] * r_B[3] - i_B[0] * i_B[3] - ( r_B[1] * r_B[1] + i_B[1] * i_B[1] );
@@ -1061,9 +1061,9 @@ void cinverse_2x2( double r_B[], double i_B[], double r_B_inv[], double i_B_inv[
 	i_B_inv[3] =  ( r_det * i_B[0] - r_B[0] * i_det ) / mod;
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // For generating scale-free graphs: matrix G (p x p) is an adjacency matrix
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void scale_free( int *G, int *p )
 {
 	int i, j, tmp, dim = *p, p0 = 2;
@@ -1104,9 +1104,9 @@ void scale_free( int *G, int *p )
 	PutRNGstate();
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // To transfer the raw discreate data 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_data )
 {
 	int i, j, l, counter;
@@ -1161,4 +1161,6 @@ void transfer_data( int r_data[], int data[], int *n, int *p, int *size_unique_d
 	
 	delete[] unique_patterns;
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 

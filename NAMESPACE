@@ -59,7 +59,12 @@ export( bdgraph,
 		get_bounds_dw,
 		ddweibull_reg,
 		log_post_cond_dw,
-		near_positive_definite
+		near_positive_definite,
+		
+		get_Ds_tgm_R,
+		get_Ts_R,
+		update_tu_R,
+		update_mu_R
 	   )
 
 S3method( "summary", "bdgraph" )

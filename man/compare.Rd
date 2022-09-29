@@ -5,26 +5,20 @@
 
 \description{ This function provides several measures to assess the performance of the graphical structure learning. }
 
-\usage{ 
-compare( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL, 
-         vis = FALSE ) 
-}
+\usage{ compare( actual, pred, main = NULL, vis = FALSE ) }
 
 \arguments{
-  \item{target}{
+  \item{actual}{
     adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
 	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
 	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
 	}
-  \item{est,
-        est2,
-        est3,
-        est4}{
+  \item{pred}{
         adjacency matrix corresponding to an estimated graph. 
         It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
         It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
-        Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
+        It also can be a \code{list} of above objects for comparing two or more different approaches.
         }
  
   \item{main}{ character vector giving the names for the result table. }
@@ -72,7 +66,8 @@ compare( data.sim, sample.ggm, main = c( "True", "GGM" ), vis = TRUE )
 sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 
 # Comparing GGM and GCGM methods
-compare( data.sim, sample.ggm, sample.gcgm, main = c( "True", "GGM", "GCGM" ), vis = TRUE )
+compare( data.sim, list( sample.ggm, sample.gcgm ), 
+         main = c( "True", "GGM", "GCGM" ), vis = TRUE )
 }
 }
 

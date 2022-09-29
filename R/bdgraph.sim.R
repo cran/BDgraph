@@ -16,7 +16,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 						prob = 0.2, size = NULL, mean = 0, class = NULL, 
 						cut = 4, b = 3, D = diag( p ), K = NULL, sigma = NULL, 
 						q = exp( -1 ), beta = 1, vis = FALSE, rewire = 0.05,
-						range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ) )
+						range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ),
+						nu = 1 )
 {
     if( p < 2 )                           stop( "'p' must be greater than 1" )
     if( ( prob < 0 ) | ( prob > 1 ) )     stop( "'prob' must be between ( 0, 1 )" )
@@ -30,7 +31,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     
     if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( "'graph' and 'K' have non-conforming size" )
         
-    if( !is.null( size ) ) if( ( size < 0 ) | ( size > ( p * ( p - 1 ) / 2 ) ) ) stop( "'size' must be between ( 0, p*(p-1)/2 )" )
+    if( !is.null( size ) ) 
+        if( ( sum( size ) < 0 ) | ( sum( size ) > ( p * ( p - 1 ) / 2 ) ) ) stop( "'size' must be between ( 0, p*(p-1)/2 )" )
     
     if( is.matrix( K ) )
     {
@@ -133,7 +135,7 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			
 			# generating count data
 			col_number        <- c( 1:ps )
-			prob              <- stats::pnorm( d[, col_number] )
+			prob              <- stats::pnorm( d[ , col_number ] )
 			d[ , col_number ] <- stats::qpois( p = prob, lambda = 10 )
 			
 			not.cont[ 1:ps ] = 1
@@ -146,9 +148,9 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			not.cont[ c( ( ps + 1 ):( 2 * ps ) ) ] = 1
 			
 			# generating non-Gaussian data
-			col_number     <- c( ( 2 * ps + 1 ):( 3 * ps ) )
-			prob           <- stats::pnorm( d[ , col_number ] )
-			d[,col_number] <- stats::qexp( p = prob, rate = 10 )
+			col_number       <- c( ( 2 * ps + 1 ):( 3 * ps ) )
+			prob             <- stats::pnorm( d[ , col_number ] )
+			d[ ,col_number ] <- stats::qexp( p = prob, rate = 10 )
 
 			# for binary data
 			col_number        <- c( ( 3 * ps + 1 ):( 4 * ps ) )
@@ -166,6 +168,20 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			d    <- stats::qexp( p = prob, rate = 10 )
 		}
 
+		# - - To generate multivariate data from T-distribution - - - - - - - |
+		if( type == "t" )
+		{
+		    tau_gamma = stats::rgamma( n, shape = nu / 2, rate = nu / 2 )
+            d         = mean + d / sqrt( tau_gamma )
+		}
+		
+    	if ( type == "alternative-t" )
+    	{
+    		taugamma = stats::rgamma( n * p, shape = nu / 2, rate = nu / 2 )
+    		taugamma = matrix( taugamma, n, p )
+    		d        = mean + d / sqrt( taugamma )
+    	}
+		
 		# - - generate multivariate count data - - - - - - - - - - - - - - - - |
 		if( type == "categorical" )
 		{

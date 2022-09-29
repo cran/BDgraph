@@ -10,7 +10,7 @@ output:
     fig_width: 3.5
     fig_height: 3.5
     dpi: 72
-    dev.args: list(pointsize=11)
+    dev.args: list( pointsize = 11 )
 vignette: >
   %\VignetteIndexEntry{BDgraph with Simple Examples}
   %\VignetteEncoding{UTF-8}
@@ -31,7 +31,7 @@ Install **BDgraph** using
 install.packages( "BDgraph" )
 ```
 
-First, we install **BDgraph** package as well as **pROC** and **ggplot2**
+First, we load **BDgraph** package as well as **pROC** and **ggplot2**
 ```{r loadpkg, message = FALSE, warning = FALSE}
 library( BDgraph )
 
@@ -82,7 +82,7 @@ conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
 We could compare the results of both algorithms with the true graph as follows
 
 ```{r fig.align = 'center'}
-compare( data.sim, bdgraph.obj, bdgraph.mpl.obj, 
+compare( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), 
          main = c( "Target", "BDgraph", "BDgraph.mpl" ), vis = TRUE )
 ```
 

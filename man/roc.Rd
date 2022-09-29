@@ -101,7 +101,7 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
 
 \author{Reza Mohammadi \email{a.mohammadi@uva.nl}}
 
-\seealso{ \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:print.roc]{pROC::print.roc()}}, \code{\link{bdgraph}} }
+\seealso{ \code{\link{plotroc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[pROC:print.roc]{pROC::print.roc()}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
 
 \examples{
 \dontrun{

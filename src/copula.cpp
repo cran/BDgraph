@@ -1,21 +1,21 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
-//                                                                                                 |
-//     This file is part of BDgraph package.                                                       |
-//                                                                                                 |
-//     BDgraph is free software: you can redistribute it and/or modify it under                    |
-//     the terms of the GNU General Public License as published by the Free                        |
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
-//                                                                                                 |
-//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//    Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+//                                                                             |
+//    This file is part of BDgraph package.                                    |
+//                                                                             |
+//   BDgraph is a free software: you can redistribute it and/or modify it      |
+//   under the terms of the GNU General Public License as published by the Free|
+//   Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>. |
+//                                                                             |
+//   Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                           |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
   
 #include "copula.h"
    
 extern "C" {
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing mean for copula function
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int *j, int *n, int *p )
 {
     int k, dim = *p, number = *n, row = *i, col = *j, jxp = col * dim;
@@ -27,9 +27,9 @@ void get_mean( double Z[], double K[], double *mu_ij, double *sigma, int *i, int
     *mu_ij = - mu * *sigma;
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing bounds for copula function
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
     int kj, col = *j, number = *n, ij = col * number + *i;
@@ -49,9 +49,9 @@ void get_bounds( double Z[], int R[], double *lb, double *ub, int *i, int *j, in
     *ub = upper_b;	
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // copula for BDMCMC sampling algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void copula( double Z[], double K[], int R[], int not_continuous[], int *n, int *p )
 {
     int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
@@ -156,10 +156,12 @@ void copula_dw_NA( double Z[], double K[], int Y[], double lower_bounds[], doubl
     }
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating Ds = D + S for the copula-Discrete Weibull in BDMCMC sampling algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-void get_Ds_dw( double K[], double Z[], int Y[], double lower_bounds[], double upper_bounds[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+void get_Ds_dw( double K[], double Z[], int Y[], double lower_bounds[], 
+                double upper_bounds[], double D[], double Ds[], double S[], 
+                int *gcgm, int *n, int *p )
 {
     int dim = *p;
     
@@ -175,9 +177,9 @@ void get_Ds_dw( double K[], double Z[], int Y[], double lower_bounds[], double u
         Ds[ i ] = D[ i ] + S[ i ];		
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Computing bounds for copula function for data with missing values 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j, int *n )
 {
     int kj, number = *n, col = *j, ij = col * number + *i;
@@ -200,9 +202,9 @@ void get_bounds_NA( double Z[], int R[], double *lb, double *ub, int *i, int *j,
     *ub = upper_b;		
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // copula for data with missing values 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, int *p )
 {
     int number = *n, dim = *p, nxp = number * dim, dimp1 = dim + 1;
@@ -241,16 +243,17 @@ void copula_NA( double Z[], double K[], int R[], int not_continuous[], int *n, i
     }
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating Ds = D + S for the BDMCMC sampling algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], double Ds[], double S[], int *gcgm, int *n, int *p )
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], 
+             double Ds[], double S[], int *gcgm, int *n, int *p )
 {
 	int dim = *p;
 
 	( *gcgm == 0 ) ? copula( Z, K, R, not_continuous, n, &dim ) : copula_NA( Z, K, R, not_continuous, n, &dim );
 	
-	// S <- t(Z) %*% Z; NOTE, I'm using Ds instead of S, for saving memory
+	// S <- t(Z) %*% Z; NOTE, I use Ds instead of S, to save memory
 	double alpha = 1.0, beta  = 0.0;
 	char transA = 'T', transB = 'N';
 	F77_NAME(dgemm)( &transA, &transB, &dim, &dim, n, &alpha, Z, n, Z, n, &beta, &S[0], &dim FCONE FCONE );		
@@ -260,9 +263,9 @@ void get_Ds( double K[], double Z[], int R[], int not_continuous[], double D[], 
 	    Ds[ i ] = D[ i ] + S[ i ];		
 }
     
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 // Calculating Ts = chol( solve( Ds ) ) for the BDMCMC sampling algorithm
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p )
 {
 	int dim = *p; 
@@ -274,4 +277,95 @@ void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p
 	cholesky( &inv_Ds[0], Ts, &dim );	
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// To update tu for the tgm models
+//	d_mu_i    = data[ i, , drop = FALSE ] - mu       # 1 x p
+//	delta_y_i = c( d_mu_i %*% K %*% t( d_mu_i ) )    # 1 x 1
+	
+//	shape_tu_i = ( nu + p ) / 2
+//	rate_tu_i  = ( nu + delta_y_i ) / 2
+	
+//	tu[ i ] = rgamma( 1, shape = shape_tu_i, rate = rate_tu_i )
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+void update_tu( double data[], double K[], double tu[], double mu[], double *nu, int *n, int *p )
+{
+    int i, j, k, l, dim = *p, size_data = *n, one = 1;
+    double nu_c = *nu, delta_y_i, shape_tu_i, rate_tu_i;
+    
+	vector<double> d_mu_i( dim ); 
+	//vector<double> d_mu_i_x_K( dim ); 
+
+    //GetRNGstate();
+    for( i = 0; i < size_data; i++ )
+    {
+        // for( j in 1:p ) d_mu_i[ j ] = data[ i, j ] - mu[ j ];
+        for( j = 0; j < dim; j++ )
+             d_mu_i[ j ] = data[ j * size_data + i ] - mu[ j ];
+      
+        // delta_y_i = 0.0;
+        // for( k in 1:p )
+        //    for( l in 1:p )
+        //        delta_y_i = delta_y_i + d_mu_i[ l ] * K[ l, k ] * d_mu_i[ k ];
+      
+        delta_y_i = 0.0;
+        for( k = 0; k < dim; k++ )
+            for( l = 0; l < dim; l++ )
+                delta_y_i += d_mu_i[ l ] * K[ k * dim + l ] * d_mu_i[ k ];
+        
+        shape_tu_i = ( nu_c + static_cast<double>( dim ) ) / 2.0;
+        rate_tu_i  = ( nu_c + delta_y_i ) / 2.0;
+                
+        // tu[ i ]   = rgamma( 1, shape = shape_tu_i, scale = 1.0 / rate_tu_i )
+        tu[ i ] = Rf_rgamma( shape_tu_i, 1.0 / rate_tu_i );
+    }
+    //PutRNGstate();
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// To update Ds for the tgm models
+// Ds = D + S for the BDMCMC sampling algorithm
+//	for( i in 1:p )
+//    for( j in 1:p )
+//        for( k in 1:n )
+//            S[ i, j ] = S[ i, j ] + tu[ k ] * ( data[ k, i ] - mu[ i ] ) * ( data[ k, j ] - mu[ j ] )
+//    	Ds = D + S
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+void get_Ds_tgm( double data[], double D[], double mu[], double tu[], double Ds[], double S[], int *n, int *p )
+{
+	int i, j, k, ij, dim = *p, size_data = *n;
+
+    for( i = 0; i < dim; i++ )
+        for( j = 0; j < dim; j++ )
+            for( k = 0; k < size_data; k++ )
+                S[ j * dim + i ] += tu[ k ] * ( data[ i * size_data + k ] - mu[ i ] ) * ( data[ j * size_data + k ] - mu[ j ] );
+
+    #pragma omp parallel for
+	for( int i = 0; i < dim * dim; i++ ) 
+	    Ds[ i ] = D[ i ] + S[ i ];		
+}
+   
+ // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// To update mu for the tgm models
+// mu = tu %*% data / sum( tu )
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+void update_mu( double data[], double mu[], double tu[], int *n, int *p )
+{
+   	int i, j, dim = *p, one = 1;
+    
+   	// mu = tu %*% data / sum( tu )
+    double alpha = 1.0, beta  = 0.0;
+    char transA = 'N', transB = 'N';
+    //F77_NAME(dgemm)( &transA, &transB, &one, &dim, &size_data, &alpha, &tu_c[0], &one, &data_c[0], &size_data, &beta, &mu_c[0], &one FCONE FCONE );		
+    F77_NAME(dgemm)( &transA, &transB, &one, &dim, n, &alpha, &tu[0], &one, &data[0], n, &beta, &mu[0], &one FCONE FCONE );		
+
+    double sum_tu = 0.0;
+    for( i = 0; i < *n; i++ )
+       sum_tu += tu[ i ];
+	
+	// mu = mu / sum( tu )
+    for( j = 0; j < dim; j++ )
+        mu[ j ] = mu[ j ] / sum_tu;
+}
+  
 } // End of exturn "C"
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |

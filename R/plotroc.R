@@ -12,68 +12,69 @@
 #     To plot ROC curve                                                        |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, 
-                    cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" )
+plotroc = function( actual, pred, cut = 20, smooth = FALSE, label = TRUE, 
+                    AUC = TRUE, main = "ROC Curve" )
 {
-    if( is.matrix( target ) ) 
-    {
-        if( ( sum( target == 0 ) + sum( target == 1 ) ) != ( nrow( target ) ^ 2 ) ) stop( "Elements of 'target' must be 0 or 1" )
-        G = target
-    }
+    if( !inherits( pred, "list" ) ) pred = list( pred )
+    length_pred = length( pred )
+  
+    if( length_pred == 1 ) label = FALSE
     
-    if( inherits( target, "sim" )   ) G <- unclass( target $ G ) 
-    if( inherits( target, "graph" ) ) G <- unclass( target ) 
-    
+    G = BDgraph::get_graph( actual )  
     G[ lower.tri( G, diag = TRUE ) ] = 0
     
-    output_tp_fp = compute_tp_fp( G = G, est = est, cut = cut, smooth = smooth )
-    fp           = output_tp_fp $ fp
-    tp           = output_tp_fp $ tp
+    if( length( label ) > 1 ){
+        labels_plot = label
+        label = TRUE
+    }else{
+        labels_plot = rep( NA, length_pred )
+        if( label != TRUE ) label = FALSE
+    }
     
-    # graphics::par( mar = c( 3.8, 4.2, 1.8, 1 ) )
-    graphics::plot( NA, type = "l", col = "black", cex.lab = 1.3, cex.main = 2, cex.axis = 1.2,
-                    main = main, xlab = "False Postive Rate", ylab = "True Postive Rate", 
-                    ylim = c( 0, 1 ), xlim = c( 0, 1 ) )
-    graphics::points( x = fp, y = tp, type = "l", col = 1, lty = 1, lw = 2 )
+    fp_roc = vector()
+    tp_roc = vector()
     
-    if( ( length( label ) == 1 ) && ( label == TRUE ) ) label = c( "est" )
+    length_fp_i = numeric( length = length_pred )
     
-    if( !is.null( est2 ) )
+    for( i in 1:length_pred )
     {
-        output_tp_fp = compute_tp_fp( G = G, est = est2, cut = cut, smooth = smooth )
-        fp_2         = output_tp_fp $ fp
-        tp_2         = output_tp_fp $ tp
+        output_tp_fp = compute_tp_fp( G = G, est = pred[[i]], cut = cut, smooth = smooth )
         
-        graphics::points( x = fp_2, y = tp_2, type = "l", col = 2, lty = 2, lw = 2 )
-        if( ( length( label ) == 1 ) && ( label != FALSE ) ) label = c( label, "est2" )
-    }
-    
-    if( !is.null( est3 ) )
-    {   
-        output_tp_fp = compute_tp_fp( G = G, est = est3, cut = cut, smooth = smooth )
-        fp_3         = output_tp_fp $ fp
-        tp_3         = output_tp_fp $ tp
+        length_fp_i[ i ] = length( output_tp_fp $ fp )
         
-        graphics::points( x = fp_3, y = tp_3, type = "l", col = 3, lty = 3, lw = 2 )
-        if( ( length( label ) == 2 ) ) label = c( label, "est3" )
-    }
-    
-    if( !is.null( est4 ) )
-    {   
-        output_tp_fp = compute_tp_fp( G = G, est = est4, cut = cut, smooth = smooth )
-        fp_4         = output_tp_fp $ fp
-        tp_4         = output_tp_fp $ tp
+        fp_roc = c( fp_roc, sort( c( output_tp_fp $ fp ) ) )
+        tp_roc = c( tp_roc, sort( c( output_tp_fp $ tp ) ) )
         
-        graphics::points( x = fp_4, y = tp_4, type = "l", col = 4, lty = 4, lw = 2 )
-        if( ( length( label ) == 3 ) ) label = c( label, "est3" )
+        if( label && is.na( labels_plot[ i ] ) ) labels_plot[ i ] = paste0( "pred ", i )
     }
-    
-    if( any( label != FALSE ) ) 
-        graphics::legend( "bottomright", label, lty = 1:length( label ), col = 1:length( label ), lwd = c( 2, 2 ), cex = 1.5 )
+
+    if( label && AUC )
+    {
+        for( i in 1:length_pred ) 
+        {
+            roc_i = BDgraph::roc( actual = G, pred = pred[[i]] )
+            
+            labels_plot[ i ] = paste( labels_plot[ i ], "; AUC=", round( pROC::auc( roc_i ), 3 ) )
+        }
+    }
+      
+    df_gg = data.frame( pred = rep( as.factor( 1:length_pred ), length_fp_i ), 
+                        fp_roc = fp_roc, tp_roc = tp_roc )
+
+    ggplot2::ggplot( df_gg, ggplot2::aes( x = fp_roc, y = tp_roc ) ) +
+        ggplot2::geom_line( ggplot2::aes( group = pred, colour = pred, linetype = pred ), show.legend = label ) +
+        ggplot2::scale_color_manual( values = 1:length_pred, labels = labels_plot ) +
+        ggplot2::scale_linetype_manual( values = 1:length_pred, labels = labels_plot ) +
+        ggplot2::labs( x = "False Postive Rate", y = "True Postive Rate" ) +
+        ggplot2::ggtitle( main ) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme( legend.title = ggplot2::element_blank(), legend.position = c( .7, .3 ), 
+               text = ggplot2::element_text( size = 17 ) ) +
+        ggplot2::theme( legend.key.width = ggplot2::unit( 2, "line" ) ) 
 }
-    
+       
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-# Function to compute tp (true possitive) and fp (false possitive) for ROC plot
+# Function to compute tp (true positive) and fp (false positive) for ROC plot
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 compute_tp_fp = function( G, est, cut, smooth )
 {

@@ -11,7 +11,7 @@
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
          burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
          g.start = "empty", jump = NULL, save = FALSE, 
-         cores = NULL, threshold = 1e-8, verbose = TRUE )
+         cores = NULL, threshold = 1e-8, verbose = TRUE, nu = 1 )
 }
 
 \arguments{
@@ -74,7 +74,8 @@ bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000,
 	   %The default is to use "all" CPU cores of the computer.
     }	
     \item{threshold}{ threshold value for the convergence of sampling algorithm from G-Wishart for the precision matrix.}
-	\item{verbose}{ logical: if TRUE (default), report/print the MCMC running time. }	
+	\item{verbose}{ logical: if TRUE (default), report/print the MCMC running time. }
+	\item{nu}{ prior parameter for option \code{method} = "\code{tgm}".}
 }
 
 \value{
@@ -138,7 +139,7 @@ compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = T )
 # Running algorithm with starting points from previous run
 bdgraph.obj2 <- bdgraph( data = data.sim, g.start = bdgraph.obj )
     
-compare( data.sim, bdgraph.obj, bdgraph.obj2, 
+compare( data.sim, list( bdgraph.obj, bdgraph.obj2 ), 
          main = c( "Target", "Frist run", "Second run" ) )
 
 # - - Example 2

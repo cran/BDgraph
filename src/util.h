@@ -5,7 +5,10 @@
     #include <omp.h>
 #endif
 
+#ifndef USE_FC_LEN_T
 #define USE_FC_LEN_T  // For Fortran character strings
+#endif
+
 #include <Rconfig.h>  // included by R.h, so define USE_FC_LEN_T early
 #include <R.h>
 #include <Rmath.h>

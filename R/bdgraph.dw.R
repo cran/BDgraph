@@ -82,10 +82,10 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
         trace_mcmc = floor( verbose )
         verbose = TRUE
     }else{
-        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 2 )
+        trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
 
-    cores = BDgraph::get_cores( cores = cores )
+    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
 
     list_S_n_p = BDgraph::get_S_n_p( data = data, method = "dw", n = n, not.cont = NULL )
     

@@ -2,6 +2,16 @@
 
 ## **BDgraph** NEWS <a href='https://CRAN.R-project.org/package=BDgraph'><img src='man/figures/logo.png' align="right" height="170" /></a>
 
+### **BDgraph** Version 2.69
+
+* In function `bdgraph.sim()`, option, `type="t"` and `type="alternative-t"` are added.
+* In functions `bdgraph.sim()`, option `nu` is added for the cases `type="t"` and `type="alternative-t"`.
+
+* Bug fixed for `compare()` function.
+* In the function `compare()` option `est` is replaced.
+
+* In the function `plotroc()` option `est` is replaced.
+
 ### **BDgraph** Version 2.68
 
 * In functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()`, option `verbose` is added.

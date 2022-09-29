@@ -2,8 +2,8 @@
 #include <R_ext/Rdynload.h>
 
 /* FIXME: 
- Check these declarations against the C/Fortran source code.
- */
+   Check these declarations against the C/Fortran source code.
+*/
 
 /* .C calls */
 extern void dgm_bdmcmc_mpl_binary_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -32,6 +32,8 @@ extern void gcgm_dw_bdmcmc_map(void *, void *, void *, void *, void *, void *, v
 extern void gcgm_dw_bdmcmc_map_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_rjmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void gcgm_rjmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void get_Ds_tgm(void *, void *, void *, void *, void *, void *, void *, void *);
+extern void get_Ts(void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_ma_multi_update(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ggm_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -57,7 +59,11 @@ extern void omp_set_num_cores(void *, void *);
 extern void rgwish_c(void *, void *, void *, void *, void *, void *);
 extern void rwish_c(void *, void *, void *, void *);
 extern void scale_free(void *, void *);
+extern void tgm_bdmcmc_ma(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void tgm_bdmcmc_map(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void transfer_data(void *, void *, void *, void *, void *);
+extern void update_mu(void *, void *, void *, void *, void *);
+extern void update_tu(void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CMethodDef CEntries[] = {
     {"dgm_bdmcmc_mpl_binary_ma",               (DL_FUNC) &dgm_bdmcmc_mpl_binary_ma,               12},
@@ -86,6 +92,8 @@ static const R_CMethodDef CEntries[] = {
     {"gcgm_dw_bdmcmc_map_multi_update",        (DL_FUNC) &gcgm_dw_bdmcmc_map_multi_update,        27},
     {"gcgm_rjmcmc_ma",                         (DL_FUNC) &gcgm_rjmcmc_ma,                         20},
     {"gcgm_rjmcmc_map",                        (DL_FUNC) &gcgm_rjmcmc_map,                        24},
+    {"get_Ds_tgm",                             (DL_FUNC) &get_Ds_tgm,                              8},
+    {"get_Ts",                                 (DL_FUNC) &get_Ts,                                  5},
     {"ggm_bdmcmc_ma",                          (DL_FUNC) &ggm_bdmcmc_ma,                          14},
     {"ggm_bdmcmc_ma_multi_update",             (DL_FUNC) &ggm_bdmcmc_ma_multi_update,             15},
     {"ggm_bdmcmc_map",                         (DL_FUNC) &ggm_bdmcmc_map,                         18},
@@ -111,7 +119,11 @@ static const R_CMethodDef CEntries[] = {
     {"rgwish_c",                               (DL_FUNC) &rgwish_c,                                6},
     {"rwish_c",                                (DL_FUNC) &rwish_c,                                 4},
     {"scale_free",                             (DL_FUNC) &scale_free,                              2},
+    {"tgm_bdmcmc_ma",                          (DL_FUNC) &tgm_bdmcmc_ma,                          18},
+    {"tgm_bdmcmc_map",                         (DL_FUNC) &tgm_bdmcmc_map,                         24},
     {"transfer_data",                          (DL_FUNC) &transfer_data,                           5},
+    {"update_mu",                              (DL_FUNC) &update_mu,                               5},
+    {"update_tu",                              (DL_FUNC) &update_tu,                               7},
     {NULL, NULL, 0}
 };
 

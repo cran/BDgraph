@@ -10,7 +10,7 @@ output:
     fig_width: 3.5
     fig_height: 3.5
     dpi: 72
-    dev.args: list(pointsize=11)
+    dev.args: list( pointsize = 11 )
 vignette: >
   %\VignetteIndexEntry{Introduction to BDgraph}
   %\VignetteEncoding{UTF-8}
@@ -142,8 +142,7 @@ provides the trace of graph size to check convergence of the search algorithms. 
 
 The functions `compare()` and `plotroc()` are designed to evaluate and compare the performance of the selected graph. These functions are particularly useful for simulation studies. With the function 
 ```{r eval = FALSE}
-compare( target, est, est2 = NULL, est3 = NULL, est4 = NULL, main = NULL, 
-         vis = FALSE ) 
+compare( target, est, main = NULL, vis = FALSE ) 
 ```
 we can evaluate the performance of the Bayesian methods available in our **BDgraph** package and compare them with alternative approaches. This function provides several measures such as the balanced $F$-score measure, which is defined as follows:
 \begin{eqnarray}
@@ -214,14 +213,15 @@ where the sampling algorithm from the joint posterior distribution is based on t
 
 Users can compare the performance of these two algorithms by using the code
 ```{r}
-plotroc( data.sim, sample.bdmcmc, sample.rjmcmc, smooth = TRUE ) 
+plotroc( data.sim, list( sample.bdmcmc, sample.rjmcmc ), smooth = TRUE,
+         label = c( "BDMCMC", "RJMCMC" ) ) 
 ```
 which visualizes an ROC plot for both algorithms, BDMCMC and RJMCMC.
 
 We can also compare the performance of those algorithms by using the `compare()` function as follows:
 
 ```{r}
-compare( data.sim, sample.bdmcmc, sample.rjmcmc, 
+compare( data.sim, list( sample.bdmcmc, sample.rjmcmc ), 
           main = c( "True graph", "BDMCMC", "RJMCMC" ), vis = TRUE )
 ```
 The results show that for this specific simulated example both algorithms have more or less the same performance; See [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) for a comprehensive simulation study.
@@ -248,13 +248,13 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 
 Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learning of microbiota systems from count metagenomic data, *arXiv preprint*, [doi:10.48550/arXiv.2203.10118](https://doi.org/10.48550/arXiv.2203.10118)
 
-Dobra, A. and Lenkoski, A. (2011). Copula Gaussian graphical models and their application to modeling functional disability data, *The Annals of Applied Statistics*, 5(2A):969-93, doi:10.1214/10-AOAS397
+Dobra, A. and Lenkoski, A. (2011). Copula Gaussian graphical models and their application to modeling functional disability data, *The Annals of Applied Statistics*, 5(2A):969-93
 
-Dobra, A., et al. (2011). Bayesian inference for general Gaussian graphical models with application to multivariate lattice data. *Journal of the American Statistical Association*, 106(496):1418-33, doi:10.1198/jasa.2011.tm10465
+Dobra, A., et al. (2011). Bayesian inference for general Gaussian graphical models with application to multivariate lattice data. *Journal of the American Statistical Association*, 106(496):1418-33, [doi:10.1198/jasa.2011.tm10465](https://doi.org/10.1198/jasa.2011.tm10465)
 
 Mohammadi, A. and Dobra, A. (2017). The `R` Package **BDgraph** for Bayesian Structure Learning in Graphical Models, *ISBA Bulletin*, 24(4):11-16
 
-Lenkoski, A. (2013). A direct sampler for G-Wishart variates, *Stat*, 2(1):119-28, doi:10.1002/sta4.23
+Lenkoski, A. (2013). A direct sampler for G-Wishart variates, *Stat*, 2(1):119-28, [doi:10.1002/sta4.23](https://doi.org/10.1002/sta4.23)
 
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, *Bayesian Analysis*, 12(4):1195-215, [doi:10.1214/16-BA1032](https://doi.org/10.1214/16-ba1032).
 

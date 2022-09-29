@@ -18,7 +18,10 @@ get_graph = function( obj_G, cut = 0.5 )
     if( is.matrix( obj_G ) ) 
     {
         if( nrow( obj_G ) != ncol( obj_G ) ) stop( "Adjacency matrix must be squere" )
-        if( ( sum( obj_G == 0 ) + sum( obj_G == 1 ) ) != ( ncol( obj_G ) ^ 2 ) ) stop( "Elements of adjacency matrix must be 0 or 1" )
+        
+        if( ( sum( obj_G == 0 ) + sum( obj_G == 1 ) ) != ( ncol( obj_G ) ^ 2 ) ) 
+            stop( "Elements of adjacency matrix must be 0 or 1" )
+        
         G = unclass( obj_G )
     }else{
         if(   inherits( obj_G, "sim"     ) ) G <- unclass( obj_G $ G ) 
@@ -102,7 +105,7 @@ get_K_start = function( G, g.start, Ts, b_star, threshold )
         K = G
         
         result = .C( "rgwish_c", as.integer(G), as.double(Ts), K = as.double(K), as.integer(b_star), as.integer(p), as.double(threshold), PACKAGE = "BDgraph" )
-        K      = matrix ( result $ K, p, p ) 
+        K      = matrix( result $ K, p, p ) 
     }
     
     return( K = K )
@@ -124,6 +127,8 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
     {
         if( method == "dw"  ) stop( "'bdgraph.dw()' does not deal with missing values" )	
         if( method == "ggm" ) stop( "'ggm' method does not deal with missing values. You could choose option 'method = \"gcgm\"'" )	
+        if( method == "tgm" ) stop( "'tgm' method does not deal with missing values. You could choose option 'method = \"gcgm\"'" )	
+        
         gcgm_NA = 1
     }else{
         gcgm_NA = 0
@@ -133,6 +138,7 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
     {
         if( method == "gcgm" ) stop( "'method = \"gcgm\"' requires all data" )
         if( method == "dw"   ) stop( "'method = \"dw\"' requires all data" )
+        if( method == "tgm"  ) stop( "'method = \"tgm\"' requires all data" )
         if( is.null( n )     ) stop( "Please specify the number of observations 'n'" )
     }
     
@@ -210,6 +216,12 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
     if( method == "ggm" ) 
         list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ) )
 
+   if( method == "tgm" )
+   {
+        S <- t( data ) %*% data
+        list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ), data = data )
+   }
+    
     if( method == "gcgm" ) 
         list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ), not.cont = not.cont, R = R, Z = Z, data = data, gcgm_NA = gcgm_NA )
     
@@ -220,3 +232,139 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
 } 
     
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+get_Ds_tgm_R = function( data, tu, mu, D, n, p, in_C = TRUE )
+{
+    if( in_C == TRUE )
+    {
+        S  = matrix( 0, p, p )
+        Ds = matrix( 0, p, p )
+        
+        # void get_Ds_tgm( double data[], double D[], double mu[], double tu[], double Ds[], double S[], int *n, int *p )
+        result = .C( "get_Ds_tgm", as.double(data), as.double(D), as.double (mu), as.double(tu), 
+                     Ds = as.double(Ds), S = as.double(S), as.integer(n), as.integer(p), PACKAGE = "BDgraph" )
+        
+        S  = matrix( result $ S , p, p ) 
+        Ds = matrix( result $ Ds, p, p ) 
+    }else{
+        
+        #X_new = matrix( nrow = n, ncol = p )
+    	#for( i in 1:n ){
+        #    sqrt_tu_i = sqrt( tu[ i ] );
+        #    for( j in 1:p ) X_new[ i, j ] = sqrt_tu_i * ( data[ i, j ] - mu[ j ] );
+    	#}
+    	#S  = t( X_new ) %*% X_new
+    	
+    	S  = matrix( 0, p, p )
+    	for( i in 1:p )
+    	    for( j in 1:p )
+    	        for( k in 1:n )
+    	            S[ i, j ] = S[ i, j ] + tu[ k ] * ( data[ k, i ] - mu[ i ] ) * ( data[ k, j ] - mu[ j ] );
+        
+    	Ds = D + S
+    }
+    
+	return( list( S = S, Ds = Ds ) )
+}
+
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+get_Ts_R = function( Ds, in_C = TRUE )
+{
+    if( in_C == TRUE )
+    {
+        p = ncol( Ds )
+        
+        Ts      = matrix( 0, p, p )
+        inv_Ds  = matrix( 0, p, p )
+        copy_Ds = matrix( 0, p, p )
+       
+        # void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p )
+        result = .C( "get_Ts", as.double(Ds), Ts = as.double(Ts), as.double(inv_Ds), as.double(copy_Ds), as.integer(p), PACKAGE = "BDgraph" )
+        
+        Ts = matrix( result $ Ts, p, p ) 
+        
+    }else{
+    	invDs = solve( Ds )
+	    Ts    = chol( invDs )
+    }
+
+	return( Ts )    
+}
+    
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+update_tu_R = function( tu, data, K, mu, nu, n, p, in_C = TRUE )
+{
+    if( in_C == TRUE )
+    {
+        Ts      = matrix( 0, p, p )
+        inv_Ds  = matrix( 0, p, p )
+        copy_Ds = matrix( 0, p, p )
+       
+        # void update_tu( double data[], double K[], double tu[], double mu[], double *nu, int *n, int *p )
+        result = .C( "update_tu", as.double(data), as.double(K), tu = as.double(tu), as.double(mu), as.double(nu), as.integer(n), as.integer(p), PACKAGE = "BDgraph" )
+        
+        tu = c( result $ tu ) 
+        
+    }else{
+        d_mu_i = numeric( p )
+        
+        for( i in 1:n )
+    	{
+            for( j in 1:p )
+                d_mu_i[ j ] = data[ i, j ] - mu[ j ];
+                
+            #d_mu_i_x_K = d_mu_i %*% K;
+            #delta_y_i  = sum( d_mu_i_x_K * d_mu_i );
+            
+            delta_y_i = 0.0;
+            for( k in 1:p )
+                for( l in 1:p )
+                    delta_y_i = delta_y_i + d_mu_i[ l ] * K[ l, k ] * d_mu_i[ k ];
+                
+    		shape_tu_i = ( nu + p ) / 2.0;
+    		rate_tu_i  = ( nu + delta_y_i ) / 2.0;
+    			
+    		tu[ i ] = stats::rgamma( 1, shape = shape_tu_i, scale = 1.0 / rate_tu_i )
+        }
+    }
+
+	return( tu )    
+}
+
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+update_mu_R = function( data, mu, tu, n, p, in_C = TRUE )
+{
+    if( in_C == TRUE )
+    {
+        # void update_mu( double data[], double mu[], double tu[], int *n, int *p )
+        result = .C( "update_mu", as.double(data), mu = as.double(mu), as.double(tu), as.integer(n), as.integer(p), PACKAGE = "BDgraph" )
+        
+        mu = c( result $ mu ) 
+        
+    }else{
+        mu = c( tu %*% data / sum( tu ) )
+    }
+
+	return( mu )    
+}
+                      
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
