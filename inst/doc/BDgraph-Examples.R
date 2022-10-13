@@ -7,9 +7,6 @@ knitr::opts_chunk $ set( collapse = TRUE, comment = " ", fig.width = 7, fig.heig
 ## ----loadpkg, message = FALSE, warning = FALSE--------------------------------
 library( BDgraph )
 
-library( pROC )    
-library( ggplot2 )  
-
 ## ----fig.align = 'center'-----------------------------------------------------
 set.seed( 20 )
 
@@ -37,17 +34,8 @@ compare( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ),
          main = c( "Target", "BDgraph", "BDgraph.mpl" ), vis = TRUE )
 
 ## ----fig.align = 'center'-----------------------------------------------------
-roc.bdgraph     = BDgraph::roc( pred = bdgraph.obj,     actual = data.sim )
-roc.bdgraph.mpl = BDgraph::roc( pred = bdgraph.mpl.obj, actual = data.sim )
-
-pROC::ggroc( list( BDgraph = roc.bdgraph, BDgraph.mpl = roc.bdgraph.mpl ), size = 0.8 ) + 
-    theme_minimal() + ggtitle( "ROC plots with AUC" ) +
-  scale_color_manual( values = c( "red", "blue" ), 
-    labels = c( paste( "AUC=", round( auc( roc.bdgraph ), 3 ), "; BDgraph; " ),
-                paste( "AUC=", round( auc( roc.bdgraph.mpl ), 3 ), "; BDgraph.mpl" ) ) ) +
-  theme( legend.title = element_blank() ) +
-  theme( legend.position = c( .7, .3 ), text = element_text( size = 17 ) ) + 
-    geom_segment( aes( x = 1, xend = 0, y = 0, yend = 1 ), color = "grey", linetype = "dashed" )
+plotroc( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), cut = 200,
+         labels = c( "BDgraph", "BDgraph.mpl" ), color = c( "blue", "red" ) )
 
 ## ----fig.align = 'center'-----------------------------------------------------
 set.seed( 2 )
@@ -59,4 +47,7 @@ bdgraph.obj = bdgraph( data = data.sim, method = "gcgm", iter = 5000, verbose = 
 
 ## ----fig.align = 'center'-----------------------------------------------------
 compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
+
+## ----fig.align = 'center'-----------------------------------------------------
+plotroc( data.sim, bdgraph.obj, cut = 200, labels = "BDgraph", color = "blue" )
 

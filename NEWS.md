@@ -2,6 +2,12 @@
 
 ## **BDgraph** NEWS <a href='https://CRAN.R-project.org/package=BDgraph'><img src='man/figures/logo.png' align="right" height="170" /></a>
 
+### **BDgraph** Version 2.70
+
+* Bug fixed for `plotroc()` function.
+
+* In the function `plotroc()` options `color`, `typeline`, `size`, `xlab`, and `ylab`, and some more options are added.
+
 ### **BDgraph** Version 2.69
 
 * In function `bdgraph.sim()`, option, `type="t"` and `type="alternative-t"` are added.

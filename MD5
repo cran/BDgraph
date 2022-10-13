@@ -1,6 +1,6 @@
-78822f98d21a1e07b026fb841725895e *DESCRIPTION
+b21d5a23f8472c393c766844e85dcba6 *DESCRIPTION
 e84603b6006474847f60c005b9549706 *NAMESPACE
-01106c40a69fca35693a4deb1dceada6 *NEWS.md
+0ce0975f7321f8aeeb9957df22066ff7 *NEWS.md
 6ddcad557671051813e48426ef9c4b4e *R/adj2link.R
 d19c69114664e6f23e25b961b21c2a1c *R/bdgraph.R
 f06ef2a1ae83b08c900b5889ab50ee15 *R/bdgraph.dw.R
@@ -24,7 +24,7 @@ a14cdcdb9da36dd99efb4158eff75a2d *R/gnorm.R
 10cf2eda44655c0377b18a5916ae3366 *R/pgraph.R
 bbb1196c661af04af9cbc6fa390ef7d8 *R/plinks.R
 2bb6f79ed4791502ecc98fffa64923a8 *R/plotcoda.R
-46c36aa7e273fd8e2b3d68e8ec134e4e *R/plotroc.R
+d0f3887bf1f74e57cb809531fc33eea5 *R/plotroc.R
 83ff34805708a0aa6fbd792b59e7f9b3 *R/precision.R
 421cb5acc73dff407320cf9f55801e39 *R/rgwish.R
 5400841f81fd0f98d7ba98b0ec091903 *R/rmvnorm.R
@@ -44,12 +44,12 @@ a62d994d8909c12c9582931cf035144a *data/reinis.RData
 7b379766a5ac91498256ff4d8b9e709d *data/surveyData.RData
 a8d9f8d04015dba73da0d18aafca78f6 *inst/CITATION
 d7828f461d88518433ae3055fdf2a195 *inst/TODO
-3854fba4dc049ea3476adf79762e8a70 *inst/doc/BDgraph-Examples.R
-8be31e718075619f07d0641427e4ba2a *inst/doc/BDgraph-Examples.Rmd
-a2f3bcfa01cddb7ba892c0faf00c88e1 *inst/doc/BDgraph-Examples.html
-f2c93eb97913756815cd369d810c43d9 *inst/doc/Introduction-BDgraph.R
-245086349a9780982cc71325712d97cf *inst/doc/Introduction-BDgraph.Rmd
-0b16080cbaa589460b375a4fec17fbce *inst/doc/Introduction-BDgraph.html
+e96eed1075de2b9105905f5c421268ee *inst/doc/BDgraph-Examples.R
+29393a46573b748b28a169f4f3dcb0f7 *inst/doc/BDgraph-Examples.Rmd
+88d8213c8e65f2cf534c2196f070e3d3 *inst/doc/BDgraph-Examples.html
+ee892c85ac1da6e4550738e2a600b079 *inst/doc/Introduction-BDgraph.R
+60eb17a44937301bba6b7c7c7d9c22a1 *inst/doc/Introduction-BDgraph.Rmd
+9f2c0230b4c9c38cd3c36e66da7577c8 *inst/doc/Introduction-BDgraph.html
 5eadf3ffa9b36870a5171c47c8cd8b15 *man/BDgraph-package.Rd
 86730ae799eef88f8f735dfccb1335bb *man/adj2link.Rd
 057bcb50062dc496ef51d725e6c12470 *man/bdgraph.Rd
@@ -77,7 +77,7 @@ fddb670a335e4ff3db24d3c57d834a84 *man/graph.sim.Rd
 f2b8ad76f28b346bc683496445598de2 *man/plot.graph.Rd
 1b1cf72f9a4eb349e73bf937faf4b8c6 *man/plot.sim.Rd
 d0b39c84e729ac0d33a065987ce9c548 *man/plotcoda.Rd
-29b934870bc77dc1a094b88224ce60cc *man/plotroc.Rd
+f1480f6200c434bd6e9823424cb0fb6b *man/plotroc.Rd
 fa8c9c615e56ffdd12839fd3f40ddf14 *man/precision.Rd
 9c33b4691c03f284c2af97113d03c902 *man/print.bdgraph.Rd
 1473e6ad3f4b92b19cf8163de929afca *man/print.sim.Rd
@@ -113,6 +113,6 @@ f60d48e8f7fa0eaf1b63330189bed863 *src/rgwish.cpp
 32bf946fa498dadf1374b4f85fca6a2b *src/rgwish.h
 d59022dfedecc551bcab4d7fae863d1a *src/tgm_bd.cpp
 2e6092cee9eb8835f5132f54b4d1fe2d *src/util.h
-8be31e718075619f07d0641427e4ba2a *vignettes/BDgraph-Examples.Rmd
+29393a46573b748b28a169f4f3dcb0f7 *vignettes/BDgraph-Examples.Rmd
 09791fcbbc466b6fb6e2065f79a3383d *vignettes/Figure_1.png
-245086349a9780982cc71325712d97cf *vignettes/Introduction-BDgraph.Rmd
+60eb17a44937301bba6b7c7c7d9c22a1 *vignettes/Introduction-BDgraph.Rmd

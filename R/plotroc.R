@@ -12,23 +12,26 @@
 #     To plot ROC curve                                                        |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-plotroc = function( actual, pred, cut = 20, smooth = FALSE, label = TRUE, 
-                    AUC = TRUE, main = "ROC Curve" )
+plotroc = function( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,  
+         color = NULL, size = 1, main = "ROC Curve", 
+         xlab = "False Postive Rate", ylab = "True Postive Rate",
+         legend = TRUE, legend.size = 17, legend.position = c( 0.7, 0.3 ),
+         labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal() )
 {
     if( !inherits( pred, "list" ) ) pred = list( pred )
     length_pred = length( pred )
-  
-    if( length_pred == 1 ) label = FALSE
+    
+    if( is.null( color    ) ) color    = 1:length_pred
+    if( is.null( linetype ) ) linetype = 1:length_pred
     
     G = BDgraph::get_graph( actual )  
     G[ lower.tri( G, diag = TRUE ) ] = 0
     
-    if( length( label ) > 1 ){
-        labels_plot = label
-        label = TRUE
-    }else{
-        labels_plot = rep( NA, length_pred )
-        if( label != TRUE ) label = FALSE
+    if( legend && is.null( labels ) )
+    {
+        labels = numeric( length = length_pred )
+        for( i in 1:length_pred ) 
+            labels[ i ] = paste0( "pred ", i )
     }
     
     fp_roc = vector()
@@ -44,17 +47,15 @@ plotroc = function( actual, pred, cut = 20, smooth = FALSE, label = TRUE,
         
         fp_roc = c( fp_roc, sort( c( output_tp_fp $ fp ) ) )
         tp_roc = c( tp_roc, sort( c( output_tp_fp $ tp ) ) )
-        
-        if( label && is.na( labels_plot[ i ] ) ) labels_plot[ i ] = paste0( "pred ", i )
     }
 
-    if( label && AUC )
+    if( legend && auc )
     {
         for( i in 1:length_pred ) 
         {
             roc_i = BDgraph::roc( actual = G, pred = pred[[i]] )
             
-            labels_plot[ i ] = paste( labels_plot[ i ], "; AUC=", round( pROC::auc( roc_i ), 3 ) )
+            labels[ i ] = paste( labels[ i ], "; AUC=", round( pROC::auc( roc_i ), 3 ) )
         }
     }
       
@@ -62,14 +63,14 @@ plotroc = function( actual, pred, cut = 20, smooth = FALSE, label = TRUE,
                         fp_roc = fp_roc, tp_roc = tp_roc )
 
     ggplot2::ggplot( df_gg, ggplot2::aes( x = fp_roc, y = tp_roc ) ) +
-        ggplot2::geom_line( ggplot2::aes( group = pred, colour = pred, linetype = pred ), show.legend = label ) +
-        ggplot2::scale_color_manual( values = 1:length_pred, labels = labels_plot ) +
-        ggplot2::scale_linetype_manual( values = 1:length_pred, labels = labels_plot ) +
-        ggplot2::labs( x = "False Postive Rate", y = "True Postive Rate" ) +
+        ggplot2::geom_line( ggplot2::aes( group = pred, colour = pred, linetype = pred ), show.legend = legend, size = size ) +
+        ggplot2::scale_color_manual( values = color, labels = labels ) +
+        ggplot2::scale_linetype_manual( values = linetype, labels = labels ) +
+        ggplot2::labs( x = xlab, y = ylab ) +
         ggplot2::ggtitle( main ) +
-        ggplot2::theme_minimal() +
-        ggplot2::theme( legend.title = ggplot2::element_blank(), legend.position = c( .7, .3 ), 
-               text = ggplot2::element_text( size = 17 ) ) +
+        theme +
+        ggplot2::theme( legend.title = ggplot2::element_blank(), legend.position = legend.position, 
+               text = ggplot2::element_text( size = legend.size ) ) +
         ggplot2::theme( legend.key.width = ggplot2::unit( 2, "line" ) ) 
 }
        

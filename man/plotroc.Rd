@@ -8,8 +8,11 @@ Draws the receiver operating characteristic (ROC) curve according to the true gr
 }
 
 \usage{ 
-plotroc( actual, pred, cut = 20, smooth = FALSE, label = TRUE, 
-         AUC = TRUE, main = "ROC Curve" ) 
+plotroc( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,  
+         color = NULL, size = 1, main = "ROC Curve", 
+         xlab = "False Postive Rate", ylab = "True Postive Rate",
+         legend = TRUE, legend.size = 17, legend.position = c( 0.7, 0.3 ),
+         labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal() ) 
 }
 
 \arguments{
@@ -29,9 +32,18 @@ plotroc( actual, pred, cut = 20, smooth = FALSE, label = TRUE,
 
   \item{cut   }{ number of cut points.}
   \item{smooth}{ logical: for smoothing the ROC curve.} 
-  \item{label }{ logical: for adding legend to the ROC plot.} 
-  \item{AUC}{ logical: to report AUC.} 
+  \item{linetype  }{ specification for the default plotting line type.} 
+  \item{color}{ specification for the default plotting color.} 
+  \item{size  }{ specification for the default plotting line size.} 
   \item{main  }{ overall title for the plot.} 
+  \item{xlab  }{ title for the x axis.} 
+  \item{ylab  }{ title for the y axis.} 
+  \item{legend }{ logical: for adding legend to the ROC plot.} 
+  \item{legend.size  }{ title for the x axis.} 
+  \item{legend.position  }{ title for the y axis.} 
+  \item{labels }{ for legends of the legend to the ROC plot.} 
+  \item{auc}{ logical: to report AUC with legend.} 
+  \item{theme}{ theme for the plot from the function \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}} of \code{R} package \code{\link[ggplot2:ggplot]{ggplot2::ggplot()}}.} 
 }
 
 \references{
@@ -65,7 +77,7 @@ plotroc( data.sim, bdgraph.obj )
 bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 
 # To Compare the resultss
-plotroc( data.sim, list( bdgraph.obj, bdgraph.obj2 ), label = FALSE )
+plotroc( data.sim, list( bdgraph.obj, bdgraph.obj2 ), legend = FALSE )
 }
 }
 

@@ -32,8 +32,7 @@ knitr::include_graphics( "Figure_1.png" )
 #  compare( target, est, main = NULL, vis = FALSE )
 
 ## ----eval = FALSE-------------------------------------------------------------
-#  plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL,
-#                      cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" )
+#  plotroc = function( actual, pred, cut = 20, smooth = FALSE, ... )
 
 ## ----eval = FALSE-------------------------------------------------------------
 #  bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
@@ -67,7 +66,7 @@ sample.rjmcmc <- bdgraph( data = data.sim, method = "ggm", algorithm = "rjmcmc",
 
 ## -----------------------------------------------------------------------------
 plotroc( data.sim, list( sample.bdmcmc, sample.rjmcmc ), smooth = TRUE,
-         label = c( "BDMCMC", "RJMCMC" ) ) 
+         labels = c( "BDMCMC", "RJMCMC" ), color = c( "blue", "red" ) ) 
 
 ## -----------------------------------------------------------------------------
 compare( data.sim, list( sample.bdmcmc, sample.rjmcmc ), 

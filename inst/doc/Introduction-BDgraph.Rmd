@@ -153,10 +153,9 @@ where TP, FP and FN are the number of true positives, false positives and false 
 
 The function 
 ```{r eval = FALSE}
-plotroc = function( target, est, est2 = NULL, est3 = NULL, est4 = NULL, 
-                    cut = 20, smooth = FALSE, label = TRUE, main = "ROC Curve" )
+plotroc = function( actual, pred, cut = 20, smooth = FALSE, ... )
 ```
-provides a ROC plot for visualization comparison based on the estimated posterior link inclusion probabilities. See also function `roc()` for building a ROC curve specifically for graph structure learning.
+provides a ROC plot for visualization comparison based on the estimated posterior link inclusion probabilities. See also function `roc()` for a ROC curve specifically for graph structure learning.
 
 ## Data simulation 
 
@@ -214,7 +213,7 @@ where the sampling algorithm from the joint posterior distribution is based on t
 Users can compare the performance of these two algorithms by using the code
 ```{r}
 plotroc( data.sim, list( sample.bdmcmc, sample.rjmcmc ), smooth = TRUE,
-         label = c( "BDMCMC", "RJMCMC" ) ) 
+         labels = c( "BDMCMC", "RJMCMC" ), color = c( "blue", "red" ) ) 
 ```
 which visualizes an ROC plot for both algorithms, BDMCMC and RJMCMC.
 
