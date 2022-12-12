@@ -57,9 +57,9 @@ knitr::include_graphics( "Figure_1.png" )
 
 **Module 3. Algorithms:**  The function `bdgraph()` and `bdgraph.mpl()` provide several sampling algorithms:
 
-* Birth-death MCMC (BDMCMC) sampling algorithms desciribed in [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) and [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425).
-* Reversible jump MCMC (RJMCMC) sampling algorithms desciribed in [Dobra et al. (2011)](https://doi.org/10.1198/jasa.2011.tm10465). 
-* Hill-climbing (HC) search algorithm desciribed in [Pensar et al. (2017)](https://doi.org/10.1214/16-ba1032).  
+* Birth-death MCMC (BDMCMC) sampling algorithms described in [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) and [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425).
+* Reversible jump MCMC (RJMCMC) sampling algorithms described in [Dobra et al. (2011)](https://doi.org/10.1198/jasa.2011.tm10465). 
+* Hill-climbing (HC) search algorithm described in [Pensar et al. (2017)](https://doi.org/10.1214/16-ba1032).  
 
 **Module 4. Results:** Includes four types of functions:
 
@@ -142,7 +142,7 @@ provides the trace of graph size to check convergence of the search algorithms. 
 
 The functions `compare()` and `plotroc()` are designed to evaluate and compare the performance of the selected graph. These functions are particularly useful for simulation studies. With the function 
 ```{r eval = FALSE}
-compare( target, est, main = NULL, vis = FALSE ) 
+compare( pred, actual, main = NULL, vis = FALSE ) 
 ```
 we can evaluate the performance of the Bayesian methods available in our **BDgraph** package and compare them with alternative approaches. This function provides several measures such as the balanced $F$-score measure, which is defined as follows:
 \begin{eqnarray}
@@ -153,7 +153,7 @@ where TP, FP and FN are the number of true positives, false positives and false 
 
 The function 
 ```{r eval = FALSE}
-plotroc = function( actual, pred, cut = 20, smooth = FALSE, ... )
+plotroc = function( pred, actual, cut = 20, smooth = FALSE, ... )
 ```
 provides a ROC plot for visualization comparison based on the estimated posterior link inclusion probabilities. See also function `roc()` for a ROC curve specifically for graph structure learning.
 
@@ -211,8 +211,8 @@ sample.rjmcmc <- bdgraph( data = data.sim, method = "ggm", algorithm = "rjmcmc",
 where the sampling algorithm from the joint posterior distribution is based on the RJMCMC algorithm. 
 
 Users can compare the performance of these two algorithms by using the code
-```{r}
-plotroc( data.sim, list( sample.bdmcmc, sample.rjmcmc ), smooth = TRUE,
+```{r eval = FALSE}
+plotroc( list( sample.bdmcmc, sample.rjmcmc ), data.sim, smooth = TRUE,
          labels = c( "BDMCMC", "RJMCMC" ), color = c( "blue", "red" ) ) 
 ```
 which visualizes an ROC plot for both algorithms, BDMCMC and RJMCMC.
@@ -220,7 +220,7 @@ which visualizes an ROC plot for both algorithms, BDMCMC and RJMCMC.
 We can also compare the performance of those algorithms by using the `compare()` function as follows:
 
 ```{r}
-compare( data.sim, list( sample.bdmcmc, sample.rjmcmc ), 
+compare( list( sample.bdmcmc, sample.rjmcmc ), data.sim, 
           main = c( "True graph", "BDMCMC", "RJMCMC" ), vis = TRUE )
 ```
 The results show that for this specific simulated example both algorithms have more or less the same performance; See [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) for a comprehensive simulation study.

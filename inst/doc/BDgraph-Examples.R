@@ -30,11 +30,11 @@ conf.mat( actual = data.sim, pred = bdgraph.mpl.obj )
 conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
 
 ## ----fig.align = 'center'-----------------------------------------------------
-compare( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), 
+compare( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, 
          main = c( "Target", "BDgraph", "BDgraph.mpl" ), vis = TRUE )
 
 ## ----fig.align = 'center'-----------------------------------------------------
-plotroc( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), cut = 200,
+plotroc( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, cut = 200,
          labels = c( "BDgraph", "BDgraph.mpl" ), color = c( "blue", "red" ) )
 
 ## ----fig.align = 'center'-----------------------------------------------------
@@ -46,8 +46,8 @@ data.sim = bdgraph.sim( n = 300, p = 10, type = "mixed", graph = "random", vis =
 bdgraph.obj = bdgraph( data = data.sim, method = "gcgm", iter = 5000, verbose = FALSE )
 
 ## ----fig.align = 'center'-----------------------------------------------------
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
 
 ## ----fig.align = 'center'-----------------------------------------------------
-plotroc( data.sim, bdgraph.obj, cut = 200, labels = "BDgraph", color = "blue" )
+plotroc( bdgraph.obj, data.sim, labels = "BDgraph", color = "blue" )
 

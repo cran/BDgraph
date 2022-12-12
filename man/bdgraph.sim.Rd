@@ -27,7 +27,7 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
      \eqn{g_{ij}=1} if there is a link between nodes \eqn{i} and \eqn{j}, otherwise \eqn{g_{ij}=0}). 
     }
   \item{n}{number of samples required. Note that for the case \code{n = 0}, only the graph is generated. }
-  \item{type}{type of data with options "\code{Gaussian}" (default), "\code{non-Gaussian}", "\code{categorical}", "\code{pois}", "\code{nbinom}", "\code{dweibull}", "\code{binary}", and "\code{mixed}".    
+  \item{type}{type of data with options "\code{Gaussian}" (default), "\code{non-Gaussian}", "\code{categorical}", "\code{pois}", "\code{nbinom}", "\code{dweibull}", "\code{binary}", "\code{mixed}", "\code{t}", and "\code{alternative-t}".    
 	  For the option "\code{Gaussian}", data are generated from a multivariate normal distribution.
 	  For the option "\code{non-Gaussian}", data are transfered from a multivariate normal distribution to a continuous multivariate non-Gaussian distribution via Exponential marginals.
 	  For the option "\code{categorical}", data are transfered from a multivariate normal distribution to multivariate 'categorical' data.

@@ -9,35 +9,45 @@
 #                                                                              |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Computing estimated covariance matrix                                    |
+#     Reports the measures to assess the performance of estimated graphs       |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-covariance = function( bdgraph.obj, round = 2 )
+
+auc = function( pred, actual, cut = 200, calibrate = TRUE )
 {
-    if( ( !inherits( bdgraph.obj, "bdgraph" ) ) && ( !inherits( bdgraph.obj, "ssgraph" ) ) )
-        stop( "Input 'bdgraph.obj' must be an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
+    if( !inherits( pred, "list" ) ) 
+        pred = list( pred )
     
-    K_hat = bdgraph.obj $ K_hat
+    length_pred = length( pred )
     
-    if( is.null( K_hat ) )			  
-        stop( "Input 'bdgraph.obj' must be an object from functions 'bdgraph()' or 'ssgraph()'" )
+    if( !is.vector( actual ) )
+    {
+        adj_G  = BDgraph::get_graph( actual )
+        
+        actual = adj_G[ upper.tri( adj_G ) ]
+    }
+  
+    if( ( sum( actual == 0 ) + sum( actual == 1 ) ) != length( actual ) ) 
+        stop( "Elements of 'actual' must be 0 or 1" )
     
-    cov = solve( K_hat )
+    auc_value = vector()
     
-    return( round( cov, round ) )
+    for( i in 1:length_pred )
+    {
+        output_tp_fp = compute_tp_fp( pred = pred[[i]], actual = actual, cut = cut, smooth = FALSE, calibrate = calibrate )
+            
+        fp = output_tp_fp $ fp
+        tp = output_tp_fp $ tp
+            
+        diffs_x    =  fp[ -length( fp ) ] - fp[ -1 ]
+        means_vert = ( tp[ -1 ] + tp[ -length( tp ) ] ) / 2
+        
+        auc_value = c( auc_value, sum( means_vert * diffs_x ) )
+    }
     
-}  
-
+    return( auc_value )
+}
+   
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-
-
-
-
-
-
-
-
-
-
 
 
 

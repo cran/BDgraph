@@ -29,10 +29,10 @@ knitr::include_graphics( "Figure_1.png" )
 #  traceplot( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 
 ## ----eval = FALSE-------------------------------------------------------------
-#  compare( target, est, main = NULL, vis = FALSE )
+#  compare( pred, actual, main = NULL, vis = FALSE )
 
 ## ----eval = FALSE-------------------------------------------------------------
-#  plotroc = function( actual, pred, cut = 20, smooth = FALSE, ... )
+#  plotroc = function( pred, actual, cut = 20, smooth = FALSE, ... )
 
 ## ----eval = FALSE-------------------------------------------------------------
 #  bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
@@ -64,12 +64,12 @@ summary( sample.bdmcmc )
 sample.rjmcmc <- bdgraph( data = data.sim, method = "ggm", algorithm = "rjmcmc", 
                           iter = 5000, save = TRUE, verbose = FALSE )
 
-## -----------------------------------------------------------------------------
-plotroc( data.sim, list( sample.bdmcmc, sample.rjmcmc ), smooth = TRUE,
-         labels = c( "BDMCMC", "RJMCMC" ), color = c( "blue", "red" ) ) 
+## ----eval = FALSE-------------------------------------------------------------
+#  plotroc( list( sample.bdmcmc, sample.rjmcmc ), data.sim, smooth = TRUE,
+#           labels = c( "BDMCMC", "RJMCMC" ), color = c( "blue", "red" ) )
 
 ## -----------------------------------------------------------------------------
-compare( data.sim, list( sample.bdmcmc, sample.rjmcmc ), 
+compare( list( sample.bdmcmc, sample.rjmcmc ), data.sim, 
           main = c( "True graph", "BDMCMC", "RJMCMC" ), vis = TRUE )
 
 ## -----------------------------------------------------------------------------

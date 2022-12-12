@@ -85,8 +85,6 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
         trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
 
-    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
-
     list_S_n_p = BDgraph::get_S_n_p( data = data, method = "dw", n = n, not.cont = NULL )
     
     S      = list_S_n_p $ S
@@ -94,6 +92,11 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
     p      = list_S_n_p $ p
     method = list_S_n_p $ method
     colnames_data = list_S_n_p $ colnames_data
+
+    if( ( is.null( cores ) ) & ( p < 16 ) ) 
+        cours = 1
+        
+    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
 
     not.cont = list_S_n_p $ not.cont
     Z        = list_S_n_p $ Z
@@ -157,7 +160,6 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
                 sample_marginals[[ j ]] = est_qbeta $ sample
             }
         }
-    
     }
     
     b      = df.prior

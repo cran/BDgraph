@@ -116,7 +116,7 @@ bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 500 )
 summary( bdgraph.obj )
    
 # To compare the result with true graph
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ) )
+compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ) )
 }
 
 \keyword{sampling algorithms}

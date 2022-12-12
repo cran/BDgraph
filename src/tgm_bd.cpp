@@ -96,7 +96,7 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
    
-// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
+// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -114,7 +114,7 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 		for( j = 1; j < dim; j++ )
 			for( i = 0; i < j; i++ )
 			{
-				ij          = j * dim + i;
+				ij = j * dim + i;
 			    
 				Dsij        = Ds[ ij ];
 				Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
@@ -129,7 +129,7 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
+// - - - saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 		if( i_mcmc >= burn_in )
 		{
 			weight_C = 1.0 / sum_rates;
@@ -137,13 +137,13 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 			// K_hat_Cpp[i] += K[i] * weight_C;
 			F77_NAME(daxpy)( &pxp, &weight_C, &K[0], &one, &K_hat_Cpp[0], &one );
 			
-			#pragma omp parallel for
+            #pragma omp parallel for
 			for( i = 0; i < pxp; i++ )
 				if( G[ i ] ) p_links_Cpp[ i ] += weight_C;
 			
 			sum_weights += weight_C;
 		} 
-// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - -|	
 			
 		// Updating G (graph) based on selected edge
 		selected_edge_ij    = selected_edge_j * dim + selected_edge_i;
@@ -159,7 +159,7 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 			--size_node[ selected_edge_j ]; 
 		}
 
-// - - - STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - - STEP 2: Sampling from G-Wishart for new graph - - - - - - - - - - - - |
 		
 		rgwish_sigma( &G[0], &size_node[0], &Ts[0], &K[0], &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	
@@ -174,7 +174,7 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 		update_mu( &data[0], &mu[0], &tu[0], n, &dim );
 	}  
 	PutRNGstate();
-// - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - | 
 
 	#pragma omp parallel for
 	for( i = 0; i < pxp; i++ )
@@ -261,7 +261,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			log_ratio_g_prior[ ij ] = log( static_cast<double>( g_prior[ ij ] / ( 1 - g_prior[ ij ] ) ) );
 		}
 
-// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -| 
+// - - Main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - -| 
 	GetRNGstate();
 	int print_conter = 0;
 	for( int i_mcmc = 0; i_mcmc < iteration; i_mcmc++ )
@@ -271,7 +271,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 		    ( ( i_mcmc + 1 ) != iteration ) ? Rprintf( "%i%%->", print_c * print_conter ) : Rprintf( " done" );
 		}
   
-// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
+// - - - STEP 1: copula - - - - - - - - - - - - - - - - - - - - - - - - - - - -|		
 		
 		// get_Ds_tgm( double data[], double D[], double mu[], double tu[], double Ds[], double S[], int *n, int *p )
 		get_Ds_tgm( data, D, mu, tu, Ds, &S[0], n, &dim );
@@ -285,7 +285,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 				Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
 			}
 		
-// - - - STEP 2: calculating birth and death rates - - - - - - - - - - - - - - - - - - - - - - - - |		
+// - - - STEP 2: calculating birth and death rates - - - - - - - - - - - - - - |		
 
 		rates_bdmcmc_parallel( &rates[0], &log_ratio_g_prior[0], G, &index_row[0], &index_col[0], &sub_qp, Ds, &Dsijj[0], &sigma[0], &K[0], b, &dim );
 
@@ -294,7 +294,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 		selected_edge_i = index_row[ index_selected_edge ];
 		selected_edge_j = index_col[ index_selected_edge ];
 
-// - - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
+// - - - Saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - |	
 		if( i_mcmc >= burn_in )
 		{
 			counter = 0;	
@@ -331,7 +331,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			count_all_g++; 
 			sum_weights += weight_C;
 		} 
-// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|	
+// - - - End of saving result - - - - - - - - - - - - - - - - - - - - - - - - -|	
 		
 		// Updating G (graph) based on selected edge
 		selected_edge_ij      = selected_edge_j * dim + selected_edge_i;
@@ -347,7 +347,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 			--size_node[ selected_edge_j ]; 
 		}
 
-// - - - STEP 3: Sampling from G-Wishart for new graph - - - - - - - - - - - - - - - - - - - - - - |
+// - - - STEP 3: Sampling from G-Wishart for new graph - - - - - - - - - - - - |
 		
 		rgwish_sigma( G, &size_node[0], Ts, K, &sigma[0], b_star, &dim, threshold, &sigma_start[0], &inv_C[0], &beta_star[0], &sigma_i[0], sigma_start_N_i, sigma_N_i, N_i );		
 	
@@ -363,7 +363,7 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 	
 	}  
 	PutRNGstate();
-// - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - - - - - - - - - - - | 
+// - - End of main loop for birth-death MCMC - - - - - - - - - - - - - - - - - | 
 
 	#pragma omp parallel for
 	for( i = 0; i < ( iteration - burn_in ); i++ ) 

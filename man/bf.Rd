@@ -1,9 +1,9 @@
 \name{bf}
 \alias{bf}
 
-\title{ Bayes factor between two graphs }
+\title{ Bayes factor for two graphs }
 
-\description{ Compute the Bayes factor between the structure of two graphs. }
+\description{ Compute the Bayes factor for two graph structures. }
 
 \usage{ 
     bf( num, den, bdgraph.obj, log = TRUE ) 

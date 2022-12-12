@@ -2,26 +2,33 @@
 
 ## **BDgraph** NEWS <a href='https://CRAN.R-project.org/package=BDgraph'><img src='man/figures/logo.png' align="right" height="170" /></a>
 
+### **BDgraph** Version 2.71
+
+* Function `auc()` is added to the package.
+* For function `plotroc()`, option `calibrate` is added.
+
+* Data set `churn` is removed.
+
 ### **BDgraph** Version 2.70
 
 * Bug fixed for `plotroc()` function.
 
-* In the function `plotroc()` options `color`, `typeline`, `size`, `xlab`, and `ylab`, and some more options are added.
+* For function `plotroc()`, options `color`, `typeline`, `size`, `xlab`, and `ylab`, and some more options are added.
 
 ### **BDgraph** Version 2.69
 
-* In function `bdgraph.sim()`, option, `type="t"` and `type="alternative-t"` are added.
-* In functions `bdgraph.sim()`, option `nu` is added for the cases `type="t"` and `type="alternative-t"`.
+* For function `bdgraph.sim()`, options `type="t"` and `type="alternative-t"` are added.
+* For function `bdgraph.sim()`, option `nu` is added for the cases `type="t"` and `type="alternative-t"`.
 
 * Bug fixed for `compare()` function.
-* In the function `compare()` option `est` is replaced.
+* For function `compare()`, option `est` is replaced.
 
-* In the function `plotroc()` option `est` is replaced.
+* For function `plotroc()`, option `est` is replaced.
 
 ### **BDgraph** Version 2.68
 
-* In functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()`, option `verbose` is added.
-* In function `plotcoda()` option `verbose` is added.
+* For functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()`, option `verbose` is added.
+* For function `plotcoda()`, option `verbose` is added.
 
 * A new file is added to the vignette of package.
 * Bug fixed for `bdgraph()` function with option `method = gcgm` and `algorithm = rj-dmh`.
@@ -31,10 +38,10 @@
 * Function `bdgraph.dw()` is added to the package.
 * Function `bdw.reg()`    is added to the package.
 
-* In functions `graph.sim()` and `bdgraph.sim()` option `graph = "smallworld"` is added.
-* In functions `plot.graph()` and `plot.bdgraph()` options `layout`, `vertex.size`, `vertex.color`, and `vertex.label.dist` are added.
+* For functions `graph.sim()` and `bdgraph.sim()`, option `graph = "smallworld"` is added.
+* For functions `plot.graph()` and `plot.bdgraph()`, options `layout`, `vertex.size`, `vertex.color`, and `vertex.label.dist` are added.
 
-* In function `bdgraph.sim()` options `range.mu` and `range.dispersion` are added.
+* For function `bdgraph.sim()`, options `range.mu` and `range.dispersion` are added.
 
 ### **BDgraph** Version 2.64
 
@@ -47,9 +54,9 @@
 
 ### **BDgraph** Version 2.63
 
-* In functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.ts()`, option `print` is removed.
-* In function `bdgraph.sim()` option `type="dw"` is added.
-* In function `bdgraph.sim()` option `type="discrete"` is changed to `type="count"`.
+* For functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.ts()`, option `print` is removed.
+* For function `bdgraph.sim()`, option `type="dw"` is added.
+* For function `bdgraph.sim()`, option `type="discrete"` is changed to `type="count"`.
 
 * Bug fixed for `gnorm()` function.
 
@@ -80,22 +87,22 @@
 
 ### **BDgraph** Version 2.57
 
-* In the function `compare()` option `est4` is added.
+* For function `compare()`, option `est4` is added.
 
 ### **BDgraph** Version 2.56
 
-* In the functions `rgwish()`, `rgcwish()` and `gnorm()`, option `adj.g` is changed to `adj`.
+* For functions `rgwish()`, `rgcwish()` and `gnorm()`, option `adj.g` is changed to `adj`.
 	
-* In function `compare()`, option `sim.obj`      is changed to `target`.
-* In function `compare()`, option `bdgraph.obj`  is changed to `est`.
-* In function `compare()`, option `bdgraph.obj2` is changed to `est2`.
-* In function `compare()`, option `bdgraph.obj3` is changed to `est3`.
+* For function `compare()`, option `sim.obj`      is changed to `target`.
+* For function `compare()`, option `bdgraph.obj`  is changed to `est`.
+* For function `compare()`, option `bdgraph.obj2` is changed to `est2`.
+* For function `compare()`, option `bdgraph.obj3` is changed to `est3`.
 
-* In function `plotroc()`, option `sim.obj`      is changed to `target`.
-* In function `plotroc()`, option `bdgraph.obj`  is changed to `est`.
-* In function `plotroc()`, option `bdgraph.obj2` is changed to `est2`.
-* In function `plotroc()`, option `bdgraph.obj3` is changed to `est3`.
-* In function `plotroc()`, option `bdgraph.obj4` is changed to `est4`.
+* For function `plotroc()`, option `sim.obj`      is changed to `target`.
+* For function `plotroc()`, option `bdgraph.obj`  is changed to `est`.
+* For function `plotroc()`, option `bdgraph.obj2` is changed to `est2`.
+* For function `plotroc()`, option `bdgraph.obj3` is changed to `est3`.
+* For function `plotroc()`, option `bdgraph.obj4` is changed to `est4`.
 	
 * Bug fixed for `bdgraph()` function with option `method = gcgm`.
 * Functions `summary.bdgraph`, `plot.bdgraph`, and `print.bdgraph` are modified.
@@ -104,20 +111,20 @@
 
 * Files `configure` and `configure.ac` are removed and files `Makevars` and `Makevars.win` are modified accordingly.
 
-* In functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.ts()` option `save.all` is changed to `save`.
-* In functions `bdgraph()` and `bdgraph.mpl()`, option `multi.update` is changed to `jump`.
-* In functions `bdgraph()` and `bdgraph.ts()`, option `prior.df` is changed to `df.prior`.
+* For functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.ts()` option `save.all` is changed to `save`.
+* For functions `bdgraph()` and `bdgraph.mpl()`, option `multi.update` is changed to `jump`.
+* For functions `bdgraph()` and `bdgraph.ts()`, option `prior.df` is changed to `df.prior`.
 	
-* In the function `pgraph()`, option `adj_g` is changed to `adj`.
+* For function `pgraph()`, option `adj_g` is changed to `adj`.
 
 ### **BDgraph** Version 2.52
 
 * Option `threshold` is added to function `rgwish()`.
 * Option `threshold` is added to function `bdgraph()`.
 * Option `not.cont`  is added to function `bdgraph()`.
-* In function `compare()`, option `colnames` is changed to `main`.
+* For function `compare()`, option `colnames` is changed to `main`.
 
-* In functions `bdgraph()` and `bdgraph.mpl()`, option `g.space` is removed. Instead user can use option `g.prior`.
+* For functions `bdgraph()` and `bdgraph.mpl()`, option `g.space` is removed. Instead user can use option `g.prior`.
 
 * Bug fixed for `bdgraph.ts()` function.
 * Data set `churn` is added.

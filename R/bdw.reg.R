@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2022  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -43,6 +43,8 @@ bdw.reg = function( data, formula = NA, iter = 5000, burnin = NULL,
   {
     theta.q = rep( 0, times = ncol_x )
     q = 1 - sum( y == 0 ) / n
+    if( q == 1 ) q = 0.999
+    
     theta.q[ 1 ] = log( q / ( 1 - q ) )
   }else{
     theta.q = initial.q

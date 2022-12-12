@@ -289,7 +289,7 @@ void get_Ts( double Ds[], double Ts[], double inv_Ds[], double copy_Ds[], int *p
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 void update_tu( double data[], double K[], double tu[], double mu[], double *nu, int *n, int *p )
 {
-    int i, j, k, l, dim = *p, size_data = *n, one = 1;
+    int i, j, k, l, dim = *p, size_data = *n; //, one = 1;
     double nu_c = *nu, delta_y_i, shape_tu_i, rate_tu_i;
     
 	vector<double> d_mu_i( dim ); 
@@ -336,8 +336,11 @@ void get_Ds_tgm( double data[], double D[], double mu[], double tu[], double Ds[
 
     for( i = 0; i < dim; i++ )
         for( j = 0; j < dim; j++ )
+        {
+            ij = j * dim + i;
             for( k = 0; k < size_data; k++ )
-                S[ j * dim + i ] += tu[ k ] * ( data[ i * size_data + k ] - mu[ i ] ) * ( data[ j * size_data + k ] - mu[ j ] );
+                S[ ij ] += tu[ k ] * ( data[ i * size_data + k ] - mu[ i ] ) * ( data[ j * size_data + k ] - mu[ j ] );
+        }
 
     #pragma omp parallel for
 	for( int i = 0; i < dim * dim; i++ ) 

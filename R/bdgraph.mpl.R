@@ -28,8 +28,6 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
         trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
          
-    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
-    
 	if( inherits( data, "sim" ) ) data <- data $ data
 	colnames_data = colnames( data )
 
@@ -41,6 +39,12 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	p <- ncol( data )
 	if( p < 3 ) stop( "Number of variables/nodes ('p') must be more than 2" )
 	if( is.null( n ) ) n <- nrow( data )
+	
+    if( ( is.null( cores ) ) & ( p < 16 ) ) 
+        cours = 1
+        
+    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
+	
 
 	if( method == "ggm" ) 
 	{

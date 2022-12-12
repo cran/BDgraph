@@ -1,18 +1,20 @@
-bibentry(bibtype = "Article",
-  title        = "{BDgraph}: An {R} Package for {B}ayesian Structure Learning in Graphical Models",
-  author       = c(person(given = "Reza",
-                          family = "Mohammadi",
-                          email = "a.mohammadi@uva.nl"),
-                   person(given = c("Ernst", "C."),
-                          family = "Wit",
-                          email = "e.c.wit@rug.nl")),
-  journal      = "Journal of Statistical Software",
-  year         = "2019",
-  volume       = "89",
-  number       = "3",
-  pages        = "1--30",
-  doi          = "10.18637/jss.v089.i03",
+citHeader( "To cite BDgraph in publications use:" )
 
-  header       = "To cite BDgraph in publications use:"
+citEntry( entry = "Article",
+  title   = "{BDgraph}: An {R} Package for {B}ayesian Structure Learning in Graphical Models",
+  author  = personList( as.person( "Reza Mohammadi" ),
+                        as.person( "Ernst Wit" ) ),
+  journal = "Journal of Statistical Software",
+  year    = "2019",
+  volume  = "89",
+  number  = "3",
+  pages   = "1--30",
+  doi     = "10.18637/jss.v089.i03",
+  url     = "https://www.jstatsoft.org/article/view/v089i03",
+
+  textVersion  =
+  paste( "Reza Mohammadi, Ernst Wit (2019)",
+         "BDgraph: An R Package for Bayesian Structure Learning in Graphical Models",
+         "Journal of Statistical Software, 89(3), 1-30",
+         "URL https://www.jstatsoft.org/article/view/v089i03" )
 )
-

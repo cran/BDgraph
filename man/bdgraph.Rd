@@ -134,12 +134,12 @@ conf.mat( actual = data.sim, pred = bdgraph.obj )
 conf.mat.plot( actual = data.sim, pred = bdgraph.obj )
    
 # To compare our result with true graph
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = T )
+compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = T )
 
 # Running algorithm with starting points from previous run
 bdgraph.obj2 <- bdgraph( data = data.sim, g.start = bdgraph.obj )
     
-compare( data.sim, list( bdgraph.obj, bdgraph.obj2 ), 
+compare( list( bdgraph.obj, bdgraph.obj2 ), data.sim, 
          main = c( "Target", "Frist run", "Second run" ) )
 
 # - - Example 2
@@ -151,7 +151,7 @@ bdgraph.obj <- bdgraph( data = data.sim, method = "gcgm" )
   
 summary( bdgraph.obj )
    
-compare( data.sim, bdgraph.obj, vis = T )
+compare( bdgraph.obj, data.sim, vis = T )
 
 conf.mat( actual = data.sim, pred = bdgraph.obj )
 

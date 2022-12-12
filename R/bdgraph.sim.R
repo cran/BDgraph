@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2022  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -104,7 +104,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			if( is.null( sigma ) ) sigma = stats::cov2cor( solve( K ) )
 		}else{ 
 			# - - Generate precision matrix according to the graph structure - |
-		    if( !isSymmetric( D ) ) stop( "'D' must be a positive definite matrix" )
+		    if( !isSymmetric( D ) ) 
+		        stop( "'D' must be a positive definite matrix" )
 		   
 		    Ti        = chol( solve( D ) )
 			diag( G ) = 0
@@ -188,8 +189,11 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		    not.cont[ 1:p ] = 1
 		    
 			runif_m   = matrix( stats::runif( cut * p ), nrow = p, ncol = cut )   
+			
 			marginals = apply( runif_m, 1, function( x ) { stats::qnorm( cumsum( x / sum( x ) )[ -length( x ) ] ) } )
-			if( cut == 2 ) marginals = matrix( marginals, nrow = 1, ncol = p )
+			
+			if( cut == 2 ) 
+			    marginals = matrix( marginals, nrow = 1, ncol = p )
 				 
 			for( j in 1:p )
 			{

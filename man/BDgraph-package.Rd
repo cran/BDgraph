@@ -43,7 +43,7 @@
 \title{ Bayesian Structure Learning in Graphical Models }
 
 \description{
-The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, count, binary, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models' literature, including Mohammadi and Wit (2015), Mohammadi et al. (2017), Dobra and Mohammadi (2018), and Letac et al. (2018). The computationally intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}, to speed up the computations. Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature.
+The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, ordinal/count/dicrete, binary, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models' literature, including Mohammadi and Wit (2015), Mohammadi et al. (2021), Mohammadi et al. (2017), and Dobra and Mohammadi (2018). To speed up the computations, the intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}. Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature.
 }
 
 \section{How to cite this package}{
@@ -53,11 +53,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 }
 
 \author{
-
-	Reza Mohammadi \cr
-	Amsterdam Business School \cr
-	University of Amsterdam
-
+    Reza Mohammadi [aut, cre] (<https://orcid.org/0000-0001-9538-0648>), \cr
+    Ernst Wit [aut] (<https://orcid.org/0000-0002-3671-9610>), \cr
+    Adrian Dobra [ctb] (<https://orcid.org/0000-0001-7793-2197>). \cr
 	Maintainer: Reza Mohammadi \email{a.mohammadi@uva.nl}
 }
 
@@ -85,7 +83,7 @@ Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2(1):
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215, \doi{10.1214/16-BA1032}
 }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{compare}}, \code{\link{rgwish}} }
+\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.dw}}, \code{\link{bdgraph.sim}}, \code{\link{compare}}, \code{\link{rgwish}} }
 
 \examples{
 \dontrun{
@@ -102,7 +100,7 @@ bdgraph.obj <- bdgraph( data = data.sim, iter = 5000 )
 summary( bdgraph.obj )
 
 # To compare the result with true graph
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
 
 # Confusion Matrix
 conf.mat( actual = data.sim, pred = bdgraph.obj )
@@ -120,7 +118,7 @@ conf.mat( actual = data.sim, pred = bdgraph.mpl.obj )
 conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
 
 # To compare the results of both algorithms with true graph
-compare( data.sim, list( bdgraph.obj, bdgraph.mpl.obj ), 
+compare( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, 
          main = c( "Target", "BDgraph", "BDgraph_mpl" ), vis = TRUE )
 }
 }

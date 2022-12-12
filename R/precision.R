@@ -9,7 +9,7 @@
 #                                                                              |
 #     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                          |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Computing estimated percision matrix                                     |
+#     Computing estimated precision matrix                                     |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 precision = function( bdgraph.obj, round = 2 )
 {

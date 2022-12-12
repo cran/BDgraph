@@ -30,8 +30,6 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
 
-    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
-
     list_S_n_p = BDgraph::get_S_n_p( data = data, method = method, n = n, not.cont = not.cont )
     
     S      = list_S_n_p $ S
@@ -39,6 +37,11 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     p      = list_S_n_p $ p
     method = list_S_n_p $ method
     colnames_data = list_S_n_p $ colnames_data
+    
+    if( ( is.null( cores ) ) & ( p < 16 ) ) 
+        cours = 1
+        
+    cores = BDgraph::get_cores( cores = cores, verbose = verbose )
     
     if( method == "gcgm" )
     {
@@ -402,7 +405,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
 }
   
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Summary for "bdgraph" boject                                              |
+#    Summary for "bdgraph" object                                              |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 {
@@ -418,8 +421,8 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 			op = graphics::par( mfrow = c( 2, 2 ), pty = "s", omi = c( 0.1, 0.1, 0.1, 0.1 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) ) 
 		
 		# - - - plot selected graph
-		sub_g = "Graph with edge posterior probability > 0.5"
-		BDgraph::plot.graph( selected_g, main = "Selected graph", sub = sub_g, ... )
+		sub_g = "Graph with edge posteriors > 0.5"
+		BDgraph::plot.graph( selected_g, main = "Selected Graph", sub = sub_g, ... )
 
 		if( !is.null( object $ graph_weights ) )
 		{
@@ -430,8 +433,8 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 		    # - - - plot posterior distribution of graph
 		    graph_prob = graph_weights / sum_gWeights
 			graphics::plot( x = 1 : length( graph_weights ), y = graph_prob, type = "h", col = "gray60", 
-			                main = "Posterior probability of graphs", ylab = "Pr(graph|data)", 
-			                xlab = "graph", ylim = c( 0, max( graph_prob ) ) )
+			                main = "Graph Posteriors", ylab = "Pr(graph|data)", 
+			                xlab = "Graph", ylim = c( 0, max( graph_prob ) ) )
 			
 			# - - - plot posterior distribution of graph size
 			sizesample_graphs = sapply( sample_graphs, function( x ) length( which( unlist( strsplit( as.character( x ), "" ) ) == 1 ) ) )
@@ -443,8 +446,8 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 
 			prob_zg = weightsg / sum_gWeights
 			graphics::plot( x = xx, y = prob_zg, type = "h", col = "gray10",
-			                main = "Posterior probability of graphs size", 
-			                ylab = "Pr(graph size|data)", xlab = "Graph size",
+			                main = "Graphs Size's Posteriors", 
+			                ylab = "Pr(graph size|data)", xlab = "Graph Size",
 			                ylim = c( 0, max( prob_zg ) ) )
 
 			# - - - plot trace of graph size
@@ -452,7 +455,7 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 			sizeall_graphs = sizesample_graphs[ all_graphs ]
 			  
 			graphics::plot( x = 1 : length( all_graphs ), sizeall_graphs, type = "l", col = "lightblue", 
-			                main = "Trace of graph size", ylab = "Graph size", xlab = "Iteration" )
+			                main = "Trace of Graph Size", ylab = "Graph size", xlab = "Iteration" )
 
 			graphics::par( op )
 		}
@@ -465,7 +468,7 @@ summary.bdgraph = function( object, round = 2, vis = TRUE, ... )
 }  
    
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Plot function for "bdgraph" boject                                        |
+#    Plot function for "bdgraph" object                                        |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 plot.bdgraph = function( x, cut = 0.5, number.g = NULL, 
                          main = NULL,
@@ -536,7 +539,7 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL,
 }
      
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#    Print function for "bdgraph" boject                                       |
+#    Print function for "bdgraph" object                                       |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 print.bdgraph = function( x, ... )
 {

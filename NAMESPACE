@@ -26,6 +26,7 @@ export( bdgraph,
 		traceplot,
 		plotroc,
 		roc,
+		auc,
 		conf.mat,
 		conf.mat.plot,
 		

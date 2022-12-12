@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2021  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2022  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -18,6 +18,8 @@ get_cores = function( cores = NULL, verbose = TRUE )
     
     if( is.null( cores ) ) cores = num_machine_cores - 1
     if( cores == "all" )   cores = num_machine_cores
+    
+    if( cores > num_machine_cores ) cores = num_machine_cores
     
     .C( "omp_set_num_cores", as.integer( cores ), as.integer( verbose_core ), PACKAGE = "BDgraph" )
     

@@ -130,7 +130,7 @@ bdgraph.obj <- bdgraph.dw( data = data.sim, iter = 5000 )
 summary( bdgraph.obj )
 
 # To compare the result with true graph
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
 
 # - - Example 2
 
@@ -141,7 +141,7 @@ bdgraph.obj <- bdgraph.dw( data = data.sim, iter = 10000 )
 
 summary( bdgraph.obj )
 
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
 }	  
 }
 

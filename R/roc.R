@@ -12,24 +12,25 @@
 #     Reports the measures to assess the performance of estimated graphs       |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-roc = function( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
+roc = function( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, 
+                quiet = TRUE, ... )
 {
-    if( is.matrix( actual ) ) 
-        if( ( sum( actual == 0 ) + sum( actual == 1 ) ) != ( nrow( actual ) ^ 2 ) ) stop( "Elements of matrix 'actual' must be 0 or 1" )
-    
-    if( inherits( actual, "sim" ) ) actual = actual $ G
-    
-    response = actual[ upper.tri( actual ) ]   
-    
-    if( is.matrix( pred ) )
-        if( any( pred < 0 ) || any( pred > 1 ) ) stop( "Elements of matrix 'pred' must be between ( 0, 1 )" )
-    
     if( ( inherits( pred, "bdgraph" ) ) | ( inherits( pred, "ssgraph" ) ) )
         pred = BDgraph::plinks( pred, round = 15 )
+
+    if( inherits( actual, "sim" ) ) 
+        actual = actual $ G
     
-    predictor = pred[ upper.tri( pred ) ]    
+    if( is.matrix( pred   ) ) pred   = pred[   upper.tri( pred   ) ]
+    if( is.matrix( actual ) ) actual = actual[ upper.tri( actual ) ]
     
-    pROC::roc( response = response, predictor = predictor, levels = c( 0, 1 ), 
+    if( any( round( pred ) < 0 ) || any( round( pred ) > 1 ) ) 
+        stop( "Elements of 'pred' must be between ( 0, 1 )" )
+    
+    if( ( sum( actual == 0 ) + sum( actual == 1 ) ) != length( actual ) ) 
+        stop( "Elements of 'actual' must be 0 or 1" )
+    
+    pROC::roc( response = actual, predictor = pred, levels = c( 0, 1 ), 
                quiet = quiet, smooth = smooth, plot = plot, ... )
 }
    

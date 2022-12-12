@@ -120,8 +120,11 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
         data     <- data $ data
     }
     
-    if( !is.matrix( data ) & !is.data.frame( data ) ) stop( "'data' must be a matrix or dataframe" )
-    if( is.data.frame( data ) ) data <- data.matrix( data )
+    if( !is.matrix( data ) & !is.data.frame( data ) ) 
+        stop( "'data' must be a matrix or dataframe" )
+    
+    if( is.data.frame( data ) ) 
+        data <- data.matrix( data )
     
     if( any( is.na( data ) ) ) 
     {
@@ -143,8 +146,12 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
     }
     
     p <- ncol( data )
-    if( p < 3 ) stop( "Number of variables/nodes ('p') must be more than 2" )
-    if( is.null( n ) ) n <- nrow( data )
+    
+    if( p < 3 ) 
+        stop( "Number of variables/nodes ('p') must be more than 2" )
+    
+    if( is.null( n ) ) 
+        n <- nrow( data )
     
     if( method == "ggm" ) 
     {
@@ -162,18 +169,27 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
         if( is.null( not.cont ) )
         {
             not.cont = c( rep( 1, p ) )
+            
             for( j in 1:p )
-                if( length( unique( data[ , j ] ) ) > min( n / 2 ) ) not.cont[ j ] = 0
+                if( length( unique( data[ , j ] ) ) > min( n / 2 ) ) 
+                    not.cont[ j ] = 0
         }else{
-            if( !is.vector( not.cont )  ) stop( "'not.cont' must be a vector with length of number of variables" )
-            if( length( not.cont ) != p ) stop( "'not.cont' must be a vector with length of number of variables" )
-            if( ( sum( not.cont == 0 ) + sum( not.cont == 1 ) ) != p ) stop( "Elements of vector 'not.cont' must be 0 or 1" )
+            if( !is.vector( not.cont )  ) 
+                stop( "'not.cont' must be a vector with length of number of variables" )
+            
+            if( length( not.cont ) != p ) 
+                stop( "'not.cont' must be a vector with length of number of variables" )
+            
+            if( ( sum( not.cont == 0 ) + sum( not.cont == 1 ) ) != p ) 
+                stop( "Elements of vector 'not.cont' must be 0 or 1" )
         }
         
         R <- 0 * data
+        
         for( j in 1:p )
             if( not.cont[ j ] )
                 R[ , j ] = match( data[ , j ], sort( unique( data[ , j ] ) ) ) 
+        
         R[ is.na( R ) ] = -1000     # dealing with missing values	
         
         # copula for continuous non-Gaussian data
@@ -181,6 +197,7 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
         {
             # copula transfer 
             data = stats::qnorm( apply( data, 2, rank ) / ( n + 1 ) )
+            
             data = t( ( t( data ) - apply( data, 2, mean ) ) / apply( data, 2, stats::sd ) )
             
             method = "ggm"

@@ -8,20 +8,15 @@ Draws the receiver operating characteristic (ROC) curve according to the true gr
 }
 
 \usage{ 
-plotroc( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,  
-         color = NULL, size = 1, main = "ROC Curve", 
+plotroc( pred, actual, cut = 200, smooth = FALSE, calibrate = TRUE, 
+         linetype = NULL, color = NULL, size = 1, main = "ROC Curve", 
          xlab = "False Postive Rate", ylab = "True Postive Rate",
          legend = TRUE, legend.size = 17, legend.position = c( 0.7, 0.3 ),
          labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal() ) 
 }
 
 \arguments{
-  \item{actual}{
-    adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
-	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
-  }
-  
+
   \item{pred}{
         upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
         It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
@@ -30,8 +25,16 @@ plotroc( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,
         Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
         }
 
+  \item{actual}{
+    adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
+  }
+  
+
   \item{cut   }{ number of cut points.}
   \item{smooth}{ logical: for smoothing the ROC curve.} 
+  \item{calibrate}{If \code{TRUE}, compute the value of AUC by taking the level of the probabilities into account.}
   \item{linetype  }{ specification for the default plotting line type.} 
   \item{color}{ specification for the default plotting color.} 
   \item{size  }{ specification for the default plotting line size.} 
@@ -58,7 +61,7 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645, \doi{10.1111/rssc.12171} 
 }
 
-\author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
+\author{ Reza Mohammadi \email{a.mohammadi@uva.nl}; Lucas Vogels \email{l.f.o.vogels@uva.nl} }
 
 \seealso{ \code{\link{roc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
 
@@ -71,13 +74,13 @@ data.sim <- bdgraph.sim( n = 30, p = 6, size = 7, vis = TRUE )
 bdgraph.obj <- bdgraph( data = data.sim, iter = 10000 )
 
 # To compare the results
-plotroc( data.sim, bdgraph.obj )
+plotroc( bdgraph.ob2j, data.sim )
    
 # To compare the results based on CGGMs approach
 bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
 
 # To Compare the resultss
-plotroc( data.sim, list( bdgraph.obj, bdgraph.obj2 ), legend = FALSE )
+plotroc( list( bdgraph.obj, bdgraph.obj2 ), data.sim, legend = FALSE )
 }
 }
 

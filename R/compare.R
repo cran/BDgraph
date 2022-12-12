@@ -12,9 +12,8 @@
 #     Reports the measures to assess the performance of estimated graphs       |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-compare = function( actual, pred, main = NULL, vis = FALSE ) 
+compare = function( pred, actual, main = NULL, vis = FALSE ) 
 {
-    
     if( !inherits( pred, "list" ) ) pred = list( pred )
     length_pred = length( pred )
     
@@ -29,15 +28,15 @@ compare = function( actual, pred, main = NULL, vis = FALSE )
     
     for( i in 1:length_pred )
     {
-      est_g = BDgraph::get_graph( pred[[i]] )
-      
-      result[ , i + 1 ] = compute_measures( G = G, est_G = est_g )
+        est_g = BDgraph::get_graph( pred[[i]] )
+        
+        result[ , i + 1 ] = compute_measures( est_G = est_g, G = G )
     }
     
     result[ is.na( result ) ] = 0
     
-    rownames( result ) <- c( "true positive", "true negative", "false positive", "false negative", 
-                             "F1-score", "specificity", "sensitivity", "MCC" )
+    rownames( result ) <- c( "True Positive", "True Negative", "False Positive", "False Negative", 
+                             "F1-score", "Specificity", "Sensitivity", "MCC" )
     
     if( is.null( main ) ) 
     {
@@ -74,9 +73,10 @@ compare = function( actual, pred, main = NULL, vis = FALSE )
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 #    To compare measures the performance of estimated graphs based on true graph
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-compute_measures = function( G, est_G ) 
+compute_measures = function( est_G, G ) 
 {
-    if( sum( dim( G ) == dim( est_G ) ) != 2 ) stop( "'target' and 'est' have non-conforming size" )
+    if( sum( dim( G ) == dim( est_G ) ) != 2 ) 
+        stop( "'pred' and 'actual' have non-conforming size" )
     
     upper_G     = G[     upper.tri( G     ) ]
     upper_est_G = est_G[ upper.tri( est_G ) ]
@@ -89,10 +89,11 @@ compute_measures = function( G, est_G )
     # harmonic mean of precision and recall, called F-measure or balanced F-score
     F1score = ( 2 * tp ) / ( 2 * tp + fp + fn )
     
-    specificity  = tn / ( tn + fp )
-    sensitivity  = tp / ( tp + fn )
+    specificity = tn / ( tn + fp )
+    sensitivity = tp / ( tp + fn )
+    
     # Matthews Correlation Coefficients (MCC)
-    mcc          = ( ( tp * tn ) - ( fp * fn ) ) / ( sqrt( ( tp + fp ) * ( tp + fn ) ) * sqrt( ( tn + fp ) * ( tn + fn ) ) )
+    mcc = ( ( tp * tn ) - ( fp * fn ) ) / ( sqrt( ( tp + fp ) * ( tp + fn ) ) * sqrt( ( tn + fp ) * ( tn + fn ) ) )
     
     return( c( tp, tn, fp, fn, F1score, specificity, sensitivity, mcc ) )
 }

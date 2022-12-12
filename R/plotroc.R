@@ -12,24 +12,31 @@
 #     To plot ROC curve                                                        |
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
-plotroc = function( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,  
-         color = NULL, size = 1, main = "ROC Curve", 
-         xlab = "False Postive Rate", ylab = "True Postive Rate",
-         legend = TRUE, legend.size = 17, legend.position = c( 0.7, 0.3 ),
-         labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal() )
+plotroc = function( pred, actual, cut = 200, smooth = FALSE, calibrate = TRUE, 
+                    linetype = NULL, color = NULL, size = 1, main = "ROC Curve", 
+                    xlab = "False Postive Rate", ylab = "True Postive Rate",
+                    legend = TRUE, legend.size = 17, legend.position = c( 0.7, 0.3 ),
+                    labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal() )
 {
-    if( !inherits( pred, "list" ) ) pred = list( pred )
+    if( !inherits( pred, "list" ) ) 
+        pred = list( pred )
+    
     length_pred = length( pred )
     
     if( is.null( color    ) ) color    = 1:length_pred
     if( is.null( linetype ) ) linetype = 1:length_pred
     
-    G = BDgraph::get_graph( actual )  
-    G[ lower.tri( G, diag = TRUE ) ] = 0
+    if( !is.vector( actual ) )
+    {
+        adj_G  = BDgraph::get_graph( actual )
+        
+        actual = adj_G[ upper.tri( adj_G ) ]
+    }
     
     if( legend && is.null( labels ) )
     {
         labels = numeric( length = length_pred )
+        
         for( i in 1:length_pred ) 
             labels[ i ] = paste0( "pred ", i )
     }
@@ -41,7 +48,7 @@ plotroc = function( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,
     
     for( i in 1:length_pred )
     {
-        output_tp_fp = compute_tp_fp( G = G, est = pred[[i]], cut = cut, smooth = smooth )
+        output_tp_fp = compute_tp_fp( pred = pred[[i]], actual = actual, cut = cut, smooth = smooth, calibrate = calibrate )
         
         length_fp_i[ i ] = length( output_tp_fp $ fp )
         
@@ -51,12 +58,9 @@ plotroc = function( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,
 
     if( legend && auc )
     {
-        for( i in 1:length_pred ) 
-        {
-            roc_i = BDgraph::roc( actual = G, pred = pred[[i]] )
+        auc_s = BDgraph::auc( pred = pred, actual = actual, cut = cut, calibrate = calibrate )
             
-            labels[ i ] = paste( labels[ i ], "; AUC=", round( pROC::auc( roc_i ), 3 ) )
-        }
+        labels = paste( labels, "; AUC=", round( auc_s, 3 ) )
     }
       
     df_gg = data.frame( pred = rep( as.factor( 1:length_pred ), length_fp_i ), 
@@ -77,57 +81,60 @@ plotroc = function( actual, pred, cut = 20, smooth = FALSE, linetype = NULL,
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 # Function to compute tp (true positive) and fp (false positive) for ROC plot
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-compute_tp_fp = function( G, est, cut, smooth )
+
+compute_tp_fp = function( pred, actual, cut, smooth, calibrate = TRUE )
 {
-    p           = nrow( G )
-    upper_G     = G[ upper.tri( G ) ]
-    sum_edges   = sum( upper_G )
-    sum_no_dges = p * ( p - 1 ) / 2 - sum_edges
-    
-    if( ( inherits( est, "bdgraph" ) ) | ( inherits( est, "ssgraph" ) ) )
+    if( !is.vector( actual ) )
     {
-        p_links = est $ p_links
-        if( is.null( p_links ) ) p_links = BDgraph::plinks( est, round = 15 )
+        adj_G  = BDgraph::get_graph( actual )
+        actual = adj_G[ upper.tri( adj_G ) ]
     }
+
+    if( ( inherits( pred, "bdgraph" ) ) | ( inherits( pred, "ssgraph" ) ) )
+        pred = BDgraph::plinks( pred, round = 15 )
     
-    if( is.matrix( est ) )
+    if( is.matrix( pred ) )
     {
-        if( any( est < 0 ) || any( est > 1 ) ) stop( "Elements of 'est' must be between ( 0, 1 )" )
-        p_links = est
+        if( any( round( pred ) < 0 ) || any( round( pred ) > 1 ) ) 
+            stop( "Elements of 'pred' must be between [ 0, 1 ]" )
+        
+        pred = pred[ upper.tri( pred ) ]
     }
-    
-    if( !inherits( est, "huge" ) )
+
+    sum_one  = sum( actual )
+    sum_zero = length( actual ) - sum_one
+        
+    if( !inherits( pred, "huge" ) )
     {
         tp = c( 1, rep( 0, cut ) )
         fp = tp
         
         cut_points = ( 0 : cut ) / cut
+
+        if( calibrate == FALSE ) w_roc = 1
         
         for( i in 2 : cut )
         {
-            # checking for cut pints
-            est_G = matrix( 0, p, p )
-            est_G[ p_links > cut_points[ i ] ] = 1
-            upper_est_G = est_G[ upper.tri( est_G ) ]
-            
-            tp[ i ] = sum( ( upper_G == 1 ) * ( upper_est_G == 1 ) ) / sum_edges
-            fp[ i ] = sum( ( upper_G == 0 ) * ( upper_est_G == 1 ) ) / sum_no_dges
+            if( calibrate == TRUE ) w_roc = abs( pred - cut_points[ i ] )
+
+            tp[ i ] = sum( w_roc * ( actual == 1 ) * ( pred > cut_points[ i ] ) ) / sum_one
+            fp[ i ] = sum( w_roc * ( actual == 0 ) * ( pred > cut_points[ i ] ) ) / sum_zero
         }
     }
     
-    if( inherits( est, "huge" ) )
+    if( inherits( pred, "huge" ) )
     {
-        path = est $ path
+        path = pred $ path
         tp   = numeric( length( path ) )
         fp   = tp
         
         for( i in 1 : length( path ) )
         {
-            est_G       = as.matrix( path[[ i ]] )
-            upper_est_G = est_G[ upper.tri( est_G ) ]
+            est_G  = as.matrix( path[[ i ]] )
+            pred_i = est_G[ upper.tri( est_G ) ]
             
-            tp[ i ] = sum( ( upper_G == 1 ) * ( upper_est_G == 1 ) ) / sum_edges
-            fp[ i ] = sum( ( upper_G == 0 ) * ( upper_est_G == 1 ) ) / sum_no_dges
+            tp[ i ] = sum( ( actual == 1 ) * ( pred_i == 1 ) ) / sum_one
+            fp[ i ] = sum( ( actual == 0 ) * ( pred_i == 1 ) ) / sum_zero
         }
         
         tp = c( tp, 1 )
