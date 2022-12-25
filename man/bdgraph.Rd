@@ -9,7 +9,7 @@
 }
 \usage{
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-         burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
+         burnin = iter / 2, not.cont = NULL, g.prior = 0.2, df.prior = 3, 
          g.start = "empty", jump = NULL, save = FALSE, 
          cores = NULL, threshold = 1e-8, verbose = TRUE, nu = 1 )
 }

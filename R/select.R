@@ -18,10 +18,14 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 {
 	if( is.matrix( bdgraph.obj ) ) 
 	{
-	    if( any( bdgraph.obj < 0 ) || any( bdgraph.obj > 1 ) ) stop( "Values of matrix 'bdgraph.obj' must be between 0 and 1" )
+	    if( any( bdgraph.obj < 0 ) || any( bdgraph.obj > 1 ) ) 
+	        stop( "Values of matrix 'bdgraph.obj' must be between 0 and 1" )
+	    
 	    p_links = unclass( bdgraph.obj )
 		p       = ncol( p_links )
+		
 	}else{
+	    
 	    if( ( !inherits( bdgraph.obj, "bdgraph" ) ) && ( !inherits( bdgraph.obj, "ssgraph" ) ) )
 	        stop( "'bdgraph.obj' must be a matrix or an object from functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()'" )
 	    
@@ -38,17 +42,24 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
         graph_weights <- bdgraph.obj $ graph_weights
         
         indG_max <- sample_graphs[ which( graph_weights == max( graph_weights ) )[1] ]
+        
         vec_G    <- c( rep( 0, p * ( p - 1 ) / 2 ) )
         vec_G[ which( unlist( strsplit( as.character( indG_max ), "" ) ) == 1 ) ] <- 1
         
         dimlab     <- colnames( bdgraph.obj $ last_graph )
         selected_g <- matrix( 0, p, p, dimnames = list( dimlab, dimlab ) )	
         selected_g[ upper.tri( selected_g ) ] <- vec_G
+    
     }else{
-        if( is.null( cut ) ) cut = 0.5
-        if( ( cut < 0 ) || ( cut > 1 ) ) stop( "'cut' must be between 0 and 1" )
         
-        if( is.null( p_links ) ) p_links = BDgraph::plinks( bdgraph.obj, round = 10 )
+        if( is.null( cut ) ) 
+            cut = 0.5
+        
+        if( ( cut < 0 ) || ( cut > 1 ) ) 
+            stop( "'cut' must be between 0 and 1" )
+        
+        if( is.null( p_links ) ) 
+            p_links = BDgraph::plinks( bdgraph.obj, round = 10 )
         
         selected_g                   = 0 * p_links
         selected_g[ p_links >  cut ] = 1
@@ -59,6 +70,7 @@ select = function( bdgraph.obj, cut = NULL, vis = FALSE )
 	{
 	    main = ifelse( is.null( cut ), "Graph with highest posterior probability.", 
 	                   paste( c( "Graph with links posterior probabilities > ",  cut ), collapse = "" ) )
+	    
 	    BDgraph::plot.graph( selected_g, main = main )
 	}
 

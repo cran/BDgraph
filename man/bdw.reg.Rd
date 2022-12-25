@@ -75,8 +75,6 @@ Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learni
 Peluso, A., Vinciotti, V., and Yu, K. (2018) Discrete Weibull generalized additive model: an application to count fertility, \emph{Journal of the Royal Statistical Society: Series C}, 68(3):565-583, \doi{10.1111/rssc.12311}  
 
 Haselimashhadi, H., Vinciotti, V. and Yu, K. (2018) A novel Bayesian regression model for counts with an application to health data, \emph{Journal of Applied Statistics,} 45(6):1085-1105, \doi{10.1080/02664763.2017.1342782}
-
-Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30, \doi{10.18637/jss.v089.i03} 
 }
 
 \author{ Veronica Vinciotti, Reza Mohammadi \email{a.mohammadi@uva.nl}, and Pariya Behrouzi }

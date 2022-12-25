@@ -64,21 +64,26 @@ get_bounds_dw = function( data, q, beta, pii, n, p, zero = TRUE )
 
 bdgraph.dw = function( data, x = NULL, formula = y ~ ., 
                        n = NULL, algorithm = "bdmcmc", iter = 5000, 
-                       burnin = iter / 2, g.prior = 0.5, df.prior = 3,
+                       burnin = iter / 2, g.prior = 0.2, df.prior = 3,
                        ZI = FALSE, iter_bdw = 5000,
                        g.start = "empty",jump = NULL, save = FALSE, 
                        q = NULL, beta = NULL, pii = NULL,
                        cores = NULL, threshold = 1e-8, verbose = TRUE )
 {
     if( is.matrix( data ) | is.data.frame( data ) ) 
-        if( any( data < 0 ) ) stop( "'data' should not have negative values" )
+        if( any( data < 0 ) ) 
+            stop( "'data' should not have negative values" )
         
     if( df.prior < 3  ) stop( "'prior.df' must be >= 3" )
     if( iter < burnin ) stop( "'iter' must be higher than 'burnin'" )
+    
     burnin = floor( burnin )
     
-    if( is.numeric( verbose ) ){
-        if( ( verbose < 1 ) | ( verbose > 100 ) ) stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+    if( is.numeric( verbose ) )
+    {
+        if( ( verbose < 1 ) | ( verbose > 100 ) ) 
+            stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+        
         trace_mcmc = floor( verbose )
         verbose = TRUE
     }else{
@@ -276,7 +281,8 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
         
         output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = K_hat, 
                        all_graphs = all_graphs, all_weights = all_weights, last_graph = last_graph, last_K = last_K, 
-                       q.est = q, beta.est = beta, pi.est = pii )
+                       q.est = q, beta.est = beta, pi.est = pii,
+                       data = data, method = "dw" )
 
     }else{
         p_links = matrix( result $ p_links, p, p, dimnames = list( colnames_data, colnames_data ) ) 
@@ -290,7 +296,8 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
         p_links[ lower.tri( p_links ) ] = 0
         
         output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K, 
-                       q.est = q, beta.est = beta, pi.est = pii )
+                       q.est = q, beta.est = beta, pi.est = pii,
+                       data = data, method = "dw" )
     }
     
     if( !is.null( sample_marginals ) ) 

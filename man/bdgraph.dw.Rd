@@ -9,7 +9,7 @@
 \usage{
 bdgraph.dw( data, x = NULL, formula = y ~ ., 
             n = NULL, algorithm = "bdmcmc", iter = 5000, 
-            burnin = iter / 2, g.prior = 0.5, df.prior = 3,
+            burnin = iter / 2, g.prior = 0.2, df.prior = 3,
             ZI = FALSE, iter_bdw = 5000,
             g.start = "empty", jump = NULL, save = FALSE, 
             q = NULL, beta = NULL, pii = NULL,

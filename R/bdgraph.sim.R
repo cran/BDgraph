@@ -100,9 +100,13 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		{ 
 			G         = 1 * ( abs( K ) > 0.02 )
 			diag( G ) = 0
+			
 			# if( is.null( sigma ) ) sigma <- solve( K )	
-			if( is.null( sigma ) ) sigma = stats::cov2cor( solve( K ) )
+			if( is.null( sigma ) ) 
+			    sigma = stats::cov2cor( solve( K ) )
+			
 		}else{ 
+		    
 			# - - Generate precision matrix according to the graph structure - |
 		    if( !isSymmetric( D ) ) 
 		        stop( "'D' must be a positive definite matrix" )
@@ -208,7 +212,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		{
 		    not.cont[ 1:p ] = 1
 		    
-		    if( p > 16 ) stop( "'p' must be less than 16, for option 'type = \"binary\"'" )
+		    if( p > 16 ) 
+		        stop( "'p' must be less than 16, for option 'type = \"binary\"'" )
 			
 			## Generate clique factors
 			clique_factors = generate_clique_factors( ug = G )
@@ -235,7 +240,8 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
             
             Y_data <- matrix( c( 0, 1 ), nrow = n, ncol = p )
             
-            while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
+            # detect binary variables
+            while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE )  
             {  
                 d = matrix( 0, nrow = n, ncol = p )
                 Z = tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
@@ -247,13 +253,13 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
                 if( is.matrix( q ) && is.matrix( beta ) )
                 {
                     for( j in 1 : p ) 
-                        Y_data[  ,j ] = BDgraph::qdweibull( pnorm_Z[ , j ], q = q[ , j ], beta = beta[ , j ], zero = TRUE )
+                        Y_data[ ,j ] = BDgraph::qdweibull( pnorm_Z[ , j ], q = q[ , j ], beta = beta[ , j ], zero = TRUE )
                 }
                 
                 if( is.vector( q ) && is.vector( beta ) )
                 {
                     for( j in 1 : p ) 
-                        Y_data[ , j ] = BDgraph::qdweibull(pnorm_Z[ , j ],  q = q[ j ], beta = beta[ j ] , zero = TRUE )		    
+                        Y_data[ , j ] = BDgraph::qdweibull( pnorm_Z[ , j ],  q = q[ j ], beta = beta[ j ], zero = TRUE )		    
                 }
                 
                 if( any( apply( Y_data, 2, function( x ) { all( x %in% 0 : 1 ) } ) ) )
@@ -267,7 +273,9 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 		{
             not.cont[ 1:p ] = 1
             Y.star <- matrix( c( 0, 1 ), nrow = n, ncol = p )
-            while ( any( apply( Y.star, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) ##detect binary variables 
+            
+            # To detect binary variables 
+            while ( any( apply( Y.star, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) 
             {
                 d = tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), sigma = sigma, 
                                          lower = rep( -5, length = p ), upper = rep( 5, length = p ) )
@@ -366,7 +374,8 @@ sample_ug = function( n = 1, ug = diag( 3 ), clique_factors = NULL )
 {
 	p = ncol( ug ) # p smaller than 17 check
 	
-	if( p > 16 ) stop( "number of nodes must be smaller than 16" )
+	if( p > 16 ) 
+	    stop( "number of nodes must be smaller than 16" )
 	
 	ug[ lower.tri( ug, diag = TRUE ) ] = 0
 	

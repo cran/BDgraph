@@ -13,19 +13,23 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-                    burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
+                    burnin = iter / 2, not.cont = NULL, g.prior = 0.2, df.prior = 3, 
                     g.start = "empty", jump = NULL, save = FALSE, 
                     cores = NULL, threshold = 1e-8, verbose = TRUE, nu = 1 )
 {
     if( df.prior < 3  ) stop( "'prior.df' must be >= 3" )
     if( iter < burnin ) stop( "'iter' must be higher than 'burnin'" )
+    
     burnin <- floor( burnin )
     
     if( is.numeric( verbose ) )
     {
-        if( ( verbose < 1 ) | ( verbose > 100 ) ) stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+        if( ( verbose < 1 ) | ( verbose > 100 ) ) 
+            stop( "'verbose' (for numeric case) must be between ( 1, 100 )" )
+        
         trace_mcmc = floor( verbose )
         verbose = TRUE
+        
     }else{
         trace_mcmc = ifelse( verbose == TRUE, 10, iter + 1000 )
     }
@@ -36,6 +40,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     n      = list_S_n_p $ n
     p      = list_S_n_p $ p
     method = list_S_n_p $ method
+    data   = list_S_n_p $ data
     colnames_data = list_S_n_p $ colnames_data
     
     if( ( is.null( cores ) ) & ( p < 16 ) ) 
@@ -48,14 +53,11 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         not.cont = list_S_n_p $ not.cont
         R        = list_S_n_p $ R
         Z        = list_S_n_p $ Z
-        data     = list_S_n_p $ data
         gcgm_NA  = list_S_n_p $ gcgm_NA
     }
  
     if( method == "tgm" )
     {
-        data = list_S_n_p $ data
-        
         tu = stats::rgamma( n, shape = nu / 2, rate = nu / 2 )
         
         mu = tu %*% data / sum( tu )
@@ -127,7 +129,6 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
                          PACKAGE = "BDgraph" )
         }
 
-        
         if( ( method == "ggm" ) && ( algorithm == "bdmcmc" ) && ( jump == 1 ) )
         {
             result = .C( "ggm_bdmcmc_map", as.integer(iter), as.integer(burnin), G = as.integer(G), as.double(g_prior), as.double(Ts), K = as.double(K), as.integer(p), as.double(threshold), 
@@ -386,7 +387,8 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         }
         
         output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = K_hat, 
-                       all_graphs = all_graphs, all_weights = all_weights, last_graph = last_graph, last_K = last_K )
+                       all_graphs = all_graphs, all_weights = all_weights, last_graph = last_graph, last_K = last_K,
+                       data = data, method = method )
     }else{
         p_links = matrix( result $ p_links, p, p, dimnames = list( colnames_data, colnames_data ) ) 
         
@@ -397,7 +399,8 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
         }
         
         p_links[ lower.tri( p_links ) ] = 0
-        output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K )
+        output = list( p_links = p_links, K_hat = K_hat, last_graph = last_graph, last_K = last_K,
+                       data = data, method = method )
     }
     
     class( output ) = "bdgraph"
@@ -545,7 +548,8 @@ print.bdgraph = function( x, ... )
 {
 	p_links = x $ p_links
 	
-	if( is.null( p_links ) ) p_links = BDgraph::plinks( x )
+	if( is.null( p_links ) ) 
+	    p_links = BDgraph::plinks( x )
 	
 	selected_g = BDgraph::select( p_links, cut = 0.5 )
 
@@ -556,6 +560,116 @@ print.bdgraph = function( x, ... )
     print( round( p_links, 2 ) )
 } 
      
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+#    predict function for "bdgraph" object                                       |
+## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+
+predict.bdgraph = function( object, iter = 1, ... )
+{
+    method = object $ method
+    data   = object $ data
+    
+    n_data = nrow( data )
+    p      = ncol( data )
+
+    K = object $ K_hat
+    
+    if( is.null( K ) )
+    {
+		if( isSymmetric( data ) )
+		{
+			S = data
+		}else{
+ 			S = t( data ) %*% data
+		}
+        
+        G = BDgraph::select( bdgraph.obj = object )
+        
+        sample_K = BDgraph::rgwish( n = 500, adj = G, b = 3 + n_data, D = diag( p ) + S )
+        
+        K = 0 * G
+        for( i in 1:dim( sample_K )[3] )
+            K = K + sample_K[[i]]
+        
+        K = K / dim( sample_K )[3]
+    }
+    
+    sigma = solve( K )
+    
+    Z = BDgraph::rmvnorm( n = iter, mean = 0, sigma = sigma )
+    
+    if( method == "ggm" )
+        sample = Z
+
+	if( method == "tgm" )
+	{
+	    mean = 0
+	    nu   = 1
+	    
+	    tau_gamma = stats::rgamma( n = iter, shape = nu / 2, rate = nu / 2 )
+        sample    = mean + Z / sqrt( tau_gamma )
+	}
+    
+    if( method == "gcgm" ) 
+    {
+        sample = 0 * Z
+        
+        for( j in 1:p )
+        {
+            sdj = sqrt( 1 / K[ j, j ] )     # 2a: # variance of component j (given the rest!)
+            muj = - sum( Z[ , -j, drop = FALSE ] %*% K[ -j, j, drop = FALSE ] / K[ j, j ] )	 
+            
+            table_j = table( data[ , j ] )
+            cat_y_j = as.numeric( names( table_j ) ) 
+            len_cat_y_j = length( cat_y_j )
+            
+            if( len_cat_y_j > 1 )
+            {
+                cum_prop_yj = cumsum( table_j[ -len_cat_y_j ] ) / n_data
+                
+                #cut_j = vector( length = len_cat_y_j - 1 )
+                # for( k in 1:length( cut_j ) ) cut_j[ k ] = stats::qnorm( cum_prop_yj[ k ] )
+                cut_j = stats::qnorm( cum_prop_yj, mean = 0, sd = 1 )
+                            
+            	breaks = c( min( Z[ , j ] ) - 1, cut_j, max( Z[ , j ] ) + 1 )  
+            	
+            	ind_sj = as.integer( cut( Z[ , j ], breaks = breaks, right = FALSE ) )
+            	
+            	sample[ , j ]  = cat_y_j[ ind_sj ]
+            }else{
+                sample[ , j ]  = cat_y_j
+            }
+        }
+    }
+
+    if( method == "dw" )
+    {
+        q    = object $ q.est
+        beta = object $ beta.est
+        mean = rep( 0, p )
+        
+        Z = tmvtnorm::rtmvnorm( n = iter, mean = mean, 
+                               sigma = sigma, lower = rep( -5, length = p ), 
+                               upper = rep( 5, length = p ) )
+        
+        pnorm_Z = stats::pnorm( Z )
+        
+        if( is.matrix( q ) && is.matrix( beta ) )
+        {
+            for( j in 1 : p ) 
+                sample[ ,j ] = BDgraph::qdweibull( pnorm_Z[ , j ], q = q[ , j ], beta = beta[ , j ], zero = TRUE )
+        }
+        
+        if( is.vector( q ) && is.vector( beta ) )
+        {
+            for( j in 1 : p ) 
+                sample[ , j ] = BDgraph::qdweibull( pnorm_Z[ , j ], q = q[ j ], beta = beta[ j ], zero = TRUE )		    
+        }
+    }
+        
+    return( sample )
+}
+  
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 

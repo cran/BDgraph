@@ -68,7 +68,9 @@ get_g_start = function( g.start, g_prior, p )
 {
     if( is.matrix( g.start ) )
     {
-        if( ( sum( g.start == 0 ) + sum( g.start == 1 ) ) != ( p ^ 2 ) ) stop( "Elements of matrix 'g.start' must be 0 or 1" )
+        if( ( sum( g.start == 0 ) + sum( g.start == 1 ) ) != ( p ^ 2 ) ) 
+            stop( "Elements of matrix 'g.start' must be 0 or 1" )
+        
         G = g.start
     }
     
@@ -79,7 +81,8 @@ get_g_start = function( g.start, g_prior, p )
     if( ( inherits( g.start, "character" ) ) && ( g.start == "empty" ) ) G = matrix( 0, p, p )
     if( ( inherits( g.start, "character" ) ) && ( g.start == "full"  ) ) G = matrix( 1, p, p )
     
-    if( ( nrow( G ) != p ) | ( ncol( G ) != p ) ) stop( "'g.start' and 'data' have non-conforming size" )
+    if( ( nrow( G ) != p ) | ( ncol( G ) != p ) ) 
+        stop( "'g.start' and 'data' have non-conforming size" )
     
     G[ g_prior == 1 ] = 1
     G[ g_prior == 0 ] = 0
@@ -174,6 +177,7 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
                 if( length( unique( data[ , j ] ) ) > min( n / 2 ) ) 
                     not.cont[ j ] = 0
         }else{
+            
             if( !is.vector( not.cont )  ) 
                 stop( "'not.cont' must be a vector with length of number of variables" )
             
@@ -230,21 +234,26 @@ get_S_n_p = function( data, method, n, not.cont = NULL )
         S                  <- t( Z ) %*% Z
     } 
     
-    if( method == "ggm" ) 
-        list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ) )
-
-   if( method == "tgm" )
-   {
+    if( method == "tgm" )
         S <- t( data ) %*% data
-        list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ), data = data )
-   }
     
-    if( method == "gcgm" ) 
-        list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ), not.cont = not.cont, R = R, Z = Z, data = data, gcgm_NA = gcgm_NA )
+    list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ), data = data )
     
-    if( method == "dw" ) 
-        list_out = list( method = method, S = S, n = n, p = p, colnames_data = colnames( data ), not.cont = not.cont, Z = Z, data = data, gcgm_NA = gcgm_NA )
-    
+    if( method == "gcgm" )
+    {
+        list_out$not.cont = not.cont
+        list_out$gcgm_NA  = gcgm_NA
+        list_out$Z        = Z
+        list_out$R        = R
+    }
+
+    if( method == "dw" )
+    {
+        list_out$not.cont = not.cont
+        list_out$gcgm_NA  = gcgm_NA
+        list_out$Z        = Z
+    }
+        
     return( list_out )
 } 
     

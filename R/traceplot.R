@@ -16,13 +16,15 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 {
     if( ( inherits( bdgraph.obj, "bdgraph" ) ) | ( inherits( bdgraph.obj, "ssgraph" ) ) )
     {
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
-        if( is.null( bdgraph.obj $ all_graphs ) ) stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
+        if( is.null( bdgraph.obj $ all_graphs ) ) 
+            stop( "'bdgraph.obj' must be an object of function 'bdgraph()' or 'ssgraph()' with option 'save = TRUE'" )
 
     	sample_graphs     = bdgraph.obj $ sample_graphs
         all_graphs        = bdgraph.obj $ all_graphs
     	graph_weights     = bdgraph.obj $ graph_weights
+    	
     	sizesample_graphs = sapply( sample_graphs, function(x) length( which( unlist( strsplit( as.character(x), "" ) ) == 1 ) ) )  
+    	
     	sizeall_graphs    = sizesample_graphs[ all_graphs ]
     	which_G_max       = which( max( graph_weights ) == graph_weights )
     	size_selected_g   = sizeall_graphs[ which_G_max ] 
@@ -31,7 +33,9 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
     
     	if( is.null( main ) ) main = "Trace of graph size"
     	ylab = "Graph size"
+    
     }else{
+        
         if( !is.vector( bdgraph.obj ) )
             stop( "'bdgraph.obj' must be an object of functions 'bdgraph()', 'bdgraph.mpl()', or 'ssgraph()' or a vector" )
         
@@ -41,10 +45,10 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
         ylab = ""
     }
     
-	if ( acf == FALSE & pacf == FALSE ) op = graphics::par( mfrow = c( 1, 1 ), pty = "s" )
-	if ( acf == TRUE  & pacf == TRUE  ) op = graphics::par( mfrow = c( 2, 2 ), pty = "s" ) 
-	if ( acf == TRUE  & pacf == FALSE ) op = graphics::par( mfrow = c( 1, 2 ), pty = "s" )
-	if ( acf == FALSE & pacf == TRUE  ) op = graphics::par( mfrow = c( 1, 2 ), pty = "s" )
+	if( acf == FALSE & pacf == FALSE ) op = graphics::par( mfrow = c( 1, 1 ), pty = "s" )
+	if( acf == TRUE  & pacf == TRUE  ) op = graphics::par( mfrow = c( 2, 2 ), pty = "s" ) 
+	if( acf == TRUE  & pacf == FALSE ) op = graphics::par( mfrow = c( 1, 2 ), pty = "s" )
+	if( acf == FALSE & pacf == TRUE  ) op = graphics::par( mfrow = c( 1, 2 ), pty = "s" )
     
 	x_vec = 1 : length( sample_mcmc )
 	
@@ -60,8 +64,11 @@ traceplot = function( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... )
 	    graphics::lines( x = x_vec, y = rep( size_selected_g, length( sample_mcmc ) ), 
 	                     col = "blue" )
 	
-	if ( acf  == TRUE ) acf(  sample_mcmc, main = "ACF for graph size" )
-	if ( pacf == TRUE ) pacf( sample_mcmc, main = "PACF for graph size" )
+	if( acf  == TRUE ) 
+	    acf(  sample_mcmc, main = "ACF for graph size" )
+	
+	if( pacf == TRUE ) 
+	    pacf( sample_mcmc, main = "PACF for graph size" )
 	
 	graphics::par( op )
 }  

@@ -9,7 +9,7 @@
 \usage{
 bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE, 
              algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
-             g.prior = 0.5, g.start = "empty", 
+             g.prior = 0.2, g.start = "empty", 
              jump = NULL, alpha = 0.5, save = FALSE, 
              cores = NULL, operator = "or", verbose = TRUE )
 }

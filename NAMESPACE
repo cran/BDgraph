@@ -43,6 +43,9 @@ export( bdgraph,
 		summary.bdgraph,
 		plot.bdgraph, 
 		print.bdgraph, 
+		predict.bdgraph,
+		
+		posterior.predict,
 
 		plot.graph, 
 
@@ -71,6 +74,7 @@ export( bdgraph,
 S3method( "summary", "bdgraph" )
 S3method( "plot"   , "bdgraph" )
 S3method( "print"  , "bdgraph" )
+S3method( "predict", "bdgraph" )
 
 S3method( "plot" , "sim" )
 S3method( "print", "sim" )
