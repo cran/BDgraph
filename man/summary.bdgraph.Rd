@@ -5,7 +5,7 @@
 \title{ Summary function for \code{S3} class "\code{bdgraph}" }
 
 \description{
-Provides a summary of the results for function \code{\link{bdgraph}}.  
+Provides a summary of the results for function \code{\link[BDgraph]{bdgraph}}.  
 }
 
 \usage{
@@ -13,7 +13,7 @@ Provides a summary of the results for function \code{\link{bdgraph}}.
 }
 
 \arguments{
-  \item{object}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. }
+  \item{object}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. }
   \item{round}{ value for rounding all probabilities to the specified number of decimal places. }
   \item{vis}{ visualize the results. }
 
@@ -32,7 +32,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

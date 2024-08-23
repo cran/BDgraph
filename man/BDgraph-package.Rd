@@ -43,7 +43,7 @@
 \title{ Bayesian Structure Learning in Graphical Models }
 
 \description{
-The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, ordinal/count/dicrete, binary, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models' literature, including Mohammadi and Wit (2015), Mohammadi et al. (2021), Mohammadi et al. (2017), and Dobra and Mohammadi (2018). To speed up the computations, the intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}. Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature.
+The \code{R} package \pkg{BDgraph} provides statistical tools for Bayesian structure learning in undirected graphical models for continuous, ordinal/count/dicrete, binary, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models' literature, including Mohammadi and Wit (2015), Mohammadi et al. (2023), Mohammadi et al. (2017), and Dobra and Mohammadi (2018). To speed up the computations, the intensive tasks of the package are implemented in parallel using \pkg{OpenMP} in \code{C++} and interfaced with \code{R}. Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature.
 }
 
 \section{How to cite this package}{
@@ -64,11 +64,15 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 
-Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
 
 Mohammadi, A., et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645, \doi{10.1111/rssc.12171} 
 
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845, \doi{10.1214/18-AOAS1164}
+
+Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2023) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.02603}
+
+Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Large-scale Bayesian Structure Learning for Gaussian Graphical Models using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
 
 Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learning of microbiota systems from count metagenomic data, \emph{arXiv preprint}, \doi{10.48550/arXiv.2203.10118}
 
@@ -83,7 +87,7 @@ Lenkoski, A. (2013). A direct sampler for G-Wishart variates, \emph{Stat}, 2(1):
 Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov network structures, \emph{Bayesian Analysis}, 12(4):1195-215, \doi{10.1214/16-BA1032}
 }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.dw}}, \code{\link{bdgraph.sim}}, \code{\link{compare}}, \code{\link{rgwish}} }
+\seealso{ \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{bdgraph.dw}}, \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{compare}}, \code{\link[BDgraph]{rgwish}} }
 
 \examples{
 \dontrun{

@@ -2,6 +2,10 @@
 
 ## **BDgraph** NEWS <a href='https://CRAN.R-project.org/package=BDgraph'><img src='man/figures/logo.png' align="right" height="170" /></a>
 
+### **BDgraph** Version 2.73
+
+* Function `mse()` is added to the package.
+
 ### **BDgraph** Version 2.72
 
 * Function `predict.bdgraph()` is added to the package.

@@ -3,15 +3,15 @@
 
 \title{ Compute the sparsity of a graph }
 
-\description{ Compute the sparsity of a graph/network or an object of calss \code{"graph"} from function \code{\link{graph.sim}} or an object of calss "\code{sim}" from function \code{\link{bdgraph.sim}}. }
+\description{ Compute the sparsity of a graph/network or an object of calss \code{"graph"} from function \code{\link[BDgraph]{graph.sim}} or an object of calss "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}. }
 
 \usage{ sparsity( adj ) }
 
 \arguments{
   \item{adj}{     
   adjacency matrix corresponding to a graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
-	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}.
     }
 }
 
@@ -23,7 +23,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{graph.sim}}, \code{\link{adj2link}}, \code{\link{link2adj}} }
+\seealso{ \code{\link[BDgraph]{graph.sim}}, \code{\link[BDgraph]{adj2link}}, \code{\link[BDgraph]{link2adj}} }
 
 \examples{
 # Generating a 'random' graph 

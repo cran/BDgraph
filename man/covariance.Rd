@@ -10,7 +10,7 @@ Provides the estimated covariance matrix.
 \usage{ covariance( bdgraph.obj, round = 2 ) }
 
 \arguments{
-  \item{bdgraph.obj}{object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. 
+  \item{bdgraph.obj}{object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
 					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
   }
 
@@ -24,12 +24,12 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 
-Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{\code{\link{bdgraph}}, \code{\link{precision}}, \code{\link{plinks}}}
+\seealso{\code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{precision}}, \code{\link[BDgraph]{plinks}}}
 
 \examples{
 \dontrun{

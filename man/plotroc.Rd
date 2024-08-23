@@ -4,7 +4,7 @@
 \title{ ROC plot }
 
 \description{
-Draws the receiver operating characteristic (ROC) curve according to the true graph structure for object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}.
+Draws the receiver operating characteristic (ROC) curve according to the true graph structure for object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}.
 }
 
 \usage{ 
@@ -19,7 +19,7 @@ plotroc( pred, actual, cut = 200, smooth = FALSE, calibrate = TRUE,
 
   \item{pred}{
         upper triangular matrix corresponding to the estimated posterior probabilities for all possible links.
-        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
+        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link[BDgraph]{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
         It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
         Options \code{est2, est3} and \code{est4} are for comparing two or more different approaches.
@@ -27,8 +27,8 @@ plotroc( pred, actual, cut = 200, smooth = FALSE, calibrate = TRUE,
 
   \item{actual}{
     adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
-	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.
   }
   
 
@@ -54,12 +54,12 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 
-Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}; Lucas Vogels \email{l.f.o.vogels@uva.nl} }
 
-\seealso{ \code{\link{roc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
+\seealso{ \code{\link[BDgraph]{roc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{compare}} }
 
 \examples{
 \dontrun{

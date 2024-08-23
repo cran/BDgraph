@@ -223,49 +223,39 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
 			d = d - 1
 		}
 		
-		if( ( type == "dweibull" ) |( type == "dw" ) )
+		if((type == "dweibull") | (type == "dw"))
 		{
-            if( length( q    ) == 1 ) q    = rep( q   , time = p ) 
-            if( length( beta ) == 1 ) beta = rep( beta, time = p )
+            if(length(q   ) == 1) q    = rep(q   , time = p) 
+            if(length(beta) == 1) beta = rep(beta, time = p)
 		  
             # q & beta can be a vector of length p (one for each Y variable)
-            if( is.vector( q    ) && ( length( q    ) != p ) ) stop( "'q', as a vector, has non-conforming size with 'p'"    )
-            if( is.vector( beta ) && ( length( beta ) != p ) ) stop( "'beta', as a vector, has non-conforming size with 'p'" )
+            if(is.vector(q   ) && (length(q   ) != p)) stop("'q', as a vector, has non-conforming size with 'p'"   )
+            if(is.vector(beta) && (length(beta) != p)) stop("'beta', as a vector, has non-conforming size with 'p'")
             
             # or an n x p matrix (in the case of covariates)
-            if( is.matrix( q    ) && any( dim( q    ) != c( n, p ) ) ) stop( "'q', as a matrix, has non-conforming size with 'n' and 'p'" )
-            if( is.matrix( beta ) && any( dim( beta ) != c( n, p ) ) ) stop( "'beta', as a matrix, has non-conforming size with 'n' and 'p'" )
+            if(is.matrix(q   ) && any(dim( q   ) != c(n, p))) stop("'q', as a matrix, has non-conforming size with 'n' and 'p'")
+            if(is.matrix(beta) && any(dim( beta) != c(n, p))) stop("'beta', as a matrix, has non-conforming size with 'n' and 'p'")
             
-            not.cont[ 1:p ] = 1
+            not.cont[1:p] = 1
             
-            Y_data <- matrix( c( 0, 1 ), nrow = n, ncol = p )
+            Y_data <- matrix(c(0, 1), nrow = n, ncol = p)
+
+            # To detect binary variables
+            # while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE ) {  
             
-            # detect binary variables
-            while( any( apply( Y_data, 2, function( x ) { all( x %in% 0:1 ) } ) ) == TRUE )  
-            {  
-                d = matrix( 0, nrow = n, ncol = p )
-                Z = tmvtnorm::rtmvnorm( n = n, mean = rep( mean, p ), 
-                                       sigma = sigma, lower = rep( -5, length = p ), 
-                                       upper = rep( 5, length = p ) )
-                
-                pnorm_Z = stats::pnorm( Z )
-                
-                if( is.matrix( q ) && is.matrix( beta ) )
-                {
-                    for( j in 1 : p ) 
-                        Y_data[ ,j ] = BDgraph::qdweibull( pnorm_Z[ , j ], q = q[ , j ], beta = beta[ , j ], zero = TRUE )
-                }
-                
-                if( is.vector( q ) && is.vector( beta ) )
-                {
-                    for( j in 1 : p ) 
-                        Y_data[ , j ] = BDgraph::qdweibull( pnorm_Z[ , j ],  q = q[ j ], beta = beta[ j ], zero = TRUE )		    
-                }
-                
-                if( any( apply( Y_data, 2, function( x ) { all( x %in% 0 : 1 ) } ) ) )
-                    cat( " Some of the variables are binary \n" )
-            }
+            Z = tmvtnorm::rtmvnorm(n = n, mean = rep(mean, p), sigma = sigma, lower = rep(-5, length = p), upper = rep(5, length = p))
+            pnorm_Z = stats::pnorm(Z)
             
+            if(is.matrix(q) && is.matrix(beta)) 
+                for(j in 1:p) 
+                    Y_data[, j] = BDgraph::qdweibull(pnorm_Z[, j], q = q[, j], beta = beta[, j], zero = TRUE)
+            
+            if(is.vector(q) && is.vector(beta)) 
+                for(j in 1:p) 
+                    Y_data[, j] = BDgraph::qdweibull( pnorm_Z[, j],  q = q[j], beta = beta[j], zero = TRUE)		    
+            
+            if( any( apply( Y_data, 2, function( x ) { all( x %in% 0 : 1 ) } ) ) ) cat( " Some of the variables are binary \n" )
+                        
             d = Y_data
         }
 		

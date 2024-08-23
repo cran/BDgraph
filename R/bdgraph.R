@@ -44,7 +44,7 @@ bdgraph = function( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter =
     colnames_data = list_S_n_p $ colnames_data
     
     if( ( is.null( cores ) ) & ( p < 16 ) ) 
-        cours = 1
+        cores = 1
         
     cores = BDgraph::get_cores( cores = cores, verbose = verbose )
     
@@ -486,7 +486,7 @@ plot.bdgraph = function( x, cut = 0.5, number.g = NULL,
 {
  	if( is.null( number.g ) )
 	{
- 	    sub = paste0( "Edge posterior probability = ", cut )
+ 	    sub = paste0( "Edge posterior probability > ", cut )
  	    
 	    BDgraph::plot.graph( x, cut = cut, sub = sub, 
 	                         main = main, 

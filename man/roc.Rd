@@ -18,18 +18,18 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
 \arguments{
     \item{pred  }{
         adjacency matrix (or a vector) corresponding to an estimated graph. 
-        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
+        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link[BDgraph]{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
-        It can be a \code{\link{numeric}} or \code{\link{ordered}} vector of the same length than \code{actual}, containing the predicted
+        It can be a \code{numeric} or \code{ordered} vector of the same length than \code{actual}, containing the predicted
   value of each observation.
     }
     
     \item{actual}{ adjacency matrix (or a vector) corresponding to the actual graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
-	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.
 	It can be a factor, numeric or character vector of responses (true class), typically encoded with 0 (controls) and 1 (cases).
     Only two classes can be used in a ROC curve. }
- \item{smooth}{if TRUE, the ROC curve is passed to \code{\link{smooth}}
+ \item{smooth}{if TRUE, the ROC curve is passed to \code{\link[stats]{smooth}}
     to be smoothed.
   }
   \item{auc}{compute the area under the curve (AUC)? If \code{TRUE}
@@ -40,7 +40,7 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
     arguments can be passed to \code{\link[pROC:plot.roc]{pROC::plot.roc()}}.
   }
   
-  \item{quiet}{if \code{TRUE}, turn off \code{\link{message}}s when \code{direction} and \code{levels} are auto-detected.
+  \item{quiet}{if \code{TRUE}, turn off \code{message}s when \code{direction} and \code{levels} are auto-detected.
   }
   \item{\dots}{ further arguments to be passed to \code{\link[pROC:roc]{pROC::roc()}}. }
 }
@@ -56,14 +56,14 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
     defined in \code{\link[pROC:ci]{pROC::ci()}}.
   }
   \item{response}{the response vector. Patients whose response is not
-    \code{\link{\%in\%}} \code{levels} are discarded. If \code{NA} values
+    \code{\%in\%} \code{levels} are discarded. If \code{NA} values
     were removed, a \code{na.action} attribute similar
-    to \code{\link{na.omit}} stores the row numbers. 
+    to \code{\link[stats]{na.omit}} stores the row numbers. 
   }
   \item{predictor}{predictor vector converted to numeric as used to build the ROC
-    curve. Patients whose response is not \code{\link{\%in\%}} \code{levels} are discarded. If
+    curve. Patients whose response is not \code{\%in\%} \code{levels} are discarded. If
     \code{NA} values were removed, a \code{na.action} attribute similar
-    to \code{\link{na.omit}} stores the row numbers.
+    to \code{\link[stats]{na.omit}} stores the row numbers.
   }
   \item{original.predictor, original.response}{response and predictor vectors as passed in argument.}
   \item{levels}{levels of the response as defined in argument.}
@@ -80,7 +80,7 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
   \item{thresholds}{thresholds at which the sensitivities and
     specificities were computed. See below for details.
   }
-  \item{call}{how the function was called. See \code{\link{match.call}} for
+  \item{call}{how the function was called. See function \code{match.call} for
     more details.
   }
 
@@ -101,7 +101,7 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
 
 \author{Reza Mohammadi \email{a.mohammadi@uva.nl}; Lucas Vogels \email{l.f.o.vogels@uva.nl}}
 
-\seealso{ \code{\link{plotroc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[pROC:print.roc]{pROC::print.roc()}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
+\seealso{ \code{\link[BDgraph]{plotroc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[pROC:print.roc]{pROC::print.roc()}}, \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{compare}} }
 
 \examples{
 \dontrun{

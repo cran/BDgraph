@@ -3,13 +3,13 @@
 
 \title{ Plot function for \code{S3} class "\code{sim}" }
 
-\description{ Visualizes structure of the simulated graph for an object of \code{S3} class "\code{sim}", from function \code{\link{bdgraph.sim}}. }
+\description{ Visualizes structure of the simulated graph for an object of \code{S3} class "\code{sim}", from function \code{\link[BDgraph]{bdgraph.sim}}. }
 \usage{
 \method{plot}{sim}( x, ... )
 }
 
 \arguments{
-  \item{x}{ object of \code{S3} class "\code{sim}", from function \code{\link{bdgraph.sim}}.  }
+  \item{x}{ object of \code{S3} class "\code{sim}", from function \code{\link[BDgraph]{bdgraph.sim}}.  }
   
   \item{\dots}{ additional plotting parameters. See \code{\link[BDgraph]{plot.graph}} and for the complete list \code{\link[igraph]{igraph.plotting}} of \code{R} package \code{igraph}. }
 }
@@ -19,7 +19,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph.sim}}, \code{\link{plot.graph}}, \code{\link{plot.igraph}} }
+\seealso{ \code{\link[BDgraph]{graph.sim}}, \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{plot.graph}}, \code{\link[igraph]{plot.igraph}} }
 
 \examples{
 set.seed( 10 )

@@ -15,9 +15,9 @@ Note this fuction works for both non-decomposable and decomposable graphs.
   \item{adj}{
     adjacency matrix corresponding to the graph structure which can be non-decomposable or decomposable. It should be an upper triangular matrix in which \eqn{a_{ij}=1} 
     if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-    \code{adj} could be an object of class \code{"graph"}, from function \code{\link{graph.sim}}.
-    It also could be an object of class "\code{sim}", from function \code{\link{bdgraph.sim}}.
-    It also could be an object of class "\code{bdgraph}", from functions \code{\link{bdgraph.mpl}} or \code{\link{bdgraph}}.
+    \code{adj} could be an object of class \code{"graph"}, from function \code{\link[BDgraph]{graph.sim}}.
+    It also could be an object of class "\code{sim}", from function \code{\link[BDgraph]{bdgraph.sim}}.
+    It also could be an object of class "\code{bdgraph}", from functions \code{\link[BDgraph]{bdgraph.mpl}} or \code{\link[BDgraph]{bdgraph}}.
     }
   \item{b}{degree of freedom for G-Wishart distribution, \eqn{W_G(b, D)}. }
   \item{D}{positive definite \eqn{(p \times p)} "scale" matrix for G-Wishart distribution, \eqn{W_G(b, D)}. 
@@ -49,7 +49,7 @@ Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gauss
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{gnorm}}, \code{\link{rwish}} }
+\seealso{ \code{\link[BDgraph]{gnorm}}, \code{\link[BDgraph]{rwish}} }
 
 \examples{
 # Generating a 'circle' graph as a non-decomposable graph

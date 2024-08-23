@@ -3,8 +3,8 @@
 
 \title{ Extract links from an adjacency matrix }
 
-\description{ Extract links from an adjacency matrix or an object of calsses "\code{sim}" from function \code{\link{bdgraph.sim}} and
- \code{"graph"} from function \code{\link{graph.sim}}.}
+\description{ Extract links from an adjacency matrix or an object of calsses "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}} and
+ \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.}
 
 \usage{ link2adj( link, p = NULL ) }
 
@@ -21,7 +21,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{adj2link}}, \code{\link{graph.sim}} }
+\seealso{ \code{\link[BDgraph]{adj2link}}, \code{\link[BDgraph]{graph.sim}} }
 
 \examples{
 # Generating a 'random' graph 

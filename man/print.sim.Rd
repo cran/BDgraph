@@ -8,7 +8,7 @@
 \usage{ \method{print}{sim}( x, ... ) }
 
 \arguments{
-  \item{x}{ object of \code{S3} class "\code{sim}", from function \code{\link{bdgraph.sim}}.  }
+  \item{x}{ object of \code{S3} class "\code{sim}", from function \code{\link[BDgraph]{bdgraph.sim}}.  }
   \item{\dots}{ system reserved (no specific usage). }
 }
 
@@ -18,7 +18,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph.sim}} }
+\seealso{ \code{\link[BDgraph]{graph.sim}}, \code{\link[BDgraph]{bdgraph.sim}} }
 
 \examples{
 # Generating multivariate normal data from a 'random' graph 

@@ -1,5 +1,5 @@
 ## - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-#     Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+#     Copyright (C) 2012 - 2024  Reza Mohammadi                                |
 #                                                                              |
 #     This file is part of BDgraph package.                                    |
 #                                                                              |
@@ -17,7 +17,7 @@ get_bounds_dw = function( data, q, beta, pii, n, p, zero = TRUE )
     lower_bounds = matrix( 0, nrow = n, ncol = p )
     upper_bounds = matrix( 0, nrow = n, ncol = p )
     
-    if( is.vector( beta ) )
+    if( is.vector(beta) & is.vector(pii))
     {
         for ( j in 1:p ) 
         {   
@@ -34,19 +34,36 @@ get_bounds_dw = function( data, q, beta, pii, n, p, zero = TRUE )
         }
     }
     
-    if( is.matrix( beta ) )
+    if(is.matrix(beta) & is.vector(pii))
     {
-        for ( j in 1:p ) 
+        for(j in 1:p) 
         {   
-            for( r in sort( unique( data[ , j ] ) ) )
+            for(r in sort(unique(data[, j])))
             {
-                ir = ( 1:n )[ data[ , j ] == r & !is.na( data[ , j ] ) ]
+                ir = (1:n)[data[, j] == r & !is.na(data[, j])]
 
-                pdw_lb = BDgraph::pdweibull( r - 1, q = q[ ir, j ], beta = beta[ ir, j ], zero = zero )
-                pdw_ub = BDgraph::pdweibull( r    , q = q[ ir, j ], beta = beta[ ir, j ], zero = zero )
+                pdw_lb = BDgraph::pdweibull(r - 1, q = q[ir, j], beta = beta[ir, j], zero = zero)
+                pdw_ub = BDgraph::pdweibull(r    , q = q[ir, j], beta = beta[ir, j], zero = zero)
                 
-                lower_bounds[ ir, j ] = stats::qnorm( ( 1 - pii[ j ] ) * ( r != 0 ) + pii[ j ] * pdw_lb )
-                upper_bounds[ ir, j ] = stats::qnorm( ( 1 - pii[ j ] ) + pii[ j ] * pdw_ub )
+                lower_bounds[ir, j] = stats::qnorm((1 - pii[j]) * (r != 0) + pii[j] * pdw_lb)
+                upper_bounds[ir, j] = stats::qnorm((1 - pii[j]) + pii[j] * pdw_ub)
+            }
+        }
+    }
+    
+    if(is.matrix(beta) & is.matrix(pii)) 
+    {
+        for(j in 1:p)
+        {
+            for(r in sort(unique(data[, j])))
+            {
+                ir = (1:n)[data[, j] == r & !is.na(data[, j])]
+                
+                pdw_lb = BDgraph::pdweibull(r - 1, q = q[ir, j], beta = beta[ir, j], zero = zero)
+                pdw_ub = BDgraph::pdweibull(r    , q = q[ir, j], beta = beta[ir, j], zero = zero)
+                
+                lower_bounds[ir, j] = stats::qnorm((1 - pii[ir, j]) * (r != 0) + pii[ir, j] * pdw_lb)
+                upper_bounds[ir, j] = stats::qnorm((1 - pii[ir, j]) + pii[ir, j] * pdw_ub)
             }
         }
     }
@@ -99,7 +116,7 @@ bdgraph.dw = function( data, x = NULL, formula = y ~ .,
     colnames_data = list_S_n_p $ colnames_data
 
     if( ( is.null( cores ) ) & ( p < 16 ) ) 
-        cours = 1
+        cores = 1
         
     cores = BDgraph::get_cores( cores = cores, verbose = verbose )
 

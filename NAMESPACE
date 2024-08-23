@@ -21,6 +21,7 @@ export( bdgraph,
 		bdgraph.sim,
 		bdgraph.npn,
 		compare,
+		mse,
 
 		plotcoda,
 		traceplot,

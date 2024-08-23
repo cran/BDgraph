@@ -35,7 +35,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Alexander Christensen }
 
-\seealso{ \code{\link{bdgraph.sim}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}} }
 
 \examples{
 # Generating a 'hub' graph 

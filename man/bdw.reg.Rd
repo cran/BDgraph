@@ -17,20 +17,20 @@ bdw.reg( data, formula = NA, iter = 5000, burnin = NULL,
 \arguments{
 	\item{data}{\code{data.frame} or \code{matrix} corresponding to the data, containing the variables in the model.}
 
-	\item{formula}{ object of class \link{formula} as a symbolic description of the model to be fitted. For the case of \code{data.frame}, it is taken as the model frame (see \code{\link{model.frame})}.}
+	\item{formula}{ object of class \link[stats]{formula} as a symbolic description of the model to be fitted. For the case of \code{data.frame}, it is taken as the model frame (see \code{\link[stats]{model.frame})}.}
 
 	\item{iter}{ number of iterations for the sampling algorithm.}
 	\item{burnin}{number of burn-in iterations for the sampling algorithm.}
 
   \item{dist.q}{ Prior density for the regression coefficients associated to the parameter \code{q}. The default is a Normal distribution (\code{dnorm}). 
-  Any density function which has two parameters and can support the \code{log = TRUE} flag can be used, e.g. \code{\link{dnorm}}, \code{\link{dlnorm}}, \code{\link{dunif}} etc. 
+  Any density function which has two parameters and can support the \code{log = TRUE} flag can be used, e.g. \code{\link[stats]{dnorm}}, \code{\link[stats]{dlnorm}}, \code{\link[stats]{dunif}} etc. 
 }
-  \item{dist.beta}{ Prior density for the regression coefficients associated to the parameter \code{beta}. The default is a Normal distribution (\code{\link{dnorm}}). 
-  Any density function which has two parameters and can support the \code{log = TRUE} flag can be used, e.g. \code{\link{dnorm}}, \code{\link{dlnorm}}, \code{\link{dunif}} etc. 
+  \item{dist.beta}{ Prior density for the regression coefficients associated to the parameter \code{beta}. The default is a Normal distribution (\code{\link[stats]{dnorm}}). 
+  Any density function which has two parameters and can support the \code{log = TRUE} flag can be used, e.g. \code{\link[stats]{dnorm}}, \code{\link[stats]{dlnorm}}, \code{\link[stats]{dunif}} etc. 
 }
   \item{par.q}{ vector of length two corresponding to the parameters of \code{dist.q}. }
   \item{par.beta}{ vector of length two corresponding to the parameters of \code{dist.beta}. }
-  \item{par.pi}{ vector of length two corresponding to the parameters of the \code{\link{beta}} prior density on \code{pi}. }
+  \item{par.pi}{ vector of length two corresponding to the parameters of the \code{beta} prior density on \code{pi}. }
 
   \item{initial.q, initial.beta, initial.pi}{ vector of initial values for the regression coefficients and for \code{pi} (if \code{ZI} = \code{TRUE}). }
 
@@ -54,11 +54,11 @@ DW(y) = q^y^\beta - q^(y+1)^\beta, y = 0, 1, 2, \ldots
 
 For the case of zero inflation (\code{ZI} = \code{TRUE}), a zero-inflated DW is considered:
 \deqn{
-f(y) = ( 1 - pi) I(y = 0 ) + pi DW(y)
+f(y) = (1 - pi) I(y = 0) + pi DW(y)
 }{
-f(y) = ( 1 - pi )  I(y = 0 ) + pi DW(y)
+f(y) = (1 - pi)  I(y = 0) + pi DW(y)
 }
-where \eqn{0 \leq pi \leq 1} and \eqn{I(y = 0 )} is an indicator for the point mass at zero for the response \code{y}. 
+where \eqn{0 \leq pi \leq 1} and \eqn{I(y = 0)} is an indicator for the point mass at zero for the response \code{y}. 
 }
 
 \value{
@@ -79,7 +79,7 @@ Haselimashhadi, H., Vinciotti, V. and Yu, K. (2018) A novel Bayesian regression 
 
 \author{ Veronica Vinciotti, Reza Mohammadi \email{a.mohammadi@uva.nl}, and Pariya Behrouzi }
 
-\seealso{ \code{\link{bdgraph.dw}}, \link{bdgraph}, \link{ddweibull}, \code{\link{bdgraph.sim}} }
+\seealso{ \code{\link[BDgraph]{bdgraph.dw}}, \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{ddweibull}}, \code{\link[BDgraph]{bdgraph.sim}} }
 
 \examples{
 \dontrun{
@@ -165,7 +165,7 @@ y    = z * y_dw
 
 data = data.frame( x1, x2, y ) 
 
-output = bdw.reg( data, y ~. , iter = 5000 )
+output = bdw.reg( data, y ~. , iter = 5000, ZI = TRUE )
 }	  
 }
 

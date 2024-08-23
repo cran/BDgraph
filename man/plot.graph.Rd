@@ -12,7 +12,7 @@
 }
 
 \arguments{
-  \item{x}{   object of \code{S3} class \code{"graph"}, from function \code{\link{graph.sim}}.  }
+  \item{x}{   object of \code{S3} class \code{"graph"}, from function \code{\link[BDgraph]{graph.sim}}.  }
   \item{cut}{ for the case where input '\code{x}' is the object of class "bdgraph" or "ssgraph". Threshold for including the links in the selected graph based on the estimated posterior probabilities of the links. } 
   
   \item{mode}{ type of graph which is according to \code{R} package \code{\link[igraph]{igraph}}.}
@@ -38,7 +38,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{ \code{\link{graph.sim}}, \code{\link{bdgraph.sim}}, \code{\link{plot.igraph}} }
+\seealso{ \code{\link[BDgraph]{graph.sim}}, \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[igraph]{plot.igraph}} }
 
 \examples{
 # Generating a 'scale-free' graph 

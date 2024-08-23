@@ -12,7 +12,7 @@ It provides adjacency matrix, size and posterior probability of the selected gra
 \usage{\method{print}{bdgraph}( x, ... )}
 
 \arguments{
-  \item{x}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. }
+  \item{x}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. }
   \item{\dots}{ system reserved (no specific usage). }
 }
 
@@ -22,7 +22,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

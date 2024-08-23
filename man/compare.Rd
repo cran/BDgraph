@@ -10,7 +10,7 @@
 \arguments{
   \item{pred}{
         adjacency matrix corresponding to an estimated graph. 
-        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
+        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link[BDgraph]{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
         It can be an object of \code{S3} class \code{"select"}, from the function \code{\link[huge]{huge.select}} of \code{R} package \code{\link[huge]{huge}}.
         It also can be a \code{list} of above objects for comparing two or more different approaches.
@@ -18,8 +18,8 @@
 
   \item{actual}{
     adjacency matrix corresponding to the true graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
-	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.
 	}
  
   \item{main}{ character vector giving the names for the result table. }
@@ -43,7 +43,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{Reza Mohammadi \email{a.mohammadi@uva.nl}, Antonio Abbruzzo, and Ivan Vujacic}
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}}, \code{\link{plotroc}} }
+\seealso{ \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{plotroc}} }
 
 \examples{
 \dontrun{

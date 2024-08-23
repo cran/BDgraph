@@ -18,12 +18,12 @@ bdgraph.dw( data, x = NULL, formula = y ~ .,
 
 \arguments{
     \item{data}{
-	    (\eqn{n \times p}) \code{matrix} or a \code{data.frame} corresponding to the data on the \code{p} nodes of the graph. It can also be an object of class "\code{sim}", from the function \code{\link{bdgraph.sim}}.
+	    (\eqn{n \times p}) \code{matrix} or a \code{data.frame} corresponding to the data on the \code{p} nodes of the graph. It can also be an object of class "\code{sim}", from the function \code{\link[BDgraph]{bdgraph.sim}}.
 	    }
 
 	\item{x}{ (\eqn{n \times k}) \code{matrix} or a \code{data.frame} corresponding to the predictors. }
 
-	\item{formula}{ object of class \link{formula} as a symbolic description of the model for linking each node to the predictors. For the case of \code{data.frame}, it is taken as the model frame (see \code{\link{model.frame})}.}
+	\item{formula}{ object of class \link[stats]{formula} as a symbolic description of the model for linking each node to the predictors. For the case of \code{data.frame}, it is taken as the model frame (see \code{\link[stats]{model.frame}}).}
 
 \item{n}{number of observations. It is needed if the "\code{data}" is a covariance matrix.}
 	  
@@ -47,7 +47,7 @@ bdgraph.dw( data, x = NULL, formula = y ~ .,
 
   \item{ZI}{logical. If FALSE (default), the conditional distribution of each response variable is assumed to be Discrete Weibull given the predictors \code{x}. If TRUE, a zero-inflated model will be applied to each response. \code{ZI} can be passed also as a vector, in order to specify which of the (\code{p} variables) should be fitted with zero-inflation (TRUE) or not (FALSE).
 	}
-	\item{iter_bdw}{number of iterations for the sampling algorithm to estimate the regression parameters for the Discrete Weibull distribution. It is passed to                     the \code{\link{bdw.reg}} function. }
+	\item{iter_bdw}{number of iterations for the sampling algorithm to estimate the regression parameters for the Discrete Weibull distribution. It is passed to                     the \code{\link[BDgraph]{bdw.reg}} function. }
 
 	\item{g.start}{
 		corresponds to a starting point of the graph. It could be an (\eqn{p \times p}) matrix, "\code{empty}" (default), or "\code{full}". 
@@ -65,9 +65,9 @@ bdgraph.dw( data, x = NULL, formula = y ~ .,
 		If TRUE, the adjacency matrices  after burn-in are saved.
 	}
 	
-    \item{q, beta}{ parameters of the discrete Weibull distribution used for the marginals. They should be given either as a (\eqn{n \times p}) \code{matrix} (if covariates are present) or as a vector (if covariates are not present). If NULL (default), these parameters are estimated by the \code{\link{bdw.reg}} function.}
+    \item{q, beta}{ parameters of the discrete Weibull distribution used for the marginals. They should be given either as a (\eqn{n \times p}) \code{matrix} (if covariates are present) or as a vector (if covariates are not present). If NULL (default), these parameters are estimated by the \code{\link[BDgraph]{bdw.reg}} function.}
           
-    \item{pii}{ vector of zero-inflation parameters of the zero-inflated discrete Weibull distributions used for the marginals. If NULL (default), this parameter is estimated by the \code{\link{bdw.reg}} function when \code{ZI = TRUE}. }
+    \item{pii}{ vector or matrix of zero-inflation parameters of the zero-inflated discrete Weibull distributions used for the marginals. If NULL (default), this parameter is estimated by the \code{\link[BDgraph]{bdw.reg}} function when \code{ZI = TRUE}. }
 
 	\item{cores}{ number of cores to use for parallel execution. 
 	   The case \code{cores} = "\code{all}" means all CPU cores to use for parallel execution. 
@@ -111,12 +111,12 @@ Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gauss
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645, \doi{10.1111/rssc.12171}
 
-Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
+Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2021.1996377} 
 }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Veronica Vinciotti, and Pariya Behrouzi }
 
-\seealso{ \code{\link{bdgraph}}, \link{bdgraph.mpl}, \link{bdw.reg}, \code{\link{bdgraph.sim}}, \code{\link{summary.bdgraph}}, \code{\link{compare}} }
+\seealso{ \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{bdw.reg}}, \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{summary.bdgraph}}, \code{\link[BDgraph]{compare}} }
 
 \examples{
 \dontrun{

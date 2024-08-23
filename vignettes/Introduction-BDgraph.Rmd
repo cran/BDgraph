@@ -26,7 +26,7 @@ knitr::opts_chunk $ set( collapse = TRUE, comment = " ", fig.width = 7, fig.heig
 
 This introduction to the `R` package **BDgraph** is a modified version of [Mohammadi and Wit (2019)](https://www.jstatsoft.org/article/view/v089i03), published in the Journal of Statistical Software.
 
-The `R` package **BDgraph** provides statistical tools for Bayesian structure learning for undirected graphical models with *continuous*, *count*, *binary*, and *mixed data*. The package is implemented the recent improvements in the Bayesian graphical models' literature, including [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi et al. (2017)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171), [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478), and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature. 
+The `R` package **BDgraph** provides statistical tools for Bayesian structure learning for undirected graphical models with *continuous*, *count*, *binary*, and *mixed data*. The package is implemented the recent improvements in the Bayesian graphical models' literature, including [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), [Mohammadi et al. (2023)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi et al. (2017)](https://doi.org/10.1111/rssc.12171), [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478), [Mohammadi et al. (2023)](https://arxiv.org/abs/2307.00127), and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature. 
 
 # User interface
 
@@ -52,12 +52,12 @@ knitr::include_graphics( "Figure_1.png" )
 **Module 2. Methods:** The function `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()`  provide several estimation methods regarding to the type of data:
 
 * Bayesian graph estimation for the multivariate data that follow the Gaussianity assumption, based on the Gaussian graphical models (GGMs); see [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425).
-* Bayesian graph estimation for multivariate non-Gaussian, discrete, and mixed data, based on Gaussian copula graphical models (GCGMs); see [Mohammadi et al. (2017)](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171) and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). 
+* Bayesian graph estimation for multivariate non-Gaussian, discrete, and mixed data, based on Gaussian copula graphical models (GCGMs); see [Mohammadi et al. (2017)](https://doi.org/10.1111/rssc.12171) and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). 
 * Bayesian graph estimation for multivariate discrete and binary data, based on discrete graphical models (DGMs); see [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478).  
 
-**Module 3. Algorithms:**  The function `bdgraph()` and `bdgraph.mpl()` provide several sampling algorithms:
+**Module 3. Algorithms:**  The functions `bdgraph()`, `bdgraph.mpl()`, and `bdgraph.dw()` provide several sampling algorithms:
 
-* Birth-death MCMC (BDMCMC) sampling algorithms described in [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) and [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425).
+* Birth-death MCMC (BDMCMC) sampling algorithms described in [Mohammadi et al. (2023)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), and [Mohammadi et al. (2023)](https://arxiv.org/abs/2307.00127).
 * Reversible jump MCMC (RJMCMC) sampling algorithms described in [Dobra et al. (2011)](https://doi.org/10.1198/jasa.2011.tm10465). 
 * Hill-climbing (HC) search algorithm described in [Pensar et al. (2017)](https://doi.org/10.1214/16-ba1032).  
 
@@ -74,7 +74,7 @@ The **BDgraph** package provides a set of comprehensive tools related to Bayesia
 
 ## Posterior sampling
 
-We design the function `bdgraph()`, as the main function of the package, to take samples from the posterior distributions based on both of our Bayesian frameworks (GGMs and GCGMs). By default, the `bdgraph()` function is based on underlying sampling algorithm defined in [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377). Moreover, as an alternative to those BDMCMC sampling algorithms, we implement RJMCMC sampling algorithms for both the Gaussian and non-Gaussian frameworks. By using the following function
+We design the function `bdgraph()`, as the main function of the package, to take samples from the posterior distributions based on both of our Bayesian frameworks (GGMs and GCGMs). By default, the `bdgraph()` function is based on underlying sampling algorithm defined in [Mohammadi et al. (2023)](https://doi.org/10.1080/01621459.2021.1996377). Moreover, as an alternative to those BDMCMC sampling algorithms, we implement RJMCMC sampling algorithms for both the Gaussian and non-Gaussian frameworks. By using the following function
 ```{r eval = FALSE}
 bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
          burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3, 
@@ -94,7 +94,7 @@ The argument `jump` determines the number of links that are simultaneously updat
 
 For parallel computation in `C++` which is based on  **OpenMP**, user can use argument `cores` which specifies the number of cores to use for parallel execution. 
 
-Note, the package **BDgraph** has two other sampling functions, `bdgraph.mpl()` and `bdgraph.dwl()` which are designed in the similar framework as the function `bdgraph()`. The function `bdgraph.mpl()` is for Bayesian model determination in undirected graphical models based on marginal pseudo-likelihood, for both continuous and discrete variables; For more details see \cite{dobra2018}. The function `bdgraph.dwl()` is for Bayesian model determination for count data; See [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). 
+Note, the package **BDgraph** has two other sampling functions, `bdgraph.mpl()` and `bdgraph.dwl()` which are designed in the similar framework as the function `bdgraph()`. The function `bdgraph.mpl()` is for Bayesian model determination in undirected graphical models based on marginal pseudo-likelihood, for both continuous and discrete variables; For more details see [Mohammadi et al. (2023)](https://arxiv.org/abs/2307.00127) and [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478). The function `bdgraph.dwl()` is for Bayesian model determination for count data; See [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). 
 
 ##  Posterior graph selection 
 
@@ -223,7 +223,7 @@ We can also compare the performance of those algorithms by using the `compare()`
 compare( list( sample.bdmcmc, sample.rjmcmc ), data.sim, 
           main = c( "True graph", "BDMCMC", "RJMCMC" ), vis = TRUE )
 ```
-The results show that for this specific simulated example both algorithms have more or less the same performance; See [Mohammadi et al. (2021)](https://doi.org/10.1080/01621459.2021.1996377) for a comprehensive simulation study.
+The results show that for this specific simulated example both algorithms have more or less the same performance; See [Mohammadi et al. (2023)](https://doi.org/10.1080/01621459.2021.1996377) for a comprehensive simulation study.
 
 In this simulation example, we run both BDMCMC and RJMCMC algorithms for $5,000$ iterations, $2,500$ of them as burn-in. To check whether the number of iterations is enough and to monitoring the convergence of our both algorithm, we run
 ```{r}
@@ -239,9 +239,15 @@ Mohammadi, R. and Wit, E. C. (2019). **BDgraph**: An *R* Package for Bayesian St
 
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, *Bayesian Analysis*, 10(1):109-138, [doi:10.1214/14-BA889](https://projecteuclid.org/euclid.ba/1422468425).
 
-Mohammadi, R., Massam, H. and Letac, G. (2021). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, *Journal of the American Statistical Association*, [doi:10.1080/01621459.2021.1996377](https://doi.org/10.1080/01621459.2021.1996377) 
-  
-Mohammadi, A., et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, *Journal of the Royal Statistical Society: Series C*, 66(3):629-645, [doi:10.1111/rssc.12171](https://rss.onlinelibrary.wiley.com/doi/full/10.1111/rssc.12171) 
+Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure Learning in Sparse Gaussian Graphical Models, *Journal of the American Statistical Association*, 118(542):1345–1358, [doi:10.1080/01621459.2021.1996377](https://doi.org/10.1080/01621459.2021.1996377) 
+
+Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Bayesian Structure Learning in Graphical Models, \emph{Journal of Statistical Software}, 89(3):1-30, [doi:10.18637/jss.v089.i03](https://www.jstatsoft.org/article/view/v089i03) 
+
+Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2023) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, *arXiv preprint*, [doi:10.48550/arXiv.2307.02603](https://arxiv.org/abs/2307.02603)
+
+Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Large-scale Bayesian Structure Learning for Gaussian Graphical Models using Marginal Pseudo-likelihood, *arXiv preprint*, [doi:10.48550/arXiv.2307.00127](https://arxiv.org/abs/2307.00127)
+
+Mohammadi, A., et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, *Journal of the Royal Statistical Society: Series C*, 66(3):629-645, [doi:10.1111/rssc.12171](https://doi.org/10.1111/rssc.12171) 
 
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, *Annals of Applied Statistics*, 12(2):815-845, [doi:10.1214/18-AOAS1164](https://projecteuclid.org/euclid.aoas/1532743478)
 

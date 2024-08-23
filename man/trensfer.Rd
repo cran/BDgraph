@@ -22,7 +22,7 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Adrian Dobra }
 
-\seealso{ \code{\link{bdgraph.mpl}}, \code{\link{bdgraph.sim}} }
+\seealso{ \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{bdgraph.sim}} }
 
 \examples{
 # Generating multivariate binary data from a 'random' graph

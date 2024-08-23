@@ -12,7 +12,7 @@ or graph with the highest posterior probability. }
            vertex.label.color = "blue", edge.color = "lightblue", ... ) }
 
 \arguments{
-  \item{x}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. }
+  \item{x}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. }
   
   \item{cut}{ threshold for including the links in the selected graph based on the estimated posterior probabilities of the links; See the examples. } 
 
@@ -40,7 +40,7 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

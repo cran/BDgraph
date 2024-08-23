@@ -60,7 +60,7 @@ Nakagawa, T. and Osaki, S. (1975). The Discrete Weibull Distribution. \emph{IEEE
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl}, Pariya Behrouzi, Veronica Vinciotti }
 
-\seealso{ \code{\link{dweibull}}, \code{\link{bdw.reg}}, \link{bdgraph.dw} }
+\seealso{ \code{\link[stats]{dweibull}}, \code{\link[BDgraph]{bdw.reg}}, \link[BDgraph]{bdgraph.dw} }
 
 \examples{
 n    = 1000

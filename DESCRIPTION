@@ -1,7 +1,7 @@
 Package: BDgraph
 Title: Bayesian Structure Learning in Graphical Models using
         Birth-Death MCMC
-Version: 2.72
+Version: 2.73
 Authors@R: 
     c(person(given = "Reza",
              family = "Mohammadi",
@@ -17,7 +17,7 @@ Authors@R:
              role = c("ctb"),
              comment = c(ORCID = "0000-0001-7793-2197"))         
       )
-Description: Statistical tools for Bayesian structure learning in undirected graphical models for continuous, ordinal/discrete/count, and mixed data. The package is implemented the recent improvements in the Bayesian graphical models' literature, including Mohammadi and Wit (2015) <doi:10.1214/14-BA889>, Mohammadi et al. (2021) <doi:10.1080/01621459.2021.1996377>, and Dobra and Mohammadi (2018) <doi:10.1214/18-AOAS1164>. 
+Description: Advanced statistical tools for Bayesian structure learning in undirected graphical models, accommodating continuous, ordinal, discrete, count, and mixed data. It integrates recent advancements in Bayesian graphical models as presented in the literature, including the works of Mohammadi and Wit (2015) <doi:10.1214/14-BA889>, Mohammadi et al. (2021) <doi:10.1080/01621459.2021.1996377>, Dobra and Mohammadi (2018) <doi:10.1214/18-AOAS1164>, and Mohammadi et al. (2023) <doi:10.48550/arXiv.2307.00127>. 
 URL: https://www.uva.nl/profile/a.mohammadi
 Imports: igraph, ggplot2, pROC
 Suggests: ssgraph, huge, tmvtnorm, skimr, knitr, rmarkdown
@@ -29,5 +29,5 @@ Author: Reza Mohammadi [aut, cre] (<https://orcid.org/0000-0001-9538-0648>),
   Ernst Wit [aut] (<https://orcid.org/0000-0002-3671-9610>),
   Adrian Dobra [ctb] (<https://orcid.org/0000-0001-7793-2197>)
 Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>
-Packaged: 2022-12-24 12:57:22 UTC; reza
-Date/Publication: 2022-12-25 07:20:14 UTC
+Packaged: 2024-08-23 12:43:58 UTC; a.mohammadiuva.nl
+Date/Publication: 2024-08-23 13:20:02 UTC

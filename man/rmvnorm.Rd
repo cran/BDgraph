@@ -22,7 +22,7 @@
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
-\seealso{\code{\link{bdgraph.sim}}, \code{\link{rwish}}, \code{\link{rgwish}} }
+\seealso{\code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{rwish}}, \code{\link[BDgraph]{rgwish}} }
 
 \examples{
 mean  <- c( 5, 20 )       

@@ -14,15 +14,15 @@ auc( pred, actual, cut = 200, calibrate = TRUE )
 \arguments{
     \item{pred  }{
         adjacency matrix corresponding to an estimated graph. 
-        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link{bdgraph}}. 
+        It can be an object with \code{S3} class "\code{bdgraph}" from function \code{\link[BDgraph]{bdgraph}}. 
         It can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
-        It can be a \code{\link{numeric}} or \code{\link{ordered}} vector of the same length than \code{actual}, containing the predicted
+        It can be a \code{numeric} or \code{ordered} vector of the same length than \code{actual}, containing the predicted
   value of each observation.
     }
     
     \item{actual}{ adjacency matrix corresponding to the actual graph structure in which \eqn{a_{ij}=1} if there is a link between notes \eqn{i}{i} and \eqn{j}{j}, otherwise \eqn{a_{ij}=0}.
-	It can be an object with \code{S3} class "\code{sim}" from function \code{\link{bdgraph.sim}}.
-	It can be an object with \code{S3} class \code{"graph"} from function \code{\link{graph.sim}}.
+	It can be an object with \code{S3} class "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}.
+	It can be an object with \code{S3} class \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.
 	It can be a factor, numeric or character vector of responses (true class), typically encoded with 0 (controls) and 1 (cases).
     Only two classes can be used in a ROC curve. }
   \item{cut   }{ number of cut points.}
@@ -44,7 +44,7 @@ The numeric AUC value}
 
 \author{Reza Mohammadi \email{a.mohammadi@uva.nl}; Lucas Vogels \email{l.f.o.vogels@uva.nl}}
 
-\seealso{ \code{\link{plotroc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[pROC:print.roc]{pROC::print.roc()}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}}, \code{\link{compare}} }
+\seealso{ \code{\link[BDgraph]{plotroc}}, \code{\link[pROC:plot.roc]{pROC::plot.roc()}}, \code{\link[pROC:auc]{pROC::auc()}}, \code{\link[pROC:print.roc]{pROC::print.roc()}}, \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}}, \code{\link[BDgraph]{compare}} }
 
 \examples{
 \dontrun{

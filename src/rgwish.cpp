@@ -53,7 +53,7 @@ void rgwish_c( int G[], double Ts[], double K[], int *b, int *p, double *thresho
 {
 	int info, i, j, l, size_node, one = 1, dim = *p, pxp = dim * dim;	
     
-    double threshold_c = *threshold;
+  double threshold_c = *threshold;
 	double alpha = 1.0, beta  = 0.0;
 	
 	char transN  = 'N', uplo  = 'U'; 
@@ -163,7 +163,7 @@ void rgwish_sigma( int G[], int size_node[], double Ts[], double K[], double sig
 	
 	char transT  = 'T', transN = 'N', side = 'R', upper = 'U';																	
 	
-	// - - STEP 1: sampling from wishart distributions  - - - - - - - - - - - - - - - - - - - - - -|
+	// - - STEP 1: sampling from Wishart distributions  - - - - - - - - - - - -|
 	// - -  Sample values in Psi matrix
 	//GetRNGstate();
 	#pragma omp parallel for

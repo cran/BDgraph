@@ -59,7 +59,7 @@ compare = function( pred, actual, main = NULL, vis = FALSE )
         
         op = graphics::par( mfrow = mfrow, pty = "s", omi = c( 0.3, 0.3, 0.3, 0.3 ), mai = c( 0.3, 0.3, 0.3, 0.3 ) )
         
-        BDgraph::plot.graph( G  , main = main[ 1 ] )
+        BDgraph::plot.graph( G, main = main[ 1 ] )
         
         for( i in 1:length_pred )
             BDgraph::plot.graph( pred[[i]], main = main[ i + 1 ] )

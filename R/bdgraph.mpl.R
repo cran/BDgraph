@@ -17,7 +17,8 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 					jump = NULL, alpha = 0.5, save = FALSE, 
 					cores = NULL, operator = "or", verbose = TRUE )
 {
-    if( iter < burnin ) stop( " 'iter' must be higher than 'burnin'" )
+    if( iter < burnin ) 
+		stop( " 'iter' must be higher than 'burnin'" )
     burnin = floor( burnin )
 
     if( is.numeric( verbose ) )
@@ -52,7 +53,7 @@ bdgraph.mpl = function( data, n = NULL, method = "ggm", transfer = TRUE, algorit
 	    n <- nrow( data )
 	
     if( ( is.null( cores ) ) & ( p < 16 ) ) 
-        cours = 1
+        cores = 1
         
     cores = BDgraph::get_cores( cores = cores, verbose = verbose )
 	

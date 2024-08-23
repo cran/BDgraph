@@ -4,14 +4,14 @@
 \title{ Trace plot of graph size }
 
 \description{
-Trace plot for graph size for the objects of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. 
+Trace plot for graph size for the objects of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
 It is a tool for monitoring the convergence of the sampling algorithms, BDMCMC and RJMCMC.
 }
 
 \usage{ traceplot ( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... ) }
 
 \arguments{
-  \item{bdgraph.obj}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link{bdgraph}}. 
+  \item{bdgraph.obj}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
 					  It also can be an object of \code{S3} class \code{"ssgraph"}, from the function \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}} of \code{R} package \code{\link[ssgraph:ssgraph]{ssgraph::ssgraph()}}.
   }
   \item{acf}{ visualize the autocorrelation functions for graph size. }
@@ -34,7 +34,7 @@ Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayes
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} and Ernst Wit }
 
-\seealso{ \code{\link{plotcoda}}, \code{\link{bdgraph}}, \code{\link{bdgraph.mpl}} }
+\seealso{ \code{\link[BDgraph]{plotcoda}}, \code{\link[BDgraph]{bdgraph}}, \code{\link[BDgraph]{bdgraph.mpl}} }
 
 \examples{
 \dontrun{

@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//    Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+//    Copyright (C) 2012 - 2023  Reza Mohammadi                                |
 //                                                                             |
 //    This file is part of BDgraph package.                                    |
 //                                                                             |
