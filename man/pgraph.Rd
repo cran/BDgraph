@@ -7,7 +7,7 @@
 Provides the estimated posterior probabilities for the most likely graphs or a specific graph.
 }
 
-\usage{ pgraph( bdgraph.obj, number.g = 4, adj = NULL ) }
+\usage{ pgraph(bdgraph.obj, number.g = 4, adj = NULL) }
 
 \arguments{
   \item{bdgraph.obj}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. }
@@ -39,15 +39,15 @@ Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 6, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 6, vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, save = TRUE)
    
 # Estimated posterior probability of the true graph
-pgraph( bdgraph.obj, adj = data.sim )
+pgraph(bdgraph.obj, adj = data.sim)
    
 # Estimated posterior probability of first and second graphs with highest probabilities
-pgraph( bdgraph.obj, number.g = 2 )
+pgraph(bdgraph.obj, number.g = 2)
 }
 }
 

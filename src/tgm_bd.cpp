@@ -76,13 +76,12 @@ void tgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double K[
 		for( i = 0; i < j; i++ )
 		{
 		    ij = j * dim + i;
-		   
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
-			{
-    			index_row[ counter ] = i;
-    			index_col[ counter ] = j;
-    			counter++;
-			}
+  			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  			{
+      			index_row[ counter ] = i;
+      			index_col[ counter ] = j;
+      			counter++;
+  			}
 		}
 		
 	int sub_qp = counter;
@@ -242,9 +241,9 @@ void tgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;

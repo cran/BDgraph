@@ -8,7 +8,7 @@ Generates random matrices, distributed according to the G-Wishart distribution w
 Note this fuction works for both non-decomposable and decomposable graphs. 
 }
 
-\usage{ rgwish( n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8 ) }
+\usage{ rgwish(n = 1, adj = NULL, b = 3, D = NULL, threshold = 1e-8) }
 
 \arguments{
   \item{n}{number of samples required. }
@@ -53,14 +53,14 @@ Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gauss
 
 \examples{
 # Generating a 'circle' graph as a non-decomposable graph
-adj <- graph.sim( p = 5, graph = "circle" )
+adj <- graph.sim(p = 5, graph = "circle")
 adj    # adjacency of graph with 5 nodes
   
-sample <- rgwish( n = 1, adj = adj, b = 3, D = diag( 5 ) )
-round( sample, 2 ) 
+sample <- rgwish(n = 1, adj = adj, b = 3, D = diag(5))
+round(sample, 2) 
 
-sample <- rgwish( n = 5, adj = adj )
-round( sample, 2 )  
+sample <- rgwish(n = 5, adj = adj)
+round(sample, 2)  
 }
 
 \keyword{Wishart}

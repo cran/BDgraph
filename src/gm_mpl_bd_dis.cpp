@@ -1,14 +1,14 @@
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//     Copyright (C) 2012 - 2020  Reza Mohammadi                                                   |
-//                                                                                                 |
-//     This file is part of BDgraph package.                                                       |
-//                                                                                                 |
-//     BDgraph is free software: you can redistribute it and/or modify it under                    |
-//     the terms of the GNU General Public License as published by the Free                        |
-//     Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>.                   |
-//                                                                                                 |
-//     Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                                             |
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
+//    Copyright (C) 2012 - 2025  Reza Mohammadi                                |
+//                                                                             |
+//    This file is part of BDgraph package.                                    |
+//                                                                             |
+//   BDgraph is a free software: you can redistribute it and/or modify it      |
+//   under the terms of the GNU General Public License as published by the Free|
+//   Software Foundation; see <https://cran.r-project.org/web/licenses/GPL-3>. |
+//                                                                             |
+//   Maintainer: Reza Mohammadi <a.mohammadi@uva.nl>                           |
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
 
 #include "matrix.h"
 
@@ -260,7 +260,7 @@ void rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[],
 			j  = index_col[ counter ];
 			ij =  j * dim + i;
 			
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 			{
 			    if( G[ ij ] )
     			{ 
@@ -344,7 +344,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[],
 			j  = *selected_edge_i;
 			ij = j * dim + i;
 			
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 			{
     			counter = j * ( j - 1 ) / 2 + i;
     
@@ -399,7 +399,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[],
 			j  = ind;
 			ij = j * dim + i;
 
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 			{
 			    counter = j * ( j - 1 ) / 2 + i;
 
@@ -454,7 +454,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[],
 			j  = *selected_edge_j;
 			ij = j * dim + i;
 
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 			{
 			    counter = j * ( j - 1 ) / 2 + i;
 
@@ -509,7 +509,7 @@ void local_rates_gm_mpl_binary( double rates[], double log_ratio_g_prior[],
 			j  = ind;
 			ij = j * dim + i;
 
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 			{
 			    counter = j * ( j - 1 ) / 2 + i;
 
@@ -560,7 +560,7 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], double g_prior[]
 	int nodexdim, count_mb, t, i, j, ij, counter, dim = *p, pxp = dim * dim;
 	
 	double sum_weights = 0.0, weight_C, sum_rates;
-    double alpha_jl = 2 * *alpha_ijl;   
+  double alpha_jl = 2 * *alpha_ijl;   
 	double log_alpha_ijl = lgammafn_sign( *alpha_ijl, NULL );
 	double log_alpha_jl  = lgammafn_sign( alpha_jl, NULL );
 
@@ -613,9 +613,9 @@ void dgm_bdmcmc_mpl_binary_ma( int *iter, int *burnin, int G[], double g_prior[]
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -778,9 +778,9 @@ void dgm_bdmcmc_mpl_binary_map( int *iter, int *burnin, int G[], double g_prior[
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -967,9 +967,9 @@ void dgm_bdmcmc_mpl_binary_ma_multi_update( int *iter, int *burnin, int G[], dou
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -1143,9 +1143,9 @@ void dgm_bdmcmc_mpl_binary_map_multi_update( int *iter, int *burnin, int G[], do
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -1408,7 +1408,7 @@ void rates_gm_mpl_dis( double rates[], double log_ratio_g_prior[], double curr_l
 			j  = index_col[ counter ];
 			ij = j * dim + i;
 
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 			{
     			if( G[ ij ] )
     			{ 
@@ -1515,9 +1515,9 @@ void dgm_bdmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[], int d
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -1664,9 +1664,9 @@ void dgm_bdmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int 
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -1837,9 +1837,9 @@ void dgm_bdmcmc_mpl_ma_multi_update( int *iter, int *burnin, int G[], double g_p
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -1992,9 +1992,9 @@ void dgm_bdmcmc_mpl_map_multi_update( int *iter, int *burnin, int G[], double g_
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -2228,9 +2228,9 @@ void dgm_rjmcmc_mpl_ma( int *iter, int *burnin, int G[], double g_prior[],
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -2370,8 +2370,8 @@ void dgm_rjmcmc_mpl_map( int *iter, int *burnin, int G[], double g_prior[], int 
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 	        {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;

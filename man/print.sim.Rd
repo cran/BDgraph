@@ -5,7 +5,7 @@
 
 \description{ Prints the information about the type of data, the sample size, the graph type, the number of nodes, number of links and sparsity of the true graph. }
 
-\usage{ \method{print}{sim}( x, ... ) }
+\usage{ \method{print}{sim}(x, ...) }
 
 \arguments{
   \item{x}{ object of \code{S3} class "\code{sim}", from function \code{\link[BDgraph]{bdgraph.sim}}.  }
@@ -22,9 +22,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 # Generating multivariate normal data from a 'random' graph 
-data.sim <- bdgraph.sim( n = 20, p = 10, vis = TRUE )
+data.sim <- bdgraph.sim(n = 20, p = 10, vis = TRUE)
    
-print( data.sim )
+print(data.sim)
 }
 
 \keyword{print}

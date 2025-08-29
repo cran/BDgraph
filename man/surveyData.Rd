@@ -10,7 +10,7 @@ the income (income), degree (degree), the number of children (children), parents
 parents degree (pdegree), number of parents children (pchildren), and age (age).  
 }
 
-\usage{ data( surveyData ) }
+\usage{ data(surveyData) }
 
 \format{ The format is a matrix with 1002 rows (number of individuals) and 7 column (number of variables). }
 
@@ -21,9 +21,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 }
 
 \examples{
-data( surveyData )
+data(surveyData)
 
-summary( surveyData )
+summary(surveyData)
 }
 
 \keyword{ datasets }

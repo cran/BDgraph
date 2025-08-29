@@ -12,10 +12,10 @@ Density, distribution function, quantile function and random generation for the 
 }
 
 \usage{
-ddweibull( x, q = exp( -1 ), beta = 1, zero = TRUE )
-pdweibull( x, q = exp( -1 ), beta = 1, zero = TRUE )
-qdweibull( p, q = exp( -1 ), beta = 1, zero = TRUE )
-rdweibull( n, q = exp( -1 ), beta = 1, zero = TRUE )
+ddweibull(x, q = exp(-1), beta = 1, zero = TRUE)
+pdweibull(x, q = exp(-1), beta = 1, zero = TRUE)
+qdweibull(p, q = exp(-1), beta = 1, zero = TRUE)
+rdweibull(n, q = exp(-1), beta = 1, zero = TRUE)
 }
 
 \arguments{
@@ -67,20 +67,20 @@ n    = 1000
 q    = 0.4
 beta = 0.8
 
-set.seed( 7 )
+set.seed(7)
 
-rdw = rdweibull( n = n, q = q, beta = beta )
+rdw = rdweibull(n = n, q = q, beta = beta)
 
-plot( prop.table( table( rdw ) ), type = "h", col = "gray50" )
+plot(prop.table(table(rdw)), type = "h", col = "gray50")
 
-x = 0:max( rdw )
+x = 0:max(rdw)
 
-lines( x, ddweibull( x = x, q = q, beta = beta ), type = "o", col = "blue", lwd = 2 )
+lines(x, ddweibull(x = x, q = q, beta = beta), type = "o", col = "blue", lwd = 2)
 
-hist( pdweibull( x = rdw, q = q, beta = beta ) )
+hist(pdweibull(x = rdw, q = q, beta = beta))
 
-plot( ecdf( rdw ) )
-lines( x, pdweibull( x, q = q, beta = beta ), col = "blue", lwd = 2, type = "s" )
+plot(ecdf(rdw))
+lines(x, pdweibull(x, q = q, beta = beta), col = "blue", lwd = 2, type = "s")
 }
 
 \keyword{distribution}

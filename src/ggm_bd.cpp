@@ -1,5 +1,5 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - |
-//    Copyright (C) 2012 - 2022  Reza Mohammadi                                |
+//    Copyright (C) 2012 - 2025  Reza Mohammadi                                |
 //                                                                             |
 //    This file is part of BDgraph package.                                    |
 //                                                                             |
@@ -65,16 +65,17 @@ void ggm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double Ts
 		{
 		    ij = j * dim + i;
 		   
-			if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
-			{
-    			index_row[ counter ] = i;
-    			index_col[ counter ] = j;
-    			counter++;
-			}
-			
-			// for calculating the birth/death rates
-			Dsij        = Ds[ ij ];
-			Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
+  			// if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+  			if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  			{
+      			index_row[ counter ] = i;
+      			index_col[ counter ] = j;
+      			counter++;
+  			}
+  			
+  			// for calculating the birth/death rates
+  			Dsij        = Ds[ ij ];
+  			Dsijj[ ij ] = Dsij * Dsij / Ds[ j * dim + j ]; 
 		}
 	int sub_qp = counter;
 	vector<double> rates( sub_qp );	
@@ -207,8 +208,7 @@ void ggm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double T
 		for( i = 0; i < j; i++ )
 		{
 		    ij = j * dim + i;
-		    
-		    if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+		    if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 		    {
 		        index_row[ counter ] = i;
 		        index_col[ counter ] = j;
@@ -375,7 +375,7 @@ void ggm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prior
 		{
 		    ij = j * dim + i;
 		    
-		    if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+		    if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 		    {
 		        index_row[ counter ] = i;
 		        index_col[ counter ] = j;
@@ -524,7 +524,7 @@ void ggm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_prio
 		{
 		    ij = j * dim + i;
 		    
-		    if( ( g_prior[ ij ] != 0.0 ) or ( g_prior[ ij ] != 1.0 ) )
+		    if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 		    {
 		        index_row[ counter ] = i;
 		        index_col[ counter ] = j;

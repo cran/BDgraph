@@ -12,7 +12,7 @@
 }
 
 \usage{ 
-roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
+roc(pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ...)
 }
 
 \arguments{
@@ -105,25 +105,25 @@ roc( pred, actual, auc = TRUE, smooth = FALSE, plot = FALSE, quiet = TRUE, ... )
 
 \examples{
 \dontrun{
-set.seed( 5 )
+set.seed(5)
 
 # Generating multivariate normal data from a 'scale-free' graph
-data.sim = bdgraph.sim( n = 200, p = 15, graph = "scale-free", vis = TRUE )
+data.sim = bdgraph.sim(n = 200, p = 15, graph = "scale-free", vis = TRUE)
 
 # Running BDMCMC algorithm 
-sample.bdmcmc = bdgraph( data = data.sim, algorithm = "bdmcmc", iter = 10000 )
+sample.bdmcmc = bdgraph(data = data.sim, algorithm = "bdmcmc", iter = 10000)
 
 # ROC curve for BDMCMC algorithm 
-roc.bdmcmc = BDgraph::roc( pred = sample.bdmcmc, actual = data.sim, plot = TRUE )
+roc.bdmcmc = BDgraph::roc(pred = sample.bdmcmc, actual = data.sim, plot = TRUE)
 
 # Running RJMCMC algorithm
-sample.rjmcmc = bdgraph( data = data.sim, algorithm = "rjmcmc", iter = 10000 )
+sample.rjmcmc = bdgraph(data = data.sim, algorithm = "rjmcmc", iter = 10000)
 
 # ROC curve for RJMCMC algorithm
-roc.rjmcmc = BDgraph::roc( pred = sample.rjmcmc, actual = data.sim, plot = TRUE )
+roc.rjmcmc = BDgraph::roc(pred = sample.rjmcmc, actual = data.sim, plot = TRUE)
 
 # ROC curve for both BDMCMC and RJMCMC algorithms
-pROC::ggroc( list( BDMCMC = roc.bdmcmc, RJMCMC = roc.rjmcmc ) )
+pROC::ggroc(list(BDMCMC = roc.bdmcmc, RJMCMC = roc.rjmcmc))
 }
 }
 

@@ -7,7 +7,7 @@
 Provides the estimated covariance matrix.
 }
 
-\usage{ covariance( bdgraph.obj, round = 2 ) }
+\usage{ covariance(bdgraph.obj, round = 2) }
 
 \arguments{
   \item{bdgraph.obj}{object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
@@ -34,13 +34,13 @@ Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'circle' graph
-data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
+data.sim <- bdgraph.sim(n = 70, p = 6, graph = "circle", vis = TRUE)
 
-bdgraph.obj <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph(data = data.sim)
 
-covariance( bdgraph.obj ) # Estimated covariance matrix
+covariance(bdgraph.obj) # Estimated covariance matrix
   
-data.sim $ sigma   # True covariance matrix
+data.sim$sigma   # True covariance matrix
 }
 }
 

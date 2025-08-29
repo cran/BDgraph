@@ -67,9 +67,11 @@ void gcgm_bdmcmc_ma( int *iter, int *burnin, int G[], double g_prior[], double T
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+	        // ij = g_prior[ j * dim + i ];
+	        // if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+	        ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -220,8 +222,8 @@ void gcgm_bdmcmc_map( int *iter, int *burnin, int G[], double g_prior[], double 
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
+  	      ij = j * dim + i;
+	        if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
 	        {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
@@ -401,9 +403,9 @@ void gcgm_bdmcmc_ma_multi_update( int *iter, int *burnin, int G[], double g_prio
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;
@@ -562,9 +564,9 @@ void gcgm_bdmcmc_map_multi_update( int *iter, int *burnin, int G[], double g_pri
 	for( j = 1; j < dim; j++ )
 	    for( i = 0; i < j; i++ )
 	    {
-	        ij = g_prior[ j * dim + i ];
-	        if( ( ij != 0.0 ) or ( ij != 1.0 ) )
-	        {
+  	      ij = j * dim + i;
+  	      if(g_prior[ij] != 0.0 && g_prior[ij] != 1.0)
+  	      {
 	            index_row[ counter ] = i;
 	            index_col[ counter ] = j;
 	            counter++;

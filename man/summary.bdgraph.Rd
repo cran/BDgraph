@@ -9,7 +9,7 @@ Provides a summary of the results for function \code{\link[BDgraph]{bdgraph}}.
 }
 
 \usage{
-\method{summary}{bdgraph}( object, round = 2, vis = TRUE, ... )
+\method{summary}{bdgraph}(object, round = 2, vis = TRUE, ...)
 }
 
 \arguments{
@@ -37,16 +37,16 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph(data = data.sim)
    
-summary( bdgraph.obj )
+summary(bdgraph.obj)
    
-bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, save = TRUE)
    
-summary( bdgraph.obj )
+summary(bdgraph.obj)
    
-summary( bdgraph.obj, vis = FALSE )
+summary(bdgraph.obj, vis = FALSE)
 }
 }

@@ -7,7 +7,7 @@
 Provides the estimated precision matrix.
 }
 
-\usage{ precision( bdgraph.obj, round = 2 ) }
+\usage{ precision(bdgraph.obj, round = 2) }
 
 \arguments{
   \item{bdgraph.obj}{object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
@@ -30,13 +30,13 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'circle' graph
-data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
+data.sim <- bdgraph.sim(n = 70, p = 6, graph = "circle", vis = TRUE)
 
-bdgraph.obj   <- bdgraph( data = data.sim )
+bdgraph.obj   <- bdgraph(data = data.sim)
 
-precision( bdgraph.obj ) # Estimated precision matrix
+precision(bdgraph.obj) # Estimated precision matrix
   
-data.sim $ K   # True precision matrix
+data.sim$K   # True precision matrix
 }
 }
 

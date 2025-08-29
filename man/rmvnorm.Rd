@@ -8,29 +8,29 @@
 }
 
 \usage{ 
-    rmvnorm( n = 10, mean = rep( 0, length = ncol( sigma ) ), 
-             sigma = diag( length( mean ) ) ) 
+    rmvnorm(n = 10, mean = rep(0, length = ncol(sigma)), 
+             sigma = diag(length(mean))) 
 }
 
 \arguments{
     \item{n}{ Number of observations. }
-    \item{mean}{ Mean vector, default is \eqn{rep( 0, length = ncol( sigma ) )}. }
-    \item{sigma}{ positive definite covariance matrix, default is \eqn{ diag( length( mean ) ) }. }
+    \item{mean}{ Mean vector, default is \eqn{rep(0, length = ncol(sigma))}. }
+    \item{sigma}{ positive definite covariance matrix, default is \eqn{ diag(length(mean)) }. }
 }
 
-\value{ A numeric matrix with rows equal to \eqn{n} and columns equal to \eqn{length( mean )}. }
+\value{ A numeric matrix with rows equal to \eqn{n} and columns equal to \eqn{length(mean)}. }
 
 \author{ Reza Mohammadi \email{a.mohammadi@uva.nl} }
 
 \seealso{\code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{rwish}}, \code{\link[BDgraph]{rgwish}} }
 
 \examples{
-mean  <- c( 5, 20 )       
-sigma <- matrix( c( 4, 2,
-                    2, 5 ), 2, 2 )  # covariance matrix
+mean  <- c(5, 20)       
+sigma <- matrix(c(4, 2,
+                    2, 5), 2, 2)  # covariance matrix
 
-sample <- rmvnorm( n = 500, mean = mean, sigma = sigma )
-plot( sample )
+sample <- rmvnorm(n = 500, mean = mean, sigma = sigma)
+plot(sample)
 }
 
 \keyword{ distribution }

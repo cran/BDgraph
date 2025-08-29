@@ -5,10 +5,10 @@
 
 \description{ Visualizes structure of the graph. }
 \usage{
-\method{plot}{graph}( x, cut = 0.5, mode = "undirected", diag = FALSE, main = NULL, 
+\method{plot}{graph}(x, cut = 0.5, mode = "undirected", diag = FALSE, main = NULL, 
            layout = igraph::layout_with_fr, vertex.size = 2, vertex.color = "orange", 
            vertex.frame.color = "orange", vertex.label = NULL, vertex.label.dist = 0.5, 
-           vertex.label.color = "blue", edge.color = "lightblue", ... )
+           vertex.label.color = "blue", edge.color = "lightblue", ...)
 }
 
 \arguments{
@@ -42,9 +42,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 # Generating a 'scale-free' graph 
-adj <- graph.sim( p = 20, graph = "scale-free" )
+adj <- graph.sim(p = 20, graph = "scale-free")
 
-plot( adj )
+plot(adj)
 }
 
 \keyword{hplot}

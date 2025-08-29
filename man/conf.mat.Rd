@@ -5,8 +5,8 @@
 \description{ Create a Confusion Matrix. }
 
 \usage{ 
-conf.mat( pred, actual, cutoff = 0.5, proportion = FALSE, 
-                     dnn = c( "Prediction", "Actual" ), ... )
+conf.mat(pred, actual, cutoff = 0.5, proportion = FALSE, 
+                     dnn = c("Prediction", "Actual"), ...)
 }
 
 \arguments{
@@ -38,16 +38,16 @@ conf.mat( pred, actual, cutoff = 0.5, proportion = FALSE,
 
 \examples{
 \dontrun{
-set.seed( 100 )
+set.seed(100)
 
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
 
 # Running sampling algorithm based on GGMs 
-sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+sample.ggm <- bdgraph(data = data.sim, method = "ggm", iter = 10000)
 
 # Confusion Matrix for GGM method
-conf.mat( pred = sample.ggm, actual = data.sim )
+conf.mat(pred = sample.ggm, actual = data.sim)
 }
 }
 

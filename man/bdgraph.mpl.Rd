@@ -7,11 +7,11 @@
 	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
-bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE, 
-             algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
-             g.prior = 0.2, g.start = "empty", 
-             jump = NULL, alpha = 0.5, save = FALSE, 
-             cores = NULL, operator = "or", verbose = TRUE )
+bdgraph.mpl(data, n = NULL, method = "ggm", transfer = TRUE, 
+            algorithm = "bdmcmc", iter = 5000, burnin = iter / 2, 
+            g.prior = 0.2, g.start = "empty", 
+            jump = NULL, alpha = 0.5, save = FALSE, 
+            cores = NULL, operator = "or", verbose = TRUE)
 }
 
 \arguments{
@@ -92,13 +92,13 @@ bdgraph.mpl( data, n = NULL, method = "ggm", transfer = TRUE,
 }
 
 \references{
-Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Large-scale Bayesian Structure Learning for Gaussian Graphical Models using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
+Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Scalable Bayesian Structure Learning for Gaussian Graphical Models Using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
 
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845, \doi{10.1214/18-AOAS1164}
 
 Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gaussian Graphical Models, \emph{Bayesian Analysis}, 10(1):109-138, \doi{10.1214/14-BA889}
 
-Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2023) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.02603}
+Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2024) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2024.2395504}
 
 Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 
@@ -113,14 +113,14 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 70, p = 5, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 70, p = 5, size = 7, vis = TRUE)
    
-bdgraph.obj <- bdgraph.mpl( data = data.sim, iter = 500 )
+bdgraph.obj <- bdgraph.mpl(data = data.sim, iter = 500)
   
-summary( bdgraph.obj )
+summary(bdgraph.obj)
    
 # To compare the result with true graph
-compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ) )
+compare(bdgraph.obj, data.sim, main = c("Target", "BDgraph"))
 }
 
 \keyword{sampling algorithms}

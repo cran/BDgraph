@@ -8,7 +8,7 @@
 }
 
 \usage{ 
-auc( pred, actual, cut = 200, calibrate = TRUE )
+auc(pred, actual, cut = 200, calibrate = TRUE)
 }
 
 \arguments{
@@ -48,15 +48,15 @@ The numeric AUC value}
 
 \examples{
 \dontrun{
-set.seed( 5 )
+set.seed(5)
 
 # Generating multivariate normal data from a 'scale-free' graph
-data.sim = bdgraph.sim( n = 200, p = 15, graph = "scale-free", vis = TRUE )
+data.sim = bdgraph.sim(n = 200, p = 15, graph = "scale-free", vis = TRUE)
 
 # Running BDMCMC algorithm 
-sample.bdmcmc = bdgraph( data = data.sim, algorithm = "bdmcmc", iter = 10000 )
+sample.bdmcmc = bdgraph(data = data.sim, algorithm = "bdmcmc", iter = 10000)
 
-BDgraph::auc( pred = sample.bdmcmc, actual = data.sim, calibrate = TRUE )
+BDgraph::auc(pred = sample.bdmcmc, actual = data.sim, calibrate = TRUE)
 
 }
 }

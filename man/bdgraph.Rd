@@ -8,10 +8,10 @@
 	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
-bdgraph( data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
-         burnin = iter / 2, not.cont = NULL, g.prior = 0.2, df.prior = 3, 
-         g.start = "empty", jump = NULL, save = FALSE, 
-         cores = NULL, threshold = 1e-8, verbose = TRUE, nu = 1 )
+bdgraph(data, n = NULL, method = "ggm", algorithm = "bdmcmc", iter = 5000, 
+        burnin = iter / 2, not.cont = NULL, g.prior = 0.2, df.prior = 3, 
+        g.start = "empty", jump = NULL, save = FALSE, 
+        cores = NULL, threshold = 1e-8, verbose = TRUE, nu = 1)
 }
 
 \arguments{
@@ -108,9 +108,9 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
   
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845, \doi{10.1214/18-AOAS1164}
 
-Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2023) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.02603}
+Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2024) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2024.2395504}
 
-Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Large-scale Bayesian Structure Learning for Gaussian Graphical Models using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
+Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Scalable Bayesian Structure Learning for Gaussian Graphical Models Using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
 
 Mohammadi, A. and Dobra A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesian Structure Learning in Graphical Models, \emph{ISBA Bulletin}, 24(4):11-16
 }
@@ -121,45 +121,45 @@ Mohammadi, A. and Dobra A. (2017). The \code{R} Package \pkg{BDgraph} for Bayesi
 
 \examples{
 \dontrun{
-set.seed( 10 )
+set.seed(10)
 
 # - - Example 1
 
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 100, p = 10, size = 15, vis = TRUE )
+data.sim <- bdgraph.sim(n = 100, p = 10, size = 15, vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim, iter = 1000, save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, iter = 1000, save = TRUE)
   
-summary( bdgraph.obj )
+summary(bdgraph.obj)
 
 # Confusion Matrix
-conf.mat( actual = data.sim, pred = bdgraph.obj )
+conf.mat(actual = data.sim, pred = bdgraph.obj)
 
-conf.mat.plot( actual = data.sim, pred = bdgraph.obj )
+conf.mat.plot(actual = data.sim, pred = bdgraph.obj)
    
 # To compare our result with true graph
-compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = T )
+compare(bdgraph.obj, data.sim, main = c("Target", "BDgraph"), vis = T)
 
 # Running algorithm with starting points from previous run
-bdgraph.obj2 <- bdgraph( data = data.sim, g.start = bdgraph.obj )
+bdgraph.obj2 <- bdgraph(data = data.sim, g.start = bdgraph.obj)
     
-compare( list( bdgraph.obj, bdgraph.obj2 ), data.sim, 
-         main = c( "Target", "Frist run", "Second run" ) )
+compare(list(bdgraph.obj, bdgraph.obj2), data.sim, 
+        main = c("Target", "Frist run", "Second run"))
 
 # - - Example 2
 
 # Generating mixed data from a 'scale-free' graph
-data.sim <- bdgraph.sim( n = 200, p = 7, type = "mixed", graph = "scale-free", vis = TRUE )
+data.sim <- bdgraph.sim(n = 200, p = 7, type = "mixed", graph = "scale-free", vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim, method = "gcgm" )
+bdgraph.obj <- bdgraph(data = data.sim, method = "gcgm")
   
-summary( bdgraph.obj )
+summary(bdgraph.obj)
    
-compare( bdgraph.obj, data.sim, vis = T )
+compare(bdgraph.obj, data.sim, vis = T)
 
-conf.mat( actual = data.sim, pred = bdgraph.obj )
+conf.mat(actual = data.sim, pred = bdgraph.obj)
 
-conf.mat.plot( actual = data.sim, pred = bdgraph.obj )
+conf.mat.plot(actual = data.sim, pred = bdgraph.obj)
 }	  
 }
 

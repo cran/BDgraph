@@ -70,11 +70,11 @@ Mohammadi, A., et al (2017). Bayesian modelling of Dupuytren disease by using Ga
 
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845, \doi{10.1214/18-AOAS1164}
 
-Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2023) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.02603}
+Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2024) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2024.2395504}
 
-Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Large-scale Bayesian Structure Learning for Gaussian Graphical Models using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
+Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Scalable Bayesian Structure Learning for Gaussian Graphical Models Using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
 
-Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learning of microbiota systems from count metagenomic data, \emph{arXiv preprint}, \doi{10.48550/arXiv.2203.10118}
+Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2024) Bayesian Structural Learning with Parametric Marginals for Count Data: An Application to Microbiota Systems, \emph{Journal of Machine Learning Research}, \url{http://jmlr.org/papers/v25/23-0056.html}
 
 Dobra, A. and Lenkoski, A. (2011). Copula Gaussian graphical models and their application to modeling functional disability data, \emph{The Annals of Applied Statistics}, 5(2A):969-93, \doi{10.1214/10-AOAS397}
 
@@ -91,39 +91,39 @@ Pensar, J. et al (2017) Marginal pseudo-likelihood learning of discrete Markov n
 
 \examples{
 \dontrun{
-library( BDgraph )
+library(BDgraph)
 
-set.seed( 10 )
+set.seed(10)
 
 # Generating multivariate normal data from a 'scale-free' graph
-data.sim <- bdgraph.sim( n = 100, p = 10, graph = "scale-free", vis = TRUE )
+data.sim <- bdgraph.sim(n = 100, p = 10, graph = "scale-free", vis = TRUE)
 
 # Running algorithm based on GGMs
-bdgraph.obj <- bdgraph( data = data.sim, iter = 5000 )
+bdgraph.obj <- bdgraph(data = data.sim, iter = 5000)
 
-summary( bdgraph.obj )
+summary(bdgraph.obj)
 
 # To compare the result with true graph
-compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare(bdgraph.obj, data.sim, main = c("Target", "BDgraph"), vis = TRUE)
 
 # Confusion Matrix
-conf.mat( actual = data.sim, pred = bdgraph.obj )
+conf.mat(actual = data.sim, pred = bdgraph.obj)
 
-conf.mat.plot( actual = data.sim, pred = bdgraph.obj )
+conf.mat.plot(actual = data.sim, pred = bdgraph.obj)
 
 # Running algorithm based on GGMs and marginal pseudo-likelihood
-bdgraph.mpl.obj <- bdgraph.mpl( data = data.sim, iter = 5000 )
+bdgraph.mpl.obj <- bdgraph.mpl(data = data.sim, iter = 5000)
 
-summary( bdgraph.mpl.obj )
+summary(bdgraph.mpl.obj)
 
 # Confusion Matrix
-conf.mat( actual = data.sim, pred = bdgraph.mpl.obj )
+conf.mat(actual = data.sim, pred = bdgraph.mpl.obj)
 
-conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
+conf.mat.plot(actual = data.sim, pred = bdgraph.mpl.obj)
 
 # To compare the results of both algorithms with true graph
-compare( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, 
-         main = c( "Target", "BDgraph", "BDgraph_mpl" ), vis = TRUE )
+compare(list(bdgraph.obj, bdgraph.mpl.obj), data.sim, 
+         main = c("Target", "BDgraph", "BDgraph_mpl"), vis = TRUE)
 }
 }
 

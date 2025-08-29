@@ -7,11 +7,11 @@
   Bayesian estimation of the parameters for Discrete Weibull (DW) regression. The conditional distribution of the response given the predictors is assumed to be DW with parameters q and beta, dependent on the predictors, and,  with an additional parameter pi under zero inflation.
 }
 \usage{
-bdw.reg( data, formula = NA, iter = 5000, burnin = NULL, 
-         dist.q = dnorm, dist.beta = dnorm, 
-         par.q = c( 0, 1 ), par.beta = c( 0, 1 ), par.pi = c( 1, 1 ), 
-         initial.q = NULL, initial.beta = NULL, initial.pi = NULL, 
-         ZI = FALSE, scale.proposal = NULL, adapt = TRUE, print = TRUE )
+bdw.reg(data, formula = NA, iter = 5000, burnin = NULL, 
+        dist.q = dnorm, dist.beta = dnorm, 
+        par.q = c(0, 1), par.beta = c(0, 1), par.pi = c(1, 1), 
+        initial.q = NULL, initial.beta = NULL, initial.pi = NULL, 
+        ZI = FALSE, scale.proposal = NULL, adapt = TRUE, print = TRUE)
 }
 
 \arguments{
@@ -70,7 +70,7 @@ where \eqn{0 \leq pi \leq 1} and \eqn{I(y = 0)} is an indicator for the point ma
 }
 
 \references{
-Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learning of microbiota systems from count metagenomic data, \emph{arXiv preprint}, \doi{10.48550/arXiv.2203.10118}
+Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2024) Bayesian Structural Learning with Parametric Marginals for Count Data: An Application to Microbiota Systems, \emph{Journal of Machine Learning Research}, \url{http://jmlr.org/papers/v25/23-0056.html}
 
 Peluso, A., Vinciotti, V., and Yu, K. (2018) Discrete Weibull generalized additive model: an application to count fertility, \emph{Journal of the Royal Statistical Society: Series C}, 68(3):565-583, \doi{10.1111/rssc.12311}  
 
@@ -89,15 +89,15 @@ q    = 0.6
 beta = 1.1
 n    = 500
 
-y = BDgraph::rdweibull( n = n, q = q, beta = beta )
+y = BDgraph::rdweibull(n = n, q = q, beta = beta)
 
-output = bdw.reg( data = y, y ~ ., iter = 5000 )
+output = bdw.reg(data = y, y ~ ., iter = 5000)
 
-output $ q.est
-output $ beta.est
+output$q.est
+output$beta.est
 
-traceplot( output $ sample[ , 1 ], acf = T, pacf = T )
-traceplot( output $ sample[ , 2 ], acf = T, pacf = T )
+traceplot(output$sample[, 1], acf = T, pacf = T)
+traceplot(output$sample[, 2], acf = T, pacf = T)
 
 # - - Example 2
 
@@ -106,66 +106,66 @@ beta = 1.1
 pii  = 0.8
 n    = 500
 
-y_dw = BDgraph::rdweibull( n = n, q = q, beta = beta )
-z = rbinom( n = n, size = 1, prob = pii ) 
+y_dw = BDgraph::rdweibull(n = n, q = q, beta = beta)
+z = rbinom(n = n, size = 1, prob = pii) 
 y = z * y_dw
 
-output = bdw.reg( data = y, iter = 5000, ZI = TRUE )
+output = bdw.reg(data = y, iter = 5000, ZI = TRUE)
 
-output $ q.est
-output $ beta.est
-output $ pi.est
+output$q.est
+output$beta.est
+output$pi.est
 
-traceplot( output $ sample[ , 1 ], acf = T, pacf = T )
-traceplot( output $ sample[ , 2 ], acf = T, pacf = T )
-traceplot( output $ sample[ , 3 ], acf = T, pacf = T )
+traceplot(output$sample[, 1], acf = T, pacf = T)
+traceplot(output$sample[, 2], acf = T, pacf = T)
+traceplot(output$sample[, 3], acf = T, pacf = T)
 
 # - - Example 3
 
-theta.q    = c( 0.1, -0.1, 0.34 )  # true parameter
-theta.beta = c( 0.1, -.15, 0.5  )  # true parameter
+theta.q    = c(0.1, -0.1, 0.34)  # true parameter
+theta.beta = c(0.1, -.15, 0.5 )  # true parameter
 
 n  = 500
 
-x1 = runif( n = n, min = 0, max = 1.5 )
-x2 = runif( n = n, min = 0, max = 1.5 )
+x1 = runif(n = n, min = 0, max = 1.5)
+x2 = runif(n = n, min = 0, max = 1.5)
 
-reg_q = theta.q[ 1 ] + x1 * theta.q[ 2 ] + x2 * theta.q[ 3 ]
-q     = 1 / ( 1 + exp( - reg_q ) )
+reg_q = theta.q[1] + x1 * theta.q[2] + x2 * theta.q[3]
+q     = 1 / (1 + exp(-reg_q))
 
-reg_beta = theta.beta[ 1 ] + x1 * theta.beta[ 2 ] + x2 * theta.beta[ 3 ]
-beta     = exp( reg_beta )
+reg_beta = theta.beta[1] + x1 * theta.beta[2] + x2 * theta.beta[3]
+beta     = exp(reg_beta)
 
-y = BDgraph::rdweibull( n = n, q = q, beta = beta )
+y = BDgraph::rdweibull(n = n, q = q, beta = beta)
 
-data = data.frame( x1, x2, y ) 
+data = data.frame(x1, x2, y) 
 
-output = bdw.reg( data, y ~. , iter = 5000 )
+output = bdw.reg(data, y ~. , iter = 5000)
 
 # - - Example 4
 
-theta.q    = c( 1, -1, 0.8 )  # true parameter
-theta.beta = c( 1, -1, 0.3 )  # true parameter
+theta.q    = c(1, -1, 0.8)  # true parameter
+theta.beta = c(1, -1, 0.3)  # true parameter
 pii = 0.8
 
 n  = 500
 
-x1 = runif( n = n, min = 0, max = 1.5 )
-x2 = runif( n = n, min = 0, max = 1.5 )
+x1 = runif(n = n, min = 0, max = 1.5)
+x2 = runif(n = n, min = 0, max = 1.5)
 
-reg_q = theta.q[ 1 ] + x1 * theta.q[ 2 ] + x2 * theta.q[ 3 ]
-q     = 1 / ( 1 + exp( - reg_q ) )
+reg_q = theta.q[1] + x1 * theta.q[2] + x2 * theta.q[3]
+q     = 1 / (1 + exp(-reg_q))
 
-reg_beta = theta.beta[ 1 ] + x1 * theta.beta[ 2 ] + x2 * theta.beta[ 3 ]
-beta     = exp( reg_beta )
+reg_beta = theta.beta[1] + x1 * theta.beta[2] + x2 * theta.beta[3]
+beta     = exp(reg_beta)
 
-y_dw = BDgraph::rdweibull( n = n, q = q, beta = beta )
-z    = rbinom( n = n, size = 1, prob = pii ) 
+y_dw = BDgraph::rdweibull(n = n, q = q, beta = beta)
+z    = rbinom(n = n, size = 1, prob = pii) 
 y    = z * y_dw
 
-data = data.frame( x1, x2, y ) 
+data = data.frame(x1, x2, y) 
 
-output = bdw.reg( data, y ~. , iter = 5000, ZI = TRUE )
+output = bdw.reg(data, y ~. , iter = 5000, ZI = TRUE)
 }	  
 }
 

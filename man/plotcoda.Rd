@@ -8,8 +8,8 @@ Visualizes the cumulative occupancy fractions of all possible links in the graph
 It can be used for monitoring the convergence of the sampling algorithms, BDMCMC and RJMCMC.
 }
 
-\usage{ plotcoda( bdgraph.obj, thin = NULL, control = TRUE, main = NULL, 
-                  verbose = TRUE, ... ) 
+\usage{ plotcoda(bdgraph.obj, thin = NULL, control = TRUE, main = NULL, 
+                  verbose = TRUE, ...) 
 }
 
 \arguments{
@@ -44,11 +44,11 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'circle' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, graph = "circle", vis = TRUE)
   
-bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0 , save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, iter = 10000, burnin = 0 , save = TRUE)
    
-plotcoda( bdgraph.obj )  
+plotcoda(bdgraph.obj)  
 }
 }
 

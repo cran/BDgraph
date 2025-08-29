@@ -5,8 +5,8 @@
 \description{ Plot a Confusion Matrix. }
 
 \usage{ 
-conf.mat.plot( pred, actual, cutoff = 0.5, conf.level = 0, margin = 1, 
-                          color = c( "#ff83a8", "#83ff9b" ), ... )
+conf.mat.plot(pred, actual, cutoff = 0.5, conf.level = 0, margin = 1, 
+                          color = c("#ff83a8", "#83ff9b"), ...)
 }
 
 \arguments{
@@ -34,16 +34,16 @@ conf.mat.plot( pred, actual, cutoff = 0.5, conf.level = 0, margin = 1,
 
 \examples{
 \dontrun{
-set.seed( 100 )
+set.seed(100)
 
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
 
 # Running sampling algorithm based on GGMs 
-sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+sample.ggm <- bdgraph(data = data.sim, method = "ggm", iter = 10000)
 
 # Confusion Matrix for GGM method
-conf.mat.plot( pred = sample.ggm, actual = data.sim )
+conf.mat.plot(pred = sample.ggm, actual = data.sim)
 }
 }
 

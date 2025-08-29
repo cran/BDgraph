@@ -9,8 +9,8 @@ Simulating undirected graph structures, including
 }
 
 \usage{
-graph.sim( p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE,
-           rewire = 0.05 )
+graph.sim(p = 10, graph = "random", prob = 0.2, size = NULL, class = NULL, vis = FALSE,
+          rewire = 0.05)
 }
 
 \arguments{
@@ -39,9 +39,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 # Generating a 'hub' graph 
-adj <- graph.sim( p = 8, graph = "scale-free" )
+adj <- graph.sim(p = 8, graph = "scale-free")
 
-plot( adj )
+plot(adj)
 
 adj
 }

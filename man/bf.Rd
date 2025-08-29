@@ -6,7 +6,7 @@
 \description{ Compute the Bayes factor for two graph structures. }
 
 \usage{ 
-    bf( num, den, bdgraph.obj, log = TRUE ) 
+    bf(num, den, bdgraph.obj, log = TRUE) 
 }
 
 \arguments{
@@ -37,16 +37,16 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
     \dontrun{
         # Generating multivariate normal data from a 'circle' graph
-        data.sim <- bdgraph.sim( n = 50, p = 6, graph = "circle", vis = TRUE )
+        data.sim <- bdgraph.sim(n = 50, p = 6, graph = "circle", vis = TRUE)
 
         # Running sampling algorithm
-        bdgraph.obj <- bdgraph( data = data.sim )
+        bdgraph.obj <- bdgraph(data = data.sim)
 
-        graph_1 <- graph.sim( p = 6, vis = TRUE )
+        graph_1 <- graph.sim(p = 6, vis = TRUE)
         
-        graph_2 <- graph.sim( p = 6, vis = TRUE )
+        graph_2 <- graph.sim(p = 6, vis = TRUE)
 
-        bf( num = graph_1, den = graph_2, bdgraph.obj = bdgraph.obj )
+        bf(num = graph_1, den = graph_2, bdgraph.obj = bdgraph.obj)
     }
 }
 

@@ -7,13 +7,13 @@
 	To speed up the computations, the birth-death MCMC sampling algorithms are implemented in parallel using \pkg{OpenMP} in \code{C++}.
 }
 \usage{
-bdgraph.dw( data, x = NULL, formula = y ~ ., 
-            n = NULL, algorithm = "bdmcmc", iter = 5000, 
-            burnin = iter / 2, g.prior = 0.2, df.prior = 3,
-            ZI = FALSE, iter_bdw = 5000,
-            g.start = "empty", jump = NULL, save = FALSE, 
-            q = NULL, beta = NULL, pii = NULL,
-            cores = NULL, threshold = 1e-8, verbose = TRUE )
+bdgraph.dw(data, x = NULL, formula = y ~ ., 
+           n = NULL, algorithm = "bdmcmc", iter = 5000, 
+           burnin = iter / 2, g.prior = 0.2, df.prior = 3,
+           ZI = FALSE, iter_bdw = 5000,
+           g.start = "empty", jump = NULL, save = FALSE, 
+           q = NULL, beta = NULL, pii = NULL,
+           cores = NULL, threshold = 1e-8, verbose = TRUE)
 }
 
 \arguments{
@@ -99,7 +99,7 @@ bdgraph.dw( data, x = NULL, formula = y ~ .,
 }
 
 \references{
-Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2022) Bayesian structural learning of microbiota systems from count metagenomic data, \emph{arXiv preprint}, \doi{10.48550/arXiv.2203.10118}
+Vinciotti, V., Behrouzi, P., and Mohammadi, R. (2024) Bayesian Structural Learning with Parametric Marginals for Count Data: An Application to Microbiota Systems, \emph{Journal of Machine Learning Research}, \url{http://jmlr.org/papers/v25/23-0056.html}
 
 Peluso, A., Vinciotti, V., and Yu, K. (2018) Discrete Weibull generalized additive model: an application to count fertility, \emph{Journal of the Royal Statistical Society: Series C}, 68(3):565-583, \doi{10.1111/rssc.12311}  
 
@@ -123,25 +123,25 @@ Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure 
 # - - Example 1
 
 # Generating multivariate Discrete Weibull data based on 'random' graph
-data.sim <- bdgraph.sim( n = 100, p = 10, type = "dw", vis = TRUE )
+data.sim <- bdgraph.sim(n = 100, p = 10, type = "dw", vis = TRUE)
 
-bdgraph.obj <- bdgraph.dw( data = data.sim, iter = 5000 )
+bdgraph.obj <- bdgraph.dw(data = data.sim, iter = 5000)
 
-summary( bdgraph.obj )
+summary(bdgraph.obj)
 
 # To compare the result with true graph
-compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare(bdgraph.obj, data.sim, main = c("Target", "BDgraph"), vis = TRUE)
 
 # - - Example 2
 
 # Generating multivariate Discrete Weibull data based on a 'scale-free' graph
-data.sim <- bdgraph.sim( n = 100, p = 10, type = "dw", graph = "scale-free", vis = TRUE )
+data.sim <- bdgraph.sim(n = 100, p = 10, type = "dw", graph = "scale-free", vis = TRUE)
 
-bdgraph.obj <- bdgraph.dw( data = data.sim, iter = 10000 )
+bdgraph.obj <- bdgraph.dw(data = data.sim, iter = 10000)
 
-summary( bdgraph.obj )
+summary(bdgraph.obj)
 
-compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare(bdgraph.obj, data.sim, main = c("Target", "BDgraph"), vis = TRUE)
 }	  
 }
 

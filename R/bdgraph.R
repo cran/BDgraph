@@ -576,22 +576,22 @@ predict.bdgraph = function( object, iter = 1, ... )
     
     if( is.null( K ) )
     {
-		if( isSymmetric( data ) )
-		{
-			S = data
-		}else{
- 			S = t( data ) %*% data
-		}
-        
-        G = BDgraph::select( bdgraph.obj = object )
-        
-        sample_K = BDgraph::rgwish( n = 500, adj = G, b = 3 + n_data, D = diag( p ) + S )
-        
-        K = 0 * G
-        for( i in 1:dim( sample_K )[3] )
-            K = K + sample_K[[i]]
-        
-        K = K / dim( sample_K )[3]
+  		if( isSymmetric( data ) )
+  		{
+  			S = data
+  		}else{
+   			S = t( data ) %*% data
+  		}
+          
+          G = BDgraph::select( bdgraph.obj = object )
+          
+          sample_K = BDgraph::rgwish( n = 500, adj = G, b = 3 + n_data, D = diag( p ) + S )
+          
+          K = 0 * G
+          for( i in 1:dim( sample_K )[3] )
+              K = K + sample_K[[i]]
+          
+          K = K / dim( sample_K )[3]
     }
     
     sigma = solve( K )

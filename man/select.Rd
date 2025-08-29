@@ -9,7 +9,7 @@ or a graph with the highest posterior probability; see examples.
 %For more specific selection of graphs consult the 'prob' function.  
 }
 
-\usage{ select( bdgraph.obj, cut = NULL, vis = FALSE ) }
+\usage{ select(bdgraph.obj, cut = NULL, vis = FALSE) }
 
 \arguments{
   \item{bdgraph.obj}{ 
@@ -43,17 +43,17 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
   
-bdgraph.obj <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph(data = data.sim)
    
-select( bdgraph.obj )
+select(bdgraph.obj)
   
-bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, save = TRUE)
   
-select( bdgraph.obj )
+select(bdgraph.obj)
   
-select( bdgraph.obj, cut = 0.5, vis = TRUE )
+select(bdgraph.obj, cut = 0.5, vis = TRUE)
 }
 }
 

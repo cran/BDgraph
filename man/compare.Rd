@@ -5,7 +5,7 @@
 
 \description{ This function provides several measures to assess the performance of the graphical structure learning. }
 
-\usage{ compare( pred, actual, main = NULL, vis = FALSE ) }
+\usage{ compare(pred, actual, main = NULL, vis = FALSE) }
 
 \arguments{
   \item{pred}{
@@ -48,20 +48,20 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
     
 # Running sampling algorithm based on GGMs 
-sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+sample.ggm <- bdgraph(data = data.sim, method = "ggm", iter = 10000)
    
 # Comparing the results
-compare( sample.ggm, data.sim, main = c( "True", "GGM" ), vis = TRUE )
+compare(sample.ggm, data.sim, main = c("True", "GGM"), vis = TRUE)
       
 # Running sampling algorithm based on GCGMs
-sample.gcgm <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+sample.gcgm <- bdgraph(data = data.sim, method = "gcgm", iter = 10000)
 
 # Comparing GGM and GCGM methods
-compare( list( sample.ggm, sample.gcgm ), data.sim, 
-         main = c( "True", "GGM", "GCGM" ), vis = TRUE )
+compare(list(sample.ggm, sample.gcgm), data.sim, 
+         main = c("True", "GGM", "GCGM"), vis = TRUE)
 }
 }
 

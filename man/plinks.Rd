@@ -7,7 +7,7 @@
 Provides the estimated posterior link probabilities for all possible links in the graph.
 }
 
-\usage{ plinks( bdgraph.obj, round = 2, burnin = NULL ) }
+\usage{ plinks(bdgraph.obj, round = 2, burnin = NULL) }
 
 \arguments{
   \item{bdgraph.obj}{object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
@@ -39,11 +39,11 @@ Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gau
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'circle' graph
-data.sim <- bdgraph.sim( n = 70, p = 6, graph = "circle", vis = TRUE )
+data.sim <- bdgraph.sim(n = 70, p = 6, graph = "circle", vis = TRUE)
 
-bdgraph.obj   <- bdgraph( data = data.sim, iter = 10000 )
+bdgraph.obj   <- bdgraph(data = data.sim, iter = 10000)
 
-plinks( bdgraph.obj, round = 2 )
+plinks(bdgraph.obj, round = 2)
 }
 }
 

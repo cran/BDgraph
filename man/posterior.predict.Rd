@@ -9,7 +9,7 @@ Provides samples from the posterior predictive distribution.
 }
 
 \usage{
-posterior.predict( object, iter = 1, ... )
+posterior.predict(object, iter = 1, ...)
 }
 
 \arguments{
@@ -28,9 +28,9 @@ Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure 
   
 Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility, \emph{Annals of Applied Statistics}, 12(2):815-845, \doi{10.1214/18-AOAS1164}
 
-Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2023) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.02603}
+Vogels, L., Mohammadi, R., Schoonhoven, M., and Birbil, S.I. (2024) Bayesian Structure Learning in Undirected Gaussian Graphical Models: Literature Review with Empirical Comparison, \emph{Journal of the American Statistical Association}, \doi{10.1080/01621459.2024.2395504}
 
-Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Large-scale Bayesian Structure Learning for Gaussian Graphical Models using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
+Mohammadi, R., Schoonhoven, M., Vogels, L., and Birbil, S.I. (2023) Scalable Bayesian Structure Learning for Gaussian Graphical Models Using Marginal Pseudo-likelihood, \emph{arXiv preprint}, \doi{10.48550/arXiv.2307.00127}
 
 Mohammadi, A. et al (2017). Bayesian modelling of Dupuytren disease by using Gaussian copula graphical models, \emph{Journal of the Royal Statistical Society: Series C}, 66(3):629-645, \doi{10.1111/rssc.12171} 
 }
@@ -46,10 +46,10 @@ a \code{matrix} containing the predicted datasets, corresponding to the samples 
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph(data = data.sim)
    
-posterior.predict( bdgraph.obj, iter = 20 )
+posterior.predict(bdgraph.obj, iter = 20)
 }
 }

@@ -5,7 +5,7 @@
 
 \description{ Transfers count data, by counting the duplicated rows.  }
 
-\usage{ transfer( r_data ) }
+\usage{ transfer(r_data) }
 
 \arguments{
   \item{r_data}{ (\eqn{n \times p}{n x p}) \code{matrix} or a \code{data.frame} corresponding to the data (\eqn{n} is the sample size and \eqn{p} is the number of variables). }
@@ -26,12 +26,12 @@ Dobra, A. and Mohammadi, R. (2018). Loglinear Model Selection and Human Mobility
 
 \examples{
 # Generating multivariate binary data from a 'random' graph
-data.sim <- bdgraph.sim( n = 12, p = 4, size = 4, type = "binary" )
-r_data   <- data.sim $ data
+data.sim <- bdgraph.sim(n = 12, p = 4, size = 4, type = "binary")
+r_data   <- data.sim$data
 r_data
    
 # Transfer the data
-transfer( r_data )
+transfer(r_data)
 }
 
 \keyword{data preprocessing}

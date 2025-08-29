@@ -11,11 +11,11 @@ This function can be used also for simulating only graphs by setting the option 
 }
 
 \usage{
-bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2, 
-             size = NULL, mean = 0, class = NULL, cut = 4, b = 3,
-             D = diag( p ), K = NULL, sigma = NULL, 
-             q = exp(-1), beta = 1, vis = FALSE, rewire = 0.05,
-             range.mu = c( 3, 5 ), range.dispersion = c( 0.01, 0.1 ), nu = 1 )
+bdgraph.sim(p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2, 
+            size = NULL, mean = 0, class = NULL, cut = 4, b = 3,
+            D = diag(p), K = NULL, sigma = NULL, 
+            q = exp(-1), beta = 1, vis = FALSE, rewire = 0.05,
+            range.mu = c(3, 5), range.dispersion = c(0.01, 0.1), nu = 1)
 }
 
 \arguments{
@@ -51,7 +51,7 @@ bdgraph.sim( p = 10, graph = "random", n = 0, type = "Gaussian", prob = 0.2,
   \item{sigma}{ if \code{graph} = "\code{fixed}", it is a positive-definite symmetric matrix corresponding to the true covariance matrix.}
 
   \item{q, beta}{ if \code{type} = "\code{dweibull}", they are the parameters of the discrete Weibull distribution with density 
-        \deqn{p( x, q, \beta ) = q^{x^{\beta}}-q^{(x+1)^{\beta}}, \quad \forall x = \{ 0, 1, 2, \ldots \}.} They can be given either as a vector of length p or as an  (\eqn{n \times p}{n x p}) matrix, e.g. if covariates are available and a regression model is used.}
+        \deqn{p(x, q, \beta) = q^{x^{\beta}}-q^{(x+1)^{\beta}}, \quad \forall x = \{ 0, 1, 2, \ldots \}.} They can be given either as a vector of length p or as an  (\eqn{n \times p}{n x p}) matrix, e.g. if covariates are available and a regression model is used.}
 
   \item{vis}{visualize the true graph structure.}
   \item{rewire}{rewiring probability for smallworld network. Must be between 0 and 1.}
@@ -79,26 +79,26 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( p = 10, n = 50, prob = 0.3, vis = TRUE )
+data.sim <- bdgraph.sim(p = 10, n = 50, prob = 0.3, vis = TRUE)
 
-print( data.sim )
+print(data.sim)
      
 # Generating multivariate normal data from a 'hub' graph
-data.sim <- bdgraph.sim( p = 6, n = 3, graph = "hub", vis = FALSE )
+data.sim <- bdgraph.sim(p = 6, n = 3, graph = "hub", vis = FALSE)
 
-round( data.sim $ data, 2 )
+round(data.sim$data, 2)
      
 # Generating mixed data from a 'hub' graph 
-data.sim <- bdgraph.sim( p = 8, n = 10, graph = "hub", type = "mixed" )
+data.sim <- bdgraph.sim(p = 8, n = 10, graph = "hub", type = "mixed")
 
-round( data.sim $ data, 2 )
+round(data.sim$data, 2)
 
 # Generating only a 'scale-free' graph (with no data) 
-graph.sim <- bdgraph.sim( p = 8, graph = "scale-free" )
+graph.sim <- bdgraph.sim(p = 8, graph = "scale-free")
 
-plot( graph.sim )
+plot(graph.sim)
 
-graph.sim $ G
+graph.sim$G
 }
 }
 

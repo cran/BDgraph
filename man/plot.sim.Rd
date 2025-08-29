@@ -5,7 +5,7 @@
 
 \description{ Visualizes structure of the simulated graph for an object of \code{S3} class "\code{sim}", from function \code{\link[BDgraph]{bdgraph.sim}}. }
 \usage{
-\method{plot}{sim}( x, ... )
+\method{plot}{sim}(x, ...)
 }
 
 \arguments{
@@ -22,12 +22,12 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \seealso{ \code{\link[BDgraph]{graph.sim}}, \code{\link[BDgraph]{bdgraph.sim}}, \code{\link[BDgraph]{plot.graph}}, \code{\link[igraph]{plot.igraph}} }
 
 \examples{
-set.seed( 10 )
+set.seed(10)
 
 # Generating synthetic multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 10, p = 15 )
+data.sim <- bdgraph.sim(n = 10, p = 15)
   
-plot( data.sim )
+plot(data.sim)
 }
 
 \keyword{hplot}

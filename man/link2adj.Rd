@@ -6,7 +6,7 @@
 \description{ Extract links from an adjacency matrix or an object of calsses "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}} and
  \code{"graph"} from function \code{\link[BDgraph]{graph.sim}}.}
 
-\usage{ link2adj( link, p = NULL ) }
+\usage{ link2adj(link, p = NULL) }
 
 \arguments{
   \item{link}{ (\eqn{2 \times p}) \code{matrix} or a \code{data.frame} corresponding to the links from the graph structure. }
@@ -25,11 +25,11 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 # Generating a 'random' graph 
-adj <- graph.sim( p = 6, vis = TRUE )
+adj <- graph.sim(p = 6, vis = TRUE)
 
-link <- adj2link( adj )
+link <- adj2link(adj)
 
-link2adj( link, p = 6 )
+link2adj(link, p = 6)
    
 }
 

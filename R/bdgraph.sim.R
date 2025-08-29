@@ -23,20 +23,23 @@ bdgraph.sim = function( p = 10, graph = "random", n = 0, type = "Gaussian",
     if( ( prob < 0 ) | ( prob > 1 ) )     stop( "'prob' must be between ( 0, 1 )" )
     if( cut < 2 )                         stop( "'cut' must be greater than 1" )
     if( b <= 2 )                          stop( "'b' must be greater than 2" )
- 	if( ( rewire < 0 ) | ( rewire > 1 ) ) stop( "'rewire' must be between ( 0, 1 )" )
+ 	  if( ( rewire < 0 ) | ( rewire > 1 ) ) stop( "'rewire' must be between ( 0, 1 )" )
     if( length( range.mu ) != 2 )         stop( "'range.mu' must be a vector with length 2" )
     if( length( range.dispersion ) != 2 ) stop( "'range.dispersion' must be a vector with length 2" )
     
     if( inherits( graph, "graph" ) ) graph = unclass( graph )
     
-    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) stop( "'graph' and 'K' have non-conforming size" )
+    if( is.matrix( graph ) & is.matrix( K ) ) if( nrow( graph ) != nrow( K ) ) 
+      stop( "'graph' and 'K' have non-conforming size" )
         
     if( !is.null( size ) ) 
-        if( ( sum( size ) < 0 ) | ( sum( size ) > ( p * ( p - 1 ) / 2 ) ) ) stop( "'size' must be between ( 0, p*(p-1)/2 )" )
+        if( ( sum( size ) < 0 ) | ( sum( size ) > ( p * ( p - 1 ) / 2 ) ) ) 
+          stop( "'size' must be between ( 0, p*(p-1)/2 )" )
     
     if( is.matrix( K ) )
     {
-        if( !isSymmetric( K ) ) stop( "'K' must be a positive definite matrix" )
+        if( !isSymmetric( K ) ) 
+          stop( "'K' must be a positive definite matrix" )
         
         graph <- "fixed"
         p     <- nrow( K )

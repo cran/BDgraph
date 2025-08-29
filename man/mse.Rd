@@ -5,7 +5,7 @@
 
 \description{ Computes (weighted) mean squared error. }
 
-\usage{ mse( pred, actual, weight = FALSE ) }
+\usage{ mse(pred, actual, weight = FALSE) }
 
 \arguments{
   \item{pred}{
@@ -36,16 +36,16 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
     
 # Running sampling algorithm based on GGMs 
-sample.ggm <- bdgraph( data = data.sim, method = "ggm", iter = 10000 )
+sample.ggm <- bdgraph(data = data.sim, method = "ggm", iter = 10000)
    
 # To compute the value of MSE
-mse( pred = sample.ggm, actual = data.sim )
+mse(pred = sample.ggm, actual = data.sim)
 
 # To compute the value of weighted MSE
-mse( pred = sample.ggm, actual = data.sim, weight = 0.5 )
+mse(pred = sample.ggm, actual = data.sim, weight = 0.5)
 
 }
 }

@@ -5,7 +5,7 @@
 
 \description{ Compute the sparsity of a graph/network or an object of calss \code{"graph"} from function \code{\link[BDgraph]{graph.sim}} or an object of calss "\code{sim}" from function \code{\link[BDgraph]{bdgraph.sim}}. }
 
-\usage{ sparsity( adj ) }
+\usage{ sparsity(adj) }
 
 \arguments{
   \item{adj}{     
@@ -27,9 +27,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 # Generating a 'random' graph 
-adj <- graph.sim( p = 10, graph = "random", prob = 0.4, vis = TRUE )
+adj <- graph.sim(p = 10, graph = "random", prob = 0.4, vis = TRUE)
 
-sparsity( adj )
+sparsity(adj)
 }
 
 \keyword{graphs}

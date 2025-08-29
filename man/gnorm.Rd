@@ -8,7 +8,7 @@ Calculates log of the normalizing constant of G-Wishart distribution based on th
 }
 
 \usage{
-gnorm( adj, b = 3, D = diag( ncol( adj ) ), iter = 100 )
+gnorm(adj, b = 3, D = diag(ncol(adj)), iter = 100)
 }
 
 \arguments{
@@ -49,11 +49,11 @@ Uhler, C., et al (2018) Exact formulas for the normalizing constants of Wishart 
 \examples{
 \dontrun{
 # adj: adjacency matrix of graph with 3 nodes and 2 links
-adj <- matrix( c( 0, 0, 1,
-                  0, 0, 1,
-                  0, 0, 0 ), 3, 3, byrow = TRUE )		                
+adj <- matrix(c(0, 0, 1,
+                0, 0, 1,
+                0, 0, 0), 3, 3, byrow = TRUE)		                
    
-gnorm( adj, b = 3, D = diag( 3 ) )
+gnorm(adj, b = 3, D = diag(3))
 }
 }
 

@@ -5,7 +5,7 @@
 
 \description{ Transfers non-Gaussian data to Gaussian.  }
 
-\usage{ bdgraph.npn( data, npn = "shrinkage", npn.thresh = NULL ) }
+\usage{ bdgraph.npn(data, npn = "shrinkage", npn.thresh = NULL) }
 
 \arguments{
   \item{data}{ (\eqn{n \times p}{n x p}) \code{matrix} or a \code{data.frame} corresponding to the data (\eqn{n} is the sample size and \eqn{p} is the number of variables). }
@@ -35,19 +35,19 @@ Zhao, T. and Liu, H. (2012). The \pkg{huge} Package for High-dimensional Undirec
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 6, p = 4, size = 4 )
+data.sim <- bdgraph.sim(n = 6, p = 4, size = 4)
 
-data     <- ( data.sim $ data - 3 ) ^ 4
+data <- (data.sim$data - 3) ^ 4
 data
    
 # Transfer the data by truncation 
-bdgraph.npn( data, npn = "truncation" )
+bdgraph.npn(data, npn = "truncation")
   
 # Transfer the data by shrunken 
-bdgraph.npn( data, npn = "shrunken" )
+bdgraph.npn(data, npn = "shrunken")
   
 # Transfer the data by skeptic 
-bdgraph.npn( data, npn = "skeptic" )
+bdgraph.npn(data, npn = "skeptic")
 }
 }
 

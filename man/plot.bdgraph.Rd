@@ -6,10 +6,10 @@
 \description{ Visualizes structure of the selected graphs which could be a graph with links for which their estimated posterior probabilities are greater than 0.5
 or graph with the highest posterior probability. }
 
-\usage{ \method{plot}{bdgraph}( x, cut = 0.5, number.g = NULL, main = NULL, 
+\usage{ \method{plot}{bdgraph}(x, cut = 0.5, number.g = NULL, main = NULL, 
            layout = igraph::layout_with_fr, vertex.size = 2, vertex.color = "orange", 
            vertex.frame.color = "orange", vertex.label = NULL, vertex.label.dist = 0.5, 
-           vertex.label.color = "blue", edge.color = "lightblue", ... ) }
+           vertex.label.color = "blue", edge.color = "lightblue", ...) }
 
 \arguments{
   \item{x}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. }
@@ -44,20 +44,20 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 
 \examples{
 \dontrun{
-set.seed( 100 )
+set.seed(100)
 
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 100, p = 15, graph = "random", prob = 0.2, vis = TRUE )
+data.sim <- bdgraph.sim(n = 100, p = 15, graph = "random", prob = 0.2, vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph(data = data.sim)
    
-plot( bdgraph.obj )
+plot(bdgraph.obj)
    
-bdgraph.obj <- bdgraph( data = data.sim, save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, save = TRUE)
    
-plot( bdgraph.obj, cut = 0.5 )
+plot(bdgraph.obj, cut = 0.5)
 
-plot( bdgraph.obj, number.g = 4 )
+plot(bdgraph.obj, number.g = 4)
 }
 }
 

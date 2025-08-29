@@ -8,7 +8,7 @@ Trace plot for graph size for the objects of \code{S3} class "\code{bdgraph}", f
 It is a tool for monitoring the convergence of the sampling algorithms, BDMCMC and RJMCMC.
 }
 
-\usage{ traceplot ( bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ... ) }
+\usage{ traceplot (bdgraph.obj, acf = FALSE, pacf = FALSE, main = NULL, ...) }
 
 \arguments{
   \item{bdgraph.obj}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. 
@@ -39,13 +39,13 @@ Mohammadi, A. and Dobra, A. (2017). The \code{R} Package \pkg{BDgraph} for Bayes
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, size = 7, vis = TRUE)
    
-bdgraph.obj <- bdgraph( data = data.sim, iter = 10000, burnin = 0, save = TRUE )
+bdgraph.obj <- bdgraph(data = data.sim, iter = 10000, burnin = 0, save = TRUE)
    
-traceplot( bdgraph.obj )
+traceplot(bdgraph.obj)
    
-traceplot( bdgraph.obj, acf = TRUE, pacf = TRUE )
+traceplot(bdgraph.obj, acf = TRUE, pacf = TRUE)
 }
 }
 

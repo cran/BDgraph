@@ -8,7 +8,7 @@
 Generates random matrices, distributed according to the Wishart distribution with parameters \eqn{b} and \eqn{D}, \eqn{W(b, D)}.
 }
 
-\usage{ rwish( n = 1, p = 2, b = 3, D = diag( p ) ) }
+\usage{ rwish(n = 1, p = 2, b = 3, D = diag(p)) }
 
 \arguments{
   \item{n}{ number of samples required. }
@@ -43,9 +43,9 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \seealso{ \code{\link[BDgraph]{gnorm}}, \code{\link[BDgraph]{rgwish}} }
 
 \examples{
-sample <- rwish( n = 3, p = 5, b = 3, D = diag( 5 ) )
+sample <- rwish(n = 3, p = 5, b = 3, D = diag(5))
 
-round( sample, 2 )  
+round(sample, 2)  
 }
 
 \keyword{Wishart}

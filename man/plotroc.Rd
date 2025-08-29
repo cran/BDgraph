@@ -8,11 +8,11 @@ Draws the receiver operating characteristic (ROC) curve according to the true gr
 }
 
 \usage{ 
-plotroc( pred, actual, cut = 200, smooth = FALSE, calibrate = TRUE, 
+plotroc(pred, actual, cut = 200, smooth = FALSE, calibrate = TRUE, 
          linetype = NULL, color = NULL, size = 1, main = "ROC Curve", 
          xlab = "False Postive Rate", ylab = "True Postive Rate",
-         legend = TRUE, legend.size = 17, legend.position = c( 0.7, 0.3 ),
-         labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal() ) 
+         legend = TRUE, legend.size = 17, legend.position = c(0.7, 0.3),
+         labels = NULL, auc = TRUE, theme = ggplot2::theme_minimal()) 
 }
 
 \arguments{
@@ -64,19 +64,19 @@ Mohammadi, R., Massam, H. and Letac, G. (2023). Accelerating Bayesian Structure 
 \examples{
 \dontrun{
 # To generate multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 30, p = 6, size = 7, vis = TRUE )
+data.sim <- bdgraph.sim(n = 30, p = 6, size = 7, vis = TRUE)
    
 # To Run sampling algorithm
-bdgraph.obj <- bdgraph( data = data.sim, iter = 10000 )
+bdgraph.obj <- bdgraph(data = data.sim, iter = 10000)
 
 # To compare the results
-plotroc( bdgraph.ob2j, data.sim )
+plotroc(bdgraph.ob2j, data.sim)
    
 # To compare the results based on CGGMs approach
-bdgraph.obj2 <- bdgraph( data = data.sim, method = "gcgm", iter = 10000 )
+bdgraph.obj2 <- bdgraph(data = data.sim, method = "gcgm", iter = 10000)
 
 # To Compare the resultss
-plotroc( list( bdgraph.obj, bdgraph.obj2 ), data.sim, legend = FALSE )
+plotroc(list(bdgraph.obj, bdgraph.obj2), data.sim, legend = FALSE)
 }
 }
 

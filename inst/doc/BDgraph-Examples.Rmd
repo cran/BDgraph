@@ -10,7 +10,7 @@ output:
     fig_width: 3.5
     fig_height: 3.5
     dpi: 72
-    dev.args: list( pointsize = 11 )
+    dev.args: list(pointsize = 11)
 vignette: >
   %\VignetteIndexEntry{BDgraph with Simple Examples}
   %\VignetteEncoding{UTF-8}
@@ -21,19 +21,19 @@ editor_options:
 ---
 
 ```{r opts, echo = FALSE, message = FALSE, warning = FALSE}
-knitr::opts_chunk $ set( collapse = TRUE, comment = " ", fig.width = 7, fig.height = 7, fig.align = "center" )
+knitr::opts_chunk$set(collapse = TRUE, comment = " ", fig.width = 7, fig.height = 7, fig.align = "center")
 ```
 
-The `R` package **BDgraph** provides statistical tools for Bayesian structure learning for undirected graphical models with *continuous*, *count*, *binary*, and *mixed data*. The package is implemented the recent improvements in the Bayesian graphical models' literature, including [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), [Mohammadi et al. (2023)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi et al. (2017)](https://doi.org/10.1111/rssc.12171), [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478), [Mohammadi et al. (2023)](https://arxiv.org/abs/2307.00127), and [Vinciotti et al. (2022)](https://doi.org/10.48550/arXiv.2203.10118). Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature. 
+The `R` package **BDgraph** provides statistical tools for Bayesian structure learning for undirected graphical models with *continuous*, *count*, *binary*, and *mixed data*. The package is implemented the recent improvements in the Bayesian graphical models' literature, including [Mohammadi and Wit (2015)](https://projecteuclid.org/euclid.ba/1422468425), [Mohammadi et al. (2023)](https://doi.org/10.1080/01621459.2021.1996377), [Mohammadi et al. (2017)](https://doi.org/10.1111/rssc.12171), [Dobra and Mohammadi (2018)](https://projecteuclid.org/euclid.aoas/1532743478), [Mohammadi et al. (2023)](https://arxiv.org/abs/2307.00127), and [Vinciotti et al. (2024)](http://jmlr.org/papers/v25/23-0056.html). Besides, the package contains several functions for simulation and visualization, as well as several multivariate datasets taken from the literature. 
 
 Install **BDgraph** using
 ```{r eval = FALSE}
-install.packages( "BDgraph" )
+install.packages("BDgraph")
 ```
 
 First, we load **BDgraph** package
 ```{r loadpkg, message = FALSE, warning = FALSE}
-library( BDgraph )
+library(BDgraph)
 ```
 
 Here are two simple examples to show how to use the functionality of the package.
@@ -43,51 +43,51 @@ Here are two simple examples to show how to use the functionality of the package
 Here is a simple example to see the performance of the package for the Gaussian graphical models. First, by using the function `bdgraph.sim()`, we simulate 200 observations (n = 200) from a multivariate Gaussian distribution with 15 variables (p = 15) and "scale-free" graph structure, as follows
 
 ```{r fig.align = 'center'}
-set.seed( 20 )
+set.seed(20)
 
-data.sim = bdgraph.sim( n = 200, p = 15, graph = "scale-free", vis = TRUE )
+data.sim = bdgraph.sim(n = 200, p = 15, graph = "scale-free", vis = TRUE)
 ```
 
 Since the generated data are Gaussian, we run the `bdgraph()` function by choosing `method = "ggm"`, as follows
 
 ```{r}
-bdgraph.obj = bdgraph( data = data.sim, method = "ggm", iter = 5000, verbose = FALSE )
+bdgraph.obj = bdgraph(data = data.sim, method = "ggm", iter = 5000, verbose = FALSE)
 ```
 
 To report confusion matrix with cutoff point 0.5:
 ```{r fig.align = 'center', fig.width = 3, fig.height = 3}
-conf.mat( actual = data.sim, pred = bdgraph.obj, cutoff = 0.5 )
+conf.mat(actual = data.sim, pred = bdgraph.obj, cutoff = 0.5)
 
-conf.mat.plot( actual = data.sim, pred = bdgraph.obj, cutoff = 0.5 )
+conf.mat.plot(actual = data.sim, pred = bdgraph.obj, cutoff = 0.5)
 ```
 
 To compare the result with the true graph
 
 ```{r fig.align = 'center'}
-compare( data.sim, bdgraph.obj, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare(data.sim, bdgraph.obj, main = c("Target", "BDgraph"), vis = TRUE)
 ```
 
 Now, as an alternative, we run the `bdgraph.mpl()` function which is based on the GGMs and marginal pseudo-likelihood, as follows
 
 ```{r fig.align = 'center', fig.width = 3, fig.height = 3}
-bdgraph.mpl.obj = bdgraph.mpl( data = data.sim, method = "ggm", iter = 5000, verbose = FALSE )
+bdgraph.mpl.obj = bdgraph.mpl(data = data.sim, method = "ggm", iter = 5000, verbose = FALSE)
 
-conf.mat( actual = data.sim, pred = bdgraph.mpl.obj )
-conf.mat.plot( actual = data.sim, pred = bdgraph.mpl.obj )
+conf.mat(actual = data.sim, pred = bdgraph.mpl.obj)
+conf.mat.plot(actual = data.sim, pred = bdgraph.mpl.obj)
 ```
 
 We could compare the results of both algorithms with the true graph as follows
 
 ```{r fig.align = 'center'}
-compare( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, 
-         main = c( "Target", "BDgraph", "BDgraph.mpl" ), vis = TRUE )
+compare(list(bdgraph.obj, bdgraph.mpl.obj), data.sim, 
+        main = c("Target", "BDgraph", "BDgraph.mpl"), vis = TRUE)
 ```
 
 To see the performance of the BDMCMC algorithm we could plot the ROC curve as follows
 
 ```{r fig.align = 'center'}
-plotroc( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, cut = 200,
-         labels = c( "BDgraph", "BDgraph.mpl" ), color = c( "blue", "red" ) )
+plotroc(list(bdgraph.obj, bdgraph.mpl.obj), data.sim, cut = 200,
+        labels = c("BDgraph", "BDgraph.mpl"), color = c("blue", "red"))
 ```
 
 # Example 2: Gaussian Copula Graphical Models
@@ -95,24 +95,24 @@ plotroc( list( bdgraph.obj, bdgraph.mpl.obj ), data.sim, cut = 200,
 Here is a simple example to see the performance of the package for the mixed data using Gaussian copula graphical models. First, by using the function `bdgraph.sim()`, we simulate 300 observations (n = 300) from mixed data (`type = "mixed"`) with 10 variables (p = 10) and "random" graph structure, as follows
 
 ```{r fig.align = 'center'}
-set.seed( 2 )
+set.seed(2)
 
-data.sim = bdgraph.sim( n = 300, p = 10, type = "mixed", graph = "random", vis = TRUE )
+data.sim = bdgraph.sim(n = 300, p = 10, type = "mixed", graph = "random", vis = TRUE)
 ```
 
 Since the generated data are mixed data, we are using  run the `bdgraph()` function by choosing `method = "gcgm"`, as follows:
 
 ```{r}
-bdgraph.obj = bdgraph( data = data.sim, method = "gcgm", iter = 5000, verbose = FALSE )
+bdgraph.obj = bdgraph(data = data.sim, method = "gcgm", iter = 5000, verbose = FALSE)
 ```
 To compare the result with the true graph, we could run
 
 ```{r fig.align = 'center'}
-compare( bdgraph.obj, data.sim, main = c( "Target", "BDgraph" ), vis = TRUE )
+compare(bdgraph.obj, data.sim, main = c("Target", "BDgraph"), vis = TRUE)
 ```
 
 ```{r fig.align = 'center'}
-plotroc( bdgraph.obj, data.sim, labels = "BDgraph", color = "blue" )
+plotroc(bdgraph.obj, data.sim, labels = "BDgraph", color = "blue")
 ```
 
 

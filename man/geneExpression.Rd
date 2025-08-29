@@ -9,7 +9,7 @@
 The dataset contains human gene expression of \eqn{100} transcripts (with unique Illumina TargetID) measured on \eqn{60} unrelated individuals. 
 }
 
-\usage{ data( geneExpression ) }
+\usage{ data(geneExpression) }
 
 \format{ The format is a matrix with 60 rows (number of individuals) and 100 column (number of transcripts). }
 
@@ -20,10 +20,10 @@ Mohammadi, A. and Wit, E. C. (2015). Bayesian Structure Learning in Sparse Gauss
 }
 
 \examples{
-data( geneExpression )
+data(geneExpression)
 
-dim( geneExpression )
-head( geneExpression )
+dim(geneExpression)
+head(geneExpression)
 }
 
 \keyword{ datasets }

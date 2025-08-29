@@ -9,7 +9,7 @@ or graph with the highest posterior probability.
 It provides adjacency matrix, size and posterior probability of the selected graph.
 }
 
-\usage{\method{print}{bdgraph}( x, ... )}
+\usage{\method{print}{bdgraph}(x, ...)}
 
 \arguments{
   \item{x}{ object of \code{S3} class "\code{bdgraph}", from function \code{\link[BDgraph]{bdgraph}}. }
@@ -27,11 +27,11 @@ Mohammadi, R. and Wit, E. C. (2019). \pkg{BDgraph}: An \code{R} Package for Baye
 \examples{
 \dontrun{
 # Generating multivariate normal data from a 'random' graph
-data.sim <- bdgraph.sim( n = 50, p = 6, vis = TRUE )
+data.sim <- bdgraph.sim(n = 50, p = 6, vis = TRUE)
   
-bdgraph.obj <- bdgraph( data = data.sim )
+bdgraph.obj <- bdgraph(data = data.sim)
    
-print( bdgraph.obj )
+print(bdgraph.obj)
 }
 }
 
